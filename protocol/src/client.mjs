@@ -770,6 +770,13 @@ export class OutrightClient {
     }
   }
   async reconcile(owner) {
+    // A late status response must never overwrite a newer signed receipt.
+    // Use the same cross-tab lock as submission through the entire read/write.
+    return this.journal.withLock(this.scope(owner), () =>
+      this.#reconcileLocked(owner),
+    );
+  }
+  async #reconcileLocked(owner) {
     const record = await this.pending(owner);
     if (!record) return null;
     if ((await this.connection.getGenesisHash()) !== this.profile.genesisHash)
