@@ -1,143 +1,68 @@
-# Percolator
+# Outright
 
-**Educational research project. Not production ready. Not audited. Do not use
-with real funds.**
+Perpetual futures on Solana, built on [Percolator](https://github.com/aeyakovenko/percolator).
 
-Normative protocol spec: [`spec.md`](spec.md), v16.9.1. The spec is frozen; this
-README is only the short operator/auditor guide.
+Outright is developing a native Solana trading application around Anatoly
+Yakovenko's Percolator risk engine. This repository is a direct fork of the
+engine and the source repository for that work.
 
-Percolator is a zero-copy perpetual-futures risk-engine library. It is built
-around account-local progress: a crank or user action touches one bounded
-portfolio view, not a global account table. Positive PnL is junior and source
-domain aware; it can be used only to the extent the engine can prove realizable
-backing or insurance for that domain.
+**In development. No Outright market is deployed, and no user deposits are
+accepted. The engine is unaudited and must not be used with real funds.**
 
-## High-Level Model
+## What is here
 
-- `MarketGroupV16ViewMut` is the production market view over a fixed asset slab.
-- `PortfolioV16ViewMut` is the production portfolio view over bounded account
-  storage.
-- Asset 0 is the base asset. Assets 1..N are isolated source domains inside the
-  same market group.
-- Wrapper code owns account loading, authorization, oracle authentication, token
-  movement, and CU policy. The engine owns risk state transitions and invariant
-  checks.
-- Failed engine calls are assumed to run under SVM transaction rollback: an
-  `Err` must not commit partial mutation.
+The repository currently contains the Percolator engine, its specification and
+test suite, and Outright's product and contribution documentation. The wallet
+application and native Solana integration have not been added to this repository.
 
-## What The Proofs Guarantee
+| Component | Status |
+| --- | --- |
+| Risk engine | Upstream Percolator source, unchanged at the [recorded revision](docs/UPSTREAM.md) |
+| Engine specification | [v16.9.1](spec.md) |
+| Runtime tests | Default and `fuzz` suites; run locally or through GitHub Actions |
+| Solana program integration | Pending import and verification in this repository |
+| Wallet terminal and market services | Planned |
+| Public deployment | None |
 
-The proof suite is a decomposition over production v16 code, not one monolithic
-"prove the whole engine" query. The important guarantees are:
+The intended user flow is wallet connection, collateral deposit, an executable
+quote, position management, and withdrawal. [PRODUCT.md](PRODUCT.md) defines
+the requirements and the evidence needed before a public release.
 
-- **No value creation / no cross-domain steal:** value-bearing transitions are
-  covered by token-flow checks, stock reconciliation, frame checks, or production
-  kernel contracts. Source-domain credit and insurance are bounded to the domain
-  that funds them.
-- **Account-local safety:** provenance, active bitmap shape, stale/B-stale
-  gates, margin gates, close state, and payout receipts are checked before
-  favorable actions can commit.
-- **Bounded progress:** crank, close, recovery, B-settlement, and payout progress
-  are decomposed into bounded production kernels and public-route tests. A
-  non-progressing path must either leave state unchanged or route to a terminal
-  progress/recovery path.
-- **Arithmetic discipline:** wide arithmetic that is too expensive for Kani is
-  isolated behind small helpers and checked by differential/property tests under
-  `--features fuzz`.
+## Development
 
-Trusted base and limits:
+Install [Rust through rustup](https://rustup.rs/), then run:
 
-- SVM rollback on failed instructions.
-- Wrapper correctness for auth, oracle normalization, account loading, token
-  custody, and CU limits.
-- Kani proves bounded symbolic harnesses and function contracts; large
-  route-level properties are proven by decomposition plus runtime/fuzz tests.
-
-## Current Verification Inventory
-
-Source-checkable counts in this checkout:
-
-| Class | Count |
-| --- | ---: |
-| Plain Kani proofs in `tests/proofs_v16.rs` | 308 |
-| Plain Kani proofs in `tests/proofs_v16_arithmetic.rs` | 12 |
-| Plain Kani proofs in `src/v16_proofs.rs` | 42 |
-| Function-contract proofs in `src/v16_proofs.rs` | 61 |
-| Production `kernel_*` helpers in `src/v16.rs` | 34 |
-| Public `*_not_atomic` engine APIs in `src/v16.rs` | 59 |
-
-Spot-check the inventory directly:
-
-```bash
-rg '^#\[kani::proof\]' tests/proofs_v16.rs tests/proofs_v16_arithmetic.rs src/v16_proofs.rs | wc -l
-rg '^#\[kani::proof_for_contract' src/v16_proofs.rs | wc -l
-rg 'pub\(crate\) fn kernel_' src/v16.rs | wc -l
-rg 'pub fn [A-Za-z0-9_]+_not_atomic\(' src/v16.rs | wc -l
+```sh
+git clone https://github.com/TheTradoor/outright.git
+cd outright
+cargo test --locked
+cargo test --locked --features fuzz
 ```
 
-## Run Tests
+The Rust version is pinned in [rust-toolchain.toml](rust-toolchain.toml).
+These commands test the engine. They do not deploy a program or start a
+trading application.
 
-```bash
-cargo test
-cargo test --features fuzz
-```
+See [the development guide](docs/DEVELOPMENT.md) for test scope and
+[the original engine guide](ENGINE.md) for Percolator's model and proof workflow.
 
-`cargo test --features fuzz` includes the reference-model and property tests
-that discharge the wide-arithmetic helper assumptions used by the Kani proofs.
+## Documentation
 
-## Run Kani
+- [Product requirements and delivery milestones](PRODUCT.md)
+- [Upstream sources and compatibility policy](docs/UPSTREAM.md)
+- [Development and verification](docs/DEVELOPMENT.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security reporting](SECURITY.md)
 
-Install once:
+## Attribution and license
 
-```bash
-cargo install --locked kani-verifier
-cargo kani setup
-```
+Percolator was created by Anatoly Yakovenko and developed with its upstream
+contributors. Outright is an independent project; it is not an official
+Percolator release or an endorsement by its author.
 
-Plain test proofs:
+The engine source, specification, license and existing commit history are
+retained. The original upstream README is preserved in [ENGINE.md](ENGINE.md).
+Outright's documentation replaces the repository's front page without changing
+the engine's package name or public API.
 
-```bash
-cargo kani --tests --features fuzz
-```
-
-Closure-layer plain proofs:
-
-```bash
-cargo kani --tests --features fuzz,closure
-```
-
-Function contracts and contract-gated kernel proofs:
-
-```bash
-cargo kani --tests --features fuzz,contracts -Z function-contracts
-```
-
-Single harness:
-
-```bash
-cargo kani --tests --features fuzz --harness HARNESS_NAME
-```
-
-The `contracts` run also compiles plain proofs under a different feature set, so
-plain-proof `kani::cover!` reachability should be judged under
-`--features fuzz`. Contract obligations should be judged under
-`--features fuzz,contracts -Z function-contracts`.
-
-For long audits, the shell runners in `scripts/` run harnesses in isolation and
-kill stray Kani/CBMC processes between proofs:
-
-```bash
-bash scripts/isolated_full_audit.sh
-bash scripts/contracts_runner.sh
-FEATURES=fuzz,closure KANI_Z="" LOG_DIR=kani_closure CARGO_TARGET_DIR=target/closure bash scripts/contracts_runner.sh
-```
-
-## Repository Scope
-
-This repository is the engine library. It does not define a deployed Solana
-program, account registry, oracle adapter, or custody layer. Those are wrapper
-responsibilities.
-
-## License
-
-Apache-2.0.
+Licensed under [Apache-2.0](LICENSE).

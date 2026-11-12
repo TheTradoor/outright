@@ -1,103 +1,88 @@
-# Independent product on Percolator
+# Outright product requirements
 
-## Project direction
+Outright will provide perpetual futures trading on Solana using the Percolator
+risk engine. The application must follow the engine's accounting and risk rules
+and expose the resulting state clearly to traders.
 
-The source repository for this project is a direct fork of
-[`aeyakovenko/percolator`](https://github.com/aeyakovenko/percolator).
-The goal is a usable Solana perpetuals product built on that engine.
-The product name is not final.
+The initial market candidate is SOL with USD pricing and USDC collateral.
+Margin requirements, leverage, position limits and open-interest limits will
+be set after liquidity and stress analysis.
 
-Pppercolator is a reference for the kind of trading product to deliver. Its
-repository, terminal, simulator, launchpad, Hyperliquid client and token are
-not the source base or runtime dependencies of this project. Earlier
-contributions to that project remain separate work.
+## Trading flow
 
-The acceptance target is a functioning trading product: connect a Solana
-wallet, create a portfolio, deposit collateral, inspect an executable quote,
-open/reduce/close a position, withdraw available collateral, and inspect
-transactions and positions derived from confirmed chain state. Local tests
-and devnet are delivery stages, not the final product.
+A trader must be able to:
 
-## Upstream contract
+1. Connect a Solana wallet and verify the network and market.
+2. Create a portfolio and deposit supported collateral.
+3. Review an executable quote, including size, price, fees and expiry.
+4. Open, reduce and close a position against funded liquidity.
+5. Inspect positions, collateral and transaction history from confirmed chain
+   state.
+6. Withdraw collateral that the engine permits to be withdrawn.
 
-The initial engine revision is
-`b22bef7d6122fd7d82680ce9859e8b77fd8ef656`. The authoritative engine contract
-is [`spec.md`](spec.md), v16.9.1, together with the pinned source and tests.
-The upstream engine source, specification, license and README are unchanged.
+Every transaction must show whether it is awaiting a signature, submitted,
+confirmed, failed or unresolved. An RPC timeout must not be reported as a fill
+or a definitive failure without reconciliation.
 
-The engine is a risk library. Its own README assigns account loading,
-authorization, authenticated oracle input, token movement and compute policy
-to a wrapper. A native Solana integration also needs a program, funded
-counterparties, operational services and a wallet application.
+## System boundaries
 
-The already-tested integration candidate uses Toly's
-[`aeyakovenko/percolator-prog`](https://github.com/aeyakovenko/percolator-prog)
-at `b42fe017c2bc953778f90d0cb85cd1d426b6e783`, which pins the engine revision
-above. The wrapper is a separate official source; its instructions and account
-layouts must remain matched to the adapter. Changes to these pins require
-review and repeated conformance and transaction tests.
+| Layer | Responsibility |
+| --- | --- |
+| Percolator engine | Risk transitions, margin, funding, liquidation and loss accounting |
+| Solana program | Account validation, authorization, oracle authentication, token custody and compute limits |
+| Execution | Quotes, maker authorization and access to funded counterparties |
+| Market services | Oracle updates, bounded crank progress, indexing and transaction reconciliation |
+| Wallet application | State presentation, transaction review, signing and status reporting |
 
-Compatibility means following the documented engine rules. It does not imply
-personal approval or endorsement by Anatoly Yakovenko. The upstream README
-still describes the engine as educational, unaudited and not production-ready.
+The application must use exact integer units and the engine's rounding rules.
+Positive PnL must not be presented as withdrawable collateral unless the engine
+can establish the required backing. A matcher provides execution logic; it does
+not supply liquidity capital.
 
-## Integration requirements
+Oracle and account freshness checks must fail safely. Synthetic prices must
+not replace authenticated observations in a live market. Market progress and
+exits must follow the specification's bounded, permissionless crank and recovery
+rules.
 
-- The engine decides risk transitions, margin, funding, liquidation and loss
-  accounting. Application code must not invent different balances or silently
-  relax those rules.
-- Amounts and prices use exact integer units and the prescribed rounding.
-  Nominal positive PnL must not be displayed as freely withdrawable collateral
-  when the engine cannot prove its backing.
-- Wrapper instructions authenticate accounts, portfolio identities, epochs,
-  signers, token mint/vault bindings and oracle observations.
-- Quotes must have explicit price, fee and validity bounds and a funded maker.
-  A matcher is an execution component; it does not create liquidity capital.
-- User actions must distinguish pending, confirmed, failed and unknown
-  transaction outcomes. An RPC or indexer failure cannot manufacture a fill.
-- Public-market progress and exits must respect the spec's bounded,
-  permissionless crank and recovery requirements. Synthetic fallback prices
-  must not substitute for authenticated oracle handling.
-- Administrative authorities, upgrades, market limits and operational owners
-  must be documented before accepting public funds.
+## Delivery milestones
 
-The initial implementation candidate is one SOL perpetual market with USD
-pricing and USDC collateral. Leverage, margin, open-interest and position
-limits remain subject to liquidity and stress analysis.
+Milestones are acceptance criteria, not release dates. All remain open for this
+repository.
 
-## Work to carry forward
+### Native integration
 
-The independently written native adapter, Rust conformance exporter,
-portfolio reader and SBF lifecycle tests from earlier work are candidates for
-migration. They were reviewed for references to Pppercolator's terminal,
-simulator and Hyperliquid code; those components are not required by the
-adapter. Source pins match this fork's engine baseline.
+Import the independent instruction builders, account readers, Rust conformance
+exporter and local SBF transaction fixture. Verify them against the engine in
+this fork and the pinned upstream Solana program. Record fresh results here.
 
-Those modules have not yet been imported into this repository. Their previous
-passing tests are evidence for that earlier revision, not a claim that this
-new repository already contains or has revalidated the integration. Migration
-must preserve attribution and must pass fresh CI here before the product
-depends on it.
+### Transaction and risk coverage
 
-## Completion criteria
+Cover deposits, open/reduce/close operations and withdrawals, including nonzero
+fees and funding, price moves, liquidation, matcher authorization, stale oracle
+and account rejection, insolvency and recovery. Failed instructions must leave
+custody and account state consistent under transaction rollback.
 
-1. Import only the independent native integration and verify it against this
-   engine fork and the pinned official wrapper. Keep engine changes separate
-   from application changes.
-2. Extend transaction coverage beyond a fixed-price, zero-fee round trip:
-   nonzero fees and funding, price moves, liquidation, matcher authorization,
-   stale oracle/state rejection, insolvency/recovery and withdrawals.
-3. Deliver the wallet terminal, market/portfolio reads, quote and transaction
-   planner, oracle and keeper services, indexer and transaction reconciliation.
-4. Demonstrate the complete user flow with public devnet transaction records,
-   including restarts, unavailable services and position exits. Verify the
-   target cluster's supported program build separately from the local VM build.
-5. Establish funded liquidity and reviewed risk limits; complete independent
-   security review, deployment/source verification, operational monitoring and
-   authority/incident procedures before a capped mainnet release.
+### Complete application
 
-## Current status
+Deliver the wallet terminal, quote and transaction planner, portfolio reads,
+oracle and keeper services, indexer and reconciliation. The application must
+recover from disconnected wallets, restarted services and unavailable RPCs.
 
-As of 13 November 2026 (Asia/Jakarta), this repository establishes the corrected
-direct engine fork and product direction. It does not yet contain the wallet
-product or a deployed native market and accepts no user deposits.
+### Public devnet validation
+
+Publish reproducible deployment instructions, source revisions, program and
+market addresses, and transaction records for the complete trading flow.
+Verify compatibility with the target cluster separately from the local VM.
+
+### Capped mainnet release
+
+Establish funded liquidity and reviewed market limits. Complete independent
+security review and deployment verification. Document upgrade and administrative
+authorities, monitoring, incident response and position-exit procedures before
+accepting public funds.
+
+## Current scope
+
+This repository contains the engine and project documentation. There is no
+Outright program deployment, wallet application or public market. Passing
+engine tests alone does not satisfy the integration or release milestones.
