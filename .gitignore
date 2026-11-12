@@ -46,3 +46,8 @@ kani_*
 scripts/__pycache__/
 **/__pycache__/
 *.pyc
+
+# Native client and integration build outputs
+/protocol/node_modules/
+/protocol/conformance/target/
+/protocol/svm/target/

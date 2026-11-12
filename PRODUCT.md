@@ -46,14 +46,20 @@ rules.
 
 ## Delivery milestones
 
-Milestones are acceptance criteria, not release dates. All remain open for this
-repository.
+Milestones define the implementation and verification required for a release.
+Native client and test-fixture code is present. The broader risk, application,
+and public-release milestones remain open.
 
 ### Native integration
 
-Import the independent instruction builders, account readers, Rust conformance
-exporter and local SBF transaction fixture. Verify them against the engine in
-this fork and the pinned upstream Solana program. Record fresh results here.
+The instruction builders, portfolio reader, Rust conformance exporter, and
+local SBF fixture are implemented in [protocol/](protocol/README.md). The host
+check compares the client with this fork’s engine and the pinned wrapper.
+The SBF tests execute the client instructions and check resulting positions,
+token movements, authorization failures, and transaction rollback.
+
+Source checks, commands, and test scope are documented with the implementation.
+This milestone does not include a deployed market or wallet interface.
 
 ### Transaction and risk coverage
 
@@ -83,6 +89,7 @@ accepting public funds.
 
 ## Current scope
 
-This repository contains the engine and project documentation. There is no
-Outright program deployment, wallet application or public market. Passing
-engine tests alone does not satisfy the integration or release milestones.
+This repository contains the engine, native client, integration fixtures, and
+project documentation. There is no Outright program deployment, wallet
+application, or public market. Local integration tests do not satisfy the
+public-release requirements.
