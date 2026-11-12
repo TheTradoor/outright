@@ -1,6 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import contract from "../upstream-contract.json" with { type: "json" };
 import { ENGINE_COMMIT, WRAPPER_COMMIT } from "./instructions.mjs";
+import { fields, layouts as l } from "./layout.mjs";
 
 if (
   contract.engineCommit !== ENGINE_COMMIT ||
@@ -46,6 +47,27 @@ export function readPortfolio(account, { programId, address, market, owner }) {
     matcherFeeCap = control >> 50n;
   if (matcherFeeCap > 10000n) throw new Error("Invalid matcher fee cap");
   const pnl = u128(b, c.portfolioPnlOffset);
+  const state = fields(b, c.headerLength, l.portfolio);
+  const positions = [];
+  let bitmap = 0n;
+  for (let i = 0; i < l.legCount; i++) {
+    const offset = c.headerLength + l.legsOffset + i * l.legLength;
+    const leg = fields(b, offset, l.leg);
+    if (leg.active) {
+      if (leg.side > 1 || leg.market_id === 0n || leg.basis_pos_q === 0n)
+        throw new Error("Invalid active position");
+      bitmap |= 1n << BigInt(i);
+      positions.push(Object.freeze({ slot: i, ...leg }));
+    } else {
+      // Upstream EMPTY retains ADL_ONE in a_basis; the remaining bytes are zero.
+      const empty = Buffer.from(b.subarray(offset, offset + l.legLength));
+      empty.fill(0, l.leg.a_basis.offset, l.leg.a_basis.offset + 16);
+      if (leg.a_basis !== BigInt(l.adlOne) || empty.some((v) => v !== 0))
+        throw new Error("Hidden inactive position");
+    }
+  }
+  if (bitmap !== state.active_bitmap)
+    throw new Error("Position bitmap mismatch");
   return Object.freeze({
     address: actualAddress,
     market: actualMarket,
@@ -57,5 +79,10 @@ export function readPortfolio(account, { programId, address, market, owner }) {
     pnl: pnl >= 1n << 127n ? pnl - (1n << 128n) : pnl,
     matcherEnabled: (control & 1n) === 1n,
     matcherFeeCapBps: Number(matcherFeeCap),
+    matcher: fields(b, l.matcherOffset, l.matcher),
+    matcherExpirySlot: b.readBigUInt64LE(l.matcherExpiryOffset),
+    state,
+    positions: Object.freeze(positions),
+    healthCertificate: fields(b, c.headerLength + l.healthOffset, l.health),
   });
 }

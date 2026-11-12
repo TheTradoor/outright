@@ -59,6 +59,10 @@ fn build(env: &V16Svm, name: &str, args: Value, accounts: Value) -> Instruction 
         json!({"operation":"buildInstruction","program":env.program_id.to_string(),
         "name":name,"args":args,"accounts":accounts}),
     );
+    from_js_instruction(&out)
+}
+
+fn from_js_instruction(out: &Value) -> Instruction {
     Instruction {
         program_id: Pubkey::from_str(out["programId"].as_str().unwrap()).unwrap(),
         accounts: out["keys"]
@@ -78,6 +82,81 @@ fn build(env: &V16Svm, name: &str, args: Value, accounts: Value) -> Instruction 
             .map(|n| u8::try_from(n.as_u64().unwrap()).unwrap())
             .collect(),
     }
+}
+
+fn account_json(env: &V16Svm, address: Pubkey) -> Value {
+    match env.svm.get_account(&address) {
+        Some(a) => json!({"owner":a.owner.to_string(),"executable":a.executable,"data":a.data}),
+        None => Value::Null,
+    }
+}
+
+#[test]
+fn wallet_planner_creates_seeded_portfolio_and_withdrawal_token_account() {
+    let mut env = V16Svm::new_with_asset_count([76; 32], MarketConfig::default(), 1);
+    let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+    let mut input = json!({"operation":"planAction","owner":owner.pubkey().to_string(),
+        "profile":{"program":{"address":env.program_id.to_string()},"market":env.market.to_string(),
+        "vault":env.vault.to_string(),"collateral":{"mint":env.mint.to_string(),"decimals":6,"symbol":"TEST"}},
+        "marketAccount":account_json(&env,env.market),"action":{"type":"initialize"},
+        "rentLamports":Rent::default().minimum_balance(percolator_prog::constants::PORTFOLIO_ACCOUNT_LEN)});
+    let init = js(input.clone());
+    let portfolio = Pubkey::from_str(init["portfolio"].as_str().unwrap()).unwrap();
+    let user_ata = Pubkey::from_str(init["userToken"].as_str().unwrap()).unwrap();
+    assert!(env.svm.get_account(&portfolio).is_none());
+    assert!(env.svm.get_account(&user_ata).is_none());
+    let instructions: Vec<_> = init["instructions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(from_js_instruction)
+        .collect();
+    send_many(&mut env, &instructions, &[&owner])
+        .expect("system allocation and portfolio initialization");
+    assert_eq!(
+        read(&env, portfolio, owner.pubkey())["owner"],
+        owner.pubkey().to_string()
+    );
+
+    let source = env.actors[0].source_token;
+    let before = env.token_amount(source);
+    let vault_before = env.token_amount(env.vault);
+    input["marketAccount"] = account_json(&env, env.market);
+    input["portfolioAccount"] = account_json(&env, portfolio);
+    input["action"] = json!({"type":"deposit","amount":"2.5"});
+    input["userToken"] = json!(source.to_string());
+    input["tokenAccountExists"] = json!(true);
+    input["tokenBalance"] = json!(before.to_string());
+    let deposit = js(input.clone());
+    let instructions: Vec<_> = deposit["instructions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(from_js_instruction)
+        .collect();
+    send_many(&mut env, &instructions, &[&owner]).expect("planned deposit");
+    assert_eq!(read(&env, portfolio, owner.pubkey())["capital"], "2500000");
+
+    input["marketAccount"] = account_json(&env, env.market);
+    input["portfolioAccount"] = account_json(&env, portfolio);
+    input["action"] = json!({"type":"withdraw","amount":"2.5"});
+    input.as_object_mut().unwrap().remove("userToken");
+    input["tokenAccountExists"] = json!(false);
+    input["rentLamports"] = json!(Rent::default().minimum_balance(165));
+    let withdraw = js(input);
+    let instructions: Vec<_> = withdraw["instructions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(from_js_instruction)
+        .collect();
+    assert_eq!(instructions.len(), 2);
+    send_many(&mut env, &instructions, &[&owner])
+        .expect("atomic ATA creation and planned withdrawal");
+    assert_eq!(env.token_amount(user_ata), 2_500_000);
+    assert_eq!(env.token_amount(source), before - 2_500_000);
+    assert_eq!(env.token_amount(env.vault), vault_before);
+    assert_eq!(read(&env, portfolio, owner.pubkey())["capital"], "0");
 }
 
 fn send_many(
@@ -240,6 +319,17 @@ fn javascript_adapter_executes_init_deposit_open_reduce_close_and_withdraw() {
         let maker_state = env.primary_portfolio(1);
         assert_eq!(taker_state.legs[0].basis_pos_q.get(), expected_position);
         assert_eq!(maker_state.legs[0].basis_pos_q.get(), -expected_position);
+        let display = js(json!({"operation":"positions",
+            "marketAccount":account_json(&env,env.market),
+            "marketExpected":{"programId":env.program_id.to_string(),"address":env.market.to_string()},
+            "portfolioAccount":account_json(&env,portfolio),
+            "portfolioExpected":{"programId":env.program_id.to_string(),"address":portfolio.to_string(),
+                "market":env.market.to_string(),"owner":owner.pubkey().to_string()}}));
+        if expected_position == 0 {
+            assert!(display.as_array().unwrap().is_empty());
+        } else {
+            assert_eq!(display[0]["effectiveSizeQ"], expected_position.to_string());
+        }
     }
 
     let p = read(&env, portfolio, owner.pubkey());
@@ -261,6 +351,46 @@ fn javascript_adapter_executes_init_deposit_open_reduce_close_and_withdraw() {
     assert_eq!(env.token_amount(env.vault), vault_before);
     assert_eq!(env.token_supply_observed(), supply_before);
     println!("Native SBF lifecycle CU: init={init_cu}, deposit={deposit_cu}, open={}, reduce={}, close={}, withdraw={withdraw_cu}", trade_cu[0], trade_cu[1], trade_cu[2]);
+}
+
+#[test]
+fn javascript_cpi_enforces_price_limit_and_revoked_maker_consent() {
+    let mut config = MarketConfig::default();
+    config.initial_price = 150_000_000;
+    let mut env = V16Svm::new_with_asset_count([77; 32], config, 1);
+    env.set_matcher_config_with_trade_fee_cap(1, 1, 0).unwrap();
+    env.set_matcher_spreads(1, 0, 0).unwrap();
+    let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+    let taker = env.actors[0].portfolio;
+    let maker = env.actors[1].portfolio;
+    let a = read(&env, taker, owner.pubkey());
+    let b = read(&env, maker, env.actors[1].signer.pubkey());
+    let accounts = json!({"takerOwner":owner.pubkey().to_string(),"market":env.market.to_string(),
+        "takerPortfolio":taker.to_string(),"makerPortfolio":maker.to_string(),
+        "makerOwner":env.actors[1].signer.pubkey().to_string(),"matcherProgram":env.matcher_program.to_string(),
+        "matcherContext":env.actors[1].matcher_context.to_string()});
+    let mut args = json!({"takerPortfolioId":a["portfolioId"],"takerPositionEpoch":a["positionEpoch"],
+        "makerPortfolioId":b["portfolioId"],"makerPositionEpoch":b["positionEpoch"],"makerMatcherSequence":b["expectedSequence"],
+        "assetIndex":0,"marketId":"1","sizeQ":"100000","feeBps":"0","backingFeeCapBps":0,"limitPrice":"149000000"});
+    let before = snapshot(&env, &[taker, maker, env.actors[1].matcher_context]);
+    let tight = build(&env, "tradeCpi", args.clone(), accounts.clone());
+    assert!(send(&mut env, tight, &[&owner]).is_err());
+    assert_unchanged(&env, &before);
+    args["limitPrice"] = json!("150000000");
+    let valid = build(&env, "tradeCpi", args.clone(), accounts.clone());
+    send(&mut env, valid, &[&owner]).expect("bounded CPI fill with one wallet signer");
+    assert_eq!(env.primary_portfolio(0).legs[0].basis_pos_q.get(), 100000);
+    assert_eq!(env.primary_portfolio(1).legs[0].basis_pos_q.get(), -100000);
+    let a = read(&env, taker, owner.pubkey());
+    let b = read(&env, maker, env.actors[1].signer.pubkey());
+    args["takerPositionEpoch"] = a["positionEpoch"].clone();
+    args["makerPositionEpoch"] = b["positionEpoch"].clone();
+    args["makerMatcherSequence"] = b["expectedSequence"].clone();
+    let retained = build(&env, "tradeCpi", args, accounts);
+    env.set_matcher_config(1, 0).unwrap();
+    let before = snapshot(&env, &[taker, maker, env.actors[1].matcher_context]);
+    assert!(send(&mut env, retained, &[&owner]).is_err());
+    assert_unchanged(&env, &before);
 }
 
 #[test]

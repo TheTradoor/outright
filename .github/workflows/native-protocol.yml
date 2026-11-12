@@ -36,3 +36,5 @@ jobs:
         run: npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
       - name: Check source, Rust conformance, and client regressions
         run: bash protocol/check.sh
+      - name: Build the wallet terminal
+        run: npm run build --prefix protocol

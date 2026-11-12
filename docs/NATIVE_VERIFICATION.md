@@ -58,8 +58,8 @@ SPL transfer and portfolio sequence, roll back.
 
 These hashes identify the local test binaries. They are not public deployment
 addresses or a claim of reproducibility across build environments. The matcher
-fixture is loaded by the upstream harness but matcher execution is not tested
-by this lifecycle.
+fixture was loaded but not executed by the initial three-test lifecycle. The
+wallet-client extension below adds a CPI execution test.
 
 The measured compute units were 27,874 for initialization, 38,098 for deposit,
 126,785 for open, 138,387 for partial reduction, 123,193 for close, and 38,986
@@ -69,7 +69,24 @@ not worst-case production limits.
 ## Remaining verification
 
 Nonzero fees and funding, changing or stale oracle inputs, liquidation,
-insolvency, matcher execution, and recovery require additional transaction
-coverage. Current-cluster compatibility, funded liquidity, wallet flows,
-service recovery, deployment verification, and independent security review
+insolvency, production matcher behavior, and recovery require additional
+transaction coverage. Current-cluster compatibility, funded liquidity, wallet
+extension testing, service recovery, and independent security review
 remain release requirements. Full Kani verification was not run for this change.
+
+## Wallet-client extension
+
+Built on merged commit `5a1a24461317b8f7aa14f944d918456b03f0a0d3`, with the same
+engine and wrapper pins. The extended suite passes the Rust contract comparison,
+80 JavaScript regressions, five local SBF tests and the browser bundle build.
+
+The new SBF cases execute seeded portfolio allocation with initialization,
+then deposit and an atomic destination ATA creation plus withdrawal. Another
+case checks a CPI fill with only the taker signing, rejection of an unacceptable
+execution price and rejection after maker consent is revoked. Market and
+portfolio readers are checked against the resulting program state.
+
+RPC and wallet-failure regressions use deterministic test doubles. They check
+persistence before send, ambiguous responses after broadcast, reload recovery,
+message mutation, invalid signatures and refusal to repeat an unresolved action.
+They do not establish public-cluster or wallet-extension compatibility.

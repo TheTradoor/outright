@@ -47,8 +47,8 @@ rules.
 ## Delivery milestones
 
 Milestones define the implementation and verification required for a release.
-Native client and test-fixture code is present. The broader risk, application,
-and public-release milestones remain open.
+The native client, wallet terminal and local execution tests are present.
+Market operations, broader risk coverage and public-release milestones remain open.
 
 ### Native integration
 
@@ -59,7 +59,9 @@ The SBF tests execute the client instructions and check resulting positions,
 token movements, authorization failures, and transaction rollback.
 
 Source checks, commands, and test scope are documented with the implementation.
-This milestone does not include a deployed market or wallet interface.
+The [wallet terminal](docs/WALLET_TERMINAL.md) adds deployment checks, coherent
+market and portfolio reads, transaction review, simulation, wallet signing and
+signature reconciliation. No public market is deployed.
 
 ### Transaction and risk coverage
 

@@ -12,9 +12,8 @@ accepted. The engine is unaudited and must not be used with real funds.**
 ## What is here
 
 The repository currently contains the Percolator engine, its specification and
-test suite, native Solana instruction builders, a portfolio reader, and
-integration fixtures. The wallet application and market services are not yet
-implemented.
+test suite, a native Solana client, a wallet terminal, and integration fixtures.
+Oracle and keeper operations, indexing and a public market remain unfinished.
 
 | Component | Status |
 | --- | --- |
@@ -22,7 +21,8 @@ implemented.
 | Engine specification | [v16.9.1](spec.md) |
 | Runtime tests | Default and `fuzz` suites; run locally or through GitHub Actions |
 | Solana program integration | [Native client, Rust conformance exporter, and local SBF tests](protocol/README.md) |
-| Wallet terminal and market services | Planned |
+| Wallet terminal | [Localnet/devnet client with simulation and transaction reconciliation](docs/WALLET_TERMINAL.md) |
+| Market services | Oracle, keeper and indexing work remains open |
 | Public deployment | None |
 
 The intended user flow is wallet connection, collateral deposit, an executable
@@ -63,6 +63,7 @@ See [the development guide](docs/DEVELOPMENT.md) for test scope and
 - [Upstream sources and compatibility policy](docs/UPSTREAM.md)
 - [Development and verification](docs/DEVELOPMENT.md)
 - [Native integration verification results](docs/NATIVE_VERIFICATION.md)
+- [Wallet terminal and deployment profiles](docs/WALLET_TERMINAL.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security reporting](SECURITY.md)
 

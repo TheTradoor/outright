@@ -9,6 +9,7 @@ use percolator_prog::{
     state,
 };
 use serde_json::{json, Value};
+mod layouts;
 
 fn fixture(name: &str, args: Value, ix: Instruction) -> Value {
     let data = ix.encode();
@@ -109,6 +110,8 @@ fn main() {
         "engineCommit":"b22bef7d6122fd7d82680ce9859e8b77fd8ef656",
         "constants": {"magic":format!("{:016x}",c::MAGIC),"version":c::VERSION,"headerLength":c::HEADER_LEN,"marketKind":c::KIND_MARKET,"portfolioKind":c::KIND_PORTFOLIO,"marketGroupOffset":c::MARKET_GROUP_OFF,"marketHeaderLength":c::MARKET_GROUP_LEN,"marketAssetSlotLength":c::MARKET_ASSET_SLOT_LEN,"portfolioLength":c::PORTFOLIO_ACCOUNT_LEN,"portfolioIdOffset":c::PORTFOLIO_ID_OFF,"portfolioSequenceOffset":c::PORTFOLIO_MATCHER_SEQUENCE_OFF,"portfolioControlOffset":c::PORTFOLIO_MATCHER_CONTROL_OFF,"positionEpochMax":state::PortfolioMatcherConfigV16::position_epoch_max().to_string(),"portfolioOwnerOffset":portfolio_owner,"portfolioCapitalOffset":c::HEADER_LEN+offset_of!(PortfolioAccountV16Account,capital),"portfolioPnlOffset":c::HEADER_LEN+offset_of!(PortfolioAccountV16Account,pnl),"portfolioMarketOffset":provenance+offset_of!(ProvenanceHeaderV16Account,market_group_id),"portfolioAddressOffset":provenance+offset_of!(ProvenanceHeaderV16Account,portfolio_account_id),"portfolioProvenanceOwnerOffset":provenance+offset_of!(ProvenanceHeaderV16Account,owner),"marketCapacityOffset":c::MARKET_GROUP_OFF+offset_of!(MarketGroupV16HeaderAccount,asset_slot_capacity),"marketModeOffset":c::MARKET_GROUP_OFF+offset_of!(MarketGroupV16HeaderAccount,mode),"marketSlotOffset":c::MARKET_GROUP_OFF+offset_of!(MarketGroupV16HeaderAccount,current_slot)},
         "portfolioFixtureHex":portfolio.iter().map(|b|format!("{b:02x}")).collect::<String>(),
+        "layouts": layouts::export(),
+        "marketFixtureHex": layouts::market_fixture().iter().map(|b|format!("{b:02x}")).collect::<String>(),
         "fixtures":fixtures
     })).unwrap());
 }

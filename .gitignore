@@ -51,3 +51,5 @@ scripts/__pycache__/
 /protocol/node_modules/
 /protocol/conformance/target/
 /protocol/svm/target/
+/protocol/dist/
+/protocol/deployment.local.json
