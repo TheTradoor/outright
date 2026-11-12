@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0a0b0c" />
+    <title>Outright | Terminal</title>
+    <meta
+      name="description"
+      content="The Outright wallet terminal for verified Percolator deployments."
+    />
+    <link rel="icon" href="./assets/mark.svg" />
+    <link rel="stylesheet" href="./terminal.css" />
+    <script type="module" src="./terminal.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to terminal</a>
+    <header>
+      <a class="brand" href="/" aria-label="Outright home"
+        ><img src="./assets/mark.svg" width="30" height="30" alt="" /><span
+          >Outright</span
+        ></a
+      >
+      <nav aria-label="Main">
+        <span aria-current="page">Terminal</span
+        ><a href="https://outright.bollish-eth.chatgpt.site/docs/overview/"
+          >Docs</a
+        ><a
+          href="https://github.com/TheTradoor/outright"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Source
+          <svg
+            class="inline-icon"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            aria-hidden="true"
+          >
+            <path d="M4 16 16 4M5 4h11v11" /></svg
+        ></a>
+      </nav>
+      <div class="top-actions">
+        <span class="network" id="network">Not connected</span
+        ><button id="wallet-button" class="button small" type="button">
+          Connect wallet
+          <span
+            ><svg
+              class="inline-icon"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              aria-hidden="true"
+            >
+              <path d="M4 16 16 4M5 4h11v11" /></svg
+          ></span>
+        </button>
+      </div>
+    </header>
+    <main id="main">
+      <div class="notice" id="deployment-notice">
+        <span class="signal" aria-hidden="true"></span>
+        <p>
+          <strong>No public market is open.</strong> This terminal connects to
+          configured localnet and devnet deployments.
+        </p>
+        <button type="button" id="settings-button" class="text-button">
+          Deployment settings
+          <svg
+            class="inline-icon"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            aria-hidden="true"
+          >
+            <path d="M4 16 16 4M5 4h11v11" />
+          </svg>
+        </button>
+      </div>
+      <div
+        id="feedback"
+        class="feedback"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <section class="terminal" aria-label="Trading terminal">
+        <div class="market-panel">
+          <div class="market-header">
+            <div>
+              <p class="eyebrow">PERPETUAL FUTURES</p>
+              <h1 id="market-title">
+                Select a market<span class="square" aria-hidden="true"></span>
+              </h1>
+            </div>
+            <label class="asset-label"
+              ><span class="sr-only">Asset</span
+              ><select id="asset-select" disabled>
+                <option value="">No assets connected</option>
+              </select></label
+            >
+          </div>
+          <div class="market-stats">
+            <div>
+              <span>Engine price</span><strong id="price">Not available</strong>
+            </div>
+            <div>
+              <span>Long open interest</span
+              ><strong id="oi-long">Not available</strong>
+            </div>
+            <div>
+              <span>Short open interest</span
+              ><strong id="oi-short">Not available</strong>
+            </div>
+            <div>
+              <span>Market state</span
+              ><strong id="market-state">Offline</strong>
+            </div>
+          </div>
+          <div class="chart-heading">
+            <span>Price observations</span
+            ><span id="chart-period">This session</span>
+          </div>
+          <div class="chart" id="chart">
+            <canvas
+              id="price-chart"
+              aria-label="Engine price observations collected during this session"
+            ></canvas>
+            <div id="chart-empty" class="chart-empty">
+              <svg
+                viewBox="0 0 64 64"
+                width="52"
+                height="52"
+                fill="none"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M9 49V15M9 49h48M18 38l9-9 9 4 14-18" />
+                <path d="M42 15h8v8" />
+              </svg>
+              <h2>Waiting for market data</h2>
+              <p>
+                Connect a deployment to read its price feed.<br />Observations
+                will appear here.
+              </p>
+            </div>
+          </div>
+          <div class="chart-footer">
+            <span id="snapshot-label">No chain snapshot</span
+            ><button id="refresh" type="button" class="text-button" disabled>
+              Refresh ↻
+            </button>
+          </div>
+          <section class="positions">
+            <div class="section-heading">
+              <h2>Positions</h2>
+              <span id="position-count" class="count">0</span
+              ><span class="muted">Effective exposure after ADL</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Market</th>
+                    <th>Side</th>
+                    <th>Size</th>
+                    <th>Engine price</th>
+                    <th>State</th>
+                  </tr>
+                </thead>
+                <tbody id="positions">
+                  <tr>
+                    <td colspan="5" class="empty-cell">
+                      Connect a wallet to read your portfolio.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+        <aside class="order-panel" aria-label="Trade and collateral">
+          <div class="panel-heading">
+            <h2>Trade</h2>
+            <span class="eyebrow">IMMEDIATE EXECUTION</span>
+          </div>
+          <form id="trade-form">
+            <fieldset class="side-switch">
+              <legend class="sr-only">Trade side</legend>
+              <label
+                ><input type="radio" name="side" value="buy" checked /><span
+                  >Buy / Long</span
+                ></label
+              ><label
+                ><input type="radio" name="side" value="sell" /><span
+                  >Sell / Short</span
+                ></label
+              >
+            </fieldset>
+            <label class="field"
+              >Size
+              <span class="field-box"
+                ><input
+                  name="size"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  placeholder="0.00"
+                  required
+                  aria-label="Position size"
+                /><span>BASE</span></span
+              ></label
+            >
+            <label class="field"
+              ><span id="limit-label">Maximum execution price</span
+              ><span class="field-box"
+                ><input
+                  name="limitPrice"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  placeholder="0.00"
+                  required
+                  aria-label="Execution price limit"
+                /><span>QUOTE</span></span
+              ></label
+            >
+            <dl class="order-details">
+              <div>
+                <dt>Trading fee</dt>
+                <dd id="trade-fee">Not configured</dd>
+              </div>
+              <div>
+                <dt>Backing fee cap</dt>
+                <dd id="backing-fee">Not configured</dd>
+              </div>
+              <div>
+                <dt>Maker</dt>
+                <dd id="maker-state">Unavailable</dd>
+              </div>
+            </dl>
+            <button
+              type="submit"
+              class="button full"
+              id="trade-review"
+              disabled
+            >
+              Review trade
+              <span
+                ><svg
+                  class="inline-icon"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  aria-hidden="true"
+                >
+                  <path d="M4 16 16 4M5 4h11v11" /></svg
+              ></span>
+            </button>
+            <p class="field-note">
+              Fills must respect your price limit. A trade may fill partially.
+              Orders do not rest on an order book.
+            </p>
+          </form>
+          <section class="account-panel">
+            <div class="panel-heading">
+              <h2>Your account</h2>
+              <span class="eyebrow" id="collateral-symbol">COLLATERAL</span>
+            </div>
+            <dl class="balances">
+              <div>
+                <dt>Wallet balance</dt>
+                <dd id="wallet-balance">Not connected</dd>
+              </div>
+              <div>
+                <dt>Portfolio capital</dt>
+                <dd id="capital">Not connected</dd>
+              </div>
+              <div>
+                <dt>Recorded PnL</dt>
+                <dd id="pnl">Not connected</dd>
+              </div>
+            </dl>
+            <p class="field-note">
+              Capital and recorded PnL are on-chain accounting values.
+              Withdrawal availability is checked by simulation.
+            </p>
+            <button
+              id="initialize"
+              class="button outline full"
+              type="button"
+              disabled
+            >
+              Create portfolio <span>+</span>
+            </button>
+            <form id="collateral-form">
+              <label class="field"
+                >Amount<span class="field-box"
+                  ><input
+                    name="amount"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    placeholder="0.00"
+                    required
+                    aria-label="Collateral amount"
+                  /><span id="amount-symbol">TOKEN</span></span
+                ></label
+              >
+              <div class="split">
+                <button
+                  type="submit"
+                  name="action"
+                  value="deposit"
+                  class="button outline"
+                  disabled
+                >
+                  Deposit <span>↓</span></button
+                ><button
+                  type="submit"
+                  name="action"
+                  value="withdraw"
+                  class="button outline"
+                  disabled
+                >
+                  Withdraw <span>↑</span>
+                </button>
+              </div>
+            </form>
+          </section>
+        </aside>
+      </section>
+      <section class="receipt-panel">
+        <div class="section-heading">
+          <h2>Latest transaction</h2>
+          <span class="muted" id="receipt-state">No transaction submitted</span
+          ><button id="reconcile" class="text-button" type="button" hidden>
+            Check confirmation ↻
+          </button>
+        </div>
+        <p id="receipt-description">
+          Review, simulate, sign, then confirm on Solana.
+        </p>
+        <a
+          id="receipt-link"
+          class="signature"
+          hidden
+          target="_blank"
+          rel="noopener noreferrer"
+        ></a>
+        <p class="field-note" id="receipt-note">
+          Transaction receipts stay in this browser. Keep your signature until
+          confirmation is known.
+        </p>
+      </section>
+      <footer>
+        <span
+          ><i class="status-dot" aria-hidden="true"></i
+          ><span id="footer-state">Awaiting deployment</span></span
+        ><span>Powered by Percolator</span
+        ><a href="https://outright.bollish-eth.chatgpt.site/docs/security/"
+          >Security & limitations
+          <svg
+            class="inline-icon"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            aria-hidden="true"
+          >
+            <path d="M4 16 16 4M5 4h11v11" /></svg
+        ></a>
+      </footer>
+    </main>
+    <dialog id="settings-dialog">
+      <form method="dialog" class="dialog-head">
+        <h2>Deployment settings</h2>
+        <button type="submit" class="close" aria-label="Close settings">
+          ×
+        </button>
+      </form>
+      <p class="muted">
+        Load the public deployment profile provided by the market operator. The
+        client verifies its network, program bytecode, collateral and account
+        identities before preparing a transaction.
+      </p>
+      <label class="file-input"
+        >Choose deployment profile<input
+          id="profile-file"
+          type="file"
+          accept="application/json,.json"
+      /></label>
+      <p id="profile-error" class="field-note" role="alert"></p>
+      <div id="profile-detail" class="profile-detail">
+        No deployment configured.
+      </div>
+      <p class="field-note">
+        Profiles contain public addresses. Never upload a seed phrase, wallet
+        export or private key. This release accepts localnet and devnet only.
+      </p>
+      <a
+        class="text-button"
+        href="https://github.com/TheTradoor/outright/blob/master/docs/WALLET_TERMINAL.md"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Operator setup
+        <svg
+          class="inline-icon"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          aria-hidden="true"
+        >
+          <path d="M4 16 16 4M5 4h11v11" /></svg
+      ></a>
+    </dialog>
+    <dialog id="wallet-dialog">
+      <form method="dialog" class="dialog-head">
+        <h2>Connect wallet</h2>
+        <button type="submit" class="close" aria-label="Close wallet selection">
+          ×
+        </button>
+      </form>
+      <p id="wallet-help" class="muted">
+        Choose a wallet to continue. Connecting does not sign a transaction.
+      </p>
+      <div id="wallet-list" class="wallet-list"></div>
+    </dialog>
+    <dialog id="review-dialog">
+      <form method="dialog" class="dialog-head">
+        <h2>Review transaction</h2>
+        <button
+          type="submit"
+          class="close"
+          aria-label="Cancel transaction review"
+        >
+          ×
+        </button>
+      </form>
+      <p id="review-summary" class="review-summary"></p>
+      <dl id="review-details" class="review-details"></dl>
+      <p class="field-note">
+        Simulation passed at the displayed slot. The transaction can still fail
+        if market state changes before execution. This review expires after 30
+        seconds.
+      </p>
+      <button id="sign" type="button" class="button full">
+        Sign with wallet
+        <span
+          ><svg
+            class="inline-icon"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            aria-hidden="true"
+          >
+            <path d="M4 16 16 4M5 4h11v11" /></svg
+        ></span>
+      </button>
+    </dialog>
+  </body>
+</html>
