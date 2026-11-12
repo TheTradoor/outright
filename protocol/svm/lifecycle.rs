@@ -1,0 +1,393 @@
+// Copied temporarily into the exact upstream checkout by run.sh. Its fixture
+// initializes the market and funded counterparties through the actual SBF.
+#[allow(dead_code)]
+#[path = "support/v16_svm.rs"]
+mod upstream_fixture;
+
+use percolator_prog::error::PercolatorError;
+use serde_json::{json, Value};
+use solana_sdk::{
+    account::Account,
+    compute_budget::ComputeBudgetInstruction,
+    instruction::{AccountMeta, Instruction, InstructionError},
+    pubkey::Pubkey,
+    rent::Rent,
+    signature::{Keypair, Signer},
+    transaction::{Transaction, TransactionError},
+};
+use std::{
+    io::Write,
+    process::{Command, Stdio},
+    str::FromStr,
+};
+use upstream_fixture::{MarketConfig, V16Svm};
+
+fn js(input: Value) -> Value {
+    let driver = std::env::var("OUTRIGHT_NATIVE_DRIVER").expect("SVM driver path");
+    let mut child = Command::new("node")
+        .arg(driver)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("start native adapter");
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(input.to_string().as_bytes())
+        .unwrap();
+    let output = child.wait_with_output().unwrap();
+    assert!(
+        output.status.success(),
+        "adapter: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    serde_json::from_slice(&output.stdout).expect("adapter JSON")
+}
+
+fn read(env: &V16Svm, address: Pubkey, owner: Pubkey) -> Value {
+    let account = env.svm.get_account(&address).unwrap();
+    js(json!({"operation":"readPortfolio",
+        "account":{"owner":account.owner.to_string(),"executable":account.executable,"data":account.data},
+        "expected":{"programId":env.program_id.to_string(),"address":address.to_string(),
+            "market":env.market.to_string(),"owner":owner.to_string()}}))
+}
+
+fn build(env: &V16Svm, name: &str, args: Value, accounts: Value) -> Instruction {
+    let out = js(
+        json!({"operation":"buildInstruction","program":env.program_id.to_string(),
+        "name":name,"args":args,"accounts":accounts}),
+    );
+    Instruction {
+        program_id: Pubkey::from_str(out["programId"].as_str().unwrap()).unwrap(),
+        accounts: out["keys"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|k| AccountMeta {
+                pubkey: Pubkey::from_str(k["pubkey"].as_str().unwrap()).unwrap(),
+                is_signer: k["isSigner"].as_bool().unwrap(),
+                is_writable: k["isWritable"].as_bool().unwrap(),
+            })
+            .collect(),
+        data: out["data"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|n| u8::try_from(n.as_u64().unwrap()).unwrap())
+            .collect(),
+    }
+}
+
+fn send_many(
+    env: &mut V16Svm,
+    instructions: &[Instruction],
+    signers: &[&Keypair],
+) -> Result<u64, TransactionError> {
+    let mut transaction_instructions = vec![
+        ComputeBudgetInstruction::set_compute_unit_limit(1_400_000),
+        ComputeBudgetInstruction::request_heap_frame(256 * 1024),
+    ];
+    transaction_instructions.extend_from_slice(instructions);
+    let tx = Transaction::new_signed_with_payer(
+        &transaction_instructions,
+        Some(&signers[0].pubkey()),
+        signers,
+        env.svm.latest_blockhash(),
+    );
+    env.svm
+        .send_transaction(tx)
+        .map(|m| m.compute_units_consumed)
+        .map_err(|e| e.err)
+}
+
+fn send(env: &mut V16Svm, ix: Instruction, signers: &[&Keypair]) -> Result<u64, TransactionError> {
+    send_many(env, &[ix], signers)
+}
+
+fn rejected(result: Result<u64, TransactionError>, instruction: u8, error: PercolatorError) {
+    assert_eq!(
+        result.unwrap_err(),
+        TransactionError::InstructionError(instruction, InstructionError::Custom(error as u32),)
+    );
+}
+
+fn snapshot(env: &V16Svm, portfolios: &[Pubkey]) -> Vec<(Pubkey, Account)> {
+    let mut keys = vec![env.market];
+    keys.extend_from_slice(portfolios);
+    keys.extend(env.all_token_account_data().into_iter().map(|(key, _)| key));
+    keys.into_iter()
+        .map(|key| (key, env.svm.get_account(&key).unwrap()))
+        .collect()
+}
+
+fn assert_unchanged(env: &V16Svm, before: &[(Pubkey, Account)]) {
+    for (key, expected) in before {
+        assert_eq!(
+            env.svm.get_account(key).as_ref(),
+            Some(expected),
+            "account {key} changed after rejection"
+        );
+    }
+}
+
+fn custody(env: &V16Svm, portfolio: Pubkey, owner: Pubkey, token: Pubkey) -> Value {
+    json!({"owner":owner.to_string(),"market":env.market.to_string(),
+        "portfolio":portfolio.to_string(),"userToken":token.to_string(),"vault":env.vault.to_string()})
+}
+
+#[test]
+fn javascript_adapter_executes_init_deposit_open_reduce_close_and_withdraw() {
+    let mut config = MarketConfig::default();
+    config.initial_price = 150_000_000; // Fixed SOL/USD fixture; not a live oracle test.
+    let mut env = V16Svm::new_with_asset_count([73; 32], config, 1);
+    let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+    let maker = Keypair::from_bytes(&env.actors[1].signer.to_bytes()).unwrap();
+    let portfolio = Pubkey::new_unique();
+    let len = percolator_prog::constants::PORTFOLIO_ACCOUNT_LEN;
+    env.svm
+        .set_account(
+            portfolio,
+            Account {
+                lamports: Rent::default().minimum_balance(len),
+                data: vec![0; len],
+                owner: env.program_id,
+                executable: false,
+                rent_epoch: 0,
+            },
+        )
+        .unwrap();
+
+    let init = build(
+        &env,
+        "initPortfolio",
+        json!({}),
+        json!({"owner":owner.pubkey().to_string(),
+        "market":env.market.to_string(),"portfolio":portfolio.to_string()}),
+    );
+    let init_cu = send(&mut env, init, &[&owner]).expect("initialize through JS adapter");
+    let source = env.actors[0].source_token;
+    let destination = env.actors[0].destination_token;
+    let source_before = env.token_amount(source);
+    let vault_before = env.token_amount(env.vault);
+    let supply_before = env.token_supply_observed();
+    let amount = 25_000_000u64;
+
+    let p = read(&env, portfolio, owner.pubkey());
+    let deposit = build(
+        &env,
+        "deposit",
+        json!({"portfolioId":p["portfolioId"],
+        "expectedSequence":p["expectedSequence"],"amount":amount.to_string()}),
+        custody(&env, portfolio, owner.pubkey(), source),
+    );
+    let deposit_cu = send(&mut env, deposit, &[&owner]).expect("deposit through JS adapter");
+    assert_eq!(env.token_amount(source), source_before - amount);
+    assert_eq!(env.token_amount(env.vault), vault_before + amount);
+    assert_eq!(
+        read(&env, portfolio, owner.pubkey())["capital"],
+        amount.to_string()
+    );
+
+    let maker_portfolio = env.actors[1].portfolio;
+    let size = (percolator::POS_SCALE as i128) / 10;
+    let mut trade_cu = Vec::new();
+    let initial_position_epoch = read(&env, portfolio, owner.pubkey())["positionEpoch"].clone();
+    for (step, (signed_size, expected_position)) in
+        [(size, size), (-size / 2, size / 2), (-size / 2, 0)]
+            .into_iter()
+            .enumerate()
+    {
+        let a = read(&env, portfolio, owner.pubkey());
+        let b = read(&env, maker_portfolio, maker.pubkey());
+        let market_id = env.primary_market_state().1.assets[0].market_id;
+        let trade_args = json!({
+            "takerPortfolioId":a["portfolioId"],"takerPositionEpoch":a["positionEpoch"],
+            "makerPortfolioId":b["portfolioId"],"makerPositionEpoch":b["positionEpoch"],
+            "assetIndex":0,"marketId":market_id.to_string(),"sizeQ":signed_size.to_string(),
+            "execPrice":"150000000","feeBps":"0","backingFeeCapBps":0});
+        let trade_accounts = json!({"takerOwner":owner.pubkey().to_string(),"makerOwner":maker.pubkey().to_string(),
+                "market":env.market.to_string(),"takerPortfolio":portfolio.to_string(),
+                "makerPortfolio":maker_portfolio.to_string()});
+        let trade = build(
+            &env,
+            "tradeNoCpi",
+            trade_args.clone(),
+            trade_accounts.clone(),
+        );
+        if step == 1 {
+            let before = snapshot(&env, &[portfolio, maker_portfolio]);
+            let mut stale_args = trade_args;
+            stale_args["takerPositionEpoch"] = initial_position_epoch.clone();
+            assert_ne!(a["positionEpoch"], initial_position_epoch);
+            let stale = build(&env, "tradeNoCpi", stale_args, trade_accounts);
+            rejected(
+                send(&mut env, stale, &[&owner, &maker]),
+                2,
+                PercolatorError::EngineStale,
+            );
+            assert_unchanged(&env, &before);
+        }
+        trade_cu.push(
+            send(&mut env, trade, &[&owner, &maker]).expect("position change through JS adapter"),
+        );
+        // Independently inspect the executed program state: a successful no-op
+        // must not pass as an opened position or a completed close.
+        let taker_state =
+            percolator_prog::state::read_portfolio(&env.svm.get_account(&portfolio).unwrap().data)
+                .unwrap();
+        let maker_state = env.primary_portfolio(1);
+        assert_eq!(taker_state.legs[0].basis_pos_q.get(), expected_position);
+        assert_eq!(maker_state.legs[0].basis_pos_q.get(), -expected_position);
+    }
+
+    let p = read(&env, portfolio, owner.pubkey());
+    assert_eq!(p["pnl"], "0");
+    let withdraw = build(
+        &env,
+        "withdraw",
+        json!({"portfolioId":p["portfolioId"],
+        "expectedSequence":p["expectedSequence"],"amount":amount.to_string()}),
+        custody(&env, portfolio, owner.pubkey(), destination),
+    );
+    let withdraw_cu = send(&mut env, withdraw, &[&owner]).expect("withdraw through JS adapter");
+    assert_eq!(read(&env, portfolio, owner.pubkey())["capital"], "0");
+    assert_eq!(env.token_amount(destination), amount);
+    assert_eq!(
+        env.token_amount(source) + env.token_amount(destination),
+        source_before
+    );
+    assert_eq!(env.token_amount(env.vault), vault_before);
+    assert_eq!(env.token_supply_observed(), supply_before);
+    println!("Native SBF lifecycle CU: init={init_cu}, deposit={deposit_cu}, open={}, reduce={}, close={}, withdraw={withdraw_cu}", trade_cu[0], trade_cu[1], trade_cu[2]);
+}
+
+#[test]
+fn javascript_instructions_reject_invalid_identity_authority_and_market_bindings() {
+    let mut config = MarketConfig::default();
+    config.initial_price = 150_000_000;
+    let mut env = V16Svm::new_with_asset_count([74; 32], config, 1);
+    let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+    let maker = Keypair::from_bytes(&env.actors[1].signer.to_bytes()).unwrap();
+    let portfolio = env.actors[0].portfolio;
+    let maker_portfolio = env.actors[1].portfolio;
+    let source = env.actors[0].source_token;
+    let destination = env.actors[0].destination_token;
+    let p = read(&env, portfolio, owner.pubkey());
+    let id: u64 = p["portfolioId"].as_str().unwrap().parse().unwrap();
+    let sequence: u64 = p["expectedSequence"].as_str().unwrap().parse().unwrap();
+    assert!(sequence > 0, "fixture deposits must advance the sequence");
+    let before = snapshot(&env, &[portfolio, maker_portfolio]);
+    for (args, expected_error) in [
+        (
+            json!({"portfolioId":id.to_string(),"expectedSequence":(sequence - 1).to_string(),"amount":"1"}),
+            PercolatorError::EngineStale,
+        ),
+        (
+            json!({"portfolioId":(id + 1).to_string(),"expectedSequence":sequence.to_string(),"amount":"1"}),
+            PercolatorError::EngineProvenanceMismatch,
+        ),
+    ] {
+        let ix = build(
+            &env,
+            "deposit",
+            args,
+            custody(&env, portfolio, owner.pubkey(), source),
+        );
+        rejected(send(&mut env, ix, &[&owner]), 2, expected_error);
+        assert_unchanged(&env, &before);
+    }
+    let unauthorized = build(
+        &env,
+        "deposit",
+        json!({"portfolioId":p["portfolioId"],
+        "expectedSequence":p["expectedSequence"],"amount":"1"}),
+        custody(&env, portfolio, maker.pubkey(), env.actors[1].source_token),
+    );
+    rejected(
+        send(&mut env, unauthorized, &[&maker]),
+        2,
+        PercolatorError::Unauthorized,
+    );
+    assert_unchanged(&env, &before);
+
+    let capital: u128 = p["capital"].as_str().unwrap().parse().unwrap();
+    let excessive = build(
+        &env,
+        "withdraw",
+        json!({"portfolioId":p["portfolioId"],
+        "expectedSequence":p["expectedSequence"],"amount":(capital + 1).to_string()}),
+        custody(&env, portfolio, owner.pubkey(), destination),
+    );
+    rejected(
+        send(&mut env, excessive, &[&owner]),
+        2,
+        PercolatorError::EngineLockActive,
+    );
+    assert_unchanged(&env, &before);
+
+    let b = read(&env, maker_portfolio, maker.pubkey());
+    let market_id = env.primary_market_state().1.assets[0].market_id;
+    let args = json!({"takerPortfolioId":p["portfolioId"],"takerPositionEpoch":p["positionEpoch"],
+        "makerPortfolioId":b["portfolioId"],"makerPositionEpoch":b["positionEpoch"],
+        "assetIndex":0,"marketId":market_id.to_string(),"sizeQ":"100000", "execPrice":"150000000", "feeBps":"0", "backingFeeCapBps":0});
+    let accounts = json!({"takerOwner":owner.pubkey().to_string(),"makerOwner":maker.pubkey().to_string(),
+        "market":env.market.to_string(),"takerPortfolio":portfolio.to_string(),"makerPortfolio":maker_portfolio.to_string()});
+    let mut wrong_market = args.clone();
+    wrong_market["marketId"] = json!((market_id + 1).to_string());
+    let ix = build(&env, "tradeNoCpi", wrong_market, accounts.clone());
+    rejected(
+        send(&mut env, ix, &[&owner, &maker]),
+        2,
+        PercolatorError::AssetGenerationMismatch,
+    );
+    assert_unchanged(&env, &before);
+
+    let mut unsigned_maker = build(&env, "tradeNoCpi", args, accounts);
+    // Intentionally strip the maker signature requirement to exercise the program guard.
+    unsigned_maker.accounts[1].is_signer = false;
+    rejected(
+        send(&mut env, unsigned_maker, &[&owner]),
+        2,
+        PercolatorError::ExpectedSigner,
+    );
+    assert_unchanged(&env, &before);
+}
+
+#[test]
+fn later_rejection_rolls_back_an_earlier_spl_transfer_and_sequence_update() {
+    let mut env = V16Svm::new_with_asset_count([75; 32], MarketConfig::default(), 1);
+    let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+    let portfolio = env.actors[0].portfolio;
+    let p = read(&env, portfolio, owner.pubkey());
+    let sequence: u64 = p["expectedSequence"].as_str().unwrap().parse().unwrap();
+    let capital: u128 = p["capital"].as_str().unwrap().parse().unwrap();
+    let before = snapshot(&env, &[portfolio]);
+    let deposit = build(
+        &env,
+        "deposit",
+        json!({"portfolioId":p["portfolioId"],
+        "expectedSequence":p["expectedSequence"],"amount":"1"}),
+        custody(&env, portfolio, owner.pubkey(), env.actors[0].source_token),
+    );
+    let withdrawal = build(
+        &env,
+        "withdraw",
+        json!({"portfolioId":p["portfolioId"],
+        "expectedSequence":(sequence + 1).to_string(),"amount":(capital + 2).to_string()}),
+        custody(
+            &env,
+            portfolio,
+            owner.pubkey(),
+            env.actors[0].destination_token,
+        ),
+    );
+    // Index 3 proves that both compute-budget instructions and the deposit at index 2 succeeded.
+    rejected(
+        send_many(&mut env, &[deposit, withdrawal], &[&owner]),
+        3,
+        PercolatorError::EngineLockActive,
+    );
+    assert_unchanged(&env, &before);
+}
