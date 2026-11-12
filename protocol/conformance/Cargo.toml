@@ -1,0 +1,20 @@
+[package]
+name = "outright-protocol-conformance"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+percolator-prog = { git = "https://github.com/aeyakovenko/percolator-prog", rev = "b42fe017c2bc953778f90d0cb85cd1d426b6e783", features = ["no-entrypoint"] }
+percolator = { path = "../.." }
+serde_json = "1.0"
+
+[[bin]]
+name = "export-contract"
+path = "src/main.rs"
+
+[patch."https://github.com/aeyakovenko/percolator"]
+percolator = { path = "../.." }
+
+# Keep host integration dependencies separate from the engine workspace.
+[workspace]
