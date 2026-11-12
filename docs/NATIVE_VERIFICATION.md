@@ -78,7 +78,7 @@ remain release requirements. Full Kani verification was not run for this change.
 
 Built on merged commit `5a1a24461317b8f7aa14f944d918456b03f0a0d3`, with the same
 engine and wrapper pins. The extended suite passes the Rust contract comparison,
-79 JavaScript regressions, five local SBF tests and the browser bundle build.
+80 JavaScript regressions, five local SBF tests and the browser bundle build.
 
 The new SBF cases execute seeded portfolio allocation with initialization,
 then deposit and an atomic destination ATA creation plus withdrawal. Another

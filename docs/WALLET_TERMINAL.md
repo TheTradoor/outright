@@ -22,7 +22,8 @@ use the wallet's browser. A wallet that can only sign and send in one operation
 is not supported: the client needs to persist the signature before broadcasting.
 
 The browser must support Web Crypto Ed25519, Web Locks and local storage.
-Web Locks coordinate signing across tabs. Private keys remain with the wallet.
+Web Locks coordinate signing and receipt reconciliation across tabs. Private
+keys remain with the wallet.
 
 ## Enroll a deployment
 
