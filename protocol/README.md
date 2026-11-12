@@ -1,93 +1,70 @@
-# Native Percolator client
+# Outright native client
 
-JavaScript instruction builders and a portfolio reader for Outright's pinned
-Percolator engine and Solana wrapper. The client constructs instruction bytes
-and account metas. It does not store keys, sign transactions, request quotes,
-or submit transactions.
+The client connects a Solana wallet to the pinned Percolator program. It reads
+market and portfolio state, plans transactions, simulates them, asks the wallet
+to sign, submits the exact signed message, and reconciles its signature.
 
-The source revisions are recorded in [source-lock.json](source-lock.json).
-The independent native adapter was developed in the earlier Tradoor Perps
-workspace. Only its native protocol code is included here. No Pppercolator
-terminal, simulator, exchange client, or launchpad code is imported.
+The engine and wrapper revisions are in [source-lock.json](source-lock.json).
+The engine remains unchanged. This directory contains no Pppercolator terminal,
+simulator, exchange client, or launchpad code.
 
-## Verify the client
+## Build and verify
 
-Use Node.js 22 or newer, Git, and the repository's pinned Rust toolchain. From
-the repository root:
+Use Node.js 22 or newer and the repository's pinned Rust toolchain:
 
 ```sh
 npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
 bash protocol/check.sh
+npm run build --prefix protocol
 ```
 
-The check compares the engine source with its recorded baseline, runs the Rust
-conformance exporter, compares its output with the checked-in contract, and
-runs the JavaScript regression tests. The exporter links the engine from this
-checkout and the pinned wrapper. Cargo's patch configuration also directs the
-wrapper's engine dependency to this checkout.
+The terminal is built into `protocol/dist`. Serve that directory on localhost
+or HTTPS. Its default deployment profile is `null`; it has no preconfigured
+market and accepts no public deposits.
 
-The exporter uses the wrapper's encoder, decoder, and account initializer.
-Layout offsets come from Rust types. Change a source pin only after reviewing
-the source diff, then regenerate the contract and inspect the differences.
+See [wallet terminal setup](../docs/WALLET_TERMINAL.md) for deployment profiles,
+wallet requirements, transaction states, and current limits.
 
-[The SVM tests](svm/README.md) separately execute the JavaScript instructions
-against a compiled SBF program and SPL Token. Host conformance alone does not
-establish that a transaction executes correctly.
+## Modules
 
-## Supported operations
-
-| Operation | Support |
+| Module | Responsibility |
 | --- | --- |
-| Initialize portfolio | Instruction and account metas |
-| Deposit and withdraw | Instruction and account metas |
-| Bilateral trade | Instruction and account metas; both owners must sign |
-| Matcher trade | Instruction and account metas; no arbitrary tail accounts |
-| Permissionless crank | Wire encoding only; account planning is not implemented |
-| Read portfolio | Identity, sequence, position epoch, raw capital and PnL, matcher flags |
+| `src/instructions.mjs` | Exact instruction bytes, account metas and PDA derivations |
+| `src/accounts.mjs` | Portfolio identity, sequences, positions, matcher consent and recorded accounting |
+| `src/market.mjs` | Market, asset and oracle state; effective position quantities after ADL |
+| `src/client.mjs` | Deployment verification, coherent snapshots, action planning and transaction lifecycle |
+| `terminal/` | Wallet Standard interface, transaction review and receipts |
+| `profile.mjs` | Read-only enrollment of a deployment against local build artifacts |
+| `inspect.mjs` | Low-level read-only portfolio inspection |
 
-All monetary and identity values use `bigint` or decimal integer strings.
-`parseUnits` accepts plain decimal text and rejects rounding, scientific
-notation, zero amounts, and values outside the SPL Token amount range.
+## Supported actions
 
-```js
-import { buildInstruction, parseUnits } from './protocol/src/instructions.mjs';
+| Action | Scope |
+| --- | --- |
+| Create portfolio | Seeded system allocation and program initialization in one transaction |
+| Deposit | Classic SPL Token collateral from the owner's associated token account |
+| Withdraw | Engine-permitted withdrawal; creates a missing destination ATA atomically |
+| Matcher trade | Immediate bounded-price CPI trade against a configured, funded maker |
+| Bilateral trade | Low-level instruction builder; both owners must sign |
+| Permissionless crank | Low-level encoding only; no operator scheduler |
 
-const instruction = buildInstruction(programId, 'deposit', {
-  portfolioId: portfolioState.portfolioId,
-  expectedSequence: portfolioState.expectedSequence,
-  amount: parseUnits('10.25', 6),
-}, { owner, market, portfolio, userToken, vault });
-```
+Amounts remain integer values. `parseUnits` rejects excess precision, scientific
+notation, zero amounts, and SPL Token overflow. Displayed capital and recorded
+PnL are not withdrawal quotes. A separate reduce-only action is not implemented.
 
-The example assumes the named addresses and portfolio state have been read and
-verified. It produces an instruction, not a signed or submitted transaction.
+## Evidence
 
-## Transaction requirements
+The Rust exporter uses the upstream encoder, decoder, initializers and type
+offsets. Its output is compared with the checked-in contract. JavaScript
+regressions cover malformed state, changed deployments, wallet mutation,
+simulation failure, lost RPC responses, pending transaction recovery and expiry.
 
-Portfolio initialization expects an allocated, rent-exempt, program-owned
-account. Deposit and withdrawal token accounts must already have the correct
-mint and authority. A transaction planner must verify these bindings and show
-the intended amounts before requesting a signature.
+[SBF tests](svm/README.md) execute the JavaScript instructions and planner output
+against the compiled wrapper and SPL Token. They cover the bilateral lifecycle,
+atomic allocation and ATA creation, bounded CPI execution, revoked maker
+consent, account-binding failures and rollback. The CPI matcher is an upstream
+test fixture. These are local execution tests, not public-cluster validation.
 
-`tradeNoCpi` requires both counterparties to sign. `tradeCpi` requires a funded
-maker portfolio with matching onchain matcher authorization. Neither operation
-creates liquidity. The matcher instruction is covered by wire-conformance and
-account-meta tests; its execution is outside the current SVM lifecycle fixture.
-
-A wallet application still needs fresh state, session binding, transaction
-review, simulation, submission, and confirmation reconciliation. A decoded
-portfolio does not establish solvency or withdrawable collateral.
-
-## Read an account
-
-```sh
-node protocol/inspect.mjs <https-rpc-url> <expected-genesis-hash> <program-id> <market-address> <portfolio-address>
-```
-
-This command checks the RPC genesis hash, executable program, account ownership,
-and portfolio identity at one confirmed account snapshot. It does not submit a
-transaction. It rejects unsupported portfolio sizes and versions.
-
-Executable-program and ownership checks do not verify deployed bytecode against
-the source pin. Capital and PnL are raw engine units. Neither is a withdrawal
-quote. Outright has no configured public deployment.
+The terminal supports localnet and devnet only. Funded liquidity, oracle and
+keeper operations, recovery exits, broader risk coverage and independent review
+remain public-release requirements.
