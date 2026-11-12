@@ -526,3 +526,60 @@ test("devnet pins require the complete genesis hash and localnet cannot alias a 
     /loopback/,
   );
 });
+
+test("reconciliation holds the wallet lock until the receipt update completes", async () => {
+  const f = await fixture();
+  const second = new OutrightClient(f.profile, {
+    connection: f.rpc,
+    journal: f.journal,
+  });
+  const review = await f.client.prepare(f.owner.publicKey, {
+    type: "deposit",
+    amount: "1",
+  });
+  const sent = await f.client.submit(review, f.sign);
+  let release, entered;
+  const blocked = new Promise((resolve) => {
+    release = resolve;
+  });
+  const reading = new Promise((resolve) => {
+    entered = resolve;
+  });
+  let calls = 0;
+  f.rpc.getSignatureStatuses = async () => {
+    if (++calls === 1) {
+      entered();
+      await blocked;
+    }
+    return {
+      context: { slot: 123 },
+      value: [{ confirmationStatus: "confirmed", slot: 123, err: null }],
+    };
+  };
+  const firstRead = f.client.reconcile(f.owner.publicKey);
+  await reading;
+  try {
+    await assert.rejects(
+      () => second.reconcile(f.owner.publicKey),
+      /Another tab/,
+    );
+    assert.equal(
+      (await second.pending(f.owner.publicKey)).signature,
+      sent.signature,
+    );
+  } finally {
+    release();
+    await firstRead;
+  }
+  const nextReview = await second.prepare(f.owner.publicKey, {
+    type: "deposit",
+    amount: "2",
+  });
+  const next = await second.submit(nextReview, f.sign);
+  assert.notEqual(next.signature, sent.signature);
+  assert.equal(
+    (await f.client.pending(f.owner.publicKey)).signature,
+    next.signature,
+  );
+  assert.equal(f.rpc.sent.length, 2);
+});
