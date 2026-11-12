@@ -58,7 +58,7 @@ Local results and binary hashes are recorded in
 
 The fixture uses a fixed price, zero funding, and zero trade fees. It does not
 cover live oracle delivery, price shocks, liquidation, nonzero fees or funding,
-matcher execution, keeper availability, or a wallet interface. The upstream
+production matcher behavior, keeper availability, or wallet-extension compatibility. The upstream
 matcher program is loaded because the shared fixture requires it; that alone
 is not matcher-execution coverage.
 
@@ -69,3 +69,8 @@ independent security review remain separate release requirements.
 The `Native protocol` workflow checks source and host conformance. The
 `Native SVM` workflow builds SBF and executes these tests. Both use read-only
 repository permissions and do not deploy a program.
+
+The suite also runs the wallet planner's seeded portfolio creation and atomic
+ATA withdrawal against SBF. The authenticated matcher fixture is exercised by
+a bounded CPI fill, price-limit rejection and revoked-consent rejection. This
+fixture is not a production liquidity model.
