@@ -1,0 +1,38 @@
+name: Native protocol
+
+on:
+  push:
+    paths: ["protocol/**", "src/**", "Cargo.toml", "Cargo.lock", "spec.md", "build.rs", ".cargo/**", "rust-toolchain.toml", ".github/workflows/native-protocol.yml"]
+  pull_request:
+    paths: ["protocol/**", "src/**", "Cargo.toml", "Cargo.lock", "spec.md", "build.rs", ".cargo/**", "rust-toolchain.toml", ".github/workflows/native-protocol.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-protocol-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+    steps:
+      - name: Check out source and engine baseline
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - name: Install pinned Rust toolchain
+        run: rustup show active-toolchain
+      - name: Install locked client dependencies
+        run: npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
+      - name: Check source, Rust conformance, and client regressions
+        run: bash protocol/check.sh

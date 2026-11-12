@@ -1,0 +1,47 @@
+name: Native SVM
+
+on:
+  push:
+    paths: ["protocol/**", "src/**", "Cargo.toml", "Cargo.lock", "spec.md", "build.rs", ".cargo/**", "rust-toolchain.toml", ".github/workflows/native-svm.yml"]
+  pull_request:
+    paths: ["protocol/**", "src/**", "Cargo.toml", "Cargo.lock", "spec.md", "build.rs", ".cargo/**", "rust-toolchain.toml", ".github/workflows/native-svm.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-svm-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lifecycle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+    steps:
+      - name: Check out source and engine baseline
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - name: Install the pinned host and SBF toolchains
+        run: |
+          rustup show active-toolchain
+          rustup toolchain install 1.95.0 --profile minimal
+          cargo install cargo-build-sbf --version 4.6.0 --locked
+      - name: Install locked client dependencies
+        run: npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
+      - name: Fetch the pinned wrapper
+        run: |
+          git init "$RUNNER_TEMP/percolator-prog"
+          git -C "$RUNNER_TEMP/percolator-prog" remote add origin https://github.com/aeyakovenko/percolator-prog.git
+          git -C "$RUNNER_TEMP/percolator-prog" fetch --depth 1 origin b42fe017c2bc953778f90d0cb85cd1d426b6e783
+          git -C "$RUNNER_TEMP/percolator-prog" checkout --detach FETCH_HEAD
+      - name: Execute client instructions against the SBF program
+        run: bash protocol/svm/run.sh "$RUNNER_TEMP/percolator-prog"
