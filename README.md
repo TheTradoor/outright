@@ -12,15 +12,16 @@ accepted. The engine is unaudited and must not be used with real funds.**
 ## What is here
 
 The repository currently contains the Percolator engine, its specification and
-test suite, and Outright's product and contribution documentation. The wallet
-application and native Solana integration have not been added to this repository.
+test suite, native Solana instruction builders, a portfolio reader, and
+integration fixtures. The wallet application and market services are not yet
+implemented.
 
 | Component | Status |
 | --- | --- |
 | Risk engine | Upstream Percolator source, unchanged at the [recorded revision](docs/UPSTREAM.md) |
 | Engine specification | [v16.9.1](spec.md) |
 | Runtime tests | Default and `fuzz` suites; run locally or through GitHub Actions |
-| Solana program integration | Pending import and verification in this repository |
+| Solana program integration | [Native client, Rust conformance exporter, and local SBF tests](protocol/README.md) |
 | Wallet terminal and market services | Planned |
 | Public deployment | None |
 
@@ -43,6 +44,16 @@ The Rust version is pinned in [rust-toolchain.toml](rust-toolchain.toml).
 These commands test the engine. They do not deploy a program or start a
 trading application.
 
+For the native integration, install Node.js 22 or newer and run:
+
+```sh
+npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
+bash protocol/check.sh
+```
+
+See [the SBF fixture guide](protocol/svm/README.md) to execute the client's
+instructions in a local Solana VM. No public program or market is deployed.
+
 See [the development guide](docs/DEVELOPMENT.md) for test scope and
 [the original engine guide](ENGINE.md) for Percolator's model and proof workflow.
 
@@ -51,6 +62,7 @@ See [the development guide](docs/DEVELOPMENT.md) for test scope and
 - [Product requirements and delivery milestones](PRODUCT.md)
 - [Upstream sources and compatibility policy](docs/UPSTREAM.md)
 - [Development and verification](docs/DEVELOPMENT.md)
+- [Native integration verification results](docs/NATIVE_VERIFICATION.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security reporting](SECURITY.md)
 

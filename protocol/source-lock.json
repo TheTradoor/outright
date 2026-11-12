@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "engine": {
+    "repository": "https://github.com/aeyakovenko/percolator",
+    "revision": "b22bef7d6122fd7d82680ce9859e8b77fd8ef656",
+    "path": ".."
+  },
+  "program": {
+    "repository": "https://github.com/aeyakovenko/percolator-prog",
+    "revision": "b42fe017c2bc953778f90d0cb85cd1d426b6e783"
+  }
+}

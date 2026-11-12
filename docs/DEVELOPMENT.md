@@ -36,13 +36,29 @@ be reported separately.
 
 ## Native integration
 
-The native adapter and transaction fixture have not yet been imported. Earlier
-integration work exists separately, but its results must not be presented as a
-test of this repository. Importing it requires fresh conformance checks and
-transaction tests against the revisions in [UPSTREAM.md](UPSTREAM.md).
+The [native client](../protocol/README.md) includes instruction builders, a
+portfolio reader, a Rust conformance exporter, and local SBF tests. Install
+Node.js 22 or newer, then run from the repository root:
 
-There is no application server, wallet connection command or deployment command
-in this checkout. Those instructions will be added with the corresponding code.
+```sh
+npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
+bash protocol/check.sh
+```
+
+The source check rejects engine changes relative to the recorded baseline.
+The exporter links this checkout's engine and the pinned wrapper, then compares
+instruction bytes and account layouts with `protocol/upstream-contract.json`.
+The client tests also cover integer precision, invalid input, account identity,
+signer requirements, and PDA derivation.
+
+The [SVM fixture guide](../protocol/svm/README.md) lists its additional toolchains
+and execution scope. Its runner builds the wrapper at the pinned revision and
+executes the JavaScript instructions against SBF. Host tests and SVM tests run
+in separate GitHub Actions workflows.
+
+There is no wallet application, quote service, or deployment command in this
+checkout. The read-only account inspection command does not sign or send
+transactions.
 
 ## Reviewing documentation
 
