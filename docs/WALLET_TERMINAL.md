@@ -61,6 +61,15 @@ The maker must already have funded collateral and unexpired on-chain consent
 for the exact matcher tuple. A program address alone is not liquidity. Current
 client instructions do not accept arbitrary matcher tail accounts.
 
+`--fee-bps` is the taker's base trading fee cap. The pinned single-trade CPI
+route charges the market's on-chain base fee to both counterparties, subject to
+engine accounting, rather than charging the configured cap. Both the taker cap
+and the maker's on-chain consent must cover the base fee. The taker cap also
+cannot exceed the engine's maximum trading fee. The review displays the base
+fee, taker cap and engine limit separately. Mark-movement fees can exceed the
+base cap, up to the engine limit; backing fees have separate caps. These values
+are not a fixed total-fee quote. Market rules determine fees at execution.
+
 Load the generated profile through **Deployment settings**. For an operator's
 hosted build, put it at `protocol/terminal/deployment.json` and rebuild. A profile
 contains public addresses and public RPC access only. Never include API secrets
@@ -99,6 +108,9 @@ market mode or required rent force a new review. SOL must still cover the review
 network fee and rent. State can still change between this check and execution,
 so the program remains authoritative.
 
+A change to the market base fee or engine fee limit during the wallet prompt
+also requires a new review, even when the new fee is within existing consent.
+
 ## Confirmation and recovery
 
 | State | Meaning |
@@ -112,6 +124,9 @@ so the program remains authoritative.
 
 Pending and unresolved records block new actions for the same wallet and
 market, including after reload. Reconciliation searches signature history.
+Its response bank cannot precede the last observed slot. A transaction's landing
+slot cannot exceed that response bank. Malformed responses leave the receipt
+pending and do not permit a replacement transaction.
 There is no automatic re-signing, replacement deposit, or assumption that a
 missing status means failure. If history remains unavailable after expiry,
 the operator must reconcile the signature and portfolio state through a reliable
@@ -121,6 +136,7 @@ Disconnects, unsupported wallet accounts and failed RPC reads clear actionable
 market data. A late response cannot restore a disconnected session. Empty asset
 lists still update balances and positions; expired or revoked maker consent
 disables trade review.
+A delayed startup profile cannot replace a profile already selected manually.
 
 Receipts are local to the browser. They are not an indexer, tax record or complete
 trade history. The chart contains observations collected during the current

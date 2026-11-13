@@ -68,9 +68,10 @@ not worst-case production limits.
 
 ## Remaining verification
 
-Nonzero fees and funding, liquidation, insolvency, production matcher behavior,
-and full recovery require additional
-transaction coverage. Current-cluster compatibility, funded liquidity, wallet
+Funding, mark-movement and backing fees, liquidation, insolvency, production
+matcher behavior, and full recovery require additional transaction coverage.
+Nonzero base trading fees are covered by the extension below.
+Current-cluster compatibility, funded liquidity, wallet
 extension testing, service recovery, and independent security review
 remain release requirements. Full Kani verification was not run for this change.
 
@@ -163,3 +164,39 @@ A previously built native binding can remain after `npm install`; use a clean
 independently review this dependency before a public release. The audit's
 suggested downgrade to SPL Token 0.1.8 is not an API-compatible repair and was
 not applied.
+
+## Fee consent and confirmation integrity
+
+Built on merged commit `b3b0e2ac563315e9bebc82cd074d50c736b08ed5`, retaining the
+same engine and wrapper pins. On 13 November 2026, the Rust contract comparison,
+174 JavaScript tests, nine SBF tests and terminal bundle passed locally.
+
+The new SBF case executes the wallet planner with a 37 bps market base fee, a
+50 bps taker base fee cap and 37 bps maker consent. This distinction matters:
+the pinned single-trade CPI route charges the market base fee, not the caller's
+fee-cap input. The client now compares both parties' consent with that on-chain
+base fee. Review shows the current base fee, taker cap and engine fee limit
+separately. A changed base fee or engine limit during signing requires review
+again. Mark-movement fees can exceed the base cap; backing fees are separate.
+
+At a fixed execution price of 150.000001, a 0.100001-unit fill charges 55,501
+collateral atoms to each counterparty. Partial closes of 0.050000 and 0.050001
+units charge 27,751 atoms each. Separate long and short cases also open and
+close one micro-unit, charging one atom per fill. After each fill, tests compare
+capital, insurance, aggregate capital, positions, vault and SPL token balances.
+Withdrawals return the remaining capital; total observed token supply stays
+unchanged. A taker cap below the base fee, a later failing instruction and a
+withdrawal one atom above remaining capital must return exact errors and leave
+market, portfolios, matcher context and tracked token accounts unchanged.
+
+Wallet and keeper reconciliation reject malformed, stale or inconsistent
+status responses without releasing the pending receipt. The wallet persists
+its observed slot across reloads. Keeper block heights must be nonnegative safe
+integers, and the last pre-signing snapshot cannot precede the fee estimate.
+These tests use RPC fixtures, not a public validator.
+
+Twelve DOM tests now cover the terminal, including a delayed startup profile
+after manual selection and the distinction between base fee and cap in review.
+The startup request is bounded, and a failed action read releases the wallet
+action lock. Browser rendering, mobile behavior and wallet-extension execution
+remain unverified. The dependency advisory described above remains open.
