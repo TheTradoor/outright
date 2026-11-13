@@ -795,13 +795,16 @@ export class OutrightClient {
     // Final receipts still constrain later reads, including after a reload or
     // a confirmation observed by another tab. Old receipts may only have a
     // landing slot, so retain that bound as well.
-    await this.#readReceipt(owner);
+    await this.receipt(owner);
     const result = await readSnapshot(
       this.connection,
       this.profile,
       owner,
       this.#minimumSlot,
     );
+    // Another tab can reconcile while this RPC read is in flight. Its newer
+    // receipt must constrain this result before it becomes actionable.
+    await this.receipt(owner);
     this.#minimumSlot = boundedNumber(
       result.slot,
       this.#minimumSlot,
@@ -810,7 +813,7 @@ export class OutrightClient {
     );
     return result;
   }
-  async #readReceipt(owner) {
+  async receipt(owner) {
     const record = await this.journal.read(this.scope(owner));
     if (record && record.scope !== this.scope(owner))
       throw new Error("Transaction journal identity mismatch");
@@ -828,7 +831,7 @@ export class OutrightClient {
     return record;
   }
   async pending(owner) {
-    const record = await this.#readReceipt(owner);
+    const record = await this.receipt(owner);
     return record && !FINAL_STATES.has(record.status) ? record : null;
   }
   async prepare(owner, action) {
@@ -860,9 +863,7 @@ export class OutrightClient {
         commitment: "confirmed",
         minContextSlot: snapshot.slot,
       });
-      if (
-        (await this.#readReceipt(owner))?.blockhash === recent.value.blockhash
-      )
+      if ((await this.receipt(owner))?.blockhash === recent.value.blockhash)
         throw new Error(
           `Wait for a new blockhash before another ${continuationName(action.type)} transaction`,
         );
@@ -971,10 +972,7 @@ export class OutrightClient {
         (await this.pending(prepared.owner))
       )
         throw new Error("Review expired or another transaction is pending");
-      if (
-        (await this.#readReceipt(prepared.owner))?.blockhash ===
-        stored.blockhash
-      )
+      if ((await this.receipt(prepared.owner))?.blockhash === stored.blockhash)
         throw new Error(
           `Wait for a new blockhash before another ${continuationName(prepared.action.type)} transaction`,
         );

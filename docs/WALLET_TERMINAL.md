@@ -160,6 +160,13 @@ response-bank slot use their recorded landing slot. An older RPC bank cannot
 populate the portfolio or produce a new review. Concurrent account reads and
 receipt updates cannot lower a slot already observed by the client.
 
+The receipt is checked again after an account RPC response, so reconciliation
+in another tab can invalidate an older read that is still in flight. Before
+displaying balances, the terminal also checks the receipt it is about to show.
+If that receipt is newer, its signature remains visible while the old balances
+and actions are cleared. Refresh once the RPC can provide a sufficiently recent
+snapshot. This check does not lock state against later chain changes.
+
 After any confirmed, finalized or failed transaction, the next action must use
 a blockhash different from the saved transaction. This applies to portfolio
 creation, deposits, withdrawals, trades, recovery and settlement, even when the
@@ -189,6 +196,11 @@ browser storage also prevents reading the receipt, the terminal shows
 Restore storage access and refresh to recover it. Recovery does not sign or
 send the transaction again, and a late receipt lookup cannot repopulate a wallet
 session that has already disconnected.
+
+Another tab may finish reconciliation before the original tab recovers a
+submission error. Recovery displays that final receipt too, including confirmed,
+finalized and failed results, and retains its signature. It does not treat a
+completed receipt as an unresolved transaction or send it again.
 
 If signature reconciliation fails because the RPC is unavailable, returns an
 invalid status or the receipt cannot be saved, the terminal clears its old

@@ -840,6 +840,62 @@ test("a late account read cannot return an older bank than a completed read", as
   await rejection;
 });
 
+for (const outcome of ["pending", "confirmed", "finalized", "failed"])
+  test(`a ${outcome} receipt from another tab invalidates an older in-flight snapshot`, async () => {
+    const f = await fixture();
+    const review = await f.client.prepare(f.owner.publicKey, {
+      type: "deposit",
+      amount: "1",
+    });
+    const sent = await f.client.submit(review, f.sign);
+    const second = new OutrightClient(f.profile, {
+      connection: f.rpc,
+      journal: f.journal,
+    });
+    const read = f.rpc.getMultipleAccountsInfoAndContext;
+    const entered = Promise.withResolvers();
+    const release = Promise.withResolvers();
+    f.rpc.getMultipleAccountsInfoAndContext = async (...args) => {
+      const response = await read(...args);
+      entered.resolve();
+      await release.promise;
+      return response;
+    };
+    const older = f.client.snapshot(f.owner.publicKey);
+    const rejected = assert.rejects(older, /snapshot slot|older snapshot/);
+    await entered.promise;
+    try {
+      f.rpc.slot = 140;
+      f.rpc.status = {
+        slot: 140,
+        confirmationStatus:
+          outcome === "pending"
+            ? "processed"
+            : outcome === "finalized"
+              ? "finalized"
+              : "confirmed",
+        err:
+          outcome === "failed"
+            ? { InstructionError: [2, "InvalidArgument"] }
+            : null,
+      };
+      const updated = await second.reconcile(f.owner.publicKey);
+      assert.equal(updated.status, outcome);
+      assert.equal(updated.signature, sent.signature);
+      release.resolve();
+      await rejected;
+      f.rpc.getMultipleAccountsInfoAndContext = read;
+      const current = await f.client.snapshot(f.owner.publicKey);
+      assert.equal(current.slot, 140);
+      assert.deepEqual(await f.journal.read(sent.scope), updated);
+      assert.equal(f.rpc.sent.length, 1);
+    } finally {
+      release.resolve();
+      f.rpc.getMultipleAccountsInfoAndContext = read;
+      await older.catch(() => {});
+    }
+  });
+
 test("receipt persistence cannot lower a newer snapshot's bank", async () => {
   const f = await fixture();
   const review = await f.client.prepare(f.owner.publicKey, {

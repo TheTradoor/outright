@@ -363,6 +363,15 @@ async function refresh() {
   try {
     const next = await selectedClient.snapshot(selectedAccount.address);
     if (current !== generation) return;
+    const record = await selectedClient.receipt(selectedAccount.address);
+    if (current !== generation) return;
+    renderReceipt(record);
+    if (
+      next.slot < Math.max(record?.minimumSlot ?? 0, record?.confirmedSlot ?? 0)
+    )
+      throw new Error(
+        "The transaction receipt is newer than this account snapshot. Refresh to load current balances.",
+      );
     snapshot = next;
     const chosen = $("asset-select").value;
     $("asset-select").replaceChildren();
@@ -379,10 +388,6 @@ async function refresh() {
     if ([...$("asset-select").options].some((o) => o.value === chosen))
       $("asset-select").value = chosen;
     renderMarket();
-    const record = await selectedClient.journal.read(
-      selectedClient.scope(selectedAccount.address),
-    );
-    if (current === generation) renderReceipt(record);
   } catch (error) {
     if (current === generation) {
       invalidateReview();
@@ -830,18 +835,18 @@ $("sign").addEventListener("click", () =>
       invalidateReview();
       // The send may have succeeded before its status update failed. Recover
       // the durable signature instead of leaving an earlier or empty receipt.
-      let pending,
+      let savedReceipt,
         receiptUnavailable = false;
       try {
-        pending = await selectedClient.pending(selectedAccount.address);
+        savedReceipt = await selectedClient.receipt(selectedAccount.address);
       } catch {
         receiptUnavailable = true;
       }
       if (current !== generation) return;
-      if (pending || receiptUnavailable) {
+      if (savedReceipt || receiptUnavailable) {
         clearSnapshot("Not available");
         setText("footer-state", "Connection needs attention");
-        renderReceipt(pending || null);
+        renderReceipt(savedReceipt || null);
         if (receiptUnavailable) {
           setText("receipt-state", "Receipt unavailable");
           setText(

@@ -1104,19 +1104,168 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
           }
         },
       );
+    for (const status of ["confirmed", "finalized", "failed"])
+      await t.test(
+        `submission failure recovers a receipt already ${status} by another tab`,
+        { timeout: 15_000 },
+        async () => {
+          const write = f.journal.write,
+            lock = f.journal.withLock;
+          const mirror = async (scope, record) => {
+            await write(scope, record);
+            w.localStorage.setItem(
+              "outright.transaction.v1:" + scope,
+              JSON.stringify(record),
+            );
+          };
+          let recover = false,
+            settled;
+          try {
+            await connect();
+            const before = f.rpc.sent.length;
+            f.journal.write = async (scope, record) => {
+              if (record.status !== "signed") {
+                recover = true;
+                throw new Error("Receipt status could not be saved");
+              }
+              await mirror(scope, record);
+            };
+            f.journal.withLock = async (scope, work) => {
+              try {
+                return await lock(scope, work);
+              } catch (error) {
+                // The send lock is released before a different tab can reconcile.
+                if (recover) {
+                  recover = false;
+                  f.journal.write = mirror;
+                  f.rpc.status = {
+                    slot: 123,
+                    confirmationStatus:
+                      status === "finalized" ? "finalized" : "confirmed",
+                    err:
+                      status === "failed"
+                        ? { InstructionError: [2, "InvalidArgument"] }
+                        : null,
+                  };
+                  const second = new OutrightClient(f.profile, {
+                    connection: f.rpc,
+                    journal: f.journal,
+                  });
+                  settled = await originalReconcile.call(
+                    second,
+                    account.address,
+                  );
+                }
+                throw error;
+              }
+            };
+            await prepareTrade();
+            el("sign").click();
+            await until(
+              () => !el("wallet-button").disabled,
+              "submission recovery did not settle",
+            );
+            assert.equal(settled.status, status);
+            assert.equal(await f.client.pending(account.address), null);
+            assert.equal(el("receipt-link").hidden, false);
+            assert.equal(el("receipt-link").textContent, settled.signature);
+            assert.equal(
+              el("receipt-state").textContent,
+              {
+                confirmed: "Confirmed on Solana",
+                finalized: "Finalized on Solana",
+                failed: "Failed on Solana",
+              }[status],
+            );
+            assert.equal(el("reconcile").hidden, true);
+            unavailable();
+            el("refresh").click();
+            await until(
+              () => !el("wallet-button").disabled,
+              "final receipt refresh did not settle",
+            );
+            assert.equal(el("price").textContent, "150");
+            assert.equal(el("receipt-link").textContent, settled.signature);
+            assert.equal(f.rpc.sent.length, before + 1);
+          } finally {
+            f.journal.write = write;
+            f.journal.withLock = lock;
+            f.rpc.status = null;
+            f.records.clear();
+            w.localStorage.clear();
+            changed({ accounts: [] });
+          }
+        },
+      );
+    await t.test(
+      "refresh cannot pair a newer receipt with older account balances",
+      { timeout: 15_000 },
+      async () => {
+        const savedReceipt = await seedPending();
+        await connect();
+        const snapshotRead = OutrightClient.prototype.snapshot;
+        let newer = false,
+          currentBank = false;
+        OutrightClient.prototype.snapshot = async function (...args) {
+          const result = await snapshotRead.apply(this, args);
+          if (!newer) {
+            newer = true;
+            w.localStorage.setItem(
+              "outright.transaction.v1:" + savedReceipt.scope,
+              JSON.stringify({
+                ...savedReceipt,
+                status: "confirmed",
+                minimumSlot: 140,
+                confirmedSlot: 140,
+              }),
+            );
+          }
+          return currentBank ? { ...result, slot: 140 } : result;
+        };
+        try {
+          const before = f.rpc.sent.length;
+          el("refresh").click();
+          await until(
+            () => !el("wallet-button").disabled,
+            "receipt race did not settle",
+          );
+          unavailable();
+          assert.equal(el("receipt-state").textContent, "Confirmed on Solana");
+          assert.equal(el("receipt-link").textContent, savedReceipt.signature);
+          assert.match(el("feedback").textContent, /receipt|snapshot/i);
+          currentBank = true;
+          el("refresh").click();
+          await until(
+            () => !el("wallet-button").disabled,
+            "fresh balance read did not settle",
+          );
+          assert.equal(el("price").textContent, "150");
+          assert.equal(
+            el("snapshot-label").textContent,
+            "Confirmed snapshot / slot 140",
+          );
+          assert.equal(f.rpc.sent.length, before);
+        } finally {
+          OutrightClient.prototype.snapshot = snapshotRead;
+          f.records.clear();
+          w.localStorage.clear();
+          changed({ accounts: [] });
+        }
+      },
+    );
     await t.test(
       "a late submission receipt lookup cannot repopulate a disconnected wallet",
       { timeout: 15_000 },
       async () => {
         await connect();
         const write = f.journal.write,
-          pending = OutrightClient.prototype.pending;
+          receipt = OutrightClient.prototype.receipt;
         const release = Promise.withResolvers();
         let lookupStarted = false,
           holdLookup = false;
         const before = f.rpc.sent.length;
-        OutrightClient.prototype.pending = async function (owner) {
-          const record = await pending.call(this, owner);
+        OutrightClient.prototype.receipt = async function (owner) {
+          const record = await receipt.call(this, owner);
           if (this !== f.client && holdLookup) {
             lookupStarted = true;
             await release.promise;
@@ -1173,7 +1322,7 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
             () => !el("wallet-button").disabled,
             "lookup cleanup did not settle",
           );
-          OutrightClient.prototype.pending = pending;
+          OutrightClient.prototype.receipt = receipt;
           f.journal.write = write;
           f.records.clear();
           w.localStorage.clear();
