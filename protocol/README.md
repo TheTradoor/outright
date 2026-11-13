@@ -65,6 +65,10 @@ implementation, independently of the JavaScript reader. Its output is compared
 with the checked-in contract. JavaScript
 regressions cover malformed state, changed deployments, wallet mutation,
 simulation failure, lost RPC responses, pending transaction recovery and expiry.
+Keeper tests also cover missing portfolios before and after simulation. An
+explicit RPC absence defers the target without signing or reserving a fee;
+present accounts retain strict identity checks. CLI watch tests process the next
+target and preserve pending receipts and duplicate protection across restart.
 
 [SBF tests](svm/README.md) execute the JavaScript instructions and planner output
 against the compiled wrapper and SPL Token. They cover the bilateral lifecycle,
