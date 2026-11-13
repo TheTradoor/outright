@@ -68,8 +68,8 @@ not worst-case production limits.
 
 ## Remaining verification
 
-Nonzero fees and funding, changing or stale oracle inputs, liquidation,
-insolvency, production matcher behavior, and recovery require additional
+Nonzero fees and funding, liquidation, insolvency, production matcher behavior,
+and full recovery require additional
 transaction coverage. Current-cluster compatibility, funded liquidity, wallet
 extension testing, service recovery, and independent security review
 remain release requirements. Full Kani verification was not run for this change.
@@ -90,3 +90,26 @@ RPC and wallet-failure regressions use deterministic test doubles. They check
 persistence before send, ambiguous responses after broadcast, reload recovery,
 message mutation, invalid signatures and refusal to repeat an unresolved action.
 They do not establish public-cluster or wallet-extension compatibility.
+
+## Keeper extension
+
+Built on merged commit `f23fffd5b133699be4783861d5e9cdfdcd368a70`, retaining the
+same engine and wrapper pins. On 13 November 2026, the Rust contract check,
+109 JavaScript tests, seven local SBF tests and terminal build passed locally.
+
+Two SBF cases exercise the keeper planner. One commits a newer synthetic Pyth
+observation without the portfolio owner's signature, verifies that a forged
+caller slot cannot advance beyond the SVM Clock, and checks unchanged SPL
+token balances. The other rejects stale observations, a wrong feed, excessive
+confidence and an incorrect provider owner, with exact error assertions and
+byte-for-byte market, portfolio and custody rollback checks.
+
+Operator regressions cover durable write failure, interrupted workers,
+concurrent cycles, changed source/account bindings, fee exhaustion, ambiguous
+broadcast, expiry and reconciliation after restart. A CLI integration test
+uses a local JSON-RPC server and two processes: the first signs and submits;
+the second reconciles the saved signature without a second broadcast. This
+server is a deterministic RPC fixture, not a public cluster.
+
+Live provider publishing, a funded public deployment, hosted service recovery,
+portfolio discovery and full wallet-extension validation remain unverified.

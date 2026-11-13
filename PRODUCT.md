@@ -48,7 +48,8 @@ rules.
 
 Milestones define the implementation and verification required for a release.
 The native client, wallet terminal and local execution tests are present.
-Market operations, broader risk coverage and public-release milestones remain open.
+A bounded keeper client is also present. Hosted market operations, broader risk
+coverage and public-release milestones remain open.
 
 ### Native integration
 
@@ -91,7 +92,8 @@ accepting public funds.
 
 ## Current scope
 
-This repository contains the engine, native client, integration fixtures, and
-project documentation. There is no Outright program deployment, wallet
-application, or public market. Local integration tests do not satisfy the
-public-release requirements.
+This repository contains the engine, native client, wallet terminal, bounded
+keeper client, integration fixtures and project documentation. There is no
+Outright program deployment or public market. See
+[market operations](docs/MARKET_OPERATIONS.md) for the keeper's setup and limits.
+Local integration tests do not satisfy the public-release requirements.

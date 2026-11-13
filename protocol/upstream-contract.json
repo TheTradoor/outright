@@ -99,6 +99,17 @@
       "name": "permissionlessCrank"
     }
   ],
+  "keeper": {
+    "hybridMode": 1,
+    "manualMode": 0,
+    "nonProgressError": 22,
+    "oracleOwners": [
+      "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "SBondMDrcV3K4kxZR1HNVT7osZxAHVHgYXL5Ze1oMUv",
+      "Aio4gaXjXzJNVLtzwtNVmSqGKpANtXhybbkhtAC94ji2",
+      "HEvSKofvBgfaexv23kMabbYqxasxU3mQ4ibBMEmJWHny"
+    ]
+  },
   "layouts": {
     "adlOne": "1000000000000000",
     "asset": {

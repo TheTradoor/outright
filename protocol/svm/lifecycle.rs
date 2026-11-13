@@ -91,6 +91,101 @@ fn account_json(env: &V16Svm, address: Pubkey) -> Value {
     }
 }
 
+fn keeper_instruction(env: &V16Svm, payer: Pubkey, oracle: Pubkey, feed: [u8; 32]) -> Instruction {
+    let target = env.actors[0].portfolio;
+    let market_id = env.primary_market_state().1.assets[0].market_id;
+    let input = json!({"operation":"planCrank", "slot":env.current_slot(), "discoveryIndex":0,
+        "config":{"deployment":{"program":{"address":env.program_id.to_string()},
+            "market":env.market.to_string(),"collateral":{"mint":env.mint.to_string()}},
+            "feePayer":payer.to_string(),
+            "assets":[{"index":0,"marketId":market_id.to_string(),"oracleMode":1,
+                "feeds":[{"id":Pubkey::new_from_array(feed).to_string(),"account":oracle.to_string()}]}]},
+        "target":{"address":target.to_string(),"owner":env.actors[0].signer.pubkey().to_string()},
+        "marketAccount":account_json(env,env.market),"portfolioAccount":account_json(env,target)});
+    from_js_instruction(&js(input))
+}
+
+fn oracle_keeper_fixture(seed: u8) -> (V16Svm, Pubkey, [u8; 32]) {
+    let mut config = MarketConfig::default();
+    config.initial_price = 150_000_000;
+    let mut env = V16Svm::new_with_asset_count([seed; 32], config, 1);
+    let feed = [77; 32];
+    env.set_clock(1, 1_000);
+    let oracle = env.set_pyth_price(&feed, 150_000_000, -6, 10, 1_000);
+    env.configure_hybrid_oracle(0, 1, 1_000, 0, [feed, [0; 32], [0; 32]], &[oracle], 10, 100)
+        .expect("configure authenticated Pyth fixture through SBF");
+    (env, oracle, feed)
+}
+
+#[test]
+fn keeper_planner_advances_authenticated_oracle_without_portfolio_owner_signature() {
+    let (mut env, oracle, feed) = oracle_keeper_fixture(81);
+    env.set_clock(2, 1_001);
+    env.update_pyth_price(oracle, &feed, 151_000_000, -6, 10, 1_001);
+    let tokens = env.all_token_account_data();
+    let before = env.svm.get_account(&env.market).unwrap();
+    let payer = Keypair::new();
+    env.svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
+    let mut ix = keeper_instruction(&env, payer.pubkey(), oracle, feed);
+    assert_eq!(ix.accounts.len(), 4);
+    assert!(!ix.accounts[3].is_writable && !ix.accounts[3].is_signer);
+    // A forged instruction hint must not advance past the authenticated Clock.
+    ix.data[1..9].copy_from_slice(&999_999u64.to_le_bytes());
+    let cu = send(&mut env, ix, &[&payer]).expect("permissionless keeper oracle progress");
+    let after = env.svm.get_account(&env.market).unwrap();
+    assert_ne!(before.data, after.data);
+    let profile = percolator_prog::state::read_asset_oracle_profile(&after.data, 0).unwrap();
+    assert_eq!(profile.oracle_target_price_e6, 151_000_000);
+    assert_eq!(profile.oracle_target_publish_time, 1_001);
+    assert_eq!(profile.last_good_oracle_slot, 2);
+    assert!(env.primary_market_state().1.current_slot <= 2);
+    assert_eq!(env.all_token_account_data(), tokens);
+    assert!(cu <= 1_400_000);
+}
+
+#[test]
+fn keeper_oracle_failures_roll_back_market_portfolio_and_custody() {
+    for (case, seed) in [
+        ("stale", 82),
+        ("wrong_feed", 83),
+        ("confidence", 84),
+        ("owner", 85),
+    ] {
+        let (mut env, oracle, feed) = oracle_keeper_fixture(seed);
+        env.set_clock(2, 1_001);
+        let (observed_feed, confidence, publish) = match case {
+            "stale" => (feed, 10, 900),
+            "wrong_feed" => ([78; 32], 10, 1_001),
+            "confidence" => (feed, 150_000_000, 1_001),
+            _ => (feed, 10, 1_001),
+        };
+        env.update_pyth_price(oracle, &observed_feed, 151_000_000, -6, confidence, publish);
+        if case == "owner" {
+            let mut account = env.svm.get_account(&oracle).unwrap();
+            account.owner = Pubkey::new_unique();
+            env.svm.set_account(oracle, account).unwrap();
+        }
+        let target = env.actors[0].portfolio;
+        let before = snapshot(&env, &[target]);
+        let payer = Keypair::new();
+        env.svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
+        let ix = keeper_instruction(&env, payer.pubkey(), oracle, feed);
+        let error = send(&mut env, ix, &[&payer]).unwrap_err();
+        let expected = match case {
+            "stale" => InstructionError::Custom(PercolatorError::OracleStale as u32),
+            "wrong_feed" => InstructionError::Custom(PercolatorError::InvalidOracleKey as u32),
+            "confidence" => InstructionError::Custom(PercolatorError::OracleConfTooWide as u32),
+            _ => InstructionError::IllegalOwner,
+        };
+        assert_eq!(
+            error,
+            TransactionError::InstructionError(2, expected),
+            "{case}"
+        );
+        assert_unchanged(&env, &before);
+    }
+}
+
 #[test]
 fn wallet_planner_creates_seeded_portfolio_and_withdrawal_token_account() {
     let mut env = V16Svm::new_with_asset_count([76; 32], MarketConfig::default(), 1);

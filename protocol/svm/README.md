@@ -56,11 +56,13 @@ Local results and binary hashes are recorded in
 
 ## Limits
 
-The fixture uses a fixed price, zero funding, and zero trade fees. It does not
-cover live oracle delivery, price shocks, liquidation, nonzero fees or funding,
-production matcher behavior, keeper availability, or wallet-extension compatibility. The upstream
-matcher program is loaded because the shared fixture requires it; that alone
-is not matcher-execution coverage.
+The trading fixture uses a fixed price, zero funding and zero trade fees.
+Additional keeper cases advance an authenticated synthetic Pyth observation and
+reject stale, wrong-feed, excessive-confidence and wrong-owner data, checking
+rollback. A forged caller slot cannot advance beyond the SVM Clock.
+The suite does not cover live oracle delivery, liquidation, nonzero fees or
+funding, production matcher behavior, hosted keeper availability, or
+wallet-extension compatibility.
 
 Local VM results do not establish current-cluster compatibility or approve a
 production binary. Program deployment, funded liquidity, market limits, and

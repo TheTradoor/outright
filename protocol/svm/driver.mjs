@@ -4,6 +4,7 @@ import { buildInstruction } from "../src/instructions.mjs";
 import { readPortfolio } from "../src/accounts.mjs";
 import { readMarket, positionForMarket } from "../src/market.mjs";
 import { planAction, portfolioAddress } from "../src/client.mjs";
+import { planCrank } from "../src/keeper.mjs";
 import { PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 
@@ -38,6 +39,26 @@ if (input.operation === "readPortfolio") {
     input.portfolioExpected,
   );
   result = p.positions.map((leg) => positionForMarket(leg, market));
+} else if (input.operation === "planCrank") {
+  const profile = input.config.deployment;
+  const market = readMarket(account(input.marketAccount), {
+    programId: profile.program.address,
+    address: profile.market,
+    collateralMint: profile.collateral.mint,
+  });
+  const portfolio = readPortfolio(account(input.portfolioAccount), {
+    programId: profile.program.address,
+    address: input.target.address,
+    market: profile.market,
+    owner: input.target.owner,
+  });
+  result = wireInstruction(
+    planCrank(
+      input.config,
+      { market, portfolio, slot: input.slot },
+      input.discoveryIndex,
+    ),
+  );
 } else if (input.operation === "planAction") {
   const profile = input.profile;
   const identity = await portfolioAddress(
