@@ -161,9 +161,14 @@ Source paths refer to the pinned wrapper repository.
 | CASE-04 | `v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order` | `tests/invariants/cu/inv_045_reward_terminal_redemption.rs:226` | Portfolio equality assertion fails; keeper capital 1,000 versus 2,995. [CU log 05](qualification/2026-11-14/cu-05.log). |
 | CASE-05 | `v16_program_retained_stale_penalty_survives_fresh_liquidation_and_catchup` | `tests/invariants/cu/inv_045_retained_penalty_handoff.rs:468` | Reward/accounting tuple differs: keeper capital 1,000 versus 3,762. [CU log 02](qualification/2026-11-14/cu-02.log). |
 | CASE-06 | `v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody` | `tests/invariants/cu/inv_045_report_cadence_rewards.rs:595` | Renewal/crank cadence changes liquidation economics; exact unequal tuples preserved. [CU log 01](qualification/2026-11-14/cu-01.log). |
-| CASE-07 | `v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle` | `tests/invariants/cu/inv_072_order_robust_crankability.rs:893`; panic in focused harness `:4766` | `Custom(22)` / `OracleStale`; program used 44,995 of 1,399,700 CU. [CU log 06](qualification/2026-11-14/cu-06.log). |
-| CASE-08 | `v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape` | `tests/invariants/cu/inv_077_bounded_work_and_maximum_shape_compute.rs:5285`; panic in focused harness `:4841` | `Custom(22)` / `OracleStale`; program used 107,866 of 1,399,700 CU. [CU log 07](qualification/2026-11-14/cu-07.log). |
+| CASE-07 | `v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle` | `tests/invariants/cu/inv_072_order_robust_crankability.rs:893`; panic in focused harness `:4766` | `Custom(22)` / `EngineNonProgress`; program used 44,995 of 1,399,700 CU. [CU log 06](qualification/2026-11-14/cu-06.log). |
+| CASE-08 | `v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape` | `tests/invariants/cu/inv_077_bounded_work_and_maximum_shape_compute.rs:5285`; panic in focused harness `:4841` | `Custom(22)` / `EngineNonProgress`; program used 107,866 of 1,399,700 CU. [CU log 07](qualification/2026-11-14/cu-07.log). |
 | CASE-09 | `inv_086_reference_model_and_deployed_transition_equivalence::v16_program_reference_model_matches_deployed_public_sequence` | `tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs:2070` | Exposure divergence. Focused run: zero passed, one failed, 335 filtered; 139.91 seconds. [INV-086 log](qualification/2026-11-14/inv086.log). |
+
+The error labels above are corrected against the pinned wrapper enum: code
+22 is `EngineNonProgress`; `OracleStale` is code 27. The earlier report
+misnamed code 22. The raw transaction logs are unchanged. These two cases fail
+the same-slot authenticated-observation progress guard.
 
 The observed groups are five reward-policy/accounting failures, one
 cadence-equivalence failure, two stale-oracle policy conflicts, and one
