@@ -551,6 +551,197 @@ fn javascript_cpi_enforces_price_limit_and_revoked_maker_consent() {
 }
 
 #[test]
+fn wallet_planner_accounts_for_nonzero_fees_and_atomic_rejections() {
+    // At 150.000001 and 37 bps, 0.100001 units cost 55,501 collateral atoms
+    // per side. Each partial close rounds separately to 27,751 atoms. A
+    // one-micro-unit fill costs one atom, including when the taker is short.
+    for (seed, direction, fills) in [
+        (
+            90,
+            1i64,
+            vec![
+                (100_001i64, 55_501u128),
+                (-50_000, 27_751),
+                (-50_001, 27_751),
+            ],
+        ),
+        (
+            91,
+            -1,
+            vec![(100_001, 55_501), (-50_000, 27_751), (-50_001, 27_751)],
+        ),
+        (92, 1, vec![(1, 1), (-1, 1)]),
+        (93, -1, vec![(1, 1), (-1, 1)]),
+    ] {
+        let mut config = MarketConfig::default();
+        config.initial_price = 150_000_001;
+        let mut env = V16Svm::new_with_asset_count([seed; 32], config, 1);
+        env.update_trade_fee_policy(37).unwrap();
+        env.set_matcher_config_with_trade_fee_cap(1, 1, 37).unwrap();
+        env.set_matcher_spreads(1, 0, 0).unwrap();
+        let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+        let maker_owner = env.actors[1].signer.pubkey();
+        let maker = env.actors[1].portfolio;
+        let context = env.actors[1].matcher_context;
+        let source = env.actors[0].source_token;
+        let destination = env.actors[0].destination_token;
+        let source_before = env.token_amount(source);
+        let destination_before = env.token_amount(destination);
+        let vault_before = env.token_amount(env.vault);
+        let supply_before = env.token_supply_observed();
+        let mut input = json!({"operation":"planAction","owner":owner.pubkey().to_string(),
+            "profile":{"program":{"address":env.program_id.to_string()},"market":env.market.to_string(),
+                "vault":env.vault.to_string(),"collateral":{"mint":env.mint.to_string(),"decimals":6,"symbol":"TEST"},
+                "maxOracleAgeSlots":20,"assets":[{"index":0,"symbol":"SOL"}],
+                "maker":{"portfolio":maker.to_string(),"owner":maker_owner.to_string(),
+                    "program":{"address":env.matcher_program.to_string()},"context":context.to_string(),
+                    "feeBps":50,"backingFeeCapBps":0}},
+            "marketAccount":account_json(&env,env.market),"action":{"type":"initialize"},
+            "rentLamports":Rent::default().minimum_balance(percolator_prog::constants::PORTFOLIO_ACCOUNT_LEN)});
+        let init = js(input.clone());
+        let portfolio = Pubkey::from_str(init["portfolio"].as_str().unwrap()).unwrap();
+        let initialize: Vec<_> = init["instructions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(from_js_instruction)
+            .collect();
+        send_many(&mut env, &initialize, &[&owner]).expect("planned portfolio initialization");
+        input["marketAccount"] = account_json(&env, env.market);
+        input["portfolioAccount"] = account_json(&env, portfolio);
+        input["userToken"] = json!(source.to_string());
+        input["tokenAccountExists"] = json!(true);
+        input["tokenBalance"] = json!(source_before.to_string());
+        input["action"] = json!({"type":"deposit","amount":"25"});
+        let deposit = js(input.clone());
+        let instructions: Vec<_> = deposit["instructions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(from_js_instruction)
+            .collect();
+        send_many(&mut env, &instructions, &[&owner]).expect("planned collateral deposit");
+        let market_before = env.primary_market_state().1;
+        let maker_capital = env.primary_portfolio(1).capital.get();
+        let custody_before = env.all_token_account_data();
+        let mut fees = 0u128;
+        let mut position = 0i64;
+        for (index, (quantity, expected_fee)) in fills.iter().enumerate() {
+            let signed = direction * quantity;
+            input["marketAccount"] = account_json(&env, env.market);
+            input["portfolioAccount"] = account_json(&env, portfolio);
+            input["makerAccount"] = account_json(&env, maker);
+            input["slot"] = json!(env.current_slot());
+            input["action"] = json!({"type":"trade","side":if signed > 0 {"buy"} else {"sell"},
+                "assetIndex":0,"size":format!("0.{:06}", quantity.abs()),"limitPrice":"150.000001"});
+            let planned = js(input.clone());
+            let instructions: Vec<_> = planned["instructions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(from_js_instruction)
+                .collect();
+            assert_eq!(instructions.len(), 1);
+            if index == 0 {
+                let a = read(&env, portfolio, owner.pubkey());
+                let b = read(&env, maker, maker_owner);
+                // Bypass the planner's consent check to exercise the SBF guard.
+                let insufficient_fee_cap = build(
+                    &env,
+                    "tradeCpi",
+                    json!({"takerPortfolioId":a["portfolioId"],"takerPositionEpoch":a["positionEpoch"],
+                        "makerPortfolioId":b["portfolioId"],"makerPositionEpoch":b["positionEpoch"],
+                        "makerMatcherSequence":b["expectedSequence"],"assetIndex":0,"marketId":"1",
+                        "sizeQ":signed.to_string(),"feeBps":"36","backingFeeCapBps":0,"limitPrice":"150000001"}),
+                    json!({"takerOwner":owner.pubkey().to_string(),"market":env.market.to_string(),
+                        "takerPortfolio":portfolio.to_string(),"makerPortfolio":maker.to_string(),
+                        "makerOwner":maker_owner.to_string(),"matcherProgram":env.matcher_program.to_string(),
+                        "matcherContext":context.to_string()}),
+                );
+                let before = snapshot(&env, &[portfolio, maker, context]);
+                rejected(
+                    send(&mut env, insufficient_fee_cap, &[&owner]),
+                    2,
+                    PercolatorError::InvalidInstruction,
+                );
+                assert_unchanged(&env, &before);
+                // The fill at index 2 must succeed before duplicate initialization
+                // fails at index 3. Its fees and positions must also roll back.
+                rejected(
+                    send_many(
+                        &mut env,
+                        &[instructions[0].clone(), initialize.last().unwrap().clone()],
+                        &[&owner],
+                    ),
+                    3,
+                    PercolatorError::AlreadyInitialized,
+                );
+                assert_unchanged(&env, &before);
+            }
+            send_many(&mut env, &instructions, &[&owner]).expect("planned fee-bearing CPI fill");
+            fees += expected_fee;
+            position += signed;
+            let taker_state = read(&env, portfolio, owner.pubkey());
+            assert_eq!(taker_state["capital"], (25_000_000 - fees).to_string());
+            assert_eq!(taker_state["pnl"], "0");
+            assert_eq!(env.primary_portfolio(1).capital.get(), maker_capital - fees);
+            let market = env.primary_market_state().1;
+            assert_eq!(market.insurance, market_before.insurance + 2 * fees);
+            assert_eq!(market.c_tot, market_before.c_tot - 2 * fees);
+            assert_eq!(market.vault, market_before.vault);
+            assert_eq!(env.all_token_account_data(), custody_before);
+            let display = js(json!({"operation":"positions",
+                "marketAccount":account_json(&env,env.market),
+                "marketExpected":{"programId":env.program_id.to_string(),"address":env.market.to_string()},
+                "portfolioAccount":account_json(&env,portfolio),
+                "portfolioExpected":{"programId":env.program_id.to_string(),"address":portfolio.to_string(),
+                    "market":env.market.to_string(),"owner":owner.pubkey().to_string()}}));
+            if position == 0 {
+                assert!(display.as_array().unwrap().is_empty());
+            } else {
+                assert_eq!(display[0]["effectiveSizeQ"], position.to_string());
+            }
+        }
+        let remaining = 25_000_000 - fees;
+        let p = read(&env, portfolio, owner.pubkey());
+        let excessive = build(
+            &env,
+            "withdraw",
+            json!({"portfolioId":p["portfolioId"],"expectedSequence":p["expectedSequence"],"amount":(remaining + 1).to_string()}),
+            custody(&env, portfolio, owner.pubkey(), destination),
+        );
+        let before = snapshot(&env, &[portfolio, maker, context]);
+        rejected(
+            send(&mut env, excessive, &[&owner]),
+            2,
+            PercolatorError::EngineLockActive,
+        );
+        assert_unchanged(&env, &before);
+        input["marketAccount"] = account_json(&env, env.market);
+        input["portfolioAccount"] = account_json(&env, portfolio);
+        input["userToken"] = json!(destination.to_string());
+        input["action"] = json!({"type":"withdraw","amount":format!("{}.{:06}", remaining / 1_000_000, remaining % 1_000_000)});
+        let withdrawal = js(input);
+        let instructions: Vec<_> = withdrawal["instructions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(from_js_instruction)
+            .collect();
+        send_many(&mut env, &instructions, &[&owner])
+            .expect("withdraw capital net of trading fees");
+        assert_eq!(read(&env, portfolio, owner.pubkey())["capital"], "0");
+        assert_eq!(env.token_amount(source), source_before - 25_000_000);
+        assert_eq!(
+            env.token_amount(destination),
+            destination_before + remaining as u64
+        );
+        assert_eq!(env.token_amount(env.vault), vault_before + fees as u64);
+        assert_eq!(env.token_supply_observed(), supply_before);
+    }
+}
+
+#[test]
 fn javascript_instructions_reject_invalid_identity_authority_and_market_bindings() {
     let mut config = MarketConfig::default();
     config.initial_price = 150_000_000;

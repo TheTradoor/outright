@@ -59,12 +59,16 @@ Local results and binary hashes are recorded in
 
 ## Limits
 
-The trading fixture uses a fixed price, zero funding and zero trade fees.
+The trading fixtures use fixed prices and zero funding. One CPI lifecycle
+uses a 37 bps on-chain base fee with a 50 bps taker cap, verifies fees on both
+counterparties, and checks rounding through partial closes and one-micro-unit
+positions in both directions. Failed transactions must roll back fees,
+insurance, positions, matcher context and custody changes.
 Additional keeper cases advance an authenticated synthetic Pyth observation and
 reject stale, wrong-feed, excessive-confidence and wrong-owner data, checking
 rollback. A forged caller slot cannot advance beyond the SVM Clock.
-The suite does not cover live oracle delivery, liquidation, nonzero fees or
-funding, production matcher behavior, hosted keeper availability, or
+The suite does not cover live oracle delivery, liquidation, nonzero funding,
+mark-movement or backing fees, production matcher behavior, hosted keeper availability, or
 wallet-extension compatibility.
 
 Local VM results do not establish current-cluster compatibility or approve a
