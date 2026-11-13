@@ -13,7 +13,7 @@ import {
   SystemProgram,
   VersionedTransaction,
 } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { getAssociatedTokenAddressSync } from "../src/token.mjs";
 import bs58 from "bs58";
 import contract from "../upstream-contract.json" with { type: "json" };
 import { sha256 } from "../src/client.mjs";
@@ -186,6 +186,7 @@ test("keeper persists before send and reconciles before another signature", asyn
   assert.equal((await f.keeper.tick({ send: true })).status, "submitted");
   assert.equal((await f.keeper.tick({ send: true })).status, "pending");
   assert.equal(f.rpc.sent.length, 1);
+  f.rpc.slot = 125;
   f.rpc.status = { confirmationStatus: "confirmed", err: null, slot: 125 };
   assert.equal((await f.keeper.tick({ send: true })).status, "confirmed");
   assert.equal(f.state().minimumSlot, 125);
@@ -618,4 +619,62 @@ test("crashed workers leave a lock and the last durable state for inspection", a
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+});
+for (const malformed of [
+  "stale bank",
+  "invalid bank",
+  "future landing slot",
+  "invalid landing slot",
+  "missing error",
+  "unknown commitment",
+  "missing result",
+  "extra result",
+])
+  test(`keeper preserves the pending receipt on ${malformed}`, async () => {
+    const f = await fixture();
+    await f.keeper.tick({ send: true });
+    const before = f.state();
+    const response = {
+      context: { slot: 125 },
+      value: [{ confirmationStatus: "confirmed", slot: 125, err: null }],
+    };
+    if (malformed === "stale bank") response.context.slot = 123;
+    if (malformed === "invalid bank") response.context.slot = NaN;
+    if (malformed === "future landing slot") response.value[0].slot = 126;
+    if (malformed === "invalid landing slot") response.value[0].slot = -1;
+    if (malformed === "missing error") delete response.value[0].err;
+    if (malformed === "unknown commitment")
+      response.value[0].confirmationStatus = "unknown";
+    if (malformed === "missing result") response.value = [];
+    if (malformed === "extra result") response.value.push(null);
+    f.rpc.getSignatureStatuses = async () => response;
+    await assert.rejects(f.keeper.tick({ send: true }), /Invalid/);
+    assert.deepEqual(f.state(), before);
+    assert.equal(f.rpc.sent.length, 1);
+  });
+
+for (const height of [-1, NaN, Infinity, 10.5, "10"])
+  for (const pending of [false, true])
+    test(`keeper rejects invalid block height ${String(height)} with pending=${pending}`, async () => {
+      const f = await fixture();
+      if (pending) await f.keeper.tick({ send: true });
+      const before = f.state();
+      f.rpc.height = height;
+      await assert.rejects(
+        f.keeper.tick({ send: true }),
+        /Invalid block height/,
+      );
+      assert.deepEqual(f.state(), before);
+      assert.equal(f.rpc.sent.length, pending ? 1 : 0);
+    });
+
+test("keeper cannot sign against a bank older than its fee estimate", async () => {
+  const f = await fixture();
+  f.rpc.getFeeForMessage = async () => ({
+    context: { slot: 125 },
+    value: 5000,
+  });
+  await assert.rejects(f.keeper.tick({ send: true }), /Invalid .*slot/);
+  assert.equal(f.rpc.sent.length, 0);
+  assert.equal(f.state(), null);
 });

@@ -173,6 +173,12 @@ process that recovers the first process's receipt without sending again.
 instruction against the pinned SBF wrapper. It checks authenticated Pyth
 progress, the Clock boundary, read-only oracle metas, and rejection rollback
 for stale data, wrong feed IDs, excessive confidence and incorrect ownership.
+It also moves synthetic Pyth prices against long and short positions, then
+checks loss recognition, bounded partial liquidation, rounded fees, remaining
+exposure and custody. Stale evidence and later failing instructions must leave
+the affected state unchanged. The separate funding fixture uses AuthMark and
+the low-level instruction builder; it does not change the operator's accepted
+oracle modes.
 Those provider accounts are synthetic local fixtures. The tests do not prove
 live Pyth publishing, public-cluster compatibility or hosted-service uptime.
 

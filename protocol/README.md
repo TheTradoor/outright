@@ -32,6 +32,7 @@ wallet requirements, transaction states, and current limits.
 | `src/instructions.mjs` | Exact instruction bytes, account metas and PDA derivations |
 | `src/accounts.mjs` | Portfolio identity, sequences, positions, matcher consent and recorded accounting |
 | `src/market.mjs` | Market, asset and oracle state; effective position quantities after ADL |
+| `src/token.mjs` | Strict classic SPL Token layouts, associated addresses and idempotent ATA creation |
 | `src/client.mjs` | Deployment verification, coherent snapshots, action planning and transaction lifecycle |
 | `terminal/` | Wallet Standard interface, transaction review and receipts |
 | `profile.mjs` | Read-only enrollment of a deployment against local build artifacts |
@@ -44,7 +45,7 @@ wallet requirements, transaction states, and current limits.
 | --- | --- |
 | Create portfolio | Seeded system allocation and program initialization in one transaction |
 | Deposit | Classic SPL Token collateral from the owner's associated token account |
-| Withdraw | Engine-permitted withdrawal; creates a missing destination ATA atomically |
+| Withdraw | Engine-permitted withdrawal from a flat portfolio; creates a missing destination ATA atomically |
 | Matcher trade | Immediate bounded-price CPI trade against a configured, funded maker |
 | Bilateral trade | Low-level instruction builder; both owners must sign |
 | Permissionless crank | Bounded localnet/devnet worker for configured portfolios and oracle accounts |
@@ -56,15 +57,21 @@ PnL are not withdrawal quotes. A separate reduce-only action is not implemented.
 ## Evidence
 
 The Rust exporter uses the upstream encoder, decoder, initializers and type
-offsets. Its output is compared with the checked-in contract. JavaScript
+offsets. It also packs classic token fixtures with the official Rust SPL Token
+implementation, independently of the JavaScript reader. Its output is compared
+with the checked-in contract. JavaScript
 regressions cover malformed state, changed deployments, wallet mutation,
 simulation failure, lost RPC responses, pending transaction recovery and expiry.
 
 [SBF tests](svm/README.md) execute the JavaScript instructions and planner output
 against the compiled wrapper and SPL Token. They cover the bilateral lifecycle,
 atomic allocation and ATA creation, bounded CPI execution, revoked maker
-consent, account-binding failures and rollback. The CPI matcher is an upstream
-test fixture. These are local execution tests, not public-cluster validation.
+consent, account-binding failures, fractional funding, bounded partial
+liquidation and rollback. Funding uses a controlled AuthMark fixture; the
+operator's liquidation test uses synthetic Pyth observations. The CPI matcher
+is an upstream test fixture. These are local execution tests, not public-cluster
+validation. See the [verification record](../docs/NATIVE_VERIFICATION.md) for
+exact coverage and remaining requirements.
 
 The terminal and keeper support localnet and devnet only. The
 [operator guide](../docs/MARKET_OPERATIONS.md) covers setup, simulation, sending,

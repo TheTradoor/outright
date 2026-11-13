@@ -4,7 +4,7 @@ import {
   SystemProgram,
   VersionedTransaction,
 } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { getAssociatedTokenAddressSync } from "../../src/token.mjs";
 import bs58 from "bs58";
 import contract from "../../upstream-contract.json" with { type: "json" };
 import {

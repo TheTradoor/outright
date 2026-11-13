@@ -2,7 +2,7 @@
 // Read-only deployment enrollment. No keypair loading, signing, or broadcasting.
 import { readFileSync } from "node:fs";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync, unpackMint } from "@solana/spl-token";
+import { getAssociatedTokenAddressSync, unpackMint } from "./src/token.mjs";
 import { readMarket } from "./src/market.mjs";
 import { validateProfile, readSnapshot, sha256 } from "./src/client.mjs";
 import {

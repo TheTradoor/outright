@@ -127,6 +127,11 @@ market, including after reload. Reconciliation searches signature history.
 Its response bank cannot precede the last observed slot. A transaction's landing
 slot cannot exceed that response bank. Malformed responses leave the receipt
 pending and do not permit a replacement transaction.
+Account reads also restore the receipt's slot bound after reload, including
+confirmed, finalized and failed receipts. Older receipts without a stored
+response-bank slot use their recorded landing slot. An older RPC bank cannot
+populate the portfolio or produce a new review. Concurrent account reads and
+receipt updates cannot lower a slot already observed by the client.
 There is no automatic re-signing, replacement deposit, or assumption that a
 missing status means failure. If history remains unavailable after expiry,
 the operator must reconcile the signature and portfolio state through a reliable
@@ -137,6 +142,10 @@ market data. A late response cannot restore a disconnected session. Empty asset
 lists still update balances and positions; expired or revoked maker consent
 disables trade review.
 A delayed startup profile cannot replace a profile already selected manually.
+Disconnecting does not cancel a transaction already signed or sent. Its receipt
+remains associated with the original wallet and market. Late submission results
+and storage errors cannot overwrite the disconnected session's display;
+reconnect the original account to inspect and reconcile its saved signature.
 
 Receipts are local to the browser. They are not an indexer, tax record or complete
 trade history. The chart contains observations collected during the current
@@ -148,6 +157,11 @@ Effective exposure uses the pinned engine's conservative ADL rounding. A retaine
 obligation from the immediately prior reset has zero live exposure and is shown
 as pending cleanup. Recorded PnL and capital are displayed separately. The UI
 does not calculate a withdrawable balance from their sum.
+
+The pinned engine requires a portfolio to have no active position legs before
+withdrawal. A partial liquidation can restore health while leaving a position
+open; it does not make the remaining capital withdrawable. Transaction
+simulation must still accept a withdrawal before the wallet is asked to sign.
 
 Trades execute immediately through the configured matcher. They may fill
 partially and do not become resting orders. There is no reduce-only instruction

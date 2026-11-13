@@ -18,6 +18,59 @@ import { readPortfolio } from "../src/accounts.mjs";
 
 import { fixture, info, pub, withMaker } from "./support/client-fixture.mjs";
 
+test("CPI fee consent compares both parties with the on-chain base fee", async () => {
+  const f = await withMaker(await fixture());
+  const profile = { ...f.profile, maker: { ...f.profile.maker, feeBps: 50 } };
+  const observed = await f.client.snapshot(f.owner.publicKey);
+  const snapshot = {
+    ...observed,
+    maker: { ...observed.maker, matcherFeeCapBps: 37 },
+    market: {
+      ...observed.market,
+      wrapper: { ...observed.market.wrapper, trade_fee_base_bps: 37n },
+    },
+  };
+  const action = {
+    type: "trade",
+    side: "buy",
+    size: "0.1",
+    limitPrice: "150",
+    assetIndex: 0,
+  };
+  assert.equal(planAction(profile, snapshot, action).instructions.length, 1);
+  snapshot.maker.matcherFeeCapBps = 36;
+  assert.throws(() => planAction(profile, snapshot, action), /fee.*consent/);
+  snapshot.maker.matcherFeeCapBps = 100;
+  snapshot.market.wrapper.trade_fee_base_bps = 51n;
+  assert.throws(() => planAction(profile, snapshot, action), /fee.*consent/);
+});
+
+test("a base fee change during signing requires a fresh review even within consent", async () => {
+  const f = await withMaker(await fixture());
+  const review = await f.client.prepare(f.owner.publicKey, {
+    type: "trade",
+    side: "buy",
+    size: "0.1",
+    limitPrice: "150",
+    assetIndex: 0,
+  });
+  await assert.rejects(
+    f.client.submit(review, async (bytes) => {
+      f.accounts
+        .get(f.market.toBase58())
+        .data.writeBigUInt64LE(
+          1n,
+          contract.constants.headerLength +
+            contract.layouts.wrapper.trade_fee_base_bps.offset,
+        );
+      return f.sign(bytes);
+    }),
+    /Trading fee policy changed/,
+  );
+  assert.equal(f.rpc.sent.length, 0);
+  assert.equal(await f.client.pending(f.owner.publicKey), null);
+});
+
 test("Rust market fixture exposes collateral, assets and risk configuration", () => {
   const m = readMarket(
     info(pub(9), Buffer.from(contract.marketFixtureHex, "hex")),
@@ -111,6 +164,7 @@ test("wallet lifecycle persists the signature before send and confirms only on a
     () => f.client.prepare(f.owner.publicKey, { type: "deposit", amount: "1" }),
     /Reconcile/,
   );
+  f.rpc.slot = 124;
   f.rpc.status = { confirmationStatus: "processed", slot: 124, err: null };
   assert.equal((await f.client.reconcile(f.owner.publicKey)).status, "pending");
   f.rpc.status = { confirmationStatus: "confirmed", slot: 124, err: null };
@@ -148,6 +202,7 @@ test("a lost send response survives reload and never produces a second deposit",
     () => reloaded.prepare(f.owner.publicKey, { type: "deposit", amount: "1" }),
     /Reconcile/,
   );
+  f.rpc.slot = 124;
   f.rpc.status = { confirmationStatus: "finalized", slot: 124, err: null };
   assert.equal(
     (await reloaded.reconcile(f.owner.publicKey)).status,
@@ -316,6 +371,7 @@ test("confirmed failures are recorded without being reported as a successful fil
     amount: "1",
   });
   await f.client.submit(p, f.sign);
+  f.rpc.slot = 124;
   f.rpc.status = {
     confirmationStatus: "confirmed",
     slot: 124,
@@ -590,3 +646,221 @@ for (const response of [
     );
     assert.equal(f.rpc.sent.length, 0);
   });
+test("an unreadable action releases the wallet action lock", async () => {
+  const f = await fixture();
+  await assert.rejects(
+    f.client.prepare(f.owner.publicKey, {
+      get type() {
+        throw new Error("Action unavailable");
+      },
+    }),
+    /Action unavailable/,
+  );
+  const next = await f.client.prepare(f.owner.publicKey, {
+    type: "deposit",
+    amount: "1",
+  });
+  assert.equal(next.summary, "Deposit 1 TEST");
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+for (const malformed of [
+  "stale bank",
+  "invalid bank",
+  "future landing slot",
+  "invalid landing slot",
+  "missing error",
+  "unknown commitment",
+  "missing result",
+  "extra result",
+])
+  test(`wallet preserves the pending receipt on ${malformed}`, async () => {
+    const f = await fixture();
+    const review = await f.client.prepare(f.owner.publicKey, {
+      type: "deposit",
+      amount: "1",
+    });
+    await f.client.submit(review, f.sign);
+    const before = await f.client.pending(f.owner.publicKey);
+    const response = {
+      context: { slot: 124 },
+      value: [{ confirmationStatus: "confirmed", slot: 124, err: null }],
+    };
+    if (malformed === "stale bank") response.context.slot = 122;
+    if (malformed === "invalid bank") response.context.slot = NaN;
+    if (malformed === "future landing slot") response.value[0].slot = 125;
+    if (malformed === "invalid landing slot") response.value[0].slot = -1;
+    if (malformed === "missing error") delete response.value[0].err;
+    if (malformed === "unknown commitment")
+      response.value[0].confirmationStatus = "unknown";
+    if (malformed === "missing result") response.value = [];
+    if (malformed === "extra result") response.value.push(null);
+    f.rpc.getSignatureStatuses = async () => response;
+    const reloaded = new OutrightClient(f.profile, {
+      connection: f.rpc,
+      journal: f.journal,
+    });
+    await assert.rejects(reloaded.reconcile(f.owner.publicKey), /Invalid/);
+    assert.deepEqual(await reloaded.pending(f.owner.publicKey), before);
+    await assert.rejects(
+      reloaded.prepare(f.owner.publicKey, { type: "deposit", amount: "1" }),
+      /Reconcile/,
+    );
+    assert.equal(f.rpc.sent.length, 1);
+  });
+
+test("wallet accepts a landed transaction older than the current response bank", async () => {
+  const f = await fixture();
+  const review = await f.client.prepare(f.owner.publicKey, {
+    type: "deposit",
+    amount: "1",
+  });
+  await f.client.submit(review, f.sign);
+  f.rpc.slot = 130;
+  await f.client.snapshot(f.owner.publicKey);
+  f.rpc.status = { confirmationStatus: "confirmed", slot: 124, err: null };
+  assert.equal(
+    (await f.client.reconcile(f.owner.publicKey)).confirmedSlot,
+    124,
+  );
+});
+
+for (const outcome of ["submitted", "confirmed", "finalized", "failed"])
+  test(`a reloaded wallet snapshot honors the ${outcome} receipt bank`, async () => {
+    const f = await fixture();
+    const review = await f.client.prepare(f.owner.publicKey, {
+      type: "deposit",
+      amount: "1",
+    });
+    f.rpc.slot = 140;
+    await f.client.submit(review, f.sign);
+    if (outcome !== "submitted") {
+      f.rpc.status = {
+        confirmationStatus: outcome === "finalized" ? "finalized" : "confirmed",
+        slot: 140,
+        err:
+          outcome === "failed"
+            ? { InstructionError: [2, "InvalidArgument"] }
+            : null,
+      };
+      assert.equal(
+        (await f.client.reconcile(f.owner.publicKey)).status,
+        outcome,
+      );
+    }
+    const reloaded = new OutrightClient(f.profile, {
+      connection: f.rpc,
+      journal: f.journal,
+    });
+    const read = f.rpc.getMultipleAccountsInfoAndContext;
+    let requestedSlot;
+    f.rpc.getMultipleAccountsInfoAndContext = (keys, options) => {
+      requestedSlot = options.minContextSlot;
+      return read(keys, options);
+    };
+    f.rpc.slot = 139;
+    await assert.rejects(
+      reloaded.snapshot(f.owner.publicKey),
+      /older snapshot/,
+    );
+    assert.equal(requestedSlot, 140);
+    if (outcome !== "submitted")
+      await assert.rejects(
+        reloaded.prepare(f.owner.publicKey, { type: "deposit", amount: "2" }),
+        /older snapshot/,
+      );
+    f.rpc.slot = 140;
+    assert.equal((await reloaded.snapshot(f.owner.publicKey)).slot, 140);
+    assert.equal(f.rpc.sent.length, 1);
+  });
+
+test("a legacy final receipt restores its landing slot before another review", async () => {
+  const f = await fixture();
+  const scope = f.client.scope(f.owner.publicKey);
+  await f.journal.write(scope, {
+    scope,
+    status: "confirmed",
+    confirmedSlot: 140,
+  });
+  await assert.rejects(
+    f.client.prepare(f.owner.publicKey, { type: "deposit", amount: "1" }),
+    /older snapshot/,
+  );
+  f.rpc.slot = 140;
+  const review = await f.client.prepare(f.owner.publicKey, {
+    type: "deposit",
+    amount: "1",
+  });
+  assert.equal(review.snapshot.slot, 140);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+for (const field of ["minimumSlot", "confirmedSlot"])
+  for (const invalid of [-1, 1.5, "140", null, NaN])
+    test(`wallet rejects a final receipt with ${field}=${String(invalid)}`, async () => {
+      const f = await fixture();
+      const scope = f.client.scope(f.owner.publicKey);
+      await f.journal.write(scope, {
+        scope,
+        status: "confirmed",
+        [field]: invalid,
+      });
+      await assert.rejects(
+        f.client.snapshot(f.owner.publicKey),
+        /Invalid receipt/,
+      );
+      assert.equal(f.rpc.sent.length, 0);
+    });
+
+test("a late account read cannot return an older bank than a completed read", async () => {
+  const f = await fixture();
+  const read = f.rpc.getMultipleAccountsInfoAndContext;
+  const entered = Promise.withResolvers();
+  const release = Promise.withResolvers();
+  let first = true;
+  f.rpc.getMultipleAccountsInfoAndContext = async (...args) => {
+    const result = await read(...args);
+    if (first) {
+      first = false;
+      entered.resolve();
+      await release.promise;
+    }
+    return result;
+  };
+  const older = f.client.snapshot(f.owner.publicKey);
+  await entered.promise;
+  f.rpc.slot = 124;
+  assert.equal((await f.client.snapshot(f.owner.publicKey)).slot, 124);
+  const rejection = assert.rejects(older, /Invalid snapshot slot/);
+  release.resolve();
+  await rejection;
+});
+
+test("receipt persistence cannot lower a newer snapshot's bank", async () => {
+  const f = await fixture();
+  const review = await f.client.prepare(f.owner.publicKey, {
+    type: "deposit",
+    amount: "1",
+  });
+  await f.client.submit(review, f.sign);
+  f.rpc.slot = 124;
+  f.rpc.status = { confirmationStatus: "confirmed", slot: 124, err: null };
+  const write = f.journal.write;
+  const entered = Promise.withResolvers();
+  const release = Promise.withResolvers();
+  f.journal.write = async (scope, record) => {
+    if (record.status === "confirmed") {
+      entered.resolve();
+      await release.promise;
+    }
+    await write(scope, record);
+  };
+  const confirming = f.client.reconcile(f.owner.publicKey);
+  await entered.promise;
+  f.rpc.slot = 130;
+  assert.equal((await f.client.snapshot(f.owner.publicKey)).slot, 130);
+  release.resolve();
+  await confirming;
+  f.rpc.slot = 125;
+  await assert.rejects(f.client.snapshot(f.owner.publicKey), /older snapshot/);
+});

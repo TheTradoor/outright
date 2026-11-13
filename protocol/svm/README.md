@@ -19,6 +19,12 @@ SPL account state.
 - Execute a deposit followed by a rejected withdrawal in the same transaction.
   The failure must occur at the withdrawal, and the earlier SPL transfer,
   portfolio sequence update, and market changes must all roll back.
+- Settle nonzero funding in both directions, once after 24 slots or twice after
+  12 slots. Check fractional carry, exact index values, capital and PnL,
+  settlement rollback and repeated cranks without a second charge.
+- Refresh and partially liquidate unhealthy long and short positions through
+  the keeper planner with synthetic Pyth data. Check rounded fees, remaining
+  exposure, health, custody, stale-oracle rejection and transaction rollback.
 
 Rejection tests assert the exact program error and failing instruction index.
 They compare complete market, affected portfolio, and tracked SPL accounts
@@ -41,6 +47,14 @@ git -C ../percolator-prog checkout --detach b42fe017c2bc953778f90d0cb85cd1d426b6
 bash protocol/svm/run.sh ../percolator-prog
 ```
 
+An optional second argument filters test names, for example:
+
+```sh
+bash protocol/svm/run.sh ../percolator-prog fractional_funding
+```
+
+Omit the filter for full verification.
+
 The runner verifies that Outright's engine source is unchanged from its pinned
 baseline. The SBF wrapper uses that same upstream engine revision. It also
 requires the wrapper checkout to be at the exact revision with no tracked
@@ -59,7 +73,7 @@ Local results and binary hashes are recorded in
 
 ## Limits
 
-The trading fixtures use fixed prices and zero funding. One CPI lifecycle
+The original trading fixtures use fixed prices and zero funding. One CPI lifecycle
 uses a 37 bps on-chain base fee with a 50 bps taker cap, verifies fees on both
 counterparties, and checks rounding through partial closes and one-micro-unit
 positions in both directions. Failed transactions must roll back fees,
@@ -67,9 +81,16 @@ insurance, positions, matcher context and custody changes.
 Additional keeper cases advance an authenticated synthetic Pyth observation and
 reject stale, wrong-feed, excessive-confidence and wrong-owner data, checking
 rollback. A forged caller slot cannot advance beyond the SVM Clock.
-The suite does not cover live oracle delivery, liquidation, nonzero funding,
-mark-movement or backing fees, production matcher behavior, hosted keeper availability, or
-wallet-extension compatibility.
+The nonzero funding case uses a controlled AuthMark premium. AuthMark is not
+accepted by the devnet keeper; this fixture checks accounting through the
+low-level JavaScript instruction builder. The liquidation case uses the keeper
+planner and synthetic Hybrid Pyth observations. It covers bounded partial
+liquidation, not every insolvency or recovery path. A retained active position
+must still prevent withdrawal under the pinned engine's rule.
+
+The suite does not cover live oracle delivery, live Hybrid funding,
+mark-movement or backing fees, full recovery, production matcher behavior,
+hosted keeper availability or wallet-extension compatibility.
 
 Local VM results do not establish current-cluster compatibility or approve a
 production binary. Program deployment, funded liquidity, market limits, and

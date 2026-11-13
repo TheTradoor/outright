@@ -584,12 +584,13 @@ $("sign").addEventListener("click", () =>
     const prepared = review,
       selectedWallet = wallet,
       selectedAccount = account,
-      selectedClient = client;
+      selectedClient = client,
+      current = generation;
     if (!prepared || !selectedAccount)
       throw new Error("Review the action again");
-    const record = await selectedClient.submit(
-      prepared,
-      async (transaction) => {
+    let record;
+    try {
+      record = await selectedClient.submit(prepared, async (transaction) => {
         if (wallet !== selectedWallet || account !== selectedAccount)
           throw new Error("Wallet account changed");
         const [result] = await selectedWallet.features[
@@ -604,8 +605,14 @@ $("sign").addEventListener("click", () =>
         if (wallet !== selectedWallet || account !== selectedAccount)
           throw new Error("Wallet account changed before submission");
         return result.signedTransaction;
-      },
-    );
+      });
+    } catch (error) {
+      if (current !== generation) return;
+      throw error;
+    }
+    // A signed transaction can outlive its wallet session. Keep its durable
+    // receipt for that account without restoring the old session's display.
+    if (current !== generation) return;
     $("review-dialog").close();
     renderReceipt(record);
     notice("Signature saved. Waiting for on-chain confirmation.");

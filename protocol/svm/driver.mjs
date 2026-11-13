@@ -10,7 +10,7 @@ import {
 } from "../src/client.mjs";
 import { planCrank } from "../src/keeper.mjs";
 import { PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { getAssociatedTokenAddressSync } from "../src/token.mjs";
 
 const wireInstruction = (ix) => ({
   programId: ix.programId.toBase58(),

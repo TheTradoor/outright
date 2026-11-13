@@ -11,7 +11,7 @@ import {
   createAssociatedTokenAccountIdempotentInstruction,
   unpackAccount,
   unpackMint,
-} from "@solana/spl-token";
+} from "./token.mjs";
 import bs58 from "bs58";
 import {
   buildInstruction,
@@ -673,19 +673,43 @@ export class OutrightClient {
     return `${this.profile.genesisHash}:${this.profile.program.address}:${this.profile.market}:${keyString(owner)}`;
   }
   async snapshot(owner) {
+    // Final receipts still constrain later reads, including after a reload or
+    // a confirmation observed by another tab. Old receipts may only have a
+    // landing slot, so retain that bound as well.
+    await this.#readReceipt(owner);
     const result = await readSnapshot(
       this.connection,
       this.profile,
       owner,
       this.#minimumSlot,
     );
-    this.#minimumSlot = Math.max(this.#minimumSlot, result.slot);
+    this.#minimumSlot = boundedNumber(
+      result.slot,
+      this.#minimumSlot,
+      Number.MAX_SAFE_INTEGER,
+      "snapshot slot",
+    );
     return result;
   }
-  async pending(owner) {
+  async #readReceipt(owner) {
     const record = await this.journal.read(this.scope(owner));
     if (record && record.scope !== this.scope(owner))
       throw new Error("Transaction journal identity mismatch");
+    for (const field of ["minimumSlot", "confirmedSlot"])
+      if (record?.[field] !== undefined)
+        this.#minimumSlot = Math.max(
+          this.#minimumSlot,
+          boundedNumber(
+            record[field],
+            0,
+            Number.MAX_SAFE_INTEGER,
+            "receipt slot",
+          ),
+        );
+    return record;
+  }
+  async pending(owner) {
+    const record = await this.#readReceipt(owner);
     return record && !FINAL_STATES.has(record.status) ? record : null;
   }
   async prepare(owner, action) {
@@ -980,7 +1004,7 @@ export class OutrightClient {
     } else record.status = "pending";
     record.minimumSlot = response.context.slot;
     await this.journal.write(record.scope, record);
-    this.#minimumSlot = response.context.slot;
+    this.#minimumSlot = Math.max(this.#minimumSlot, response.context.slot);
     return Object.freeze({ ...record });
   }
 }

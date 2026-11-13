@@ -29,4 +29,4 @@ test -f "$upstream_checkout/tests/fixtures/auth_matcher/target/deploy/auth_match
 cp "$native_root/protocol/svm/lifecycle.rs" "$test_path"
 trap 'rm -f "$test_path"' EXIT
 export OUTRIGHT_NATIVE_DRIVER="$native_root/protocol/svm/driver.mjs"
-cargo +1.95.0 test --locked --manifest-path "$upstream_checkout/Cargo.toml" --test outright_native_lifecycle -- --nocapture
+cargo +1.95.0 test --locked --manifest-path "$upstream_checkout/Cargo.toml" --test outright_native_lifecycle "${2:-}" -- --nocapture
