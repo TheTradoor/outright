@@ -171,7 +171,7 @@ export async function portfolioAddress(owner, market, programId) {
   };
 }
 
-async function verifyProgram(program, data, pin) {
+export async function verifyProgram(program, data, pin) {
   if (
     !program?.executable ||
     !same(program.owner, LOADER) ||

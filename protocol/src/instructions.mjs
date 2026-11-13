@@ -190,6 +190,33 @@ export function buildInstruction(program, name, args, a) {
       ];
       // No arbitrary extra instruction/tail accounts are accepted in this first integration.
       break;
+    case "permissionlessCrank": {
+      const expected = args.observations.reduce(
+        (n, o) => n + o.oracleAccounts,
+        0,
+      );
+      if (
+        !Array.isArray(a.oracleAccounts) ||
+        a.oracleAccounts.length !== expected
+      )
+        throw new Error(
+          "Oracle account count does not match crank observations",
+        );
+      const reserved = [program, a.owner, a.market, a.portfolio].map((v) =>
+        key(v).toBase58(),
+      );
+      if (new Set(reserved).size !== reserved.length)
+        throw new Error("Crank identities must differ");
+      if (a.oracleAccounts.some((v) => reserved.includes(key(v).toBase58())))
+        throw new Error("Oracle account aliases a crank identity");
+      keys = [
+        meta(a.owner, true),
+        meta(a.market, false, true),
+        meta(a.portfolio, false, true),
+        ...a.oracleAccounts.map((v) => meta(v)),
+      ];
+      break;
+    }
     default:
       throw new Error(
         "This instruction has no account planner in the current integration",
