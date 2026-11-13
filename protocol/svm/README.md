@@ -19,6 +19,10 @@ SPL account state.
 - Execute a deposit followed by a rejected withdrawal in the same transaction.
   The failure must occur at the withdrawal, and the earlier SPL transfer,
   portfolio sequence update, and market changes must all roll back.
+- Reject a deposit whose source is one atom short, then fund the source through
+  SPL Token. The identical transaction remains `AlreadyProcessed`. A fresh
+  blockhash permits the deposit exactly once; duplicate retries preserve the
+  complete market, portfolio and tracked token accounts.
 - Settle nonzero funding in both directions, once after 24 slots or twice after
   12 slots. Check fractional carry, exact index values, capital and PnL,
   settlement rollback and repeated cranks without a second charge.

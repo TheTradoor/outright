@@ -447,6 +447,10 @@ test("reconciliation holds the wallet lock until the receipt update completes", 
     release();
     await firstRead;
   }
+  f.rpc.getLatestBlockhashAndContext = async () => ({
+    context: { slot: 123 },
+    value: { blockhash: pub(24).toBase58(), lastValidBlockHeight: 201 },
+  });
   const nextReview = await second.prepare(f.owner.publicKey, {
     type: "deposit",
     amount: "2",

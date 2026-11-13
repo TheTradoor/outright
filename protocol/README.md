@@ -67,6 +67,9 @@ implementation, independently of the JavaScript reader. Its output is compared
 with the checked-in contract. JavaScript
 regressions cover malformed state, changed deployments, wallet mutation,
 simulation failure, lost RPC responses, pending transaction recovery and expiry.
+All wallet actions require a blockhash different from the last saved transaction,
+including after a confirmed failure, reload or another tab's receipt update.
+The receipt remains available until a newly reviewed transaction is signed.
 Settlement review binds the complete market and portfolio data. Changes to
 accounting outside the display require a new simulation and explicit review
 before this client sends. Terminal tests verify that rejected reviews close and
@@ -88,6 +91,9 @@ Both traces now continue through removal of every primary portfolio, a market
 authority handoff, vault closure and a persistent market tombstone. They check
 exact rent refunds, seven atoms of unbooked SPL surplus, rejected early closure,
 stale bindings, wrong authorities, wrong destinations, rollback and repeat closure.
+An insufficient-balance deposit trace funds the source through SPL Token, verifies
+that the old message remains `AlreadyProcessed`, then executes the same deposit
+with a fresh blockhash and checks one exact collateral transfer.
 The Recovery exit case checks discarded unbooked gains, applied price losses,
 stale consent, owner authorization, unchanged custody and transaction rollback.
 A separate two-asset trace follows a retained zero-exposure obligation through

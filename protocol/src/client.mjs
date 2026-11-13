@@ -49,7 +49,14 @@ const continuationName = (type) =>
     ? "account closure"
     : isRecoveryAction(type)
       ? "recovery"
-      : "settlement";
+      : isSettlementAction(type)
+        ? "settlement"
+        : {
+            initialize: "portfolio creation",
+            deposit: "deposit",
+            withdraw: "withdrawal",
+            trade: "trade",
+          }[type];
 const equalInstructions = (a, b) =>
   a.length === b.length &&
   a.every(
@@ -854,11 +861,10 @@ export class OutrightClient {
         minContextSlot: snapshot.slot,
       });
       if (
-        accountingAction(action.type) &&
         (await this.#readReceipt(owner))?.blockhash === recent.value.blockhash
       )
         throw new Error(
-          `Wait for a new blockhash before the next ${continuationName(action.type)} step`,
+          `Wait for a new blockhash before another ${continuationName(action.type)} transaction`,
         );
       boundedNumber(
         recent.context.slot,
@@ -966,12 +972,11 @@ export class OutrightClient {
       )
         throw new Error("Review expired or another transaction is pending");
       if (
-        accountingAction(prepared.action.type) &&
         (await this.#readReceipt(prepared.owner))?.blockhash ===
-          stored.blockhash
+        stored.blockhash
       )
         throw new Error(
-          `Wait for a new blockhash before the next ${continuationName(prepared.action.type)} step`,
+          `Wait for a new blockhash before another ${continuationName(prepared.action.type)} transaction`,
         );
       const signedBytes = await signTransaction(new Uint8Array(stored.bytes));
       const signed = VersionedTransaction.deserialize(signedBytes);

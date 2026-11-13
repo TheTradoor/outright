@@ -133,6 +133,18 @@ confirmed, finalized and failed receipts. Older receipts without a stored
 response-bank slot use their recorded landing slot. An older RPC bank cannot
 populate the portfolio or produce a new review. Concurrent account reads and
 receipt updates cannot lower a slot already observed by the client.
+
+After any confirmed, finalized or failed transaction, the next action must use
+a blockhash different from the saved transaction. This applies to portfolio
+creation, deposits, withdrawals, trades, recovery and settlement, even when the
+requested action or amount changes. A failed transaction can leave its sequence
+bindings unchanged; re-signing the same message would reuse the earlier signature.
+The check runs before simulation and again under the wallet lock before signing,
+so it also covers reloads and a final receipt written by another tab. A rejected
+retry preserves that receipt. Wait for a new blockhash and review the action
+again; the client does not sign or send automatically. Declining a wallet prompt
+before a signature is saved does not consume the blockhash.
+
 There is no automatic re-signing, replacement deposit, or assumption that a
 missing status means failure. If history remains unavailable after expiry,
 the operator must reconcile the signature and portfolio state through a reliable
