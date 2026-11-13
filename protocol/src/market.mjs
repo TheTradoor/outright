@@ -82,8 +82,8 @@ export function readMarket(account, { programId, address, collateralMint }) {
 }
 
 // Mirrors effective_abs_quantity_for_leg in the pinned engine. Raw basis is not
-// the live exposure after ADL. An obligation from the immediately prior reset has
-// zero live quantity and must not be presented as an open position to reverse.
+// the live exposure after ADL. Both a zero-basis leg with retained loss weight
+// and an obligation from the immediately prior reset have zero live quantity.
 export function positionForMarket(leg, market) {
   const asset = market.assets[leg.asset_index];
   if (
@@ -101,7 +101,6 @@ export function positionForMarket(leg, market) {
   if (epoch === leg.epoch_snap) {
     const a = asset[`a_${side}`];
     if (
-      raw === 0n ||
       raw > BigInt(l.maxPositionAbsQ) ||
       leg.a_basis < BigInt(l.minASide) ||
       leg.a_basis > BigInt(l.adlOne) ||

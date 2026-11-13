@@ -63,7 +63,11 @@ pub fn export() -> Value {
         "leg": fields!(PortfolioLegV16Account;
             active: "bool", asset_index: "u32", market_id: "u64", side: "u8",
             basis_pos_q: "i128", a_basis: "u128", epoch_snap: "u64",
+            k_snap: "i128", f_snap: "i128", loss_weight: "u128",
+            b_rem: "u128", b_epoch_snap: "u64",
             b_stale: "bool", stale: "bool"),
+        "socialLossDen": SOCIAL_LOSS_DEN.to_string(),
+        "socialWeightScale": SOCIAL_WEIGHT_SCALE.to_string(),
         "healthOffset": offset_of!(PortfolioAccountV16Account, health_cert),
         "health": fields!(HealthCertV16Account;
             certified_equity: "i128", certified_initial_req: "u128",

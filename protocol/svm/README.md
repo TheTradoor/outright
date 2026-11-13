@@ -119,6 +119,18 @@ reject; a later instruction failure rolls back the exit. Custody and mint supply
 remain unchanged by the successful forfeitures. This trace does not establish
 complete Recovery payout or market teardown.
 
+The retained-obligation trace adapts upstream INV-071 for both long and short
+target legs across two assets. The wallet planner leaves a valid zero-basis leg
+with loss weight, which must remain readable and display zero effective size.
+An expired debtor close triggers global Recovery. Keeper instructions release
+the target obligation, then finalize in a later transaction using the real Clock.
+Cleanup rollback, a forged early payout slot and duplicate payout all preserve
+tracked financial state on rejection. At the owner-delay deadline the target
+receives exactly 1,000 atoms and 1,012 remain in the vault. The target can then
+be removed through the upstream owner instruction, transferring its rent to
+the market slab. Mint supply is unchanged. Other portfolios remain to settle;
+this is one target's completed payout, not complete market teardown.
+
 Local VM results do not establish current-cluster compatibility or approve a
 production binary. Program deployment, funded liquidity, market limits, and
 independent security review remain separate release requirements.

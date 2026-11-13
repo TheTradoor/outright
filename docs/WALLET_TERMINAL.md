@@ -155,8 +155,10 @@ session only. It does not fabricate historical candles, volume or funding rates.
 ## Position and execution limits
 
 Effective exposure uses the pinned engine's conservative ADL rounding. A retained
-obligation from the immediately prior reset has zero live exposure and is shown
-as pending cleanup. Recorded PnL and capital are displayed separately. The UI
+leg with zero position basis can still carry loss weight. That leg and an
+obligation from the immediately prior reset have zero live exposure and are shown
+as pending cleanup. Neither means the portfolio has finished settlement.
+Recorded PnL and capital are displayed separately. The UI
 does not calculate a withdrawable balance from their sum.
 
 The pinned engine requires a portfolio to have no active position legs before
@@ -173,7 +175,7 @@ close, liquidation-price estimate or leverage slider.
 Recovery markets expose the eligible position exit described below. Resolved
 markets use the settlement controls. A separate
 [keeper client](MARKET_OPERATIONS.md) can perform bounded maintenance for
-configured test-network portfolios. Full recovery payouts, sustained oracle
+configured test-network portfolios. Broader recovery coverage, sustained oracle
 publishing and hosted keeper services, market indexing and alerts remain
 necessary before public release. The upstream
 engine is unaudited research software; local test results do not make it suitable
@@ -191,6 +193,12 @@ positive price and funding gains that have not been booked for the selected leg.
 Losses still apply and can consume collateral. This is not an ordinary trade or
 a withdrawal. One successful step may retain an obligation or require further
 recovery; it does not establish that the portfolio or market is fully settled.
+
+A retained obligation remains visible after refresh even when its effective
+size is zero. Keeper continuations can release it once the engine permits,
+finalize market Recovery and, with resolved settlement enabled, advance the
+owner's payout after the configured delay. Cleanup and finalization may require
+separate transactions. Check each confirmed result before proceeding.
 
 Enter a positive **Shared-loss step budget** in collateral units. The client
 encodes exact atoms in the upstream `b_delta_budget` field. This budget bounds

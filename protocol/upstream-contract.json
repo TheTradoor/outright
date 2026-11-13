@@ -397,6 +397,14 @@
         "offset": 1,
         "type": "u32"
       },
+      "b_epoch_snap": {
+        "offset": 142,
+        "type": "u64"
+      },
+      "b_rem": {
+        "offset": 126,
+        "type": "u128"
+      },
       "b_stale": {
         "offset": 150,
         "type": "bool"
@@ -408,6 +416,18 @@
       "epoch_snap": {
         "offset": 86,
         "type": "u64"
+      },
+      "f_snap": {
+        "offset": 62,
+        "type": "i128"
+      },
+      "k_snap": {
+        "offset": 46,
+        "type": "i128"
+      },
+      "loss_weight": {
+        "offset": 94,
+        "type": "u128"
       },
       "market_id": {
         "offset": 5,
@@ -637,6 +657,8 @@
       }
     },
     "positionScale": "1000000",
+    "socialLossDen": "1000000000000000000000",
+    "socialWeightScale": "1000000000000000",
     "wrapper": {
       "collateral_mint": {
         "offset": 32,

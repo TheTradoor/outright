@@ -87,7 +87,17 @@ fn resolved_keeper_instruction(
     slot: u64,
     discovery: u16,
 ) -> Instruction {
-    let actor = &env.actors[0];
+    continuation_instruction(env, payer, slot, discovery, 0)
+}
+
+fn continuation_instruction(
+    env: &V16Svm,
+    payer: Pubkey,
+    slot: u64,
+    discovery: u16,
+    actor_index: usize,
+) -> Instruction {
+    let actor = &env.actors[actor_index];
     let group = env.primary_market_state().1;
     from_js_instruction(&js(
         json!({"operation":"planCrank", "slot":slot,"discoveryIndex":discovery,
@@ -375,6 +385,10 @@ fn from_js_instruction(out: &Value) -> Instruction {
 }
 
 fn planned_recovery_exit(env: &V16Svm, actor: usize) -> Instruction {
+    planned_recovery_exit_for(env, actor, 0)
+}
+
+fn planned_recovery_exit_for(env: &V16Svm, actor: usize, asset_index: usize) -> Instruction {
     let owner = env.actors[actor].signer.pubkey();
     let group = env.primary_market_state().1;
     let plan = js(json!({"operation":"planAction", "owner":owner.to_string(),
@@ -383,11 +397,257 @@ fn planned_recovery_exit(env: &V16Svm, actor: usize) -> Instruction {
             "vault":env.vault.to_string(),"collateral":{"mint":env.mint.to_string(),"decimals":6,"symbol":"TEST"}},
         "marketAccount":account_json(env,env.market),
         "portfolioAccount":account_json(env,env.actors[actor].portfolio),
-        "action":{"type":"forfeitRecoveryLeg","assetIndex":0,"marketId":group.assets[0].market_id.to_string(),
+        "action":{"type":"forfeitRecoveryLeg","assetIndex":asset_index,"marketId":group.assets[asset_index].market_id.to_string(),
             "budget":"0.000001","acceptForfeiture":true}}));
     assert_eq!(plan["rentLamports"], 0);
     assert_eq!(plan["instructions"].as_array().unwrap().len(), 1);
     from_js_instruction(&plan["instructions"][0])
+}
+
+#[test]
+fn recovery_obligation_survives_wallet_refresh_and_keeper_finalization_to_exact_payout() {
+    use percolator::{MarketModeV16, PermissionlessRecoveryReasonV16, POS_SCALE};
+    use percolator_prog::ix::CrankObservationHint;
+    // Adapt pinned INV-071 for Outright's readers and planners. Recovery state
+    // comes from deposits, trades, authenticated marks and SBF continuations.
+    for direction in [1i128, -1] {
+        let config = MarketConfig {
+            initial_price: 100,
+            max_price_move_bps_per_slot: 10_000,
+            max_accrual_dt_slots: 1,
+            min_funding_lifetime_slots: 1,
+            max_bankrupt_close_lifetime_slots: 2,
+            public_b_chunk_atoms: 1,
+            actor_deposits: [0; 5],
+            ..MarketConfig::default()
+        };
+        let mut env = V16Svm::new_with_asset_count([104; 32], config, 2);
+        env.configure_permissionless_resolve(100, 5).unwrap();
+        for actor in [0, 1, 3] {
+            env.close_primary_portfolio(actor).unwrap();
+            let owner = Keypair::from_bytes(&env.actors[actor].signer.to_bytes()).unwrap();
+            let plan = js(
+                json!({"operation":"planAction", "owner":owner.pubkey().to_string(),
+                "profile":{"program":{"address":env.program_id.to_string()},"market":env.market.to_string(),
+                    "vault":env.vault.to_string(),"collateral":{"mint":env.mint.to_string(),"decimals":6,"symbol":"TEST"}},
+                "marketAccount":account_json(&env,env.market),"action":{"type":"initialize"},
+                "rentLamports":Rent::default().minimum_balance(percolator_prog::constants::PORTFOLIO_ACCOUNT_LEN)}),
+            );
+            let instructions: Vec<_> = plan["instructions"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(from_js_instruction)
+                .collect();
+            send_many(&mut env, &instructions, &[&owner]).unwrap();
+            env.actors[actor].portfolio =
+                Pubkey::from_str(plan["portfolio"].as_str().unwrap()).unwrap();
+        }
+        for (actor, amount) in [(0, 1_000), (1, 1_000), (2, 10), (3, 2)] {
+            env.deposit_primary(actor, amount).unwrap();
+        }
+        let supply = env.mint_supply();
+        let payer = Keypair::new();
+        env.svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
+        let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+        let ata = js(
+            json!({"operation":"createPayoutAta", "payer":payer.pubkey().to_string(),
+            "owner":owner.pubkey().to_string(),"mint":env.mint.to_string()}),
+        );
+        send(
+            &mut env,
+            from_js_instruction(&ata["instruction"]),
+            &[&payer],
+        )
+        .unwrap();
+        env.actors[0].destination_token =
+            Pubkey::from_str(ata["address"].as_str().unwrap()).unwrap();
+        env.trade_no_cpi(0, 1, 0, direction * POS_SCALE as i128, 100, 0)
+            .unwrap();
+        env.trade_no_cpi(2, 3, 1, (POS_SCALE / 50) as i128, 100, 0)
+            .unwrap();
+        for (slot, price) in [(2, 200), (3, 300)] {
+            env.warp_to_slot(slot);
+            env.push_auth_mark(1, slot, price).unwrap();
+            env.crank(
+                2,
+                slot,
+                vec![CrankObservationHint {
+                    asset_index: 1,
+                    oracle_accounts: 0,
+                }],
+            )
+            .unwrap();
+        }
+        env.crank(
+            3,
+            3,
+            vec![CrankObservationHint {
+                asset_index: 1,
+                oracle_accounts: 0,
+            }],
+        )
+        .unwrap();
+        env.warp_to_slot(4);
+        for asset in [0, 1] {
+            env.shutdown_asset(asset, 4).unwrap();
+        }
+        let ix = planned_recovery_exit(&env, 0);
+        send(&mut env, ix, &[&owner]).unwrap();
+        let p = env.primary_portfolio(0);
+        let obligation = p.legs.iter().find(|leg| leg.active != 0).unwrap();
+        assert_eq!(obligation.basis_pos_q.get(), 0);
+        assert_eq!(obligation.loss_weight.get(), POS_SCALE);
+        assert_eq!(obligation.stale, 0);
+        assert_eq!(obligation.b_stale, 0);
+        let before = snapshot(&env, &[env.actors[0].portfolio]);
+        let error = env
+            .close_primary_portfolio(0)
+            .expect_err("an obligation cannot be discarded by account closure");
+        assert!(
+            error.contains(&format!(
+                "Custom({})",
+                PercolatorError::EngineLockActive as u32
+            )),
+            "{error}"
+        );
+        assert_unchanged(&env, &before);
+        // A successful exit must remain readable even while loss weight stays attached.
+        let parsed = read(&env, env.actors[0].portfolio, owner.pubkey());
+        assert_eq!(parsed["positions"][0]["basis_pos_q"], "0");
+        let display = js(json!({"operation":"positions",
+            "marketAccount":account_json(&env,env.market),
+            "marketExpected":{"programId":env.program_id.to_string(),"address":env.market.to_string()},
+            "portfolioAccount":account_json(&env,env.actors[0].portfolio),
+            "portfolioExpected":{"programId":env.program_id.to_string(),"address":env.actors[0].portfolio.to_string(),
+                "market":env.market.to_string(),"owner":owner.pubkey().to_string()}}));
+        assert_eq!(display[0]["effectiveSizeQ"], "0");
+        assert_eq!(display[0]["needsCleanup"], true);
+        assert_eq!(
+            display[0]["side"],
+            if direction == 1 { "long" } else { "short" }
+        );
+        for (actor, asset) in [(1, 0), (3, 1)] {
+            let signer = Keypair::from_bytes(&env.actors[actor].signer.to_bytes()).unwrap();
+            let ix = planned_recovery_exit_for(&env, actor, asset);
+            send(&mut env, ix, &[&signer]).unwrap();
+        }
+        let close = env
+            .primary_portfolio(3)
+            .close_progress
+            .try_to_runtime()
+            .unwrap();
+        assert_eq!(close.residual_remaining, 1);
+        assert_eq!(env.primary_market_state().1.mode, MarketModeV16::Live);
+        let expiry = close.max_close_slot + 1;
+        env.warp_to_slot(expiry);
+        env.svm.expire_blockhash();
+        let custody_before = env.all_token_account_data();
+        let ix = continuation_instruction(&env, payer.pubkey(), expiry, 1, 3);
+        send(&mut env, ix, &[&payer]).expect("expired close declares market Recovery");
+        let recovered = env.primary_market_state().1;
+        assert_eq!(recovered.mode, MarketModeV16::Recovery);
+        assert_eq!(
+            recovered.recovery_reason,
+            Some(PermissionlessRecoveryReasonV16::ActiveBankruptCloseCannotProgress)
+        );
+        let epoch = env.primary_portfolio_position_epoch(0);
+        let ix = continuation_instruction(&env, payer.pubkey(), expiry, 0, 0);
+        assert_eq!(ix.accounts.len(), 3);
+        assert_eq!(
+            ix.data[9], 0,
+            "Recovery never requires live oracle observations"
+        );
+        let before = snapshot(
+            &env,
+            &[env.actors[0].portfolio, env.actors[0].destination_token],
+        );
+        let invalid = Instruction {
+            program_id: env.program_id,
+            accounts: vec![],
+            data: vec![255],
+        };
+        assert_eq!(
+            send_many(&mut env, &[ix.clone(), invalid], &[&payer]).unwrap_err(),
+            TransactionError::InstructionError(3, InstructionError::InvalidInstructionData)
+        );
+        assert_unchanged(&env, &before);
+        send(&mut env, ix, &[&payer]).expect("keeper releases the retained obligation");
+        assert_eq!(env.primary_portfolio_position_epoch(0), epoch + 1);
+        assert!(
+            read(&env, env.actors[0].portfolio, owner.pubkey())["positions"]
+                .as_array()
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(env.primary_market_state().1.mode, MarketModeV16::Recovery);
+        assert_eq!(env.primary_portfolio(0).capital.get(), 1_000);
+        assert_eq!(env.all_token_account_data(), custody_before);
+        let final_slot = expiry + 9;
+        env.warp_to_slot(final_slot);
+        env.svm.expire_blockhash();
+        let ix = continuation_instruction(&env, payer.pubkey(), 0, 0, 0);
+        send(&mut env, ix, &[&payer]).expect("a later continuation finalizes Recovery");
+        let resolved = env.primary_market_state().1;
+        assert_eq!(resolved.mode, MarketModeV16::Resolved);
+        assert_eq!(resolved.resolved_slot, final_slot);
+        assert_eq!(resolved.assets[0].slot_last, recovered.assets[0].slot_last);
+        assert_eq!(resolved.assets[1].slot_last, recovered.assets[1].slot_last);
+        assert_eq!(env.token_amount(env.vault), 2_012);
+        let deadline = final_slot + 5;
+        env.warp_to_slot(deadline - 1);
+        let before = snapshot(
+            &env,
+            &[env.actors[0].portfolio, env.actors[0].destination_token],
+        );
+        let ix = continuation_instruction(&env, payer.pubkey(), deadline, 0, 0);
+        rejected(
+            send(&mut env, ix, &[&payer]),
+            2,
+            PercolatorError::ExpectedSigner,
+        );
+        assert_unchanged(&env, &before);
+        env.warp_to_slot(deadline);
+        env.svm.expire_blockhash();
+        let capital = env.primary_market_state().1.c_tot;
+        let ix = continuation_instruction(&env, payer.pubkey(), deadline, 0, 0);
+        send(&mut env, ix, &[&payer]).expect("permissionless payout after the owner window");
+        assert_eq!(env.token_amount(env.actors[0].destination_token), 1_000);
+        assert_eq!(env.token_amount(env.vault), 1_012);
+        assert_eq!(env.primary_market_state().1.c_tot, capital - 1_000);
+        assert!(resolved_actor_terminal(&env, 0));
+        env.svm.expire_blockhash();
+        let before = snapshot(
+            &env,
+            &[env.actors[0].portfolio, env.actors[0].destination_token],
+        );
+        let ix = continuation_instruction(&env, payer.pubkey(), deadline, 0, 0);
+        rejected(
+            send(&mut env, ix, &[&payer]),
+            2,
+            PercolatorError::EngineNonProgress,
+        );
+        assert_unchanged(&env, &before);
+        let market_rent = env.svm.get_account(&env.market).unwrap().lamports;
+        let portfolio_rent = env
+            .svm
+            .get_account(&env.actors[0].portfolio)
+            .unwrap()
+            .lamports;
+        env.close_primary_portfolio(0)
+            .expect("only the terminal portfolio can be removed");
+        // The legacy VM may retain an empty account entry until bank cleanup.
+        if let Some(closed) = env.svm.get_account(&env.actors[0].portfolio) {
+            assert_eq!(closed.lamports, 0);
+            assert!(closed.data.is_empty());
+        }
+        assert_eq!(
+            env.svm.get_account(&env.market).unwrap().lamports,
+            market_rent + portfolio_rent
+        );
+        assert_eq!(env.mint_supply(), supply);
+        eprintln!("JS Recovery continuation: direction={direction}, obligation cleaned, authenticated finalization, exactly 1000 atoms paid, rent returned to market");
+    }
 }
 
 #[test]
