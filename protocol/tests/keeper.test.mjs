@@ -173,6 +173,302 @@ async function fixture() {
   };
 }
 
+async function resolvedFixture() {
+  const f = await fixture(),
+    c = contract.constants,
+    l = contract.layouts;
+  f.raw.settleResolved = true;
+  const market = f.accounts.get(f.raw.deployment.market).data;
+  market[c.marketModeOffset] = 1;
+  market.writeBigUInt64LE(
+    120n,
+    c.marketGroupOffset + l.market.resolved_slot.offset,
+  );
+  market.writeBigUInt64LE(
+    4n,
+    c.headerLength + l.wrapper.force_close_delay_slots.offset,
+  );
+  const mint = Buffer.alloc(82);
+  mint[44] = 6;
+  mint[45] = 1;
+  const token = (owner) => {
+    const data = Buffer.alloc(165);
+    pub(5).toBuffer().copy(data);
+    new PublicKey(owner).toBuffer().copy(data, 32);
+    data.writeBigUInt64LE(1_000_000n, 64);
+    data[108] = 1;
+    return info(
+      new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+      data,
+    );
+  };
+  f.accounts.set(
+    f.raw.deployment.collateral.mint,
+    info(new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), mint),
+  );
+  f.accounts.set(
+    f.raw.deployment.vault,
+    token(
+      vaultAuthority(f.raw.deployment.program.address, f.raw.deployment.market),
+    ),
+  );
+  f.payoutToken = getAssociatedTokenAddressSync(
+    pub(5),
+    pub(3),
+    true,
+  ).toBase58();
+  f.accounts.set(f.payoutToken, token(pub(3)));
+  f.keeper = new OutrightKeeper(f.raw, {
+    connection: f.rpc,
+    journal: f.journal,
+    signer: f.signer,
+  });
+  return f;
+}
+
+test("resolved settlement is explicit and the default preserves configuration hashes", async () => {
+  const f = await fixture();
+  assert.deepEqual(
+    validateKeeperConfig({ ...f.raw, settleResolved: false }),
+    validateKeeperConfig(f.raw),
+  );
+  assert.throws(
+    () => validateKeeperConfig({ ...f.raw, settleResolved: "true" }),
+    /boolean/,
+  );
+});
+
+test("resolved keeper binds unsigned owner custody with one backing hint and no oracle accounts", async () => {
+  const f = await resolvedFixture();
+  const config = validateKeeperConfig(f.raw);
+  const s = await readKeeperSnapshot(f.rpc, config, config.targets[0]);
+  const ix = planCrank(config, s, 0);
+  assert.equal(ix.keys.length, 7);
+  assert.equal(ix.keys[0].pubkey.toBase58(), f.raw.targets[0].owner);
+  assert.equal(ix.keys[3].pubkey.toBase58(), f.payoutToken);
+  assert.equal(ix.keys[4].pubkey.toBase58(), f.raw.deployment.vault);
+  assert(ix.keys.every((k) => !k.isSigner));
+  assert.deepEqual([...ix.data.subarray(9)], [1, 0, 0, 0]);
+  const result = await f.keeper.tick({ send: true });
+  assert.equal(result.status, "submitted");
+  const tx = VersionedTransaction.deserialize(f.rpc.sent[0]);
+  assert.equal(tx.message.header.numRequiredSignatures, 1);
+  assert.equal(tx.message.staticAccountKeys[0].toBase58(), f.raw.feePayer);
+});
+
+for (const reason of ["ownerDelay", "payoutAccountMissing", "payoutHalted"]) {
+  test(`resolved ${reason} defers without simulation, a signature or fees`, async () => {
+    const f = await resolvedFixture();
+    if (reason === "ownerDelay") f.rpc.slot = 123;
+    if (reason === "payoutAccountMissing") f.accounts.delete(f.payoutToken);
+    if (reason === "payoutHalted")
+      f.accounts.get(f.raw.deployment.market).data[
+        contract.constants.marketGroupOffset +
+          contract.layouts.payoutLedgerOffset +
+          contract.layouts.payoutLedger.payout_halted.offset
+      ] = 1;
+    f.rpc.simulateTransaction = async () =>
+      assert.fail("deferred target must not simulate");
+    const result = await f.keeper.tick({ send: true });
+    assert.equal(result.status, "deferred");
+    assert.equal(result.reason, reason);
+    assert.equal(f.state().attempts, 0);
+    assert.equal(f.state().reservedFees, "0");
+    assert.equal(f.rpc.sent.length, 0);
+  });
+}
+
+for (const change of [
+  "destination owner",
+  "destination mint",
+  "destination delegate",
+  "destination close authority",
+  "destination frozen",
+  "vault owner",
+  "vault shortfall",
+  "mint decimals",
+  "mint authority",
+]) {
+  test(`resolved keeper rejects ${change} before signing`, async () => {
+    const f = await resolvedFixture();
+    const dest = f.accounts.get(f.payoutToken).data;
+    const vault = f.accounts.get(f.raw.deployment.vault).data;
+    const mint = f.accounts.get(f.raw.deployment.collateral.mint).data;
+    if (change === "destination owner") pub(44).toBuffer().copy(dest, 32);
+    if (change === "destination mint") pub(44).toBuffer().copy(dest, 0);
+    if (change === "destination delegate") {
+      dest.writeUInt32LE(1, 72);
+      pub(44).toBuffer().copy(dest, 76);
+    }
+    if (change === "destination close authority") {
+      dest.writeUInt32LE(1, 129);
+      pub(44).toBuffer().copy(dest, 133);
+    }
+    if (change === "destination frozen") dest[108] = 2;
+    if (change === "vault owner") pub(44).toBuffer().copy(vault, 32);
+    if (change === "vault shortfall")
+      f.accounts
+        .get(f.raw.deployment.market)
+        .data.writeBigUInt64LE(
+          1_000_001n,
+          contract.constants.marketGroupOffset +
+            contract.layouts.market.vault.offset,
+        );
+    if (change === "mint decimals") mint[44] = 9;
+    if (change === "mint authority") {
+      mint.writeUInt32LE(1, 0);
+      pub(44).toBuffer().copy(mint, 4);
+    }
+    await assert.rejects(
+      f.keeper.tick({ send: true }),
+      /[Tt]oken|[Mm]int|[Cc]ustody/,
+    );
+    assert.equal(f.rpc.sent.length, 0);
+  });
+}
+
+test("resolved keeper ignores missing live oracle accounts but still checks asset identity", async () => {
+  const f = await resolvedFixture();
+  f.raw.assets[0].oracleMode = 1;
+  f.raw.assets[0].feeds = [
+    {
+      id: pub(45).toBase58(),
+      account: pub(46).toBase58(),
+      owner: contract.keeper.oracleOwners[0],
+    },
+  ];
+  const keeper = new OutrightKeeper(f.raw, {
+    connection: f.rpc,
+    journal: f.journal,
+    signer: f.signer,
+  });
+  assert.equal((await keeper.tick()).status, "simulated");
+  f.raw.assets[0].marketId = "2";
+  const changed = new OutrightKeeper(f.raw, {
+    connection: f.rpc,
+    journal: { ...f.journal, read: async () => null },
+    signer: f.signer,
+  });
+  await assert.rejects(changed.tick({ send: true }), /incarnation/);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("a missing payout account does not starve another resolved target", async () => {
+  const f = await resolvedFixture(),
+    c = contract.constants;
+  const second = {
+    ...f.raw.targets[0],
+    address: pub(6).toBase58(),
+    owner: pub(4).toBase58(),
+    portfolioId: "18",
+  };
+  const bytes = Buffer.from(f.accounts.get(f.raw.targets[0].address).data);
+  pub(6).toBuffer().copy(bytes, c.portfolioAddressOffset);
+  pub(4).toBuffer().copy(bytes, c.portfolioOwnerOffset);
+  pub(4).toBuffer().copy(bytes, c.portfolioProvenanceOwnerOffset);
+  bytes.writeBigUInt64LE(18n, c.portfolioIdOffset);
+  f.accounts.set(second.address, info(pub(9), bytes));
+  const destination = structuredClone(f.accounts.get(f.payoutToken));
+  destination.data = Buffer.from(destination.data);
+  destination.owner = new PublicKey(
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  );
+  pub(4).toBuffer().copy(destination.data, 32);
+  f.accounts.set(
+    getAssociatedTokenAddressSync(pub(5), pub(4), true).toBase58(),
+    destination,
+  );
+  f.accounts.delete(f.payoutToken);
+  f.raw.targets.push(second);
+  const keeper = new OutrightKeeper(f.raw, {
+    connection: f.rpc,
+    journal: f.journal,
+    signer: f.signer,
+  });
+  assert.equal((await keeper.tick()).reason, "payoutAccountMissing");
+  assert.equal(f.state().cursor, 1);
+  assert.equal((await keeper.tick({ send: true })).target, second.address);
+  assert.equal(f.rpc.sent.length, 1);
+});
+
+test("resolved custody or policy changes after simulation prevent signing", async () => {
+  for (const change of ["custody", "policy", "mode"]) {
+    const f = await resolvedFixture();
+    f.rpc.simulateTransaction = async () => {
+      if (change === "custody") f.accounts.get(f.payoutToken).data[108] = 2;
+      if (change === "policy")
+        f.accounts
+          .get(f.raw.deployment.market)
+          .data.writeBigUInt64LE(
+            1n,
+            contract.constants.headerLength +
+              contract.layouts.wrapper.maintenance_fee_per_slot.offset,
+          );
+      if (change === "mode")
+        f.accounts.get(f.raw.deployment.market).data[
+          contract.constants.marketModeOffset
+        ] = 2;
+      return { context: { slot: 124 }, value: { err: null } };
+    };
+    await assert.rejects(
+      f.keeper.tick({ send: true }),
+      /[Tt]oken|policy|mode changed/,
+    );
+    assert.equal(f.rpc.sent.length, 0);
+  }
+});
+
+test("keeper retains duplicate protection across restart, dry runs and old journals", async () => {
+  const f = await resolvedFixture();
+  const first = await f.keeper.tick({ send: true });
+  f.rpc.status = { confirmationStatus: "confirmed", err: null, slot: 124 };
+  await f.keeper.tick({ send: true });
+  const legacy = f.state();
+  delete legacy.lastSubmittedBlockhash;
+  await f.journal.write(legacy);
+  const restarted = new OutrightKeeper(f.raw, {
+    connection: f.rpc,
+    journal: f.journal,
+    signer: f.signer,
+  });
+  const destination = f.accounts.get(f.payoutToken);
+  f.accounts.delete(f.payoutToken);
+  assert.equal((await restarted.tick()).reason, "payoutAccountMissing");
+  f.accounts.set(f.payoutToken, destination);
+  await restarted.tick();
+  assert.equal(
+    (await restarted.tick({ send: true })).status,
+    "waitingForBlockhash",
+  );
+  assert.equal(
+    (await restarted.tick({ send: true })).status,
+    "waitingForBlockhash",
+  );
+  assert.equal(f.state().reservedFees, "5000");
+  assert.equal(f.state().attempts, 1);
+  f.rpc.getLatestBlockhashAndContext = async () => ({
+    context: { slot: 124 },
+    value: { blockhash: pub(24).toBase58(), lastValidBlockHeight: 101 },
+  });
+  const next = await restarted.tick({ send: true });
+  assert.equal(next.status, "submitted");
+  assert.notEqual(next.signature, first.signature);
+  assert.equal(f.rpc.sent.length, 2);
+});
+
+test("a corrupt stored blockhash stops signing without replacing the pending receipt", async () => {
+  const f = await fixture();
+  await f.keeper.tick({ send: true });
+  const original = f.state();
+  for (const value of [1, false, {}, []]) {
+    const broken = { ...original, lastSubmittedBlockhash: value };
+    await f.journal.write(broken);
+    await assert.rejects(f.keeper.tick({ send: true }), /Invalid keeper blockhash/);
+    assert.deepEqual(f.state(), broken);
+  }
+  assert.equal(f.rpc.sent.length, 1);
+});
+
 test("keeper simulates without a signer and sends only with an explicit flag", async () => {
   const f = await fixture();
   f.keeper.signer = null;
@@ -279,10 +575,16 @@ for (const mutation of [
 }
 test("total fee budget persists across confirmed transactions", async () => {
   const f = await fixture();
+  let blockhash = 23;
+  f.rpc.getLatestBlockhashAndContext = async () => ({
+    context: { slot: 124 },
+    value: { blockhash: pub(blockhash).toBase58(), lastValidBlockHeight: 100 },
+  });
   f.rpc.status = { confirmationStatus: "confirmed", err: null, slot: 124 };
   for (let i = 0; i < 2; i++) {
     await f.keeper.tick({ send: true });
     await f.keeper.tick({ send: true });
+    blockhash++;
   }
   await assert.rejects(f.keeper.tick({ send: true }), /budget exceeded/);
   assert.equal(f.rpc.sent.length, 2);
@@ -467,135 +769,142 @@ test("disk journal survives reopen, locks other workers and rejects exposed perm
   }
 });
 
-test("CLI signs through JSON-RPC and a restarted process reconciles the saved receipt", async () => {
-  const f = await fixture(),
-    directory = await mkdtemp(join(tmpdir(), "outright-keeper-cli-"));
-  const stateDir = join(directory, "state");
-  let sends = 0,
-    observedSignature;
-  const server = createServer(async (request, response) => {
-    try {
-      let text = "";
-      for await (const chunk of request) text += chunk;
-      const { id, method, params } = JSON.parse(text);
-      let result;
-      switch (method) {
-        case "getGenesisHash":
-          result = f.raw.deployment.genesisHash;
-          break;
-        case "getMultipleAccounts":
-          assert.equal(params[1].commitment, "confirmed");
-          result = {
-            context: { slot: 124 },
-            value: params[0].map((a) => {
-              const info = f.accounts.get(a);
-              return info
-                ? {
-                    ...info,
-                    owner: info.owner.toBase58(),
-                    data: [info.data.toString("base64"), "base64"],
-                    rentEpoch: 0,
-                  }
-                : null;
-            }),
-          };
-          break;
-        case "getLatestBlockhash":
-          result = {
-            context: { slot: 124 },
-            value: { blockhash: pub(23).toBase58(), lastValidBlockHeight: 100 },
-          };
-          break;
-        case "getBlockHeight":
-          result = 10;
-          break;
-        case "simulateTransaction":
-          assert.equal(params[1].sigVerify, false);
-          assert.equal(params[1].replaceRecentBlockhash, false);
-          result = {
-            context: { slot: 124 },
-            value: { err: null, logs: [], unitsConsumed: 100000 },
-          };
-          break;
-        case "getFeeForMessage":
-          result = { context: { slot: 124 }, value: 5000 };
-          break;
-        case "sendTransaction": {
-          const tx = VersionedTransaction.deserialize(
-            Buffer.from(params[0], "base64"),
-          );
-          const state = JSON.parse(
-            await readFile(join(stateDir, "state.json"), "utf8"),
-          );
-          observedSignature = bs58.encode(tx.signatures[0]);
-          assert.equal(state.pending.signature, observedSignature);
-          assert.equal(state.pending.status, "signed");
-          assert.equal(params[1].maxRetries, 0);
-          sends++;
-          result = observedSignature;
-          break;
-        }
-        case "getSignatureStatuses":
-          assert.equal(params[0][0], observedSignature);
-          assert.equal(params[1].searchTransactionHistory, true);
-          result = {
-            context: { slot: 124 },
-            value: [
-              {
-                slot: 124,
-                confirmations: 1,
-                confirmationStatus: "confirmed",
-                err: null,
+for (const resolved of [false, true])
+  test(`CLI ${resolved ? "resolved" : "live"} signing, restart and duplicate protection use durable state`, async () => {
+    const f = resolved ? await resolvedFixture() : await fixture(),
+      directory = await mkdtemp(join(tmpdir(), "outright-keeper-cli-"));
+    const stateDir = join(directory, "state");
+    let sends = 0,
+      observedSignature;
+    const server = createServer(async (request, response) => {
+      try {
+        let text = "";
+        for await (const chunk of request) text += chunk;
+        const { id, method, params } = JSON.parse(text);
+        let result;
+        switch (method) {
+          case "getGenesisHash":
+            result = f.raw.deployment.genesisHash;
+            break;
+          case "getMultipleAccounts":
+            assert.equal(params[1].commitment, "confirmed");
+            result = {
+              context: { slot: 124 },
+              value: params[0].map((a) => {
+                const info = f.accounts.get(a);
+                return info
+                  ? {
+                      ...info,
+                      owner: info.owner.toBase58(),
+                      data: [info.data.toString("base64"), "base64"],
+                      rentEpoch: 0,
+                    }
+                  : null;
+              }),
+            };
+            break;
+          case "getLatestBlockhash":
+            result = {
+              context: { slot: 124 },
+              value: {
+                blockhash: pub(23).toBase58(),
+                lastValidBlockHeight: 100,
               },
-            ],
-          };
-          break;
-        default:
-          throw new Error(`Unexpected RPC method ${method}`);
+            };
+            break;
+          case "getBlockHeight":
+            result = 10;
+            break;
+          case "simulateTransaction":
+            assert.equal(params[1].sigVerify, false);
+            assert.equal(params[1].replaceRecentBlockhash, false);
+            result = {
+              context: { slot: 124 },
+              value: { err: null, logs: [], unitsConsumed: 100000 },
+            };
+            break;
+          case "getFeeForMessage":
+            result = { context: { slot: 124 }, value: 5000 };
+            break;
+          case "sendTransaction": {
+            const tx = VersionedTransaction.deserialize(
+              Buffer.from(params[0], "base64"),
+            );
+            const state = JSON.parse(
+              await readFile(join(stateDir, "state.json"), "utf8"),
+            );
+            observedSignature = bs58.encode(tx.signatures[0]);
+            assert.equal(state.pending.signature, observedSignature);
+            assert.equal(state.pending.status, "signed");
+            assert.equal(params[1].maxRetries, 0);
+            sends++;
+            result = observedSignature;
+            break;
+          }
+          case "getSignatureStatuses":
+            assert.equal(params[0][0], observedSignature);
+            assert.equal(params[1].searchTransactionHistory, true);
+            result = {
+              context: { slot: 124 },
+              value: [
+                {
+                  slot: 124,
+                  confirmations: 1,
+                  confirmationStatus: "confirmed",
+                  err: null,
+                },
+              ],
+            };
+            break;
+          default:
+            throw new Error(`Unexpected RPC method ${method}`);
+        }
+        response.setHeader("content-type", "application/json");
+        response.end(JSON.stringify({ jsonrpc: "2.0", id, result }));
+      } catch (e) {
+        response.statusCode = 500;
+        response.end(e.message);
       }
-      response.setHeader("content-type", "application/json");
-      response.end(JSON.stringify({ jsonrpc: "2.0", id, result }));
-    } catch (e) {
-      response.statusCode = 500;
-      response.end(e.message);
+    });
+    await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+    try {
+      f.raw.deployment.rpcUrl = `http://127.0.0.1:${server.address().port}`;
+      const configPath = join(directory, "config.json"),
+        keyPath = join(directory, "test.keypair.json");
+      await writeFile(configPath, JSON.stringify(f.raw), { mode: 0o600 });
+      await writeFile(keyPath, JSON.stringify([...f.signer.secretKey]), {
+        mode: 0o600,
+      });
+      const args = [
+        fileURLToPath(new URL("../operator/keeper.mjs", import.meta.url)),
+        "--config",
+        configPath,
+        "--state-dir",
+        stateDir,
+        "--send",
+        "--keypair",
+        keyPath,
+      ];
+      const run = () =>
+        promisify(execFile)(process.execPath, args, { timeout: 20000 });
+      const first = await run();
+      assert.equal(JSON.parse(first.stdout).status, "submitted");
+      const second = await run();
+      assert.equal(JSON.parse(second.stdout).status, "confirmed");
+      const third = await run();
+      assert.equal(JSON.parse(third.stdout).status, "waitingForBlockhash");
+      assert.equal(sends, 1);
+      const state = JSON.parse(
+        await readFile(join(stateDir, "state.json"), "utf8"),
+      );
+      assert.equal(state.pending, null);
+      assert.equal(state.reservedFees, "5000");
+      assert.equal(state.lastSubmittedBlockhash, pub(23).toBase58());
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+      await rm(directory, { recursive: true, force: true });
     }
   });
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-  try {
-    f.raw.deployment.rpcUrl = `http://127.0.0.1:${server.address().port}`;
-    const configPath = join(directory, "config.json"),
-      keyPath = join(directory, "test.keypair.json");
-    await writeFile(configPath, JSON.stringify(f.raw), { mode: 0o600 });
-    await writeFile(keyPath, JSON.stringify([...f.signer.secretKey]), {
-      mode: 0o600,
-    });
-    const args = [
-      fileURLToPath(new URL("../operator/keeper.mjs", import.meta.url)),
-      "--config",
-      configPath,
-      "--state-dir",
-      stateDir,
-      "--send",
-      "--keypair",
-      keyPath,
-    ];
-    const run = () =>
-      promisify(execFile)(process.execPath, args, { timeout: 20000 });
-    const first = await run();
-    assert.equal(JSON.parse(first.stdout).status, "submitted");
-    const second = await run();
-    assert.equal(JSON.parse(second.stdout).status, "confirmed");
-    assert.equal(sends, 1);
-    const state = JSON.parse(
-      await readFile(join(stateDir, "state.json"), "utf8"),
-    );
-    assert.equal(state.pending, null);
-    assert.equal(state.reservedFees, "5000");
-  } finally {
-    await new Promise((resolve) => server.close(resolve));
-    await rm(directory, { recursive: true, force: true });
-  }
-});
 
 test("crashed workers leave a lock and the last durable state for inspection", async () => {
   const directory = await mkdtemp(join(tmpdir(), "outright-keeper-crash-"));

@@ -632,6 +632,10 @@
         "offset": 32,
         "type": "key"
       },
+      "force_close_delay_slots": {
+        "offset": 144,
+        "type": "u64"
+      },
       "maintenance_fee_per_slot": {
         "offset": 96,
         "type": "u128"

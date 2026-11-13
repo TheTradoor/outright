@@ -33,6 +33,7 @@ below are descriptive placeholders, not a usable deployment:
 ```json
 {
   "version": 1,
+  "settleResolved": false,
   "deployment": "REPLACE_WITH_THE_COMPLETE_ENROLLED_PROFILE_OBJECT",
   "feePayer": "DEDICATED_FEE_PAYER_ADDRESS",
   "targets": [
@@ -82,13 +83,49 @@ not fetch Hermes messages or publish Pyth updates. An independent provider
 publisher must keep the configured oracle accounts current.
 
 Configure every asset held by the target portfolios. The current bound is
-256 portfolio targets and 16 assets. Each cycle includes the target's active
-legs plus one rotating discovery asset. Newly created portfolios are not
-discovered automatically. Resolved-market payout accounts require a separate
-planner and are rejected by this worker. The wallet terminal supports owner-signed
-resolved close and receipt-claim actions, but it does not expire backing or
-replace resolved-market operator progress. Global recovery uses committed state without oracle
-accounts; it does not implement every recovery or wind-down instruction.
+256 portfolio targets and 16 assets. In a live market each cycle includes the
+target's active legs plus one rotating discovery asset. Newly created portfolios
+are not discovered automatically. Global recovery uses committed state without
+oracle accounts; it does not implement every recovery or wind-down instruction.
+
+## Resolved settlement
+
+Set `settleResolved` to `true` to service resolved markets. It defaults to false;
+omitting it or setting false preserves the previous configuration hash. Enabling
+it changes the configuration identity. Finish reconciling any pending receipt
+before changing configuration or beginning a new journal and fee budget.
+
+The resolved planner submits one `PermissionlessCrank` with one rotating
+backing-asset hint and no oracle accounts. Include all assets whose backing may
+need to expire, including assets with no remaining positions in a target. The
+engine chooses the bounded close, backing expiry or payout continuation from
+committed state. A successful transaction need not transfer tokens; `idle`
+means no progress for that target and hint, not that the whole market is settled.
+
+Account 0 is the verified portfolio owner without a required signature. The
+transaction is signed by the configured fee payer. Before planning a transaction,
+the keeper waits for `resolved_slot + force_close_delay_slots` when the delay is
+nonzero. The program independently enforces the gate using Solana's Clock, so a
+caller-supplied future slot cannot bypass it.
+
+Payouts go only to the owner's canonical associated token account. The keeper
+checks the mint pin, destination ownership, vault authority and recorded custody
+in one confirmed snapshot. Frozen, delegated, close-authority-controlled and
+native token accounts are rejected. The destination must already exist; this
+worker does not spend SOL on account rent. The wallet terminal can create a
+missing destination during an owner-signed settlement, or an operator can prepare
+the canonical ATA with SPL Token tooling before starting the worker.
+
+Owner delay, a missing destination and an engine payout halt return `deferred`
+with `ownerDelay`, `payoutAccountMissing` or `payoutHalted`. They consume no
+transaction fee and advance the cursor so another target can be serviced. A
+policy or account change discovered after simulation prevents signing. Code,
+network, invalid custody and unexpected RPC errors stop the worker for review.
+
+This path does not create markets, resolve a live market, cure an engine payout
+halt, forfeit asset Recovery legs or close portfolio and market accounts. Those
+operations remain separate. Provider data is not needed after resolution, but
+the existing asset identities and valid keeper configuration are still required.
 
 ## Simulate first
 
@@ -121,6 +158,8 @@ then stop; they do not interrupt a durable write halfway through.
 | --- | --- |
 | `simulated` | Valid simulation; default mode signed nothing |
 | `idle` | SBF returned its exact non-progress error; no fee was spent |
+| `deferred` | Owner delay, missing payout ATA or payout halt; inspect `reason` |
+| `waitingForBlockhash` | RPC returned the last submitted blockhash; no new signature or fee |
 | `simulationRejected` | SBF rejected this attempt; inspect the error and oracle publisher |
 | `submitted` | RPC returned the saved transaction signature |
 | `unknown` | The send response did not establish the outcome |
@@ -129,7 +168,7 @@ then stop; they do not interrupt a durable write halfway through.
 | `failed` | A confirmed transaction failed; network fees may still apply |
 | `expiredUnresolved` | Expired blockhash with no established outcome; worker stops |
 
-One rejected simulation advances the bounded target cursor so it cannot starve
+One deferred target or rejected simulation advances the bounded target cursor so it cannot starve
 every other portfolio. A code, network, account identity, configuration, budget,
 storage or RPC failure stops the process. Repair the cause and restart with the
 same state directory. A restart reconciles a pending signature first.
@@ -141,13 +180,19 @@ broadcasting. It flushes the temporary file, atomically replaces `state.json`,
 and flushes the directory. A send timeout never creates an automatic replacement
 transaction. Unresolved receipts block all targets for this worker.
 
+The journal retains the last submitted blockhash independently of the last
+displayed result. A new signing attempt waits for a different blockhash, including
+after restart, a dry run or a deferred target. This prevents consecutive crank
+steps from receiving the same signature and reusing an old confirmation. Older
+v1 journals import this value from their saved pending or final receipt.
+
 `feeBudgetLamports` is a cumulative cap for this journal, not a daily allowance.
 It conservatively counts each signed attempt, including failed or unresolved
 transactions. `maxFeeLamports` limits a transaction's estimated network fee;
 `reserveLamports` preserves a minimum payer balance. This release requests no
 priority fee. Insufficient fee capacity stops the worker before signing.
 
-`state.json` contains the pending receipt, last result, cumulative budget,
+`state.json` contains the pending receipt, last submitted blockhash, last result, cumulative budget,
 minimum observed slot and target cursor. It is not a complete transaction
 history. Preserve JSON logs and reconcile authoritative results through RPC.
 Do not delete state or start another worker with a different directory to get

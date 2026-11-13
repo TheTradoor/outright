@@ -12,13 +12,28 @@ import {
   verifyProgram,
   sha256,
   readTransactionStatus,
+  readTokenAccount,
+  verifyCollateralMint,
 } from "./client.mjs";
 import { readMarket } from "./market.mjs";
 import { readPortfolio } from "./accounts.mjs";
-import { buildInstruction } from "./instructions.mjs";
+import { buildInstruction, vaultAuthority } from "./instructions.mjs";
+import { getAssociatedTokenAddressSync } from "./token.mjs";
+
+class DeferredTarget extends Error {
+  constructor(reason) {
+    super(`Keeper target deferred: ${reason}`);
+    this.reason = reason;
+  }
+}
 
 const key = (v) => new PublicKey(v);
 const address = (v) => key(v).toBase58();
+const blockhash = (value) => {
+  if (typeof value !== "string" || address(value) !== value)
+    throw new Error("Invalid keeper blockhash");
+  return value;
+};
 const u64 = (v, name) => {
   if (
     typeof v !== "string" ||
@@ -41,6 +56,11 @@ const unique = (list, name) => {
 export function validateKeeperConfig(input) {
   if (input?.version !== 1) throw new Error("Unsupported keeper configuration");
   const deployment = validateProfile(input.deployment);
+  if (
+    input.settleResolved !== undefined &&
+    typeof input.settleResolved !== "boolean"
+  )
+    throw new Error("Invalid settleResolved: use a boolean");
   if (
     !Array.isArray(input.targets) ||
     input.targets.length < 1 ||
@@ -114,14 +134,58 @@ export function validateKeeperConfig(input) {
     maxFeeLamports: u64(input.maxFeeLamports, "transaction fee cap"),
     feeBudgetLamports: u64(input.feeBudgetLamports, "total fee budget"),
     reserveLamports: u64(input.reserveLamports, "SOL reserve"),
+    // Omit the default so existing journal configuration hashes stay valid.
+    ...(input.settleResolved ? { settleResolved: true } : {}),
   });
 }
 
 export function planCrank(config, snapshot, discoveryIndex) {
   const { deployment } = config;
   const { market, portfolio, slot } = snapshot;
-  if (market.mode === "resolved")
-    throw new Error("Resolved settlement requires a separate payout planner");
+  if (market.mode === "resolved") {
+    if (!config.settleResolved)
+      throw new Error("Resolved settlement requires settleResolved: true");
+    const pin = config.assets.find((a) => a.index === discoveryIndex);
+    const asset = market.assets[discoveryIndex];
+    if (
+      !pin ||
+      !asset ||
+      discoveryIndex >= market.config.max_market_slots ||
+      asset.market_id.toString() !== pin.marketId
+    )
+      throw new Error(
+        "Asset incarnation is missing or changed; review the keeper configuration",
+      );
+    const delay = market.wrapper.force_close_delay_slots;
+    if (delay !== 0n && BigInt(slot) < market.resolved_slot + delay)
+      throw new DeferredTarget("ownerDelay");
+    if (!snapshot.payoutTokenExists)
+      throw new DeferredTarget("payoutAccountMissing");
+    if (market.resolvedPayout.payout_halted)
+      throw new DeferredTarget("payoutHalted");
+    return buildInstruction(
+      deployment.program.address,
+      "permissionlessCrank",
+      {
+        nowSlot: BigInt(slot),
+        observations: [{ assetIndex: discoveryIndex, oracleAccounts: 0 }],
+      },
+      {
+        owner: portfolio.owner,
+        market: deployment.market,
+        portfolio: portfolio.address,
+        oracleAccounts: [],
+        resolvedPayout: {
+          userToken: getAssociatedTokenAddressSync(
+            key(deployment.collateral.mint),
+            key(portfolio.owner),
+            true,
+          ),
+          vault: deployment.vault,
+        },
+      },
+    );
+  }
   const indexes = new Set(portfolio.positions.map((p) => p.asset_index));
   indexes.add(discoveryIndex);
   const observations = [],
@@ -181,6 +245,11 @@ export async function readKeeperSnapshot(
   if ((await connection.getGenesisHash()) !== p.genesisHash)
     throw new Error("Keeper RPC network changed");
   const feeds = config.assets.flatMap((a) => a.feeds);
+  const payoutToken = getAssociatedTokenAddressSync(
+    key(p.collateral.mint),
+    key(target.owner),
+    true,
+  ).toBase58();
   const addresses = [
     ...new Set([
       p.program.address,
@@ -189,6 +258,9 @@ export async function readKeeperSnapshot(
       config.feePayer,
       target.address,
       ...feeds.map((f) => f.account),
+      ...(config.settleResolved
+        ? [p.collateral.mint, p.vault, payoutToken]
+        : []),
     ]),
   ];
   const result = await connection.getMultipleAccountsInfoAndContext(
@@ -245,7 +317,36 @@ export async function readKeeperSnapshot(
       )
         throw new Error("Oracle account is missing or has a different owner");
     }
-  return { slot, market, portfolio, walletLamports: payer.lamports };
+  let payoutTokenExists = false;
+  if (market.mode === "resolved" && config.settleResolved) {
+    verifyCollateralMint(accounts.get(p.collateral.mint), p.collateral);
+    const vault = readTokenAccount(
+      accounts.get(p.vault),
+      p.vault,
+      p.collateral.mint,
+      vaultAuthority(p.program.address, p.market),
+      true,
+    );
+    if (vault.amount < market.vault)
+      throw new Error("Keeper vault balance is below recorded custody");
+    if (accounts.get(payoutToken)) {
+      readTokenAccount(
+        accounts.get(payoutToken),
+        payoutToken,
+        p.collateral.mint,
+        target.owner,
+        true,
+      );
+      payoutTokenExists = true;
+    }
+  }
+  return {
+    slot,
+    market,
+    portfolio,
+    walletLamports: payer.lamports,
+    payoutTokenExists,
+  };
 }
 
 export function emptyKeeperState(configHash) {
@@ -258,6 +359,7 @@ export function emptyKeeperState(configHash) {
     minimumSlot: 0,
     pending: null,
     lastResult: null,
+    lastSubmittedBlockhash: null,
   };
 }
 
@@ -272,6 +374,8 @@ function validateState(state, configHash) {
     throw new Error("Keeper journal does not match the configuration");
   for (const k of ["attempts", "cursor", "minimumSlot"])
     count(state[k], 0, Number.MAX_SAFE_INTEGER, k);
+  if (state.lastSubmittedBlockhash != null)
+    blockhash(state.lastSubmittedBlockhash);
   if (
     state.pending &&
     (!/^[1-9A-HJ-NP-Za-km-z]{64,88}$/.test(state.pending.signature) ||
@@ -306,6 +410,12 @@ export class OutrightKeeper {
       );
       const state = (await this.journal.read()) ?? emptyKeeperState(configHash);
       validateState(state, configHash);
+      // Preserve the last submitted blockhash when reading an older v1 journal,
+      // before a deferred or simulation result can replace lastResult.
+      const previousBlockhash =
+        state.pending?.blockhash ?? state.lastResult?.blockhash;
+      if (!state.lastSubmittedBlockhash && previousBlockhash != null)
+        state.lastSubmittedBlockhash = blockhash(previousBlockhash);
       const { config: c, connection: rpc } = this;
       if ((await rpc.getGenesisHash()) !== c.deployment.genesisHash)
         throw new Error("Keeper RPC network changed");
@@ -352,7 +462,23 @@ export class OutrightKeeper {
         target,
         state.minimumSlot,
       );
-      const instruction = planCrank(c, snapshot, asset.index);
+      let instruction;
+      try {
+        instruction = planCrank(c, snapshot, asset.index);
+      } catch (error) {
+        if (!(error instanceof DeferredTarget)) throw error;
+        state.cursor =
+          (state.cursor + 1) % (c.targets.length * c.assets.length);
+        state.minimumSlot = snapshot.slot;
+        state.lastResult = {
+          status: "deferred",
+          reason: error.reason,
+          target: target.address,
+          discoveryAsset: asset.index,
+        };
+        await this.journal.write(state);
+        return state.lastResult;
+      }
       const recent = await rpc.getLatestBlockhashAndContext({
         commitment: "confirmed",
         minContextSlot: snapshot.slot,
@@ -369,6 +495,16 @@ export class OutrightKeeper {
         Number.MAX_SAFE_INTEGER,
         "blockhash height",
       );
+      const lastBlockhash = state.lastSubmittedBlockhash;
+      if (send && lastBlockhash === recent.value.blockhash) {
+        state.minimumSlot = recent.context.slot;
+        state.lastResult = {
+          status: "waitingForBlockhash",
+          target: target.address,
+        };
+        await this.journal.write(state);
+        return state.lastResult;
+      }
       const tx = new VersionedTransaction(
         new TransactionMessage({
           payerKey: key(c.feePayer),
@@ -459,12 +595,24 @@ export class OutrightKeeper {
       if (fresh.market.mode !== snapshot.market.mode)
         throw new Error("Market mode changed after simulation");
       if (
+        snapshot.market.mode === "resolved" &&
+        (fresh.market.wrapper.maintenance_fee_per_slot !==
+          snapshot.market.wrapper.maintenance_fee_per_slot ||
+          fresh.market.wrapper.force_close_delay_slots !==
+            snapshot.market.wrapper.force_close_delay_slots ||
+          fresh.market.resolved_slot !== snapshot.market.resolved_slot)
+      )
+        throw new Error("Market settlement policy changed after simulation");
+      if (
         !freshInstruction.data
           .subarray(9)
           .equals(instruction.data.subarray(9)) ||
         freshInstruction.keys.length !== instruction.keys.length ||
         freshInstruction.keys.some(
-          (k, i) => !k.pubkey.equals(instruction.keys[i].pubkey),
+          (k, i) =>
+            !k.pubkey.equals(instruction.keys[i].pubkey) ||
+            k.isSigner !== instruction.keys[i].isSigner ||
+            k.isWritable !== instruction.keys[i].isWritable,
         )
       )
         throw new Error("Crank account selection changed after simulation");
@@ -493,6 +641,7 @@ export class OutrightKeeper {
         createdAt: new Date().toISOString(),
       };
       state.pending = record;
+      state.lastSubmittedBlockhash = recent.value.blockhash;
       state.reservedFees = (
         BigInt(state.reservedFees) + BigInt(fee.value)
       ).toString();

@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 241 JavaScript
-tests, including 18 DOM cases, and 13 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 262 JavaScript
+tests, including 18 DOM cases, and 14 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Resolved settlement and payout receipts](#resolved-settlement-and-payout-receipts)
+[Resolved keeper and restart protection](#resolved-keeper-and-restart-protection)
 for the latest coverage, and the preceding section for dependency changes.
 
 ## Sources and toolchains
@@ -330,8 +330,47 @@ settlement steps, using the durable receipt even after reload. A receipt written
 by another tab also blocks reuse before the wallet prompt.
 
 This establishes one underfunded resolved-market path, not general recovery.
-The expiry step uses the upstream fixture; Outright's keeper still rejects
-resolved targets. Asset Recovery forfeits, payout-halt recovery, multi-asset
+The original wallet fixture uses the upstream expiry step; the keeper extension
+below replaces that step with the client planner. Asset Recovery forfeits, payout-halt recovery, multi-asset
 insolvency stress, full teardown and live service operation remain open. Engine
 and wrapper pins are unchanged. Browser/mobile rendering and real wallet
 extensions have not been validated in this environment.
+
+## Resolved keeper and restart protection
+
+The keeper can service a resolved market when `settleResolved` is enabled. It
+supplies one rotating asset hint, no oracle accounts, and the verified owner's
+canonical payout ATA. The owner account is not marked as a signer. Mint and
+token-account checks are shared with the wallet client; the resolved destination
+also rejects delegates and close authorities. The close delay comes from the
+pinned Rust wrapper layout. The engine's code and account layout are unchanged.
+
+The fourteenth SBF case executes the keeper planner against the INV-067
+underfunded fixture. A separate fee payer creates the test owner's ATA during
+setup. The keeper then pays 1,250 atoms, discovers 500 atoms of expired backing
+and pays that additional amount without the owner's signature. The total remains
+1,750 after repeated settlement attempts and final close continuations. Wrong
+destinations reject with `InvalidTokenAccount`; a later rejected instruction
+rolls back the payout. A forged caller slot before the permissionless-close
+delay rejects with `ExpectedSigner` and leaves tracked state unchanged.
+
+Host tests cover the explicit opt-in, unchanged default configuration hashes,
+missing live oracle accounts after resolution, pinned asset identity, owner
+delay, missing ATA, payout halt and cursor progress. Invalid destination or vault
+ownership, token mint, delegates, close authority, frozen state, insufficient
+custody and changed mint configuration all prevent signing. A custody, policy or
+mode change after simulation also stops submission.
+
+The keeper now persists its last submitted blockhash separately from the last
+displayed result. A repeat blockhash yields `waitingForBlockhash`, without
+reserving another fee. Restart, dry-run and deferred-target tests exercise this
+guard, including older v1 journals. Both live and resolved CLI cases use a local
+JSON-RPC server and three independent processes: submit, reconcile, then refuse
+to submit the same blockhash again. Those RPC fixtures do not execute SBF; the
+separate SBF case establishes the program transition.
+
+The worker does not create payout accounts or spend account rent. It defers
+missing ATAs and payout halts without starving other configured targets. Full
+market discovery, asset Recovery exits, payout-halt repair, market teardown,
+multi-asset insolvency stress and hosted operation remain unfinished. There is
+still no public deployment or independent audit.

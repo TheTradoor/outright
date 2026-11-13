@@ -73,6 +73,36 @@ fn resolved_close(env: &V16Svm, actor: usize, name: &str) -> Instruction {
 
 #[test]
 fn javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_once() {
+    resolved_receipt_trace(false);
+}
+
+#[test]
+fn keeper_resolved_planner_expires_backing_and_pays_owner_without_owner_signature() {
+    resolved_receipt_trace(true);
+}
+
+fn resolved_keeper_instruction(
+    env: &V16Svm,
+    payer: Pubkey,
+    slot: u64,
+    discovery: u16,
+) -> Instruction {
+    let actor = &env.actors[0];
+    let group = env.primary_market_state().1;
+    from_js_instruction(&js(
+        json!({"operation":"planCrank", "slot":slot,"discoveryIndex":discovery,
+        "config":{"settleResolved":true,"feePayer":payer.to_string(),
+            "deployment":{"program":{"address":env.program_id.to_string()},"market":env.market.to_string(),
+                "vault":env.vault.to_string(),"collateral":{"mint":env.mint.to_string()}},
+            "assets":[{"index":0,"marketId":group.assets[0].market_id.to_string()},
+                {"index":1,"marketId":group.assets[1].market_id.to_string()}]},
+        "target":{"address":actor.portfolio.to_string(),"owner":actor.signer.pubkey().to_string()},
+        "marketAccount":account_json(env,env.market),"portfolioAccount":account_json(env,actor.portfolio),
+        "payoutTokenAccount":account_json(env,actor.destination_token)}),
+    ))
+}
+
+fn resolved_receipt_trace(use_keeper: bool) {
     use percolator_prog::ix::CrankObservationHint;
     // Adapt the upstream INV-067 public trace. No program-owned financial state
     // is injected: deposits, matching, marks, expiry and resolution use SBF.
@@ -89,6 +119,30 @@ fn javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_on
     let mut env = V16Svm::new([101; 32], config);
     let supply = env.mint_supply();
     let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+    let payer = Keypair::new();
+    env.svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
+    if use_keeper {
+        let ata = js(
+            json!({"operation":"createPayoutAta", "payer":payer.pubkey().to_string(),
+            "owner":owner.pubkey().to_string(),"mint":env.mint.to_string()}),
+        );
+        send(
+            &mut env,
+            from_js_instruction(&ata["instruction"]),
+            &[&payer],
+        )
+        .unwrap();
+        env.actors[0].destination_token =
+            Pubkey::from_str(ata["address"].as_str().unwrap()).unwrap();
+    }
+    let signer = if use_keeper { &payer } else { &owner };
+    let payout_ix = |env: &V16Svm| {
+        if use_keeper {
+            resolved_keeper_instruction(env, payer.pubkey(), env.current_slot(), 1)
+        } else {
+            resolved_close(env, 0, "claimResolvedPayoutTopup")
+        }
+    };
     env.configure_permissionless_resolve(100, 1).unwrap();
     env.update_asset_authority_from_admin(
         1,
@@ -118,6 +172,22 @@ fn javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_on
     env.trade_no_cpi(0, 1, 0, -size, 150, 0).unwrap();
     env.warp_to_slot(12);
     env.resolve_market().unwrap();
+    if use_keeper {
+        let before = snapshot(
+            &env,
+            &[env.actors[0].portfolio, env.actors[0].destination_token],
+        );
+        // A forged caller slot passes the planner's delay check, but cannot
+        // bypass the program's authenticated Clock and owner-signature gate.
+        let forged = resolved_keeper_instruction(&env, payer.pubkey(), 13, 0);
+        assert!(forged.accounts.iter().all(|a| !a.is_signer));
+        rejected(
+            send(&mut env, forged, &[&payer]),
+            2,
+            PercolatorError::ExpectedSigner,
+        );
+        assert_unchanged(&env, &before);
+    }
     for actor in [1, 2, 3, 4] {
         let signer = Keypair::from_bytes(&env.actors[actor].signer.to_bytes()).unwrap();
         for _ in 0..16 {
@@ -131,8 +201,12 @@ fn javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_on
         env.close_primary_portfolio(actor).unwrap();
     }
     env.warp_to_slot(14);
-    let ix = resolved_close(&env, 0, "closeResolved");
-    send(&mut env, ix, &[&owner]).expect("JS initial haircut close");
+    let ix = if use_keeper {
+        resolved_keeper_instruction(&env, payer.pubkey(), 14, 0)
+    } else {
+        resolved_close(&env, 0, "closeResolved")
+    };
+    send(&mut env, ix, &[signer]).expect("JS initial haircut close");
     let initial_paid = env.token_amount(env.actors[0].destination_token);
     let view = settlement_view(&env, 0);
     assert_eq!(view["receipt"]["present"], true);
@@ -140,70 +214,102 @@ fn javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_on
     assert_eq!(view["recordedPayout"], "0");
     assert!(initial_paid > 0 && initial_paid < 1_750);
     // Repeated claims before additional backing cannot increase payment.
-    let ix = resolved_close(&env, 0, "claimResolvedPayoutTopup");
-    send(&mut env, ix, &[&owner]).expect("zero-due claim");
+    let ix = payout_ix(&env);
+    if use_keeper {
+        let before = snapshot(
+            &env,
+            &[env.actors[0].portfolio, env.actors[0].destination_token],
+        );
+        rejected(
+            send(&mut env, ix, &[signer]),
+            2,
+            PercolatorError::EngineNonProgress,
+        );
+        assert_unchanged(&env, &before);
+    } else {
+        send(&mut env, ix, &[signer]).expect("zero-due claim");
+    }
     assert_eq!(
         env.token_amount(env.actors[0].destination_token),
         initial_paid
     );
     assert_eq!(settlement_view(&env, 0)["receipt"], view["receipt"]);
     env.warp_to_slot(40);
-    env.crank(
-        0,
-        40,
-        vec![CrankObservationHint {
-            asset_index: 1,
-            oracle_accounts: 0,
-        }],
-    )
-    .expect("public backing discovery releases expired collateral");
+    if use_keeper {
+        let ix = resolved_keeper_instruction(&env, payer.pubkey(), 40, 1);
+        send(&mut env, ix, &[signer]).expect("keeper discovers expired backing");
+    } else {
+        env.crank(
+            0,
+            40,
+            vec![CrankObservationHint {
+                asset_index: 1,
+                oracle_accounts: 0,
+            }],
+        )
+        .expect("public backing discovery releases expired collateral");
+    }
     let due = settlement_view(&env, 0)["recordedPayout"]
         .as_str()
         .unwrap()
         .parse::<u64>()
         .unwrap();
     assert_eq!(initial_paid + due, 1_750);
-    let before = snapshot(&env, &[env.actors[0].portfolio]);
-    let mut wrong = resolved_close(&env, 0, "claimResolvedPayoutTopup");
+    let before = snapshot(
+        &env,
+        &[env.actors[0].portfolio, env.actors[0].destination_token],
+    );
+    let mut wrong = payout_ix(&env);
     wrong.accounts[3].pubkey = env.actors[1].destination_token;
     rejected(
-        send(&mut env, wrong, &[&owner]),
+        send(&mut env, wrong, &[signer]),
         2,
         PercolatorError::InvalidTokenAccount,
     );
     assert_unchanged(&env, &before);
-    let ix = resolved_close(&env, 0, "claimResolvedPayoutTopup");
+    let ix = payout_ix(&env);
     let invalid = Instruction {
         program_id: env.program_id,
         accounts: vec![],
         data: vec![255],
     };
     assert_eq!(
-        send_many(&mut env, &[ix, invalid], &[&owner]).unwrap_err(),
+        send_many(&mut env, &[ix, invalid], &[signer]).unwrap_err(),
         TransactionError::InstructionError(3, InstructionError::InvalidInstructionData)
     );
     assert_unchanged(&env, &before);
     env.svm.expire_blockhash();
-    let ix = resolved_close(&env, 0, "claimResolvedPayoutTopup");
-    send(&mut env, ix, &[&owner]).expect("JS late payout");
+    let ix = payout_ix(&env);
+    send(&mut env, ix, &[signer]).expect("JS late payout");
     assert_eq!(env.token_amount(env.actors[0].destination_token), 1_750);
     assert_eq!(settlement_view(&env, 0)["recordedPayout"], "0");
     env.svm.expire_blockhash();
-    let ix = resolved_close(&env, 0, "claimResolvedPayoutTopup");
-    send(&mut env, ix, &[&owner]).expect("repeated top-up cannot pay twice");
+    let ix = payout_ix(&env);
+    let again = send(&mut env, ix, &[signer]);
+    if use_keeper && again.is_err() {
+        rejected(again, 2, PercolatorError::EngineNonProgress);
+    } else {
+        again.expect("repeated settlement cannot pay twice");
+    }
     assert_eq!(env.token_amount(env.actors[0].destination_token), 1_750);
     for _ in 0..16 {
         if resolved_actor_terminal(&env, 0) {
             break;
         }
         env.svm.expire_blockhash();
-        let ix = resolved_close(&env, 0, "closeResolved");
-        send(&mut env, ix, &[&owner]).expect("finish JS close continuations");
+        let ix = if use_keeper {
+            payout_ix(&env)
+        } else {
+            resolved_close(&env, 0, "closeResolved")
+        };
+        send(&mut env, ix, &[signer]).expect("finish JS close continuations");
     }
     assert!(resolved_actor_terminal(&env, 0));
     assert_eq!(env.token_amount(env.actors[0].destination_token), 1_750);
     assert_eq!(env.mint_supply(), supply);
-    eprintln!("JS resolved receipt: initial={initial_paid}, topup={due}, total=1750");
+    eprintln!(
+        "JS resolved receipt: keeper={use_keeper}, initial={initial_paid}, topup={due}, total=1750"
+    );
 }
 
 fn js(input: Value) -> Value {
