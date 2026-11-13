@@ -106,13 +106,17 @@ function controls() {
 }
 async function action(work) {
   if (busy) return;
+  const current = generation;
   busy = true;
   controls();
   notice("");
   try {
     await work();
   } catch (error) {
-    notice(error.message || "The operation could not be completed.", true);
+    // Wallet events can replace the session while an RPC request is pending.
+    // Its error belongs to the old session just as its successful result does.
+    if (current === generation)
+      notice(error.message || "The operation could not be completed.", true);
   } finally {
     busy = false;
     controls();
@@ -761,7 +765,17 @@ async function reconcile() {
   const current = generation,
     selectedClient = client,
     selectedAccount = account;
-  const record = await selectedClient.reconcile(selectedAccount.address);
+  let record;
+  try {
+    record = await selectedClient.reconcile(selectedAccount.address);
+  } catch (error) {
+    if (current !== generation) return;
+    invalidateReview();
+    clearSnapshot("Not available");
+    setText("footer-state", "Connection needs attention");
+    // Keep the visible signature and durable receipt available for recovery.
+    throw error;
+  }
   if (current !== generation || !record) return;
   renderReceipt(record);
   if (["confirmed", "finalized", "failed"].includes(record.status)) {
@@ -783,9 +797,10 @@ setInterval(() => {
     document.querySelector("dialog[open]")
   )
     return;
+  const current = generation;
   void action(async () => {
     await reconcile();
-    if (client && account) await refresh();
+    if (current === generation && client && account) await refresh();
   });
 }, 10_000);
 controls();

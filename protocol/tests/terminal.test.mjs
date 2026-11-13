@@ -16,7 +16,7 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
   const f = await withMaker(await fixture());
   const dom = new JSDOM(
     await readFile(new URL("../terminal/index.html", import.meta.url), "utf8"),
-    { url: "https://outright.test/trade/" },
+    { url: "https://outright.test/trade/", pretendToBeVisual: true },
   );
   const w = dom.window,
     document = w.document,
@@ -46,7 +46,12 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
       observe() {}
     },
   );
-  setGlobal("setInterval", () => 0);
+  let poll;
+  setGlobal("setInterval", (work, interval) => {
+    assert.equal(interval, 10_000);
+    poll = work;
+    return 0;
+  });
   let finishStartup;
   const startup = new Promise((resolve) => {
     finishStartup = resolve;
@@ -84,11 +89,15 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
   const originalSnapshot = OutrightClient.prototype.snapshot;
   const originalPrepare = OutrightClient.prototype.prepare;
   const originalSubmit = OutrightClient.prototype.submit;
+  const originalReconcile = OutrightClient.prototype.reconcile;
   OutrightClient.prototype.prepare = function (...args) {
     return originalPrepare.apply(f.client, args);
   };
   OutrightClient.prototype.submit = function (...args) {
     return originalSubmit.apply(f.client, args);
+  };
+  OutrightClient.prototype.reconcile = function (...args) {
+    return originalReconcile.apply(f.client, args);
   };
   OutrightClient.prototype.snapshot = async function (owner) {
     if (holdRpc) await holdRpc;
@@ -386,6 +395,274 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
         assert.equal(el("wallet-button").textContent, "Connect wallet");
       },
     );
+    for (const outcome of ["success", "RPC failure"])
+      await t.test(
+        `a late simulation ${outcome} preserves the disconnected session`,
+        { timeout: 15_000 },
+        async () => {
+          await connect();
+          const simulate = f.rpc.simulateTransaction;
+          const entered = Promise.withResolvers();
+          const release = Promise.withResolvers();
+          const before = f.rpc.sent.length;
+          f.rpc.simulateTransaction = async (...args) => {
+            entered.resolve();
+            await release.promise;
+            if (outcome === "RPC failure")
+              throw new Error("Simulation RPC unavailable");
+            return simulate(...args);
+          };
+          try {
+            el("trade-form").dispatchEvent(
+              new w.Event("submit", { cancelable: true }),
+            );
+            await entered.promise;
+            changed({ accounts: [] });
+            release.resolve();
+            await until(
+              () => !el("wallet-button").disabled,
+              "simulation did not settle",
+            );
+            unavailable();
+            assert.equal(el("review-dialog").open, false);
+            assert.equal(
+              el("feedback").textContent,
+              "Wallet account changed. Reconnect the account you want to use.",
+            );
+            assert.equal(f.rpc.sent.length, before);
+          } finally {
+            release.resolve();
+            f.rpc.simulateTransaction = simulate;
+            if (el("wallet-button").textContent !== "Connect wallet")
+              changed({ accounts: [] });
+          }
+        },
+      );
+
+    const seedPending = async () => {
+      const review = await f.client.prepare(account.address, {
+        type: "deposit",
+        amount: "1",
+      });
+      const record = await f.client.submit(review, f.sign);
+      w.localStorage.setItem(
+        "outright.transaction.v1:" + record.scope,
+        JSON.stringify(record),
+      );
+      return record;
+    };
+    for (const outcome of ["confirmed", "RPC failure"])
+      await t.test(
+        `a late reconciliation ${outcome} preserves the disconnected session`,
+        { timeout: 15_000 },
+        async () => {
+          const savedReceipt = await seedPending();
+          await connect();
+          const status = f.rpc.getSignatureStatuses;
+          const entered = Promise.withResolvers();
+          const release = Promise.withResolvers();
+          const before = f.rpc.sent.length;
+          f.rpc.getSignatureStatuses = async () => {
+            entered.resolve();
+            await release.promise;
+            if (outcome === "RPC failure")
+              throw new Error("Confirmation RPC unavailable");
+            return {
+              context: { slot: 123 },
+              value: [
+                { slot: 123, confirmationStatus: "confirmed", err: null },
+              ],
+            };
+          };
+          try {
+            el("reconcile").click();
+            await entered.promise;
+            changed({ accounts: [] });
+            release.resolve();
+            await until(
+              () => !el("wallet-button").disabled,
+              "reconciliation did not settle",
+            );
+            unavailable();
+            assert.equal(el("receipt-link").hidden, true);
+            assert.equal(
+              el("receipt-state").textContent,
+              "No transaction submitted",
+            );
+            assert.equal(
+              el("feedback").textContent,
+              "Wallet account changed. Reconnect the account you want to use.",
+            );
+            const retained = await f.journal.read(savedReceipt.scope);
+            assert.equal(retained.signature, savedReceipt.signature);
+            assert.equal(
+              retained.status,
+              outcome === "confirmed" ? "confirmed" : "submitted",
+            );
+            assert.equal(f.rpc.sent.length, before);
+          } finally {
+            release.resolve();
+            f.rpc.getSignatureStatuses = status;
+            f.records.clear();
+            w.localStorage.clear();
+            if (el("wallet-button").textContent !== "Connect wallet")
+              changed({ accounts: [] });
+          }
+        },
+      );
+
+    for (const failure of [
+      "RPC unavailable",
+      "malformed status",
+      "receipt write failure",
+    ])
+      await t.test(
+        `reconciliation ${failure} disables stale actions and retains the saved signature`,
+        { timeout: 15_000 },
+        async () => {
+          const savedReceipt = await seedPending();
+          await connect();
+          const status = f.rpc.getSignatureStatuses;
+          const write = f.journal.write;
+          const before = f.rpc.sent.length;
+          const errorText =
+            failure === "malformed status"
+              ? "Invalid transaction status"
+              : failure === "receipt write failure"
+                ? "Receipt storage unavailable"
+                : "Confirmation RPC unavailable";
+          f.rpc.getSignatureStatuses = async () => {
+            if (failure === "RPC unavailable") throw new Error(errorText);
+            return {
+              context: { slot: 123 },
+              value: [
+                {
+                  slot: 123,
+                  confirmationStatus:
+                    failure === "malformed status" ? "invalid" : "confirmed",
+                  err: null,
+                },
+              ],
+            };
+          };
+          if (failure === "receipt write failure")
+            f.journal.write = async () => {
+              throw new Error(errorText);
+            };
+          try {
+            el("reconcile").click();
+            await until(
+              () =>
+                el("feedback").textContent === errorText &&
+                !el("wallet-button").disabled,
+              "reconciliation failure did not surface",
+            );
+            unavailable();
+            assert.equal(el("initialize").disabled, true);
+            for (const button of el("collateral-form").querySelectorAll(
+              "button",
+            ))
+              assert.equal(button.disabled, true);
+            assert.equal(
+              el("receipt-link").textContent,
+              savedReceipt.signature,
+            );
+            assert.equal(el("reconcile").hidden, false);
+            assert.deepEqual(
+              await f.journal.read(savedReceipt.scope),
+              savedReceipt,
+            );
+            f.journal.write = async (scope, record) => {
+              await write(scope, record);
+              w.localStorage.setItem(
+                "outright.transaction.v1:" + scope,
+                JSON.stringify(record),
+              );
+            };
+            f.rpc.getSignatureStatuses = async () => ({
+              context: { slot: 123 },
+              value: [
+                { slot: 123, confirmationStatus: "confirmed", err: null },
+              ],
+            });
+            el("reconcile").click();
+            await until(
+              () =>
+                el("receipt-state").textContent === "Confirmed on Solana" &&
+                !el("wallet-button").disabled,
+              "reconciliation did not recover",
+            );
+            assert.equal(el("price").textContent, "150");
+            assert.equal(el("trade-review").disabled, false);
+            assert.equal(el("reconcile").hidden, true);
+            assert.equal(f.rpc.sent.length, before);
+          } finally {
+            f.rpc.getSignatureStatuses = status;
+            f.journal.write = write;
+            f.records.clear();
+            w.localStorage.clear();
+            if (el("wallet-button").textContent !== "Connect wallet")
+              changed({ accounts: [] });
+          }
+        },
+      );
+
+    await t.test(
+      "an obsolete poll cannot clear or reread the refreshed wallet session",
+      { timeout: 15_000 },
+      async () => {
+        const savedReceipt = await seedPending();
+        await connect();
+        const status = f.rpc.getSignatureStatuses;
+        const read = f.rpc.getMultipleAccountsInfoAndContext;
+        const entered = Promise.withResolvers();
+        const release = Promise.withResolvers();
+        const before = f.rpc.sent.length;
+        let accountReads = 0;
+        f.rpc.getSignatureStatuses = async () => {
+          entered.resolve();
+          await release.promise;
+          throw new Error("Old-session RPC unavailable");
+        };
+        f.rpc.getMultipleAccountsInfoAndContext = async (...args) => {
+          accountReads++;
+          return read(...args);
+        };
+        try {
+          poll();
+          await entered.promise;
+          changed({ accounts: [{ ...account }] });
+          await until(
+            () => el("footer-state").textContent === "localnet connected",
+            "replacement session did not refresh",
+          );
+          release.resolve();
+          await until(
+            () => !el("wallet-button").disabled,
+            "old poll did not settle",
+          );
+          assert.equal(el("price").textContent, "150");
+          assert.equal(el("trade-review").disabled, false);
+          assert.equal(el("feedback").textContent, "");
+          assert.equal(el("receipt-link").textContent, savedReceipt.signature);
+          assert.equal(accountReads, 1);
+          assert.deepEqual(
+            await f.journal.read(savedReceipt.scope),
+            savedReceipt,
+          );
+          assert.equal(f.rpc.sent.length, before);
+        } finally {
+          release.resolve();
+          f.rpc.getSignatureStatuses = status;
+          f.rpc.getMultipleAccountsInfoAndContext = read;
+          f.records.clear();
+          w.localStorage.clear();
+          if (el("wallet-button").textContent !== "Connect wallet")
+            changed({ accounts: [] });
+        }
+      },
+    );
+
     for (const outcome of ["submitted", "unknown", "receipt write failure"])
       await t.test(
         `a late ${outcome} result stays with the disconnected account`,
@@ -937,6 +1214,7 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
     OutrightClient.prototype.snapshot = originalSnapshot;
     OutrightClient.prototype.prepare = originalPrepare;
     OutrightClient.prototype.submit = originalSubmit;
+    OutrightClient.prototype.reconcile = originalReconcile;
     dom.window.close();
     for (const [name, descriptor] of saved) {
       if (descriptor) Object.defineProperty(globalThis, name, descriptor);

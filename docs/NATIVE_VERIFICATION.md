@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 397 JavaScript
-tests, including 27 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 405 JavaScript
+tests, including 35 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Wallet retries after a final result](#wallet-retries-after-a-final-result)
+[Wallet session changes during reconciliation](#wallet-session-changes-during-reconciliation)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -616,3 +616,34 @@ Verification passes 397 JavaScript tests, including 27 terminal DOM scenarios,
 17 SBF tests, the Rust contract comparison, source checks and the terminal build.
 This covers a local runtime retry path and client safeguards, not public RPC
 reliability, browser-extension compatibility or an independent security review.
+
+## Wallet session changes during reconciliation
+
+Built on merged commit `3d686a4e602a41cef6d2cedd5c6ef636e4f01d99`. An error from a
+pending simulation or signature lookup could overwrite the message for a wallet
+that had already disconnected. A reconciliation failure could also leave the
+previous market snapshot and its action controls visible.
+
+The terminal now binds action errors and polling continuations to the wallet
+session that started them. A current-session reconciliation failure clears
+actionable market data and closes any review, while retaining the visible
+signature and durable receipt. A later successful reconciliation reads verified
+account data again before restoring controls. It does not replace or resend a
+transaction. A completed request from an old session cannot clear or refresh
+the replacement session.
+
+Eight added DOM scenarios cover late simulation success and failure, late
+confirmation success and failure, unavailable and malformed status responses,
+receipt-write failure, and an obsolete background poll. The recovery cases keep
+the original signature, restore verified data when the RPC/storage recovers,
+and assert that no additional transaction is sent. Seven of these scenarios
+fail against the previous terminal; the late-confirmation success control
+already passes. The fixture executes the terminal module and the real client
+reconciliation method with deterministic RPC, wallet and storage adapters.
+
+Local source checks, Rust contract comparison, the terminal build and all 405
+JavaScript tests pass, including 35 terminal DOM scenarios. The 17-case SBF
+suite and the code it exercises are unchanged; its last local run is recorded
+in the preceding wallet-retry section. No engine, wrapper, dependency, account
+layout or transaction instruction changed. These results do not establish
+browser-extension, mobile-wallet or public-cluster compatibility.

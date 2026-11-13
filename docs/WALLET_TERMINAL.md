@@ -154,6 +154,14 @@ Disconnects, unsupported wallet accounts and failed RPC reads clear actionable
 market data. A late response cannot restore a disconnected session. Empty asset
 lists still update balances and positions; expired or revoked maker consent
 disables trade review.
+If signature reconciliation fails because the RPC is unavailable, returns an
+invalid status or the receipt cannot be saved, the terminal clears its old
+market snapshot and disables wallet actions. The saved signature remains
+visible and can be checked again. Successful reconciliation refreshes verified
+account data before restoring actions. No transaction is replaced or resent.
+Late simulation and reconciliation errors cannot overwrite the current wallet
+session's message. A poll started for an earlier session cannot refresh its
+replacement session after that old request completes.
 A delayed startup profile cannot replace a profile already selected manually.
 Disconnecting does not cancel a transaction already signed or sent. Its receipt
 remains associated with the original wallet and market. Late submission results
