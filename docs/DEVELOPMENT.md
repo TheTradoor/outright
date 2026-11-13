@@ -38,7 +38,7 @@ be reported separately.
 
 The [native client](../protocol/README.md) includes instruction builders, a
 portfolio reader, a Rust conformance exporter, and local SBF tests. Install
-Node.js 22 or newer, then run from the repository root:
+Node.js 22.12 or newer, then run from the repository root:
 
 ```sh
 npm ci --prefix protocol --ignore-scripts --no-audit --no-fund

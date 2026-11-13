@@ -10,6 +10,9 @@ SPL account state.
 
 - Allocate and initialize a portfolio, deposit 25 test USDC, open a 0.1 SOL
   bilateral position, reduce it by half, close it, and withdraw the collateral.
+- Recover a seeded address prefunded by another wallet, allocating only an empty
+  System account and charging only the missing rent. Check exact-rent and surplus
+  balances, and atomic rollback when a later instruction rejects initialization.
 - Reject stale sequence and position-epoch bindings, a different portfolio ID,
   an unauthorized owner, an excessive withdrawal, a different market ID, and
   a bilateral trade without the maker's signature.
@@ -24,7 +27,7 @@ transactions can still incur fees.
 
 ## Run
 
-Install Node.js 22 or newer, Rust 1.95.0, and `cargo-build-sbf` 4.6.0. The host
+Install Node.js 22.12 or newer, Rust 1.95.0, and `cargo-build-sbf` 4.6.0. The host
 conformance exporter uses the repository's Rust 1.100.0. The pinned wrapper's
 legacy Solana 1.18 test dependencies require the older host compiler.
 

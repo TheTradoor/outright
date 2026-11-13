@@ -1,202 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  Keypair,
-  PublicKey,
   SystemProgram,
+  SystemInstruction,
   VersionedTransaction,
 } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import bs58 from "bs58";
 import contract from "../upstream-contract.json" with { type: "json" };
 import {
   OutrightClient,
-  portfolioAddress,
   readSnapshot,
   validateProfile,
-  sha256,
   planAction,
 } from "../src/client.mjs";
 import { readMarket, positionForMarket } from "../src/market.mjs";
 import { readPortfolio } from "../src/accounts.mjs";
-import {
-  ENGINE_COMMIT,
-  WRAPPER_COMMIT,
-  vaultAuthority,
-  TOKEN_PROGRAM_ID,
-} from "../src/instructions.mjs";
 
-const pub = (n) => new PublicKey(Buffer.alloc(32, n));
-const info = (owner, data, executable = false) => ({
-  owner,
-  data,
-  executable,
-  lamports: 1_000_000_000,
-  rentEpoch: 0,
-});
-const loader = new PublicKey("BPFLoaderUpgradeab1e11111111111111111111111");
-function token(mint, owner, amount) {
-  const b = Buffer.alloc(165);
-  mint.toBuffer().copy(b);
-  owner.toBuffer().copy(b, 32);
-  b.writeBigUInt64LE(amount, 64);
-  b[108] = 1;
-  return info(TOKEN_PROGRAM_ID, b);
-}
-export async function fixture() {
-  const owner = Keypair.fromSeed(Buffer.alloc(32, 17)),
-    programId = pub(9),
-    programData = pub(8),
-    market = pub(1),
-    mint = pub(5);
-  const identity = await portfolioAddress(owner.publicKey, market, programId);
-  const vault = getAssociatedTokenAddressSync(
-    mint,
-    vaultAuthority(programId, market),
-    true,
-  );
-  const userToken = getAssociatedTokenAddressSync(mint, owner.publicKey);
-  const code = Buffer.from(
-    "test program image; SBF execution is covered separately",
-  );
-  const p = Buffer.alloc(36);
-  p.writeUInt32LE(2);
-  programData.toBuffer().copy(p, 4);
-  const pd = Buffer.alloc(45 + code.length);
-  pd.writeUInt32LE(3);
-  pd.writeBigUInt64LE(100n, 4);
-  code.copy(pd, 45);
-  const mintBytes = Buffer.alloc(82);
-  mintBytes[44] = 6;
-  mintBytes[45] = 1;
-  const portfolio = Buffer.from(contract.portfolioFixtureHex, "hex");
-  identity.address
-    .toBuffer()
-    .copy(portfolio, contract.constants.portfolioAddressOffset);
-  owner.publicKey
-    .toBuffer()
-    .copy(portfolio, contract.constants.portfolioOwnerOffset);
-  owner.publicKey
-    .toBuffer()
-    .copy(portfolio, contract.constants.portfolioProvenanceOwnerOffset);
-  const accounts = new Map([
-    [programId.toBase58(), info(loader, p, true)],
-    [programData.toBase58(), info(loader, pd)],
-    [
-      market.toBase58(),
-      info(programId, Buffer.from(contract.marketFixtureHex, "hex")),
-    ],
-    [mint.toBase58(), info(TOKEN_PROGRAM_ID, mintBytes)],
-    [
-      vault.toBase58(),
-      token(mint, vaultAuthority(programId, market), 1_000_000_000n),
-    ],
-    [userToken.toBase58(), token(mint, owner.publicKey, 1_000_000_000n)],
-    [
-      owner.publicKey.toBase58(),
-      info(SystemProgram.programId, Buffer.alloc(0)),
-    ],
-    [identity.address.toBase58(), info(programId, portfolio)],
-  ]);
-  const profile = validateProfile({
-    version: 1,
-    cluster: "localnet",
-    rpcUrl: "http://127.0.0.1:8899",
-    genesisHash: pub(31).toBase58(),
-    engineCommit: ENGINE_COMMIT,
-    wrapperCommit: WRAPPER_COMMIT,
-    program: {
-      address: programId,
-      programData,
-      sha256: await sha256(code),
-      upgradeAuthority: null,
-    },
-    market,
-    vault,
-    collateral: {
-      mint,
-      decimals: 6,
-      symbol: "TEST",
-      mintAuthority: null,
-      freezeAuthority: null,
-    },
-    assets: [{ index: 0, marketId: "1", symbol: "SOL/USD" }],
-    maxOracleAgeSlots: 20,
-  });
-  const records = new Map();
-  let locked = false;
-  const journal = {
-    read: async (k) => structuredClone(records.get(k) || null),
-    write: async (k, r) => {
-      records.set(k, structuredClone(r));
-    },
-    withLock: async (scope, work) => {
-      if (locked) throw new Error("Another tab is signing");
-      locked = true;
-      try {
-        return await work();
-      } finally {
-        locked = false;
-      }
-    },
-  };
-  const rpc = {
-    slot: 123,
-    height: 100,
-    sent: [],
-    status: null,
-    getGenesisHash: async () => profile.genesisHash,
-    getMultipleAccountsInfoAndContext: async (keys) => ({
-      context: { slot: rpc.slot },
-      value: keys.map((k) => accounts.get(k.toBase58()) || null),
-    }),
-    getLatestBlockhashAndContext: async () => ({
-      context: { slot: rpc.slot },
-      value: { blockhash: pub(23).toBase58(), lastValidBlockHeight: 200 },
-    }),
-    getMinimumBalanceForRentExemption: async () => 10_000_000,
-    simulateTransaction: async () => ({
-      context: { slot: rpc.slot },
-      value: { err: null, unitsConsumed: 140_000 },
-    }),
-    getFeeForMessage: async () => ({
-      context: { slot: rpc.slot },
-      value: 5000,
-    }),
-    getBlockHeight: async () => rpc.height,
-    sendRawTransaction: async (bytes) => {
-      rpc.sent.push(bytes);
-      return bs58.encode(VersionedTransaction.deserialize(bytes).signatures[0]);
-    },
-    getSignatureStatuses: async () => ({
-      context: { slot: rpc.slot },
-      value: [rpc.status],
-    }),
-  };
-  const sign = async (bytes) => {
-    const tx = VersionedTransaction.deserialize(bytes);
-    tx.sign([owner]);
-    return tx.serialize();
-  };
-  const client = new OutrightClient(profile, { connection: rpc, journal });
-  return {
-    profile,
-    rpc,
-    owner,
-    accounts,
-    identity,
-    client,
-    journal,
-    records,
-    sign,
-    programId,
-    market,
-    mint,
-    vault,
-    userToken,
-    programData,
-  };
-}
+import { fixture, info, pub, withMaker } from "./support/client-fixture.mjs";
 
 test("Rust market fixture exposes collateral, assets and risk configuration", () => {
   const m = readMarket(
@@ -583,3 +403,190 @@ test("reconciliation holds the wallet lock until the receipt update completes", 
   );
   assert.equal(f.rpc.sent.length, 2);
 });
+
+for (const lamports of [1, 10_000_000, 10_000_001])
+  test(`a portfolio funded with ${lamports} lamports can still be initialized`, async () => {
+    const f = await fixture();
+    f.accounts.set(f.identity.address.toBase58(), {
+      ...info(SystemProgram.programId, Buffer.alloc(0)),
+      lamports,
+    });
+    const prepared = await f.client.prepare(f.owner.publicKey, {
+      type: "initialize",
+    });
+    assert.equal(prepared.snapshot.portfolio, null);
+    assert.equal(prepared.rentLamports, Math.max(0, 10_000_000 - lamports));
+    const plan = planAction(
+      f.profile,
+      prepared.snapshot,
+      { type: "initialize" },
+      10_000_000,
+    );
+    const allocation = plan.instructions.find(
+      (ix) =>
+        ix.programId.equals(SystemProgram.programId) &&
+        SystemInstruction.decodeInstructionType(ix) === "AllocateWithSeed",
+    );
+    assert.equal(
+      SystemInstruction.decodeAllocateWithSeed(
+        allocation,
+      ).accountPubkey.toBase58(),
+      f.identity.address.toBase58(),
+    );
+    await f.client.submit(prepared, f.sign);
+    assert.equal(f.rpc.sent.length, 1);
+  });
+
+for (const change of [
+  "matcher code",
+  "maker consent",
+  "maker expiry",
+  "maker sequence",
+  "oracle age",
+  "market mode",
+  "SOL balance",
+])
+  test(`trade submission rejects changed ${change} after the wallet prompt`, async () => {
+    const f = await withMaker(await fixture());
+    const prepared = await f.client.prepare(f.owner.publicKey, {
+      type: "trade",
+      side: "buy",
+      size: "0.1",
+      limitPrice: "150",
+      assetIndex: 0,
+    });
+    await assert.rejects(() =>
+      f.client.submit(prepared, async (bytes) => {
+        const data = f.accounts.get(f.maker.portfolio.toBase58()).data,
+          c = contract.constants;
+        if (change === "matcher code")
+          f.accounts.get(f.maker.programData.toBase58()).data[45] ^= 1;
+        if (change === "maker consent")
+          data.writeBigUInt64LE(
+            data.readBigUInt64LE(c.portfolioControlOffset) & ~1n,
+            c.portfolioControlOffset,
+          );
+        if (change === "maker expiry")
+          data.writeBigUInt64LE(123n, contract.layouts.matcherExpiryOffset);
+        if (change === "maker sequence")
+          data.writeBigUInt64LE(
+            data.readBigUInt64LE(c.portfolioSequenceOffset) + 1n,
+            c.portfolioSequenceOffset,
+          );
+        if (change === "oracle age") f.rpc.slot += 21;
+        if (change === "market mode")
+          f.accounts.get(f.market.toBase58()).data[c.marketModeOffset] = 2;
+        if (change === "SOL balance")
+          f.accounts.get(f.owner.publicKey.toBase58()).lamports = 0;
+        return f.sign(bytes);
+      }),
+    );
+    assert.equal(f.rpc.sent.length, 0);
+    assert.equal(f.records.size, 0);
+  });
+
+test("an unchanged trade still broadcasts after the fresh-state check", async () => {
+  const f = await withMaker(await fixture());
+  const prepared = await f.client.prepare(f.owner.publicKey, {
+    type: "trade",
+    side: "buy",
+    size: "0.1",
+    limitPrice: "150",
+    assetIndex: 0,
+  });
+  assert.equal((await f.client.submit(prepared, f.sign)).status, "submitted");
+  assert.equal(f.rpc.sent.length, 1);
+});
+
+test("a deposit sequence change during signing requires a new review", async () => {
+  const f = await fixture();
+  const prepared = await f.client.prepare(f.owner.publicKey, {
+    type: "deposit",
+    amount: "1",
+  });
+  await assert.rejects(
+    () =>
+      f.client.submit(prepared, async (bytes) => {
+        const data = f.accounts.get(f.identity.address.toBase58()).data,
+          off = contract.constants.portfolioSequenceOffset;
+        data.writeBigUInt64LE(data.readBigUInt64LE(off) + 1n, off);
+        return f.sign(bytes);
+      }),
+    /state changed/,
+  );
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("funding a missing portfolio during the wallet prompt requires a new review", async () => {
+  const f = await fixture();
+  f.accounts.delete(f.identity.address.toBase58());
+  const prepared = await f.client.prepare(f.owner.publicKey, {
+    type: "initialize",
+  });
+  await assert.rejects(
+    () =>
+      f.client.submit(prepared, async (bytes) => {
+        f.accounts.set(
+          f.identity.address.toBase58(),
+          info(SystemProgram.programId, Buffer.alloc(0)),
+        );
+        return f.sign(bytes);
+      }),
+    /state changed/,
+  );
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("the review captures intent before asynchronous RPC work", async () => {
+  const f = await fixture(),
+    action = { type: "deposit", amount: "1" };
+  const pending = f.client.prepare(f.owner.publicKey, action);
+  action.amount = "2";
+  const prepared = await pending;
+  assert.equal(prepared.action.amount, "1");
+  assert.equal(prepared.summary, "Deposit 1 TEST");
+});
+
+for (const state of ["executable", "data", "owner", "negative balance"])
+  test(`allocation rejects a System account with invalid ${state}`, async () => {
+    const f = await fixture();
+    const value = info(SystemProgram.programId, Buffer.alloc(0));
+    if (state === "executable") value.executable = true;
+    if (state === "data") value.data = Buffer.alloc(1);
+    if (state === "owner") value.owner = pub(40);
+    if (state === "negative balance") value.lamports = -1;
+    f.accounts.set(f.identity.address.toBase58(), value);
+    await assert.rejects(() =>
+      f.client.prepare(f.owner.publicKey, { type: "initialize" }),
+    );
+    assert.equal(f.rpc.sent.length, 0);
+  });
+
+for (const response of [
+  "blockhash slot",
+  "simulation slot",
+  "fee slot",
+  "blockhash height",
+])
+  test(`review rejects malformed RPC ${response}`, async () => {
+    const f = await fixture();
+    const name = response.startsWith("blockhash")
+      ? "getLatestBlockhashAndContext"
+      : response === "simulation slot"
+        ? "simulateTransaction"
+        : "getFeeForMessage";
+    const original = f.rpc[name];
+    f.rpc[name] = async (...args) => {
+      const result = await original(...args);
+      if (response === "blockhash height")
+        result.value.lastValidBlockHeight = -1;
+      else result.context.slot = NaN;
+      return result;
+    };
+    await assert.rejects(
+      () =>
+        f.client.prepare(f.owner.publicKey, { type: "deposit", amount: "1" }),
+      /Invalid/,
+    );
+    assert.equal(f.rpc.sent.length, 0);
+  });

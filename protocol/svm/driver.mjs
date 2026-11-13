@@ -3,7 +3,11 @@ import { readFileSync } from "node:fs";
 import { buildInstruction } from "../src/instructions.mjs";
 import { readPortfolio } from "../src/accounts.mjs";
 import { readMarket, positionForMarket } from "../src/market.mjs";
-import { planAction, portfolioAddress } from "../src/client.mjs";
+import {
+  planAction,
+  portfolioAddress,
+  readPortfolioAllocation,
+} from "../src/client.mjs";
 import { planCrank } from "../src/keeper.mjs";
 import { PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
@@ -71,14 +75,15 @@ if (input.operation === "readPortfolio") {
     address: profile.market,
     collateralMint: profile.collateral.mint,
   });
-  const portfolio = input.portfolioAccount
-    ? readPortfolio(account(input.portfolioAccount), {
-        programId: profile.program.address,
-        address: identity.address,
-        owner: input.owner,
-        market: profile.market,
-      })
-    : null;
+  const { portfolio, uninitializedPortfolioLamports } = readPortfolioAllocation(
+    account(input.portfolioAccount),
+    {
+      programId: profile.program.address,
+      address: identity.address,
+      owner: input.owner,
+      market: profile.market,
+    },
+  );
   const userToken =
     input.userToken ||
     getAssociatedTokenAddressSync(
@@ -89,6 +94,7 @@ if (input.operation === "readPortfolio") {
     owner: input.owner,
     market,
     portfolio,
+    uninitializedPortfolioLamports,
     portfolioAddress: identity.address.toBase58(),
     seed: identity.seed,
     userToken,
@@ -100,6 +106,7 @@ if (input.operation === "readPortfolio") {
     portfolio: snapshot.portfolioAddress,
     userToken,
     instructions: plan.instructions.map(wireInstruction),
+    rentLamports: plan.rentLamports,
   };
 } else {
   throw new Error("Unsupported SVM bridge operation");
