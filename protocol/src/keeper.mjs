@@ -142,6 +142,8 @@ export function validateKeeperConfig(input) {
 export function planCrank(config, snapshot, discoveryIndex) {
   const { deployment } = config;
   const { market, portfolio, slot } = snapshot;
+  // RPC absence is not proof of settlement. Revisit the pinned target later.
+  if (portfolio === null) throw new DeferredTarget("portfolioMissing");
   if (market.mode === "resolved") {
     if (!config.settleResolved)
       throw new Error("Resolved settlement requires settleResolved: true");
@@ -276,7 +278,7 @@ export async function readKeeperSnapshot(
     Number.MAX_SAFE_INTEGER,
     "snapshot slot",
   );
-  if (result.value.length !== addresses.length)
+  if (!Array.isArray(result.value) || result.value.length !== addresses.length)
     throw new Error("Incomplete keeper snapshot");
   const accounts = new Map(addresses.map((a, i) => [a, result.value[i]]));
   await verifyProgram(
@@ -289,13 +291,19 @@ export async function readKeeperSnapshot(
     address: p.market,
     collateralMint: p.collateral.mint,
   });
-  const portfolio = readPortfolio(accounts.get(target.address), {
-    programId: p.program.address,
-    address: target.address,
-    market: p.market,
-    owner: target.owner,
-  });
-  if (portfolio.portfolioId.toString() !== target.portfolioId)
+  const portfolioAccount = accounts.get(target.address);
+  // Only an explicit RPC null denotes absence. Empty or malformed accounts
+  // still go through the strict reader, including at a previously missing key.
+  const portfolio =
+    portfolioAccount === null
+      ? null
+      : readPortfolio(portfolioAccount, {
+          programId: p.program.address,
+          address: target.address,
+          market: p.market,
+          owner: target.owner,
+        });
+  if (portfolio && portfolio.portfolioId.toString() !== target.portfolioId)
     throw new Error("Portfolio incarnation changed");
   const payer = accounts.get(config.feePayer);
   if (
@@ -456,6 +464,19 @@ export class OutrightKeeper {
       const target = c.targets[state.cursor % c.targets.length];
       const asset =
         c.assets[Math.floor(state.cursor / c.targets.length) % c.assets.length];
+      const deferTarget = async (reason, slot) => {
+        state.cursor =
+          (state.cursor + 1) % (c.targets.length * c.assets.length);
+        state.minimumSlot = slot;
+        state.lastResult = {
+          status: "deferred",
+          reason,
+          target: target.address,
+          discoveryAsset: asset.index,
+        };
+        await this.journal.write(state);
+        return state.lastResult;
+      };
       const snapshot = await readKeeperSnapshot(
         rpc,
         c,
@@ -467,17 +488,7 @@ export class OutrightKeeper {
         instruction = planCrank(c, snapshot, asset.index);
       } catch (error) {
         if (!(error instanceof DeferredTarget)) throw error;
-        state.cursor =
-          (state.cursor + 1) % (c.targets.length * c.assets.length);
-        state.minimumSlot = snapshot.slot;
-        state.lastResult = {
-          status: "deferred",
-          reason: error.reason,
-          target: target.address,
-          discoveryAsset: asset.index,
-        };
-        await this.journal.write(state);
-        return state.lastResult;
+        return deferTarget(error.reason, snapshot.slot);
       }
       const recent = await rpc.getLatestBlockhashAndContext({
         commitment: "confirmed",
@@ -591,6 +602,8 @@ export class OutrightKeeper {
       // Recheck deployment and account bindings after simulation. The on-chain
       // program remains authoritative when state changes before execution.
       const fresh = await readKeeperSnapshot(rpc, c, target, fee.context.slot);
+      if (fresh.portfolio === null)
+        return deferTarget("portfolioMissing", fresh.slot);
       const freshInstruction = planCrank(c, fresh, asset.index);
       if (fresh.market.mode !== snapshot.market.mode)
         throw new Error("Market mode changed after simulation");

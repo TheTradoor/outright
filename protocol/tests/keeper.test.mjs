@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtemp, rm, chmod, readFile, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
@@ -226,6 +226,233 @@ async function resolvedFixture() {
   });
   return f;
 }
+
+function addSecondTarget(f) {
+  const target = {
+    ...f.raw.targets[0],
+    address: pub(6).toBase58(),
+    portfolioId: "18",
+  };
+  const data = Buffer.from(f.accounts.get(f.raw.targets[0].address).data);
+  pub(6).toBuffer().copy(data, contract.constants.portfolioAddressOffset);
+  data.writeBigUInt64LE(18n, contract.constants.portfolioIdOffset);
+  f.accounts.set(target.address, info(pub(9), data));
+  f.raw.targets.push(target);
+  return target;
+}
+
+for (const mode of ["live", "recovery", "resolved"])
+  for (const timing of ["before reading", "after simulation"])
+    test(`a portfolio missing ${timing} does not stop other ${mode} targets`, async () => {
+      const f = mode === "resolved" ? await resolvedFixture() : await fixture();
+      if (mode === "recovery")
+        f.accounts.get(f.raw.deployment.market).data[
+          contract.constants.marketModeOffset
+        ] = 2;
+      const second = addSecondTarget(f);
+      const keeper = new OutrightKeeper(f.raw, {
+        connection: f.rpc,
+        journal: f.journal,
+        signer: f.signer,
+      });
+      let simulations = 0;
+      f.rpc.slot = 125;
+      if (timing === "before reading")
+        f.accounts.delete(f.portfolio.toBase58());
+      f.rpc.simulateTransaction = async () => {
+        simulations++;
+        if (timing === "after simulation" && simulations === 1) {
+          f.accounts.delete(f.portfolio.toBase58());
+          f.rpc.slot = 126;
+        }
+        return { context: { slot: f.rpc.slot }, value: { err: null } };
+      };
+      const result = await keeper.tick({ send: true });
+      assert.equal(result.status, "deferred");
+      assert.equal(result.reason, "portfolioMissing");
+      assert.equal(result.target, f.portfolio.toBase58());
+      assert.equal(simulations, timing === "before reading" ? 0 : 1);
+      assert.equal(f.state().cursor, 1);
+      assert.equal(f.state().minimumSlot, f.rpc.slot);
+      assert.equal(f.state().attempts, 0);
+      assert.equal(f.state().reservedFees, "0");
+      assert.equal(f.state().pending, null);
+      assert.equal(f.rpc.sent.length, 0);
+      const restarted = new OutrightKeeper(f.raw, {
+        connection: f.rpc,
+        journal: f.journal,
+        signer: f.signer,
+      });
+      const next = await restarted.tick({ send: true });
+      assert.equal(next.status, "submitted");
+      assert.equal(next.target, second.address);
+      assert.equal(f.rpc.sent.length, 1);
+      assert.equal(f.state().attempts, 1);
+      assert.equal(f.state().reservedFees, "5000");
+    });
+
+test("missing portfolios also defer in simulation-only mode without a signer", async () => {
+  const f = await fixture();
+  f.accounts.delete(f.portfolio.toBase58());
+  f.rpc.getLatestBlockhashAndContext = async () =>
+    assert.fail("no transaction should be built");
+  const keeper = new OutrightKeeper(f.raw, {
+    connection: f.rpc,
+    journal: f.journal,
+  });
+  assert.equal((await keeper.tick()).reason, "portfolioMissing");
+  assert.equal(f.state().reservedFees, "0");
+});
+
+for (const replacement of [
+  "same incarnation",
+  "new incarnation",
+  "different owner",
+  "empty account",
+])
+  test(`a missing target is rechecked when it returns with ${replacement}`, async () => {
+    const f = await fixture();
+    const original = f.accounts.get(f.portfolio.toBase58());
+    f.accounts.delete(f.portfolio.toBase58());
+    assert.equal(
+      (await f.keeper.tick({ send: true })).reason,
+      "portfolioMissing",
+    );
+    const before = f.state();
+    if (replacement === "new incarnation")
+      original.data.writeBigUInt64LE(18n, contract.constants.portfolioIdOffset);
+    if (replacement === "different owner") {
+      pub(44)
+        .toBuffer()
+        .copy(original.data, contract.constants.portfolioOwnerOffset);
+      pub(44)
+        .toBuffer()
+        .copy(original.data, contract.constants.portfolioProvenanceOwnerOffset);
+    }
+    if (replacement === "empty account") {
+      original.lamports = 0;
+      original.data = Buffer.alloc(0);
+    }
+    f.accounts.set(f.portfolio.toBase58(), original);
+    if (replacement === "same incarnation") {
+      assert.equal((await f.keeper.tick({ send: true })).status, "submitted");
+      assert.equal(f.rpc.sent.length, 1);
+    } else {
+      await assert.rejects(
+        f.keeper.tick({ send: true }),
+        /incarnation|identity|layout/i,
+      );
+      assert.deepEqual(f.state(), before);
+      assert.equal(f.rpc.sent.length, 0);
+    }
+  });
+
+for (const malformed of [
+  "undefined target",
+  "short response",
+  "non-array response",
+])
+  test(`missing-target handling does not accept ${malformed}`, async () => {
+    const f = await fixture();
+    const read = f.rpc.getMultipleAccountsInfoAndContext;
+    f.rpc.getMultipleAccountsInfoAndContext = async (keys) => {
+      const response = await read(keys);
+      if (malformed === "undefined target")
+        response.value[keys.findIndex((k) => k.equals(f.portfolio))] =
+          undefined;
+      if (malformed === "short response") response.value.pop();
+      if (malformed === "non-array response")
+        response.value = { ...response.value, length: response.value.length };
+      return response;
+    };
+    await assert.rejects(f.keeper.tick({ send: true }), /Portfolio|snapshot/);
+    assert.equal(f.state(), null);
+    assert.equal(f.rpc.sent.length, 0);
+  });
+
+for (const change of ["network", "program", "market", "payer", "mint", "vault"])
+  test(`a missing target cannot bypass ${change} verification`, async () => {
+    const f = await resolvedFixture();
+    f.accounts.delete(f.portfolio.toBase58());
+    if (change === "network")
+      f.rpc.getGenesisHash = async () => pub(55).toBase58();
+    if (change === "program")
+      f.accounts.get(f.programData.toBase58()).data[45] ^= 1;
+    if (change === "market") f.accounts.delete(f.raw.deployment.market);
+    if (change === "payer") f.accounts.get(f.raw.feePayer).owner = pub(55);
+    if (change === "mint")
+      f.accounts.get(f.raw.deployment.collateral.mint).data[44] = 9;
+    if (change === "vault")
+      f.accounts.get(f.raw.deployment.vault).data.writeBigUInt64LE(0n, 64);
+    // Ensure the vault-shortfall case actually has recorded custody to protect.
+    if (change === "vault")
+      f.accounts
+        .get(f.raw.deployment.market)
+        .data.writeBigUInt64LE(
+          1n,
+          contract.constants.marketGroupOffset +
+            contract.layouts.market.vault.offset,
+        );
+    await assert.rejects(f.keeper.tick({ send: true }));
+    assert.equal(f.state(), null);
+    assert.equal(f.rpc.sent.length, 0);
+  });
+
+test("a missing target cannot release a pending receipt or erase duplicate protection", async () => {
+  const f = await fixture();
+  const original = f.accounts.get(f.portfolio.toBase58());
+  const first = await f.keeper.tick({ send: true });
+  f.accounts.delete(f.portfolio.toBase58());
+  const read = f.rpc.getMultipleAccountsInfoAndContext;
+  f.rpc.getMultipleAccountsInfoAndContext = async () =>
+    assert.fail("reconcile before reading targets");
+  assert.equal((await f.keeper.tick({ send: true })).status, "pending");
+  assert.equal(f.state().pending.signature, first.signature);
+  f.rpc.status = { confirmationStatus: "confirmed", err: null, slot: 124 };
+  assert.equal((await f.keeper.tick({ send: true })).status, "confirmed");
+  f.rpc.getMultipleAccountsInfoAndContext = read;
+  assert.equal(
+    (await f.keeper.tick({ send: true })).reason,
+    "portfolioMissing",
+  );
+  assert.equal(f.state().lastSubmittedBlockhash, first.blockhash);
+  assert.equal(f.state().reservedFees, "5000");
+  assert.equal(f.state().attempts, 1);
+  f.accounts.set(f.portfolio.toBase58(), original);
+  const restarted = new OutrightKeeper(f.raw, {
+    connection: f.rpc,
+    journal: f.journal,
+    signer: f.signer,
+  });
+  assert.equal(
+    (await restarted.tick({ send: true })).status,
+    "waitingForBlockhash",
+  );
+  assert.equal(f.rpc.sent.length, 1);
+});
+
+test("missing-target deferral retains the bank floor across restart", async () => {
+  const f = await fixture();
+  addSecondTarget(f);
+  f.accounts.delete(f.portfolio.toBase58());
+  f.rpc.slot = 126;
+  const keeper = new OutrightKeeper(f.raw, {
+    connection: f.rpc,
+    journal: f.journal,
+    signer: f.signer,
+  });
+  assert.equal((await keeper.tick({ send: true })).reason, "portfolioMissing");
+  const before = f.state();
+  f.rpc.slot = 125;
+  const restarted = new OutrightKeeper(f.raw, {
+    connection: f.rpc,
+    journal: f.journal,
+    signer: f.signer,
+  });
+  await assert.rejects(restarted.tick({ send: true }), /snapshot slot/);
+  assert.deepEqual(f.state(), before);
+  assert.equal(f.rpc.sent.length, 0);
+});
 
 for (const mode of [0, 2])
   test(`keeper continues a zero-exposure obligation in ${mode === 0 ? "asset" : "market"} Recovery`, async () => {
@@ -797,10 +1024,62 @@ test("disk journal survives reopen, locks other workers and rejects exposed perm
   }
 });
 
-for (const resolved of [false, true])
-  test(`CLI ${resolved ? "resolved" : "live"} signing, restart and duplicate protection use durable state`, async () => {
+function watchUntilSubmitted(args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [...args, "--watch"]);
+    const results = [];
+    let buffer = "",
+      errors = "";
+    const timer = setTimeout(() => {
+      child.kill("SIGKILL");
+      reject(new Error("Keeper watch did not reach the next target"));
+    }, 15000);
+    child.stdout.on("data", (chunk) => {
+      buffer += chunk.toString();
+      let end;
+      while ((end = buffer.indexOf("\n")) !== -1) {
+        const line = buffer.slice(0, end);
+        buffer = buffer.slice(end + 1);
+        try {
+          const result = JSON.parse(line);
+          results.push(result);
+          if (result.status === "submitted") child.kill("SIGTERM");
+        } catch (error) {
+          child.kill("SIGKILL");
+          reject(error);
+        }
+      }
+    });
+    child.stderr.on("data", (chunk) => {
+      errors += chunk.toString();
+    });
+    child.on("error", (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      if (code === 0) resolve(results);
+      else reject(new Error(`Keeper watch exited ${code}: ${errors}`));
+    });
+  });
+}
+
+for (const [resolved, missing] of [
+  [false, false],
+  [false, true],
+  [true, false],
+  [true, true],
+])
+  test(`CLI ${resolved ? "resolved" : "live"} ${missing ? "watch with missing target" : "signing"}, restart and duplicate protection use durable state`, async () => {
     const f = resolved ? await resolvedFixture() : await fixture(),
       directory = await mkdtemp(join(tmpdir(), "outright-keeper-cli-"));
+    let expectedTarget = f.raw.targets[0].address;
+    if (missing) {
+      expectedTarget = addSecondTarget(f).address;
+      f.accounts.delete(f.portfolio.toBase58());
+      f.raw.intervalMs = 1000;
+    }
     const stateDir = join(directory, "state");
     let sends = 0,
       observedSignature;
@@ -864,6 +1143,7 @@ for (const resolved of [false, true])
             observedSignature = bs58.encode(tx.signatures[0]);
             assert.equal(state.pending.signature, observedSignature);
             assert.equal(state.pending.status, "signed");
+            assert.equal(state.pending.target, expectedTarget);
             assert.equal(params[1].maxRetries, 0);
             sends++;
             result = observedSignature;
@@ -915,10 +1195,24 @@ for (const resolved of [false, true])
       ];
       const run = () =>
         promisify(execFile)(process.execPath, args, { timeout: 20000 });
-      const first = await run();
-      assert.equal(JSON.parse(first.stdout).status, "submitted");
+      if (missing) {
+        const results = await watchUntilSubmitted(args);
+        assert.deepEqual(
+          results.map((r) => r.status),
+          ["deferred", "submitted"],
+        );
+        assert.equal(results[0].reason, "portfolioMissing");
+        assert.equal(results[1].target, expectedTarget);
+      } else {
+        const first = await run();
+        assert.equal(JSON.parse(first.stdout).status, "submitted");
+      }
       const second = await run();
       assert.equal(JSON.parse(second.stdout).status, "confirmed");
+      if (missing) {
+        const deferred = await run();
+        assert.equal(JSON.parse(deferred.stdout).reason, "portfolioMissing");
+      }
       const third = await run();
       assert.equal(JSON.parse(third.stdout).status, "waitingForBlockhash");
       assert.equal(sends, 1);

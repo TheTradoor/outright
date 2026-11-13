@@ -1,7 +1,7 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 310 JavaScript
+contract checks and terminal build passed. The client now has 334 JavaScript
 tests, including 22 terminal DOM scenarios, and 16 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Retained obligations and Recovery finalization](#retained-obligations-and-recovery-finalization)
+[Missing keeper targets](#missing-keeper-targets)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -463,3 +463,38 @@ still require settlement; it does not prove complete market teardown or general
 insolvency liveness. Payout-halt repair, broader stress coverage, hosted services,
 wallet-extension and mobile testing, public-cluster validation and independent
 security review remain open. No engine or wrapper source was changed.
+
+## Missing keeper targets
+
+Built on merged commit `1a1290aefe96d17797cd9eea23f678d80b6118cb`.
+Six regression cases reproduced the keeper stopping when a configured
+portfolio returned `null`: before the initial read or after simulation, in live,
+Recovery and resolved markets. The strict portfolio reader treated absence as
+an ownership error, preventing subsequent targets from being serviced.
+
+The snapshot reader now represents explicit RPC absence as `portfolio: null`.
+The planner defers that target, and the worker does the same if the final read
+finds it absent. It durably advances the cursor and minimum observed slot without
+signing, reserving fees or clearing any pending transaction. Program and account
+validation still runs for the rest of the snapshot. Present but malformed
+accounts continue to reject.
+
+The new tests cover all six failure cases and processing the next target after
+restart, simulation-only operation without a signer, a returning original
+incarnation, rejected new incarnations and owners, empty accounts, malformed RPC
+arrays, stale banks, and network/program/market/payer/mint/vault failures.
+Pending signatures must reconcile before reading targets, and deferral cannot
+erase the last submitted blockhash or cumulative fee reservation.
+
+Two local JSON-RPC tests run the actual CLI with `--watch`, one in live mode and
+one in resolved mode. Each emits a missing-target deferral, submits only for the
+second target, handles `SIGTERM` cleanly, reconciles the durable receipt in a new
+process and retains duplicate protection after another missing-target cycle.
+The client suite has 334 passing tests, including the existing 22 terminal DOM
+scenarios. All 16 existing SBF tests, the Rust contract comparison, source-pin
+check and terminal build also pass.
+
+These tests exercise the operator process against deterministic RPC fixtures.
+They do not establish hosted keeper uptime or public-cluster behavior. An absent
+account is not evidence of settlement completion. Engine and wrapper source,
+instruction bytes, dependency versions and the journal schema are unchanged.

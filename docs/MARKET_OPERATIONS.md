@@ -96,6 +96,29 @@ the new authenticated owner-delay window and one exact principal payout through
 the resolved planner. This does not establish settlement of every portfolio or
 complete market teardown.
 
+## Missing portfolio targets
+
+A configured portfolio can disappear after its owner closes it. If a coherent
+RPC snapshot returns an explicit `null` for that address, the keeper reports
+`deferred` with reason `portfolioMissing` and advances to the next target.
+This also applies when the account disappears between simulation and the final
+read before signing. No transaction is signed and no network fee is reserved
+for the deferred step.
+
+Absence does not prove that a portfolio settled or paid out. The target stays in
+the configured rotation and is checked again on later cycles. If it returns,
+its program ownership, owner, market and portfolio ID must still match the
+original pins. A recreated account with a new portfolio ID stops the worker
+for configuration review. Empty, malformed or incorrectly owned accounts are
+not treated as missing.
+
+Program, network, market, payer and applicable oracle/custody checks still run
+before deferral. The observed bank floor, cursor, fee budget and last submitted
+blockhash survive restart. An unresolved receipt is reconciled before any target
+lookup; an absent target cannot clear that receipt or authorize a replacement.
+After confirming closure from transaction history, remove obsolete targets
+through the configuration-change procedure below.
+
 ## Resolved settlement
 
 Set `settleResolved` to `true` to service resolved markets. It defaults to false;
@@ -166,7 +189,7 @@ then stop; they do not interrupt a durable write halfway through.
 | --- | --- |
 | `simulated` | Valid simulation; default mode signed nothing |
 | `idle` | SBF returned its exact non-progress error; no fee was spent |
-| `deferred` | Owner delay, missing payout ATA or payout halt; inspect `reason` |
+| `deferred` | Missing portfolio, owner delay, missing payout ATA or payout halt; inspect `reason` |
 | `waitingForBlockhash` | RPC returned the last submitted blockhash; no new signature or fee |
 | `simulationRejected` | SBF rejected this attempt; inspect the error and oracle publisher |
 | `submitted` | RPC returned the saved transaction signature |
@@ -223,6 +246,9 @@ budget, so treat that as an explicit operator action.
 identities, fee limits, locking, durable storage and receipt reconciliation.
 The CLI is exercised over a local JSON-RPC test server, including a second
 process that recovers the first process's receipt without sending again.
+Live and resolved CLI watch cases start with a missing target, continue to a
+second portfolio, stop cleanly after submission and reconcile on restart. A
+later missing-target pass preserves duplicate protection and the fee budget.
 
 `bash protocol/svm/run.sh ../percolator-prog` executes the keeper planner's
 instruction against the pinned SBF wrapper. It checks authenticated Pyth
