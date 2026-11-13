@@ -218,6 +218,15 @@ main {
   margin-left: auto;
   white-space: nowrap;
 }
+.notice strong {
+  display: block;
+}
+.operator-notice {
+  border-color: #76634c;
+}
+.notice:not([data-state="loading"]) .signal {
+  animation: none;
+}
 .signal {
   display: block;
   width: 7px;

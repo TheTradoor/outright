@@ -8,6 +8,13 @@ deploy a market, provide a counterparty, or operate an oracle.
 
 No public Outright market is configured. The shipped profile is `null`.
 Localnet and devnet are supported; mainnet profiles are rejected by this release.
+See [Mainnet release](MAINNET_RELEASE.md) for the production requirements.
+
+The normal trader page loads the official market automatically. It never asks
+traders to upload a deployment profile, enter an RPC endpoint, or choose program
+addresses. Until a valid profile is available, it shows market availability and
+keeps wallet and transaction actions disabled. A missing market, failed request,
+invalid profile or 15-second timeout has a clear status and a retry action.
 
 To obtain a complete local test deployment, use the [funded market runner](LOCAL_MARKET.md).
 It creates the market, maker and deployment profile that this terminal needs.
@@ -92,10 +99,19 @@ fee, taker cap and engine limit separately. Mark-movement fees can exceed the
 base cap, up to the engine limit; backing fees have separate caps. These values
 are not a fixed total-fee quote. Market rules determine fees at execution.
 
-Load the generated profile through **Deployment settings**. For an operator's
-hosted build, put it at `protocol/terminal/deployment.json` and rebuild. A profile
+For manual operator testing, open `http://localhost:8080/?operator=1` and use
+**Operator settings**. This explicit mode displays a separate operator banner;
+the normal trader page disables both the settings control and file-import handler.
+For an operator's hosted build, put the verified public profile at
+`protocol/terminal/deployment.json` and rebuild. Traders then load it automatically.
+A profile
 contains public addresses and public RPC access only. Never include API secrets
 or wallet exports. Localnet profiles must use a loopback RPC address.
+
+Only one official-profile request can run at a time. A successfully imported
+operator profile cancels and supersedes any pending startup response. An invalid
+replacement leaves the active wallet session unchanged. Profiles are limited to
+64 KiB in both paths; the hosted profile uses a fresh, uncached request.
 
 Optional `assets` entries bind display names to both the slot index and market
 incarnation: `{"index":0,"marketId":"1","symbol":"SOL/USD"}`. Set a name only

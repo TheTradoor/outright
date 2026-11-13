@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 14 November 2026 (UTC+7): the source and Rust
-contract checks and terminal build passed. The client now has 443 JavaScript
-tests, including 53 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 452 JavaScript
+tests, including 61 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a public market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Upstream accounting update](#upstream-accounting-update)
+[Trader onboarding](#trader-onboarding)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -834,3 +834,24 @@ issues. The matching wrapper reports nine deliberately failing tests in its
 broader gates; Outright's passing checks do not supersede those findings or
 constitute independent review. The [mainnet release requirements](MAINNET_RELEASE.md)
 separate verified application behavior from the prerequisites for public funds.
+
+## Trader onboarding
+
+The default trader page now loads the official public profile automatically.
+It reports loading, an unopened market, a failed request or an available test
+market. A retry never overlaps another request. Wallet connection stays disabled
+until a supported profile is loaded; choosing Connect wallet then opens the
+wallet chooser directly. Settings and file imports require explicit operator
+mode and cannot be triggered from the normal trader page.
+
+Eight new DOM scenarios exercise absent configuration, HTTP and network errors,
+invalid JSON, mismatched source identities, unsupported mainnet profiles,
+oversized bodies, request timeout, duplicate retries and eventual success.
+The existing 53 scenarios continue to cover manual-profile races, wallet
+lifecycle, transaction review, receipts and recovery. All 452 native tests and
+the Rust contract comparison pass. The terminal bundle builds successfully.
+
+The hosted deployment profile remains `null`. This change removes operator
+setup from the trader flow; it does not create an on-chain market or change the
+networks accepted by the client. DOM tests use deterministic fixtures and do
+not establish physical-phone or wallet-extension compatibility.

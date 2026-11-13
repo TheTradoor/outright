@@ -16,7 +16,7 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
   const f = await withMaker(await fixture());
   const dom = new JSDOM(
     await readFile(new URL("../terminal/index.html", import.meta.url), "utf8"),
-    { url: "https://outright.test/trade/", pretendToBeVisual: true },
+    { url: "https://outright.test/trade/?operator=1", pretendToBeVisual: true },
   );
   const w = dom.window,
     document = w.document,
