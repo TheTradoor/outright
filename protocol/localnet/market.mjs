@@ -30,7 +30,6 @@ import {
 import {
   connection,
   send,
-  confirm,
   loadJson,
   saveJson,
   programPin,
@@ -153,14 +152,23 @@ export async function bootstrap(env, programBinary, matcherBinary) {
     genesisHash,
     at: new Date().toISOString(),
   });
-  for (const [name, amount] of [
-    ["admin", 10],
-    ["maker", 2],
-    ["trader", 2],
-  ]) {
-    const signature = await rpc.requestAirdrop(k[name].publicKey, amount * 1e9);
-    await confirm(rpc, signature);
-  }
+  if ((await rpc.getBalance(k.admin.publicKey, "confirmed")) < 10_000_000_000)
+    throw new Error(
+      "Local genesis must fund the setup authority with test SOL",
+    );
+  await send(
+    rpc,
+    root,
+    "fund-local-fee-payers",
+    ["maker", "trader"].map((name) =>
+      SystemProgram.transfer({
+        fromPubkey: k.admin.publicKey,
+        toPubkey: k[name].publicKey,
+        lamports: 2_000_000_000,
+      }),
+    ),
+    [k.admin],
+  );
   for (const [name, pin] of [
     ["program", program],
     ["matcher", matcher],
@@ -347,13 +355,17 @@ export async function fundWallet(env, address) {
     throw new Error("Use a wallet owner address");
   if ((await env.rpc.getGenesisHash()) !== env.config.genesisHash)
     throw new Error("Local validator genesis changed");
-  await confirm(env.rpc, await env.rpc.requestAirdrop(owner, 2_000_000_000));
   const ata = getAssociatedTokenAddressSync(env.keys.mint.publicKey, owner);
   return send(
     env.rpc,
     env.root,
     "fund-test-wallet",
     [
+      SystemProgram.transfer({
+        fromPubkey: env.keys.admin.publicKey,
+        toPubkey: owner,
+        lamports: 2_000_000_000,
+      }),
       createAssociatedTokenAccountIdempotentInstruction(
         env.keys.admin.publicKey,
         ata,

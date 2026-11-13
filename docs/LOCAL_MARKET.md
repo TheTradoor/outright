@@ -37,7 +37,8 @@ bash protocol/localnet/run.sh ../percolator-prog \
 
 The runner checks the engine and wrapper source pins, builds the two programs,
 starts an isolated validator, and verifies its deployed bytes and immutable
-program authorities. It creates the mint, market and collateral vault, then
+program authorities. Its setup authority receives local test SOL at genesis;
+no faucet is needed. It creates the mint, market and collateral vault, then
 funds a maker with 10,000 TEST and grants consent for the test matcher.
 The `ready` message gives the public deployment profile path. Keep the command
 running: it refreshes the synthetic price approximately every two seconds.

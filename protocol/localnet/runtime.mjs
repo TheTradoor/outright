@@ -159,11 +159,21 @@ export async function send(rpc, root, name, instructions, signers) {
   await saveJson(path, receipt, { exclusive: true });
   const returned = await rpc.sendRawTransaction(tx.serialize(), {
     skipPreflight: false,
-    maxRetries: 0,
+    preflightCommitment: "confirmed",
+    maxRetries: 3,
   });
   if (returned !== signature)
     throw new Error(
       `Local send response did not match saved signature: ${signature}`,
+    );
+  if (name !== "refresh-test-price")
+    console.log(
+      JSON.stringify({
+        event: "setup-transaction",
+        name,
+        signature,
+        status: "submitted",
+      }),
     );
   const status = await confirm(rpc, signature);
   await saveJson(path, {
@@ -171,6 +181,16 @@ export async function send(rpc, root, name, instructions, signers) {
     status: status.confirmationStatus,
     slot: status.slot,
   });
+  if (name !== "refresh-test-price")
+    console.log(
+      JSON.stringify({
+        event: "setup-transaction",
+        name,
+        signature,
+        status: status.confirmationStatus,
+        slot: status.slot,
+      }),
+    );
   return signature;
 }
 

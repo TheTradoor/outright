@@ -1,16 +1,16 @@
 # Native integration verification
 
 Latest local verification completed on 14 November 2026 (UTC+7): the source and Rust
-contract checks and terminal build passed. The client now has 433 JavaScript
+contract checks and terminal build passed. The client now has 443 JavaScript
 tests, including 53 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
-does not modify dependencies. These results do not come from a deployed market
+does not modify dependencies. These results do not come from a public market
 or an independent audit. The preceding funding and liquidation work was merged
 in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Keeper deferral after simulation](#keeper-deferral-after-simulation)
+[Funded local validator](#funded-local-validator)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -777,3 +777,40 @@ Engine, wrapper, instruction builders, account layouts, dependency pins and the
 17-case SBF suite are unchanged. These local RPC and process tests do not prove
 public-cluster compatibility, hosted keeper uptime, real-wallet or physical
 mobile behavior, or replace an independent security audit.
+
+## Funded local validator
+
+[PR #19](https://github.com/TheTradoor/outright/pull/19) adds a loopback-only
+market runner and a separate current-validator CI gate. It builds SBPF v3 with
+cargo-build-sbf 4.6.0 and platform-tools v1.58, then uses Agave 4.4.1 with its
+default feature set. The older 17-case LiteSVM suite remains a separate gate.
+The engine and wrapper source pins are unchanged.
+
+The runner verifies program bytes, finalizes its two disposable local programs,
+creates six-decimal test collateral, the market and vault, and funds a maker
+with 10,000 TEST. It writes a terminal profile and continuously publishes a
+fixed synthetic TEST/USD price. Initial and maintenance margin are 100%; base
+fees and funding are zero. It is not a live oracle or production market maker.
+
+The RPC lifecycle gate checks portfolio creation, deposit of 100 TEST, rejection
+of an oversized deposit, one long and one short round trip, and withdrawal of
+100 TEST. It asserts the confirmed positions, final token balances, maker
+capital, unique signatures and successful transaction records. The public
+lifecycle report is printed in the CI log. A generated signer exercises the
+native client; this is separate from browser-extension testing.
+
+Ten setup tests cover official loader identity, exact code and authority pins,
+Rust/SPL instruction encoding, local-only endpoints, private and exclusive
+receipt storage, symlink rejection, pending-signature reconciliation and failed
+or unresolved sends. The loader regression reproduces the first setup failure
+against the earlier runtime. The complete local check passes 443 JavaScript
+tests, including the unchanged 53 terminal and 100 keeper cases, with source
+checks and Rust contract comparison.
+
+The workspace cannot start Agave because its kernel restrictions deny
+`io_uring`. Validator execution is therefore checked on the Ubuntu CI runner;
+the PR records the exact run and outcome. The validator release archive is
+pinned by SHA-256 in the workflow. These checks do not establish public-cluster
+compatibility, hosted service uptime, mobile-wallet behavior or independent
+security review. Follow [the local market guide](LOCAL_MARKET.md) to reproduce
+the environment.

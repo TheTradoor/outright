@@ -155,6 +155,8 @@ async function main() {
         "--faucet-port",
         String(port + 2),
         "--quiet",
+        "--mint",
+        state.admin,
         "--upgradeable-program",
         state.program,
         resolve(args["--program-binary"]),
@@ -181,7 +183,7 @@ async function main() {
         );
       try {
         genesisHash = await rpc.getGenesisHash();
-        if ((await rpc.getSlot("confirmed")) > 0) {
+        if ((await rpc.getSlot("finalized")) > 0) {
           ready = true;
           break;
         }
