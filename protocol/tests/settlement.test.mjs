@@ -128,26 +128,114 @@ for (const [name, mutation] of [
     assert.equal(f.rpc.sent.length, 0);
   });
 
-for (const [name, mutation] of [
-  ["receipt payment", { receipt: { paid_effective: 1251n } }],
-  ["payout rate", { ledger: { current_payout_rate_num: 4n } }],
-  ["recorded custody", { market: { vault: 300n } }],
-  ["resolved slot", { market: { resolved_slot: 124n } }],
-  ["maintenance fee", { wrapper: { maintenance_fee_per_slot: 1n } }],
-])
-  test(`a ${name} change while signing requires a new review`, async () => {
-    const f = setSettlement(await fixture());
-    const review = await f.client.prepare(f.owner.publicKey, {
-      type: "closeResolved",
+for (const type of ["closeResolved", "claimResolvedPayoutTopup"])
+  for (const [name, mutation] of [
+    ["receipt payment", { receipt: { paid_effective: 1251n } }],
+    ["payout rate", { ledger: { current_payout_rate_num: 4n } }],
+    ["recorded custody", { market: { vault: 300n } }],
+    ["resolved slot", { market: { resolved_slot: 124n } }],
+    ["maintenance fee", { wrapper: { maintenance_fee_per_slot: 1n } }],
+  ])
+    test(`${type} requires a new review after a ${name} change while signing`, async () => {
+      const f = setSettlement(await fixture());
+      const review = await f.client.prepare(f.owner.publicKey, {
+        type,
+      });
+      await assert.rejects(
+        f.client.submit(review, async (bytes) => {
+          setSettlement(f, mutation);
+          return f.sign(bytes);
+        }),
+        /Settlement state changed/,
+      );
+      assert.equal(f.rpc.sent.length, 0);
+      assert.equal(await f.client.pending(f.owner.publicKey), null);
     });
-    await assert.rejects(
-      f.client.submit(review, async (bytes) => {
-        setSettlement(f, mutation);
-        return f.sign(bytes);
-      }),
-      /Settlement state changed/,
+
+for (const type of ["closeResolved", "claimResolvedPayoutTopup"])
+  for (const [name, target, offset] of [
+    [
+      "insurance",
+      "market",
+      contract.constants.marketGroupOffset +
+        contract.layouts.market.insurance.offset,
+    ],
+    [
+      "total capital",
+      "market",
+      contract.constants.marketGroupOffset +
+        contract.layouts.market.c_tot.offset,
+    ],
+    ...Object.entries(contract.layouts.reviewAccountingOffsets).map(
+      ([name, offset]) => [
+        name,
+        "portfolio",
+        contract.constants.headerLength + offset,
+      ],
+    ),
+  ])
+    test(`${type} rejects changes to ${name} outside the settlement projection`, async () => {
+      const f = setSettlement(await fixture());
+      const review = await f.client.prepare(f.owner.publicKey, { type });
+      const account = f.accounts.get(
+        target === "market"
+          ? f.market.toBase58()
+          : f.identity.address.toBase58(),
+      );
+      // This RPC mutation isolates the client's review binding. It is not an
+      // engine transition or evidence that the resulting ledger is admissible.
+      await assert.rejects(
+        f.client.submit(review, async (bytes) => {
+          account.data[offset] ^= 1;
+          return f.sign(bytes);
+        }),
+        /Settlement state changed/,
+      );
+      assert.equal(f.rpc.sent.length, 0);
+      assert.equal(f.records.size, 0);
+      await assert.rejects(
+        f.client.submit(review, f.sign),
+        /Review this action again/,
+      );
+
+      // A rejected review must not lock out a new simulation and explicit review.
+      let simulations = 0;
+      const simulate = f.rpc.simulateTransaction;
+      f.rpc.simulateTransaction = async (...args) => {
+        simulations++;
+        return simulate(...args);
+      };
+      const next = await f.client.prepare(f.owner.publicKey, { type });
+      assert.equal(simulations, 1);
+      const receipt = await f.client.submit(next, f.sign);
+      assert.equal(receipt.status, "submitted");
+      assert.equal(f.rpc.sent.length, 1);
+    });
+
+for (const type of ["closeResolved", "claimResolvedPayoutTopup"])
+  test(`${type} accepts unchanged accounting at a later RPC bank`, async () => {
+    const f = setSettlement(await fixture());
+    const review = await f.client.prepare(f.owner.publicKey, { type });
+    const receipt = await f.client.submit(review, async (bytes) => {
+      f.rpc.slot++;
+      // Funding rent does not change protocol accounting. It must not invalidate
+      // review, while the normal identity and SOL affordability checks still run.
+      f.accounts.get(f.identity.address.toBase58()).lamports++;
+      f.accounts.get(f.market.toBase58()).lamports++;
+      return f.sign(bytes);
+    });
+    assert.equal(receipt.status, "submitted");
+    assert.equal(f.rpc.sent.length, 1);
+    f.rpc.status = {
+      slot: f.rpc.slot,
+      confirmations: 1,
+      err: null,
+      confirmationStatus: "confirmed",
+    };
+    assert.equal(
+      (await f.client.reconcile(f.owner.publicKey)).status,
+      "confirmed",
     );
-    assert.equal(f.rpc.sent.length, 0);
     assert.equal(await f.client.pending(f.owner.publicKey), null);
   });
 

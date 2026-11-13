@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 334 JavaScript
-tests, including 22 terminal DOM scenarios, and 16 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 353 JavaScript
+tests, including 24 terminal DOM scenarios, and 16 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Missing keeper targets](#missing-keeper-targets)
+[Complete settlement review](#complete-settlement-review)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -498,3 +498,38 @@ These tests exercise the operator process against deterministic RPC fixtures.
 They do not establish hosted keeper uptime or public-cluster behavior. An absent
 account is not evidence of settlement completion. Engine and wrapper source,
 instruction bytes, dependency versions and the journal schema are unchanged.
+
+## Complete settlement review
+
+The previous client compared settlement display fields after the wallet signed.
+It omitted other accounting consumed by the engine. Ten failing regressions
+reproduced that gap for both `CloseResolved` and `ClaimResolvedPayoutTopup`:
+changes to market insurance, total capital, portfolio cancel-deposit escrow,
+close residual and source backing passed the old check. The portfolio offsets
+come from the pinned Rust types. These are isolated RPC-fixture mutations, not
+proof that the mutated ledgers are valid engine transitions.
+
+Both settlement actions now use the same complete market and portfolio data
+hash as Recovery review. The client revalidates the deployment and accounts
+after signing and refuses to send if either data buffer changed. No transaction
+receipt is written on these rejection paths. The consumed review cannot be
+reused; a new simulation and explicit review can proceed. The snapshot field is
+now named `accountingStateHash`, replacing `recoveryStateHash`.
+
+Nineteen additional JavaScript tests cover the omitted fields, the existing
+receipt/rate/custody/fee comparisons for additional claims, unchanged accounting
+at a later RPC bank, and two terminal rejection paths. The terminal closes a
+consumed review after a submission error so the error and a new review are
+accessible. Both controls were tested through the actual terminal module with a
+local deterministic Wallet Standard fixture. The full suite has 353 passing
+tests, including 24 terminal DOM scenarios. All 16 SBF lifecycle tests, the Rust
+contract comparison, source checks and terminal build also pass.
+
+The stricter comparison can require another review when any transaction changes
+the shared market, including activity by a different user. RPC context-slot
+advancement or account rent funding alone does not change the accounting hash.
+This is a pre-broadcast check, not an execution-time state lock: the program
+remains authoritative after the client sends. Engine and wrapper source pins,
+payout arithmetic and instruction encodings are unchanged. Public-cluster
+operation, real browser/mobile-wallet testing, complete market teardown and
+independent review remain open.

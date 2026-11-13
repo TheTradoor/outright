@@ -52,6 +52,14 @@ pub fn export() -> Value {
             active_bitmap: "u64", stale_state: "bool", b_stale_state: "bool",
             rebalance_lock: "bool", liquidation_lock: "bool"),
         "payoutReceiptOffset": offset_of!(PortfolioAccountV16Account, resolved_payout_receipt),
+        // Exact locations for review-race regressions outside the UI projection.
+        "reviewAccountingOffsets": {
+            "cancelDepositEscrow": offset_of!(PortfolioAccountV16Account, cancel_deposit_escrow),
+            "closeResidual": offset_of!(PortfolioAccountV16Account, close_progress)
+                + offset_of!(CloseProgressLedgerV16Account, residual_remaining),
+            "sourceBacking": offset_of!(PortfolioAccountV16Account, source_domains)
+                + offset_of!(PortfolioSourceDomainV16Account, source_lien_counterparty_backing_num)
+        },
         "payoutReceipt": fields!(ResolvedPayoutReceiptV16Account;
             present: "bool", prior_bound_contribution_num: "u128",
             live_released_face_at_receipt: "u128", terminal_positive_claim_face: "u128",
