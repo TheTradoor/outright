@@ -13,6 +13,7 @@ use solana_sdk::{
     pubkey::Pubkey,
     rent::Rent,
     signature::{Keypair, Signer},
+    system_instruction,
     transaction::{Transaction, TransactionError},
 };
 use std::{
@@ -86,7 +87,9 @@ fn from_js_instruction(out: &Value) -> Instruction {
 
 fn account_json(env: &V16Svm, address: Pubkey) -> Value {
     match env.svm.get_account(&address) {
-        Some(a) => json!({"owner":a.owner.to_string(),"executable":a.executable,"data":a.data}),
+        Some(a) => {
+            json!({"owner":a.owner.to_string(),"executable":a.executable,"data":a.data,"lamports":a.lamports})
+        }
         None => Value::Null,
     }
 }
@@ -252,6 +255,65 @@ fn wallet_planner_creates_seeded_portfolio_and_withdrawal_token_account() {
     assert_eq!(env.token_amount(source), before - 2_500_000);
     assert_eq!(env.token_amount(env.vault), vault_before);
     assert_eq!(read(&env, portfolio, owner.pubkey())["capital"], "0");
+}
+
+#[test]
+fn wallet_planner_recovers_prefunded_addresses_with_atomic_allocation() {
+    let rent = Rent::default().minimum_balance(percolator_prog::constants::PORTFOLIO_ACCOUNT_LEN);
+    for funding in [Rent::default().minimum_balance(0), rent, rent + 500] {
+        let mut env = V16Svm::new_with_asset_count([86; 32], MarketConfig::default(), 1);
+        let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+        let sender = Keypair::from_bytes(&env.actors[1].signer.to_bytes()).unwrap();
+        let mut input = json!({"operation":"planAction","owner":owner.pubkey().to_string(),
+            "profile":{"program":{"address":env.program_id.to_string()},"market":env.market.to_string(),
+            "vault":env.vault.to_string(),"collateral":{"mint":env.mint.to_string(),"decimals":6,"symbol":"TEST"}},
+            "marketAccount":account_json(&env,env.market),"action":{"type":"initialize"},"rentLamports":rent});
+        let initial = js(input.clone());
+        let portfolio = Pubkey::from_str(initial["portfolio"].as_str().unwrap()).unwrap();
+        send(
+            &mut env,
+            system_instruction::transfer(&sender.pubkey(), &portfolio, funding),
+            &[&sender],
+        )
+        .expect("another wallet can fund the derived address before initialization");
+        input["portfolioAccount"] = account_json(&env, portfolio);
+        let planned = js(input);
+        assert_eq!(
+            planned["rentLamports"].as_u64().unwrap(),
+            rent.saturating_sub(funding)
+        );
+        let instructions: Vec<_> = planned["instructions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(from_js_instruction)
+            .collect();
+        assert_eq!(instructions.len(), if funding < rent { 3 } else { 2 });
+        let before = snapshot(&env, &[portfolio]);
+        let mut rejected_plan = instructions.clone();
+        rejected_plan.push(instructions.last().unwrap().clone());
+        rejected(
+            send_many(&mut env, &rejected_plan, &[&owner]),
+            (2 + instructions.len()) as u8,
+            PercolatorError::AlreadyInitialized,
+        );
+        assert_unchanged(&env, &before);
+        send_many(&mut env, &instructions, &[&owner])
+            .expect("seeded allocation, assignment and initialization");
+        let account = env.svm.get_account(&portfolio).unwrap();
+        assert_eq!(account.owner, env.program_id);
+        assert_eq!(account.lamports, funding.max(rent));
+        assert_eq!(
+            read(&env, portfolio, owner.pubkey())["owner"],
+            owner.pubkey().to_string()
+        );
+        assert_eq!(read(&env, portfolio, owner.pubkey())["capital"], "0");
+        for (address, expected) in before {
+            if address != env.market && address != portfolio {
+                assert_eq!(env.svm.get_account(&address).unwrap(), expected);
+            }
+        }
+    }
 }
 
 fn send_many(
