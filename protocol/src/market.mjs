@@ -6,6 +6,7 @@ import {
   keyAt,
   keyString,
 } from "./layout.mjs";
+import contract from "../upstream-contract.json" with { type: "json" };
 
 const modes = ["live", "resolved", "recovery"];
 const lifecycles = [
@@ -19,6 +20,15 @@ const lifecycles = [
 
 // A source-pinned structural reader. Economic validity is still decided by SBF.
 export function readMarket(account, { programId, address, collateralMint }) {
+  if (
+    account?.data?.length === c.headerLength &&
+    account.data[10] === contract.closedMarketKind
+  ) {
+    accountBytes(account, programId, contract.closedMarketKind, "Market");
+    throw new Error(
+      "Market has been closed; choose another deployment profile",
+    );
+  }
   const b = accountBytes(account, programId, c.marketKind, "Market");
   const start = c.marketGroupOffset + c.marketHeaderLength;
   if (b.length < start) throw new Error("Truncated market layout");
@@ -62,6 +72,7 @@ export function readMarket(account, { programId, address, collateralMint }) {
         ...asset,
         lifecycle: lifecycles[asset.lifecycle],
         oracle,
+        control: fields(b, base + l.controlSequencesOffset, l.controlSequences),
         oracleFeeds: Object.freeze(
           Array.from({ length: oracle.oracle_leg_count }, (_, i) =>
             keyAt(b, base + l.oracleFeedsOffset + 32 * i),

@@ -488,6 +488,7 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
           assert.equal(el("settlement-face").textContent, "0.002");
           assert.equal(el("settlement-paid").textContent, "0.00125");
           assert.equal(el("settlement-due").textContent, "0.00025");
+          assert.equal(el("portfolio-close").disabled, true);
           for (const id of ["settlement-close", "settlement-claim"]) {
             assert.equal(el(id).disabled, false);
             el(id).click();
@@ -574,6 +575,104 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
           }
         },
       );
+    await t.test(
+      "account closure explains the SOL destination and clears controls after removal",
+      async () => {
+        const marketData = Buffer.from(
+          f.accounts.get(f.market.toBase58()).data,
+        );
+        const portfolioAccount = {
+          ...f.accounts.get(f.identity.address.toBase58()),
+          data: Buffer.from(f.accounts.get(f.identity.address.toBase58()).data),
+        };
+        const before = f.rpc.sent.length;
+        try {
+          setSettlement(f, {
+            receipt: { paid_effective: 2000n, finalized: true },
+          });
+          await connect();
+          assert.equal(el("portfolio-close").disabled, false);
+          el("portfolio-close").click();
+          await until(
+            () => el("review-dialog").open && !el("sign").disabled,
+            "closure review did not open",
+          );
+          assert.match(
+            el("review-details").textContent,
+            /All SOL held by this portfolio account/,
+          );
+          assert.match(
+            el("review-details").textContent,
+            /not returned to your wallet/,
+          );
+          assert.ok(
+            el("review-details").textContent.includes(f.market.toBase58()),
+          );
+          el("sign").click();
+          await until(
+            () => !el("review-dialog").open && !el("wallet-button").disabled,
+            "closure submit did not settle",
+          );
+          assert.equal(f.rpc.sent.length, before + 1);
+          f.rpc.status = {
+            slot: 123,
+            confirmations: 1,
+            err: null,
+            confirmationStatus: "confirmed",
+          };
+          await f.client.reconcile(account.address);
+          f.accounts.delete(f.identity.address.toBase58());
+          el("refresh").click();
+          await until(
+            () =>
+              el("settlement-status").textContent ===
+                "No portfolio for this wallet." && !el("refresh").disabled,
+            "closed account refresh failed",
+          );
+          for (const id of [
+            "portfolio-close",
+            "settlement-close",
+            "settlement-claim",
+          ])
+            assert.equal(el(id).disabled, true);
+        } finally {
+          f.accounts.get(f.market.toBase58()).data = marketData;
+          f.accounts.set(f.identity.address.toBase58(), portfolioAccount);
+          f.records.clear();
+          f.rpc.status = null;
+          if (el("wallet-button").textContent !== "Connect wallet")
+            changed({ accounts: [] });
+        }
+      },
+    );
+    await t.test(
+      "a closed market clears wallet actions and explains the stopped deployment",
+      async () => {
+        const marketData = Buffer.from(
+          f.accounts.get(f.market.toBase58()).data,
+        );
+        try {
+          await connect();
+          f.accounts.get(f.market.toBase58()).data = Buffer.from(
+            contract.closedMarketFixtureHex,
+            "hex",
+          );
+          el("refresh").click();
+          await until(
+            () =>
+              el("feedback").textContent.includes("Market has been closed") &&
+              !el("wallet-button").disabled,
+            "closed market message missing",
+          );
+          unavailable();
+          assert.equal(el("portfolio-close").disabled, true);
+        } finally {
+          f.accounts.get(f.market.toBase58()).data = marketData;
+          if (el("wallet-button").textContent !== "Connect wallet")
+            changed({ accounts: [] });
+        }
+      },
+    );
     await t.test(
       "zero-due settlement disables claims even without enabled assets",
       async () => {

@@ -109,6 +109,8 @@
     "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
     "rustVersion": "4.0.3"
   },
+  "closedMarketFixtureHex": "00363156435245501000050000000000",
+  "closedMarketKind": 5,
   "constants": {
     "headerLength": 16,
     "magic": "5045524356313600",
@@ -139,6 +141,22 @@
       "args": {},
       "hex": "01",
       "name": "initPortfolio"
+    },
+    {
+      "args": {
+        "expectedSequence": "18446744073709551615",
+        "portfolioId": "9007199254740993",
+        "positionEpoch": "562949953421311"
+      },
+      "hex": "080100000000002000ffffffffffffffffffffffffffff0100",
+      "name": "closePortfolio"
+    },
+    {
+      "args": {
+        "authorityEpoch": "9007199254740993"
+      },
+      "hex": "0d0100000000002000",
+      "name": "closeSlab"
     },
     {
       "args": {
@@ -341,6 +359,13 @@
       }
     },
     "configOffset": 32,
+    "controlSequences": {
+      "authority_epoch": {
+        "offset": 16,
+        "type": "u64"
+      }
+    },
+    "controlSequencesOffset": 424,
     "health": {
       "active_bitmap_at_cert": {
         "offset": 112,

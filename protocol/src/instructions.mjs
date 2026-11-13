@@ -60,6 +60,17 @@ export function encodeInstruction(name, a = {}) {
       return Buffer.concat([Buffer.from([30]), Buffer.alloc(16)]);
     case "claimResolvedPayoutTopup":
       return Buffer.from([46]);
+    case "closePortfolio":
+      if (integer(a.positionEpoch, "positionEpoch", 64) >= 1n << 49n)
+        throw new Error("positionEpoch: out of range");
+      return Buffer.concat([
+        Buffer.from([8]),
+        u64(a, "portfolioId", true),
+        u64(a, "expectedSequence"),
+        u64(a, "positionEpoch"),
+      ]);
+    case "closeSlab":
+      return Buffer.concat([Buffer.from([13]), u64(a, "authorityEpoch")]);
     case "forfeitRecoveryLeg":
       if (integer(a.positionEpoch, "positionEpoch", 64) >= 1n << 49n)
         throw new Error("positionEpoch: out of range");
@@ -158,6 +169,7 @@ export function buildInstruction(program, name, args, a) {
   switch (name) {
     case "initPortfolio":
     case "forfeitRecoveryLeg":
+    case "closePortfolio":
       if (
         new Set([a.owner, a.market, a.portfolio].map((v) => key(v).toBase58()))
           .size !== 3
@@ -169,6 +181,39 @@ export function buildInstruction(program, name, args, a) {
         meta(a.portfolio, false, true),
       ];
       break;
+    case "closeSlab": {
+      // Single classic SPL collateral only. The mint is writable because the
+      // engine can retire booked, claim-free residue by burning it on closure.
+      if (
+        key(a.mint).toBase58() === "So11111111111111111111111111111111111111112"
+      )
+        throw new Error(
+          "Native collateral closure requires a separate residue destination",
+        );
+      const authority = vaultAuthority(program, a.market);
+      const addresses = [
+        program,
+        a.owner,
+        a.market,
+        a.vault,
+        authority,
+        a.userToken,
+        TOKEN_PROGRAM_ID,
+        a.mint,
+      ].map((v) => key(v).toBase58());
+      if (new Set(addresses).size !== addresses.length)
+        throw new Error("Market closure identities must differ");
+      keys = [
+        meta(a.owner, true, true),
+        meta(a.market, false, true),
+        meta(a.vault, false, true),
+        meta(authority),
+        meta(a.userToken, false, true),
+        meta(TOKEN_PROGRAM_ID),
+        meta(a.mint, false, true),
+      ];
+      break;
+    }
     case "deposit":
     case "withdraw":
     case "closeResolved":

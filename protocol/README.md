@@ -48,6 +48,8 @@ wallet requirements, transaction states, and current limits.
 | Deposit | Classic SPL Token collateral from the owner's associated token account |
 | Withdraw | Engine-permitted withdrawal from a flat portfolio; creates a missing destination ATA atomically |
 | Resolved settlement | Owner-signed bounded close steps and additional receipt payouts; creates a missing destination ATA atomically |
+| Portfolio closure | Owner-reviewed removal of an empty resolved portfolio; transfers account SOL to the market, with no collateral payment |
+| Market closure | Low-level single-collateral `CloseSlab` builder for the current market authority; not a hosted operator service |
 | Recovery exit | Owner-signed forfeiture of unbooked leg gains with explicit consent and a bounded shared-loss step budget; no token transfer |
 | Matcher trade | Immediate bounded-price CPI trade against a configured, funded maker |
 | Bilateral trade | Low-level instruction builder; both owners must sign |
@@ -82,6 +84,10 @@ liquidation, underfunded resolved settlement and rollback. The resolved fixture
 checks a later payout after backing expires and rejects duplicate payment. A
 separate trace runs discovery and payouts through the keeper planner without an
 owner signature, including rejection of a forged slot before the close delay.
+Both traces now continue through removal of every primary portfolio, a market
+authority handoff, vault closure and a persistent market tombstone. They check
+exact rent refunds, seven atoms of unbooked SPL surplus, rejected early closure,
+stale bindings, wrong authorities, wrong destinations, rollback and repeat closure.
 The Recovery exit case checks discarded unbooked gains, applied price losses,
 stale consent, owner authorization, unchanged custody and transaction rollback.
 A separate two-asset trace follows a retained zero-exposure obligation through
@@ -98,5 +104,5 @@ exact coverage and remaining requirements.
 The terminal and keeper support localnet and devnet only. The
 [operator guide](../docs/MARKET_OPERATIONS.md) covers setup, simulation, sending,
 fee limits and restart. Funded liquidity, provider oracle publishing, hosted
-keeper operations, broader recovery and risk coverage, complete teardown and independent review
+keeper operations, broader recovery and risk coverage, additional teardown configurations and independent review
 remain public-release requirements.

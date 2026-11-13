@@ -265,4 +265,64 @@ live Pyth publishing, public-cluster compatibility or hosted-service uptime.
 
 Public release still requires reproducible deployment, a running provider
 publisher, funded maker liquidity, portfolio discovery/indexing, monitoring,
-broader recovery and stress coverage, complete market teardown and independent security review.
+broader recovery and stress coverage, additional teardown configurations and independent security review.
+
+## Terminal account and market closure
+
+The wallet terminal supports owner-reviewed `ClosePortfolio` after resolved
+settlement. The program requires an empty portfolio, including source domains,
+close progress, escrow and payout receipts. Zero displayed capital alone is not
+sufficient. The instruction binds its portfolio ID, sequence and position epoch.
+Every lamport in the closed portfolio goes to the market slab. No collateral
+transfer or wallet rent refund occurs in that step.
+
+The keeper does not sign account or market closure. After every portfolio has
+settled and been removed, the current market authority can use the low-level
+`closeSlab` instruction builder. The single-collateral account layout is:
+
+| Position | Account | Permission |
+| --- | --- | --- |
+| 0 | Current market authority and SOL refund destination | Signer, writable |
+| 1 | Market slab | Writable |
+| 2 | Primary collateral vault | Writable |
+| 3 | Derived vault authority | Read-only |
+| 4 | Current authority's collateral token destination | Writable |
+| 5 | Classic SPL Token program | Read-only |
+| 6 | Primary collateral mint | Writable |
+
+Read the current authority epoch from
+`market.assets[0].control.authority_epoch` in a freshly verified snapshot. The
+Rust exporter supplies its offset. Do not reuse an epoch after an authority
+handoff. `buildInstruction` accepts `closeSlab`, arguments `{ authorityEpoch }`
+and accounts `{ owner, market, vault, userToken, mint }`; `owner` is the current
+market authority. It derives the vault authority and fixes the token program.
+This builder creates an instruction only. It does not verify a deployment,
+create the destination token account, simulate, sign, submit or reconcile it.
+Those checks remain required for an operator submission.
+
+`CloseSlab` can advance a bounded scan without closing the market. Follow the
+confirmed state after each step. Any retry, including after a failed attempt,
+needs a fresh blockhash and a newly reviewed transaction. Do not equate a
+successful signature with completed teardown. Only the typed closed-market
+record and the closed vault establish that endpoint.
+
+At final closure, the wrapper sweeps unbooked SPL surplus to the current
+market authority's token destination. Booked, claim-free residue can instead
+be burned under the engine's terminal rules; the mint must be writable for
+that case. These are distinct from unpaid user claims. The primary vault closes,
+and its rent plus the market's excess rent goes to the current market authority.
+The market retains its closed header and exactly that header's rent exemption.
+
+The local underfunded fixtures now complete this sequence after paying the owner
+1,750 atoms across two payouts. They remove every primary portfolio, hand off the
+market authority publicly and close with seven donated, unbooked collateral
+atoms. Those seven atoms and the exact rent refund reach the new authority.
+Unpaid receipts, remaining portfolios, stale bindings, incorrect authorities and
+wrong token destinations reject; transaction failures roll back changes. The
+wallet planner also removes its seeded portfolio without allocating an ATA.
+
+This coverage is for the pinned single classic-SPL-collateral fixture. Native SOL
+residue handling and dual-collateral closure are not supported by this builder.
+The tests do not establish closure for every insurance, provider, payout-halt or
+large bounded-scan configuration. Automated operator signing and public-cluster
+teardown remain unverified.

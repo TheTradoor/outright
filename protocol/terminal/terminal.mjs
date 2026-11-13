@@ -4,7 +4,10 @@ import {
   browserJournal,
   validateProfile,
 } from "../src/client.mjs";
-import { isSettlementAction } from "../src/settlement.mjs";
+import {
+  isSettlementAction,
+  canReviewPortfolioClosure,
+} from "../src/settlement.mjs";
 import { isRecoveryAction, recoveryPosition } from "../src/recovery.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -79,6 +82,8 @@ function controls() {
   for (const button of $("collateral-form").querySelectorAll("button"))
     button.disabled = !ready || !live || !snapshot?.portfolio;
   $("settlement-close").disabled = !ready || !resolved || !snapshot?.portfolio;
+  $("portfolio-close").disabled =
+    !ready || !canReviewPortfolioClosure(snapshot);
   $("settlement-claim").disabled =
     !ready ||
     !resolved ||
@@ -554,6 +559,19 @@ async function reviewAction(value) {
         "This is a bounded step. It may update accounting without a transfer. The recorded payout excludes capital and is not a guaranteed quote. Refresh after confirmation.",
       ],
     );
+  if (value.type === "closePortfolio")
+    fields.push(
+      ["Account", prepared.snapshot.portfolioAddress],
+      ["SOL destination", client.profile.market],
+      [
+        "Account closure",
+        "All SOL held by this portfolio account, including rent, goes to the market account. It is not returned to your wallet. No collateral payout is included.",
+      ],
+      [
+        "Engine checks",
+        "Simulation checks that no balances, claims or obligations remain. The program verifies this again at execution. Closure cannot be undone. Refresh after confirmation.",
+      ],
+    );
   if (isRecoveryAction(value.type)) {
     const position = recoveryPosition(prepared.snapshot, value.assetIndex);
     const symbol =
@@ -645,6 +663,9 @@ $("settlement-close").addEventListener("click", () =>
 );
 $("settlement-claim").addEventListener("click", () =>
   action(() => reviewAction({ type: "claimResolvedPayoutTopup" })),
+);
+$("portfolio-close").addEventListener("click", () =>
+  action(() => reviewAction({ type: "closePortfolio" })),
 );
 $("recovery-consent").addEventListener("change", controls);
 $("recovery-budget").addEventListener("input", controls);

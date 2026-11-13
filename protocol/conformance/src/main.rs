@@ -27,6 +27,8 @@ fn fixture(name: &str, args: Value, ix: Instruction) -> Value {
 }
 
 fn main() {
+    let mut closed_market = vec![0u8; c::HEADER_LEN];
+    state::write_closed_market_tombstone(&mut closed_market).unwrap();
     let mut portfolio = vec![0u8; c::PORTFOLIO_ACCOUNT_LEN];
     state::init_portfolio_account_zero_copy(&mut portfolio, [1; 32], [2; 32], [3; 32], 123, 1, 17)
         .unwrap();
@@ -34,6 +36,22 @@ fn main() {
     let provenance = c::HEADER_LEN + offset_of!(PortfolioAccountV16Account, provenance_header);
     let fixtures = vec![
         fixture("initPortfolio", json!({}), Instruction::InitPortfolio),
+        fixture(
+            "closePortfolio",
+            json!({"portfolioId":"9007199254740993","expectedSequence":"18446744073709551615","positionEpoch":"562949953421311"}),
+            Instruction::ClosePortfolio {
+                portfolio_id: 9_007_199_254_740_993,
+                expected_sequence: u64::MAX,
+                position_epoch: (1u64 << 49) - 1,
+            },
+        ),
+        fixture(
+            "closeSlab",
+            json!({"authorityEpoch":"9007199254740993"}),
+            Instruction::CloseSlab {
+                authority_epoch: 9_007_199_254_740_993,
+            },
+        ),
         fixture(
             "forfeitRecoveryLeg",
             json!({"portfolioId":"9007199254740993","positionEpoch":"562949953421311","assetIndex":258,"bDeltaBudget":"340282366920938463463374607431768211455"}),
@@ -134,6 +152,8 @@ fn main() {
         "wrapperCommit":"b42fe017c2bc953778f90d0cb85cd1d426b6e783",
         "engineCommit":"b22bef7d6122fd7d82680ce9859e8b77fd8ef656",
         "classicToken": token::export(),
+        "closedMarketKind": c::KIND_CLOSED_MARKET,
+        "closedMarketFixtureHex": closed_market.iter().map(|b|format!("{b:02x}")).collect::<String>(),
         "keeper": {
             "nonProgressError": percolator_prog::error::PercolatorError::EngineNonProgress as u32,
             "oracleOwners": [
