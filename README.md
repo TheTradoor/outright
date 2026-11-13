@@ -12,8 +12,9 @@ accepted. The engine is unaudited and must not be used with real funds.**
 ## What is here
 
 The repository currently contains the Percolator engine, its specification and
-test suite, a native Solana client, a wallet terminal, and integration fixtures.
-Oracle and keeper operations, indexing and a public market remain unfinished.
+test suite, a native Solana client, a wallet terminal, a bounded keeper client
+and integration fixtures. Hosted oracle and keeper services, indexing and a
+public market remain unfinished.
 
 | Component | Status |
 | --- | --- |
@@ -22,7 +23,8 @@ Oracle and keeper operations, indexing and a public market remain unfinished.
 | Runtime tests | Default and `fuzz` suites; run locally or through GitHub Actions |
 | Solana program integration | [Native client, Rust conformance exporter, and local SBF tests](protocol/README.md) |
 | Wallet terminal | [Localnet/devnet client with simulation and transaction reconciliation](docs/WALLET_TERMINAL.md) |
-| Market services | Oracle, keeper and indexing work remains open |
+| Market keeper | [Test-network worker with oracle account checks, fee caps and durable receipts](docs/MARKET_OPERATIONS.md) |
+| Hosted services | Provider oracle publishing, keeper hosting and indexing remain open |
 | Public deployment | None |
 
 The intended user flow is wallet connection, collateral deposit, an executable
@@ -64,6 +66,7 @@ See [the development guide](docs/DEVELOPMENT.md) for test scope and
 - [Development and verification](docs/DEVELOPMENT.md)
 - [Native integration verification results](docs/NATIVE_VERIFICATION.md)
 - [Wallet terminal and deployment profiles](docs/WALLET_TERMINAL.md)
+- [Market keeper and operator recovery](docs/MARKET_OPERATIONS.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security reporting](SECURITY.md)
 
