@@ -23,6 +23,189 @@ use std::{
 };
 use upstream_fixture::{MarketConfig, V16Svm};
 
+// The pinned engine has bounded close continuations. Zero positions or zero
+// capital alone is not proof that a portfolio has finished settlement.
+fn resolved_actor_terminal(env: &V16Svm, actor: usize) -> bool {
+    let group = env.primary_market_state().1;
+    let p = env.primary_portfolio(actor);
+    let receipt = p.resolved_payout_receipt.try_to_runtime().unwrap();
+    let close = p.close_progress.try_to_runtime().unwrap();
+    group.mode == percolator::MarketModeV16::Resolved
+        && p.capital.get() == 0
+        && p.pnl.get() == 0
+        && p.reserved_pnl.get() == 0
+        && p.fee_credits.get() == 0
+        && p.cancel_deposit_escrow.get() == 0
+        && percolator::active_bitmap_is_empty(percolator_prog::state::portfolio_active_bitmap(&p))
+        && p.stale_state == 0
+        && p.b_stale_state == 0
+        && p.rebalance_lock == 0
+        && p.liquidation_lock == 0
+        && p.last_fee_slot.get() == group.resolved_slot
+        && p.health_cert.valid == 0
+        && p.source_domains.iter().all(|source| !source.is_occupied())
+        && (!receipt.present || receipt.finalized)
+        && (!close.active || (close.finalized && close.residual_remaining == 0))
+}
+
+fn settlement_view(env: &V16Svm, actor: usize) -> Value {
+    js(json!({"operation":"settlement",
+        "marketAccount":account_json(env,env.market),
+        "marketExpected":{"programId":env.program_id.to_string(),"address":env.market.to_string(),"collateralMint":env.mint.to_string()},
+        "portfolioAccount":account_json(env,env.actors[actor].portfolio),
+        "portfolioExpected":{"programId":env.program_id.to_string(),"address":env.actors[actor].portfolio.to_string(),
+            "market":env.market.to_string(),"owner":env.actors[actor].signer.pubkey().to_string()}}))
+}
+
+fn resolved_close(env: &V16Svm, actor: usize, name: &str) -> Instruction {
+    build(
+        env,
+        name,
+        json!({}),
+        custody(
+            env,
+            env.actors[actor].portfolio,
+            env.actors[actor].signer.pubkey(),
+            env.actors[actor].destination_token,
+        ),
+    )
+}
+
+#[test]
+fn javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_once() {
+    use percolator_prog::ix::CrankObservationHint;
+    // Adapt the upstream INV-067 public trace. No program-owned financial state
+    // is injected: deposits, matching, marks, expiry and resolution use SBF.
+    let config = MarketConfig {
+        initial_price: 100,
+        maintenance_margin_bps: 1_000,
+        initial_margin_bps: 1_000,
+        max_price_move_bps_per_slot: 500,
+        max_accrual_dt_slots: 1,
+        min_funding_lifetime_slots: 1,
+        actor_deposits: [1_000, 250, 0, 0, 0],
+        ..MarketConfig::default()
+    };
+    let mut env = V16Svm::new([101; 32], config);
+    let supply = env.mint_supply();
+    let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+    env.configure_permissionless_resolve(100, 1).unwrap();
+    env.update_asset_authority_from_admin(
+        1,
+        percolator_prog::processor::ASSET_AUTH_BACKING_BUCKET,
+        2,
+    )
+    .unwrap();
+    env.top_up_backing_bucket_for_actor(2, 3, 500, 40).unwrap();
+    let size = 20 * percolator::POS_SCALE as i128;
+    env.trade_no_cpi(0, 1, 0, size, 100, 0).unwrap();
+    for (offset, mark) in (105..=150).step_by(5).enumerate() {
+        let slot = 2 + offset as u64;
+        env.warp_to_slot(slot);
+        env.push_auth_mark(0, slot, mark).unwrap();
+        for actor in [1, 0] {
+            env.crank(
+                actor,
+                slot,
+                vec![CrankObservationHint {
+                    asset_index: 0,
+                    oracle_accounts: env.primary_profile(0).oracle_leg_count,
+                }],
+            )
+            .unwrap();
+        }
+    }
+    env.trade_no_cpi(0, 1, 0, -size, 150, 0).unwrap();
+    env.warp_to_slot(12);
+    env.resolve_market().unwrap();
+    for actor in [1, 2, 3, 4] {
+        let signer = Keypair::from_bytes(&env.actors[actor].signer.to_bytes()).unwrap();
+        for _ in 0..16 {
+            if resolved_actor_terminal(&env, actor) {
+                break;
+            }
+            let ix = resolved_close(&env, actor, "closeResolved");
+            send(&mut env, ix, &[&signer]).expect("JS bounded close");
+        }
+        assert!(resolved_actor_terminal(&env, actor));
+        env.close_primary_portfolio(actor).unwrap();
+    }
+    env.warp_to_slot(14);
+    let ix = resolved_close(&env, 0, "closeResolved");
+    send(&mut env, ix, &[&owner]).expect("JS initial haircut close");
+    let initial_paid = env.token_amount(env.actors[0].destination_token);
+    let view = settlement_view(&env, 0);
+    assert_eq!(view["receipt"]["present"], true);
+    assert_eq!(view["receipt"]["finalized"], false);
+    assert_eq!(view["recordedPayout"], "0");
+    assert!(initial_paid > 0 && initial_paid < 1_750);
+    // Repeated claims before additional backing cannot increase payment.
+    let ix = resolved_close(&env, 0, "claimResolvedPayoutTopup");
+    send(&mut env, ix, &[&owner]).expect("zero-due claim");
+    assert_eq!(
+        env.token_amount(env.actors[0].destination_token),
+        initial_paid
+    );
+    assert_eq!(settlement_view(&env, 0)["receipt"], view["receipt"]);
+    env.warp_to_slot(40);
+    env.crank(
+        0,
+        40,
+        vec![CrankObservationHint {
+            asset_index: 1,
+            oracle_accounts: 0,
+        }],
+    )
+    .expect("public backing discovery releases expired collateral");
+    let due = settlement_view(&env, 0)["recordedPayout"]
+        .as_str()
+        .unwrap()
+        .parse::<u64>()
+        .unwrap();
+    assert_eq!(initial_paid + due, 1_750);
+    let before = snapshot(&env, &[env.actors[0].portfolio]);
+    let mut wrong = resolved_close(&env, 0, "claimResolvedPayoutTopup");
+    wrong.accounts[3].pubkey = env.actors[1].destination_token;
+    rejected(
+        send(&mut env, wrong, &[&owner]),
+        2,
+        PercolatorError::InvalidTokenAccount,
+    );
+    assert_unchanged(&env, &before);
+    let ix = resolved_close(&env, 0, "claimResolvedPayoutTopup");
+    let invalid = Instruction {
+        program_id: env.program_id,
+        accounts: vec![],
+        data: vec![255],
+    };
+    assert_eq!(
+        send_many(&mut env, &[ix, invalid], &[&owner]).unwrap_err(),
+        TransactionError::InstructionError(3, InstructionError::InvalidInstructionData)
+    );
+    assert_unchanged(&env, &before);
+    env.svm.expire_blockhash();
+    let ix = resolved_close(&env, 0, "claimResolvedPayoutTopup");
+    send(&mut env, ix, &[&owner]).expect("JS late payout");
+    assert_eq!(env.token_amount(env.actors[0].destination_token), 1_750);
+    assert_eq!(settlement_view(&env, 0)["recordedPayout"], "0");
+    env.svm.expire_blockhash();
+    let ix = resolved_close(&env, 0, "claimResolvedPayoutTopup");
+    send(&mut env, ix, &[&owner]).expect("repeated top-up cannot pay twice");
+    assert_eq!(env.token_amount(env.actors[0].destination_token), 1_750);
+    for _ in 0..16 {
+        if resolved_actor_terminal(&env, 0) {
+            break;
+        }
+        env.svm.expire_blockhash();
+        let ix = resolved_close(&env, 0, "closeResolved");
+        send(&mut env, ix, &[&owner]).expect("finish JS close continuations");
+    }
+    assert!(resolved_actor_terminal(&env, 0));
+    assert_eq!(env.token_amount(env.actors[0].destination_token), 1_750);
+    assert_eq!(env.mint_supply(), supply);
+    eprintln!("JS resolved receipt: initial={initial_paid}, topup={due}, total=1750");
+}
+
 fn js(input: Value) -> Value {
     let driver = std::env::var("OUTRIGHT_NATIVE_DRIVER").expect("SVM driver path");
     let mut child = Command::new("node")
@@ -483,6 +666,15 @@ fn keeper_oracle_failures_roll_back_market_portfolio_and_custody() {
 
 #[test]
 fn wallet_planner_creates_seeded_portfolio_and_withdrawal_token_account() {
+    wallet_planner_custody_exit(false);
+}
+
+#[test]
+fn wallet_planner_resolved_close_creates_ata_and_rolls_back_atomically() {
+    wallet_planner_custody_exit(true);
+}
+
+fn wallet_planner_custody_exit(resolved: bool) {
     let mut env = V16Svm::new_with_asset_count([76; 32], MarketConfig::default(), 1);
     let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
     let mut input = json!({"operation":"planAction","owner":owner.pubkey().to_string(),
@@ -527,9 +719,16 @@ fn wallet_planner_creates_seeded_portfolio_and_withdrawal_token_account() {
     send_many(&mut env, &instructions, &[&owner]).expect("planned deposit");
     assert_eq!(read(&env, portfolio, owner.pubkey())["capital"], "2500000");
 
+    if resolved {
+        env.resolve_market().expect("resolve funded portfolio");
+    }
     input["marketAccount"] = account_json(&env, env.market);
     input["portfolioAccount"] = account_json(&env, portfolio);
-    input["action"] = json!({"type":"withdraw","amount":"2.5"});
+    input["action"] = if resolved {
+        json!({"type":"closeResolved"})
+    } else {
+        json!({"type":"withdraw","amount":"2.5"})
+    };
     input.as_object_mut().unwrap().remove("userToken");
     input["tokenAccountExists"] = json!(false);
     input["rentLamports"] = json!(Rent::default().minimum_balance(165));
@@ -541,6 +740,24 @@ fn wallet_planner_creates_seeded_portfolio_and_withdrawal_token_account() {
         .map(from_js_instruction)
         .collect();
     assert_eq!(instructions.len(), 2);
+    if resolved {
+        let before = snapshot(&env, &[portfolio]);
+        let mut failing = instructions.clone();
+        failing.push(Instruction {
+            program_id: env.program_id,
+            accounts: vec![],
+            data: vec![255],
+        });
+        assert_eq!(
+            send_many(&mut env, &failing, &[&owner]).unwrap_err(),
+            TransactionError::InstructionError(4, InstructionError::InvalidInstructionData)
+        );
+        assert_unchanged(&env, &before);
+        assert!(
+            env.svm.get_account(&user_ata).is_none(),
+            "ATA creation must also roll back"
+        );
+    }
     send_many(&mut env, &instructions, &[&owner])
         .expect("atomic ATA creation and planned withdrawal");
     assert_eq!(env.token_amount(user_ata), 2_500_000);

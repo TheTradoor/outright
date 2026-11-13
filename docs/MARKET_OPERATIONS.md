@@ -85,7 +85,9 @@ Configure every asset held by the target portfolios. The current bound is
 256 portfolio targets and 16 assets. Each cycle includes the target's active
 legs plus one rotating discovery asset. Newly created portfolios are not
 discovered automatically. Resolved-market payout accounts require a separate
-planner and are rejected. Global recovery uses committed state without oracle
+planner and are rejected by this worker. The wallet terminal supports owner-signed
+resolved close and receipt-claim actions, but it does not expire backing or
+replace resolved-market operator progress. Global recovery uses committed state without oracle
 accounts; it does not implement every recovery or wind-down instruction.
 
 ## Simulate first

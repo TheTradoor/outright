@@ -1,16 +1,17 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks passed, along with 212 JavaScript tests, 11 SBF tests and the
-terminal build. A clean dependency install followed by `npm audit` reported
-zero vulnerabilities. These results do not come from a deployed market or an
-independent audit. The synchronized source and GitHub CI results are tracked in
-[pull request #5](https://github.com/TheTradoor/outright/pull/5).
+contract checks and terminal build passed. The client now has 241 JavaScript
+tests, including 18 DOM cases, and 13 SBF tests. A clean dependency install and
+audit at the preceding revision reported zero vulnerabilities; this change
+does not modify dependencies. These results do not come from a deployed market
+or an independent audit. The preceding funding and liquidation work was merged
+in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Funding, liquidation and classic SPL Token](#funding-liquidation-and-classic-spl-token)
-for the latest coverage and dependency changes.
+[Resolved settlement and payout receipts](#resolved-settlement-and-payout-receipts)
+for the latest coverage, and the preceding section for dependency changes.
 
 ## Sources and toolchains
 
@@ -292,3 +293,45 @@ describes that audit query, not an independent security assessment.
 Browser rendering, mobile behavior, wallet-extension execution, public-cluster
 compatibility, live service operation, insolvency and complete recovery exits
 remain unverified. No engine or wrapper source was changed.
+
+## Resolved settlement and payout receipts
+
+The adapter now exposes owner-signed `CloseResolved` and
+`ClaimResolvedPayoutTopup` instructions. Their bytes are compared with the
+pinned Rust encoder. Receipt and payout-ledger offsets are exported from the
+same Rust types; the reader rejects malformed flags, hidden receipt state,
+invalid face bounds, overpayment and inconsistent finalization.
+
+Two additional SBF cases verify the new paths. The underfunded case adapts the
+wrapper's INV-067 late-backing trace, constructing its market through public
+instructions. The JavaScript close initially transfers 1,250 collateral atoms
+and retains the partial receipt. An upstream public crank expires 500 atoms of
+backing. The JavaScript receipt calculation and claim agree on that additional
+500-atom payment, giving a total of 1,750. Claims before or after the additional
+payment cannot pay twice. Bounded close continuations reach the fixture's full
+terminal predicate without changing mint supply.
+
+A wrong-owner destination rejects at instruction 2 with `InvalidTokenAccount`
+and leaves complete market, portfolio and SPL accounts unchanged. A successful
+claim followed by invalid instruction data rejects at instruction 3 and rolls
+the payment back. In the second case, the wallet planner creates a missing ATA
+and closes a flat resolved portfolio for 2,500,000 atoms. A later failure at
+instruction 4 rolls back both ATA creation and settlement.
+
+Host tests verify exact payout arithmetic beyond JavaScript Number precision,
+vault caps, market-mode gates, disabled zero-due claims and changes while the
+wallet is open. The terminal tests cover review text, receipt amounts, disabled
+Recovery actions, empty asset lists and clearing settlement data on disconnect.
+
+The local VM rejects a repeated identical transaction as already processed.
+Unlike deposits and trades, settlement instructions carry no changing sequence
+field. The client therefore requires a fresh blockhash for consecutive
+settlement steps, using the durable receipt even after reload. A receipt written
+by another tab also blocks reuse before the wallet prompt.
+
+This establishes one underfunded resolved-market path, not general recovery.
+The expiry step uses the upstream fixture; Outright's keeper still rejects
+resolved targets. Asset Recovery forfeits, payout-halt recovery, multi-asset
+insolvency stress, full teardown and live service operation remain open. Engine
+and wrapper pins are unchanged. Browser/mobile rendering and real wallet
+extensions have not been validated in this environment.

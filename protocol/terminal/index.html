@@ -329,6 +329,49 @@
                 </button>
               </div>
             </form>
+            <section
+              id="settlement-panel"
+              hidden
+              aria-label="Market settlement"
+            >
+              <div class="panel-heading"><h2>Market settlement</h2></div>
+              <p id="settlement-status" class="field-note"></p>
+              <dl id="settlement-balances" class="balances" hidden>
+                <div>
+                  <dt>Receipt face value</dt>
+                  <dd id="settlement-face">Not available</dd>
+                </div>
+                <div>
+                  <dt>Paid against receipt</dt>
+                  <dd id="settlement-paid">Not available</dd>
+                </div>
+                <div>
+                  <dt>Additional payout at recorded rate</dt>
+                  <dd id="settlement-due">Not available</dd>
+                </div>
+              </dl>
+              <button
+                id="settlement-close"
+                class="button outline full"
+                type="button"
+                disabled
+              >
+                Advance settlement <span>↗</span>
+              </button>
+              <button
+                id="settlement-claim"
+                class="button outline full"
+                type="button"
+                disabled
+              >
+                Claim additional payout <span>↑</span>
+              </button>
+              <p class="field-note">
+                A step can update accounting without paying collateral. Multiple
+                steps may be required. Unpaid face value is not a guaranteed
+                payout.
+              </p>
+            </section>
           </section>
         </aside>
       </section>

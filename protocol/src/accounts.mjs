@@ -48,6 +48,22 @@ export function readPortfolio(account, { programId, address, market, owner }) {
   if (matcherFeeCap > 10000n) throw new Error("Invalid matcher fee cap");
   const pnl = u128(b, c.portfolioPnlOffset);
   const state = fields(b, c.headerLength, l.portfolio);
+  const resolvedPayout = fields(
+    b,
+    c.headerLength + l.payoutReceiptOffset,
+    l.payoutReceipt,
+  );
+  const face = resolvedPayout.terminal_positive_claim_face;
+  if (!resolvedPayout.present) {
+    if (Object.values(resolvedPayout).some((v) => v !== false && v !== 0n))
+      throw new Error("Hidden resolved payout receipt");
+  } else if (
+    face * BigInt(l.boundScale) > (1n << 128n) - 1n ||
+    face * BigInt(l.boundScale) > resolvedPayout.prior_bound_contribution_num ||
+    resolvedPayout.paid_effective > face ||
+    resolvedPayout.finalized !== (resolvedPayout.paid_effective === face)
+  )
+    throw new Error("Invalid resolved payout receipt");
   const positions = [];
   let bitmap = 0n;
   for (let i = 0; i < l.legCount; i++) {
@@ -82,6 +98,7 @@ export function readPortfolio(account, { programId, address, market, owner }) {
     matcher: fields(b, l.matcherOffset, l.matcher),
     matcherExpirySlot: b.readBigUInt64LE(l.matcherExpiryOffset),
     state,
+    resolvedPayout,
     positions: Object.freeze(positions),
     healthCertificate: fields(b, c.headerLength + l.healthOffset, l.health),
   });

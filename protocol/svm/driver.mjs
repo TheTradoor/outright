@@ -9,6 +9,7 @@ import {
   readPortfolioAllocation,
 } from "../src/client.mjs";
 import { planCrank } from "../src/keeper.mjs";
+import { recordedSettlementPayout } from "../src/settlement.mjs";
 import { PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "../src/token.mjs";
 
@@ -36,13 +37,20 @@ if (input.operation === "readPortfolio") {
   result = wireInstruction(ix);
 } else if (input.operation === "readMarket") {
   result = readMarket(account(input.account), input.expected);
-} else if (input.operation === "positions") {
+} else if (["positions", "settlement"].includes(input.operation)) {
   const market = readMarket(account(input.marketAccount), input.marketExpected);
   const p = readPortfolio(
     account(input.portfolioAccount),
     input.portfolioExpected,
   );
-  result = p.positions.map((leg) => positionForMarket(leg, market));
+  result =
+    input.operation === "positions"
+      ? p.positions.map((leg) => positionForMarket(leg, market))
+      : {
+          receipt: p.resolvedPayout,
+          ledger: market.resolvedPayout,
+          recordedPayout: recordedSettlementPayout(market, p),
+        };
 } else if (input.operation === "planCrank") {
   const profile = input.config.deployment;
   const market = readMarket(account(input.marketAccount), {

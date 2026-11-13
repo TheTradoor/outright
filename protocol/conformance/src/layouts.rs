@@ -17,7 +17,12 @@ pub fn export() -> Value {
             insurance: "u128", c_tot: "u128", current_slot: "u64", slot_last: "u64",
             next_market_id: "u64", mode: "u8", oracle_epoch: "u64", funding_epoch: "u64",
             risk_epoch: "u64", asset_set_epoch: "u64", bankruptcy_hlock_active: "bool",
-            threshold_stress_active: "bool", loss_stale_active: "bool"),
+            threshold_stress_active: "bool", loss_stale_active: "bool",
+            resolved_slot: "u64", payout_snapshot_captured: "bool"),
+        "payoutLedgerOffset": offset_of!(MarketGroupV16HeaderAccount, resolved_payout_ledger),
+        "payoutLedger": fields!(ResolvedPayoutLedgerV16Account;
+            current_payout_rate_num: "u128", current_payout_rate_den: "u128",
+            payout_halted: "bool", finalized: "bool"),
         "configOffset": offset_of!(MarketGroupV16HeaderAccount, config),
         "config": fields!(V16ConfigAccount;
             max_portfolio_assets: "u16", max_market_slots: "u32",
@@ -45,6 +50,12 @@ pub fn export() -> Value {
             reserved_pnl: "u128", fee_credits: "i128", last_fee_slot: "u64",
             active_bitmap: "u64", stale_state: "bool", b_stale_state: "bool",
             rebalance_lock: "bool", liquidation_lock: "bool"),
+        "payoutReceiptOffset": offset_of!(PortfolioAccountV16Account, resolved_payout_receipt),
+        "payoutReceipt": fields!(ResolvedPayoutReceiptV16Account;
+            present: "bool", prior_bound_contribution_num: "u128",
+            live_released_face_at_receipt: "u128", terminal_positive_claim_face: "u128",
+            paid_effective: "u128", finalized: "bool"),
+        "boundScale": BOUND_SCALE.to_string(),
         "legsOffset": offset_of!(PortfolioAccountV16Account, legs),
         "legLength": size_of::<PortfolioLegV16Account>(),
         "legCount": V16_MAX_PORTFOLIO_ASSETS_N,

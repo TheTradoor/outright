@@ -141,6 +141,16 @@
       "name": "initPortfolio"
     },
     {
+      "args": {},
+      "hex": "1e00000000000000000000000000000000",
+      "name": "closeResolved"
+    },
+    {
+      "args": {},
+      "hex": "2e",
+      "name": "claimResolvedPayoutTopup"
+    },
+    {
       "args": {
         "amount": "1000000",
         "expectedSequence": "3",
@@ -277,6 +287,7 @@
       }
     },
     "assetOffset": 512,
+    "boundScale": "1000000000000",
     "config": {
       "initial_margin_bps": {
         "offset": 62,
@@ -453,6 +464,14 @@
         "offset": 557,
         "type": "u64"
       },
+      "payout_snapshot_captured": {
+        "offset": 635,
+        "type": "bool"
+      },
+      "resolved_slot": {
+        "offset": 595,
+        "type": "u64"
+      },
       "risk_epoch": {
         "offset": 517,
         "type": "u64"
@@ -527,6 +546,52 @@
       }
     },
     "oracleFeedsOffset": 224,
+    "payoutLedger": {
+      "current_payout_rate_den": {
+        "offset": 64,
+        "type": "u128"
+      },
+      "current_payout_rate_num": {
+        "offset": 48,
+        "type": "u128"
+      },
+      "finalized": {
+        "offset": 89,
+        "type": "bool"
+      },
+      "payout_halted": {
+        "offset": 88,
+        "type": "bool"
+      }
+    },
+    "payoutLedgerOffset": 636,
+    "payoutReceipt": {
+      "finalized": {
+        "offset": 65,
+        "type": "bool"
+      },
+      "live_released_face_at_receipt": {
+        "offset": 16,
+        "type": "u128"
+      },
+      "paid_effective": {
+        "offset": 48,
+        "type": "u128"
+      },
+      "present": {
+        "offset": 64,
+        "type": "bool"
+      },
+      "prior_bound_contribution_num": {
+        "offset": 0,
+        "type": "u128"
+      },
+      "terminal_positive_claim_face": {
+        "offset": 32,
+        "type": "u128"
+      }
+    },
+    "payoutReceiptOffset": 9353,
     "portfolio": {
       "active_bitmap": {
         "offset": 332,

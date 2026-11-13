@@ -12,6 +12,11 @@ import {
   unpackAccount,
   unpackMint,
 } from "./token.mjs";
+import {
+  isSettlementAction,
+  recordedSettlementPayout,
+  settlementReviewState,
+} from "./settlement.mjs";
 import bs58 from "bs58";
 import {
   buildInstruction,
@@ -463,13 +468,21 @@ export async function readSnapshot(
       "wallet lamports",
     ),
     vaultBalance: vault.amount,
+    recordedSettlementPayout: recordedSettlementPayout(market, portfolio),
   });
 }
 
 export function planAction(profile, snapshot, action, rentLamports = 0) {
-  if (snapshot.market.mode !== "live")
+  const settlement = isSettlementAction(action.type);
+  if (
+    settlement
+      ? snapshot.market.mode !== "resolved"
+      : snapshot.market.mode !== "live"
+  )
     throw new Error(
-      "This client cannot submit in a resolved or recovery market",
+      settlement
+        ? "Settlement requires a resolved market"
+        : "This action requires a live market",
     );
   const common = {
     owner: snapshot.owner,
@@ -535,14 +548,26 @@ export function planAction(profile, snapshot, action, rentLamports = 0) {
   } else {
     const p = snapshot.portfolio;
     if (!p) throw new Error("Create a portfolio first");
-    if (["deposit", "withdraw"].includes(action.type)) {
-      const amount = parseUnits(action.amount, profile.collateral.decimals);
+    if (["deposit", "withdraw"].includes(action.type) || settlement) {
+      const amount = settlement
+        ? null
+        : parseUnits(action.amount, profile.collateral.decimals);
+      if (
+        action.type === "claimResolvedPayoutTopup" &&
+        recordedSettlementPayout(snapshot.market, p) === 0n
+      )
+        throw new Error(
+          "No additional settlement payout is recorded; refresh after market progress",
+        );
       if (
         action.type === "deposit" &&
         (!snapshot.tokenAccountExists || snapshot.tokenBalance < amount)
       )
         throw new Error("Insufficient wallet collateral");
-      if (action.type === "withdraw" && !snapshot.tokenAccountExists) {
+      if (
+        (action.type === "withdraw" || settlement) &&
+        !snapshot.tokenAccountExists
+      ) {
         boundedNumber(
           rentLamports,
           1,
@@ -563,15 +588,21 @@ export function planAction(profile, snapshot, action, rentLamports = 0) {
         buildInstruction(
           profile.program.address,
           action.type,
-          {
-            portfolioId: p.portfolioId,
-            expectedSequence: p.expectedSequence,
-            amount,
-          },
+          settlement
+            ? {}
+            : {
+                portfolioId: p.portfolioId,
+                expectedSequence: p.expectedSequence,
+                amount,
+              },
           common,
         ),
       );
-      summary = `${action.type === "deposit" ? "Deposit" : "Withdraw"} ${action.amount} ${profile.collateral.symbol}`;
+      summary = settlement
+        ? action.type === "closeResolved"
+          ? "Advance resolved-market settlement"
+          : "Claim recorded settlement payout"
+        : `${action.type === "deposit" ? "Deposit" : "Withdraw"} ${action.amount} ${profile.collateral.symbol}`;
     } else if (action.type === "trade") {
       const maker = snapshot.maker,
         configured = profile.maker;
@@ -726,7 +757,8 @@ export class OutrightClient {
       const needsRent =
         action.type === "initialize"
           ? constants.portfolioLength
-          : action.type === "withdraw" && !snapshot.tokenAccountExists
+          : (action.type === "withdraw" || isSettlementAction(action.type)) &&
+              !snapshot.tokenAccountExists
             ? 165
             : 0;
       const rent = needsRent
@@ -740,6 +772,13 @@ export class OutrightClient {
         commitment: "confirmed",
         minContextSlot: snapshot.slot,
       });
+      if (
+        isSettlementAction(action.type) &&
+        (await this.#readReceipt(owner))?.blockhash === recent.value.blockhash
+      )
+        throw new Error(
+          "Wait for a new blockhash before the next settlement step",
+        );
       boundedNumber(
         recent.context.slot,
         snapshot.slot,
@@ -845,6 +884,14 @@ export class OutrightClient {
         (await this.pending(prepared.owner))
       )
         throw new Error("Review expired or another transaction is pending");
+      if (
+        isSettlementAction(prepared.action.type) &&
+        (await this.#readReceipt(prepared.owner))?.blockhash ===
+          stored.blockhash
+      )
+        throw new Error(
+          "Wait for a new blockhash before the next settlement step",
+        );
       const signedBytes = await signTransaction(new Uint8Array(stored.bytes));
       const signed = VersionedTransaction.deserialize(signedBytes);
       const unsigned = VersionedTransaction.deserialize(stored.bytes);
@@ -876,6 +923,12 @@ export class OutrightClient {
       // Recheck the network and deployed code after the wallet prompt. State may
       // move between checks and execution; the program's bindings remain final.
       const fresh = await this.snapshot(prepared.owner);
+      if (
+        isSettlementAction(prepared.action.type) &&
+        settlementReviewState(fresh) !==
+          settlementReviewState(prepared.snapshot)
+      )
+        throw new Error("Settlement state changed; review the action again");
       if (
         prepared.action.type === "trade" &&
         (fresh.market.wrapper.trade_fee_base_bps !==
