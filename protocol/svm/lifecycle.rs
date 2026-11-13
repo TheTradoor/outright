@@ -1648,6 +1648,76 @@ fn custody(env: &V16Svm, portfolio: Pubkey, owner: Pubkey, token: Pubkey) -> Val
 }
 
 #[test]
+fn javascript_failed_deposit_needs_a_new_blockhash_after_source_is_funded() {
+    let config = MarketConfig {
+        actor_deposits: [0; 5],
+        actor_token_balances: [10, 10, 10, 10, 10],
+        ..MarketConfig::default()
+    };
+    let mut env = V16Svm::new([113; 32], config);
+    let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+    let donor = Keypair::from_bytes(&env.actors[1].signer.to_bytes()).unwrap();
+    let portfolio = env.actors[0].portfolio;
+    let source = env.actors[0].source_token;
+    let donor_source = env.actors[1].source_token;
+    let amount = env.token_amount(source) + 1;
+    let vault_before = env.token_amount(env.vault);
+    let supply = env.mint_supply();
+    let p = read(&env, portfolio, owner.pubkey());
+    let deposit = build(
+        &env,
+        "deposit",
+        json!({"portfolioId":p["portfolioId"],
+            "expectedSequence":p["expectedSequence"],"amount":amount.to_string()}),
+        custody(&env, portfolio, owner.pubkey(), source),
+    );
+    let before = snapshot(&env, &[portfolio]);
+    rejected(
+        send(&mut env, deposit.clone(), &[&owner]),
+        2,
+        PercolatorError::InvalidTokenAccount,
+    );
+    assert_unchanged(&env, &before);
+
+    // Fix the funding condition through SPL Token, without touching the market
+    // or portfolio. Re-signing the same message still reuses its failed signature.
+    let transfer = spl_token::instruction::transfer(
+        &spl_token::id(),
+        &donor_source,
+        &source,
+        &donor.pubkey(),
+        &[],
+        1,
+    )
+    .unwrap();
+    send(&mut env, transfer, &[&donor]).unwrap();
+    assert_eq!(env.token_amount(source), amount);
+    let funded = snapshot(&env, &[portfolio]);
+    assert_eq!(
+        send(&mut env, deposit.clone(), &[&owner]).unwrap_err(),
+        TransactionError::AlreadyProcessed,
+    );
+    assert_unchanged(&env, &funded);
+
+    env.svm.expire_blockhash();
+    send(&mut env, deposit.clone(), &[&owner]).unwrap();
+    assert_eq!(env.token_amount(source), 0);
+    assert_eq!(env.token_amount(donor_source), 9);
+    assert_eq!(env.token_amount(env.vault), vault_before + amount);
+    assert_eq!(
+        read(&env, portfolio, owner.pubkey())["capital"],
+        amount.to_string()
+    );
+    assert_eq!(env.mint_supply(), supply);
+    let deposited = snapshot(&env, &[portfolio]);
+    assert_eq!(
+        send(&mut env, deposit, &[&owner]).unwrap_err(),
+        TransactionError::AlreadyProcessed,
+    );
+    assert_unchanged(&env, &deposited);
+}
+
+#[test]
 fn javascript_adapter_executes_init_deposit_open_reduce_close_and_withdraw() {
     let mut config = MarketConfig::default();
     config.initial_price = 150_000_000; // Fixed SOL/USD fixture; not a live oracle test.

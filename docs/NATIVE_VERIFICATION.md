@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 381 JavaScript
-tests, including 26 terminal DOM scenarios, and 16 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 397 JavaScript
+tests, including 27 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Resolved account and market closure](#resolved-account-and-market-closure)
+[Wallet retries after a final result](#wallet-retries-after-a-final-result)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -579,3 +579,40 @@ single-collateral fixture, not every terminal accounting configuration. Booked
 residue burning, native or dual collateral, payout-halt repair, large scans,
 real browser/mobile wallets, public-cluster operation and independent review
 remain outside this verification.
+
+## Wallet retries after a final result
+
+Built on merged commit `97a6baffdb9a24d9c1072fd5d944437d7d3cb188`, with unchanged
+engine, wrapper and dependency pins. The fresh-blockhash rule now applies to
+every wallet action. Previously, portfolio creation, deposit, withdrawal and
+trade could review and sign the same message again after a confirmed failure.
+Failed execution does not advance the portfolio's sequence bindings, so the
+second attempt could reuse the earlier signature and its cached result.
+
+The durable receipt is checked before simulation and again under the wallet
+lock before signing. Rejection preserves the original receipt and does not
+prompt the wallet or broadcast. The policy also requires a new blockhash after
+success and for a changed request. A wallet rejection before receipt persistence
+does not consume a blockhash. There is no automatic replacement or re-signing.
+
+Fifteen client regressions cover the four ordinary actions after confirmed
+failure, lost send responses followed by reconciliation, reload, final receipts
+written by another tab, successful confirmation and wallet rejection. Fourteen
+failed against the previous client; the wallet-rejection control already passed.
+The additional terminal DOM case preserves a failed deposit's receipt, displays
+the blockhash wait and opens a new review only after the RPC advances. These RPC
+fixtures check client behavior and do not execute the engine.
+
+A separate SBF trace starts with ten collateral atoms and requests an eleven-atom
+deposit. The pinned wrapper returns `InvalidTokenAccount` from its source-balance
+check, leaving financial state unchanged. An SPL transfer adds the missing atom.
+The identical deposit still returns `AlreadyProcessed`; advancing the blockhash
+permits one eleven-atom transfer into the vault and portfolio capital. Repeating
+that successful message also returns `AlreadyProcessed`. Mint supply and all
+tracked financial accounts are checked. Fee-payer SOL is excluded from rollback
+comparisons because failed transactions can incur fees.
+
+Verification passes 397 JavaScript tests, including 27 terminal DOM scenarios,
+17 SBF tests, the Rust contract comparison, source checks and the terminal build.
+This covers a local runtime retry path and client safeguards, not public RPC
+reliability, browser-extension compatibility or an independent security review.

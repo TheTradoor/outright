@@ -6,7 +6,7 @@ import { JSDOM } from "jsdom";
 import bs58 from "bs58";
 import contract from "../upstream-contract.json" with { type: "json" };
 import { OutrightClient } from "../src/client.mjs";
-import { fixture, withMaker } from "./support/client-fixture.mjs";
+import { fixture, pub, withMaker } from "./support/client-fixture.mjs";
 import { setSettlement } from "./support/settlement-fixture.mjs";
 import { setRecovery } from "./support/recovery-fixture.mjs";
 
@@ -469,6 +469,73 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
           }
         },
       );
+    await t.test(
+      "a failed deposit keeps its receipt until a fresh blockhash permits a new review",
+      async () => {
+        const latest = f.rpc.getLatestBlockhashAndContext;
+        const sign = f.sign;
+        try {
+          const action = { type: "deposit", amount: "1" };
+          const review = await f.client.prepare(account.address, action);
+          const sent = await f.client.submit(review, f.sign);
+          f.rpc.status = {
+            slot: 123,
+            confirmationStatus: "confirmed",
+            err: { InstructionError: [2, "InvalidArgument"] },
+          };
+          const failed = await f.client.reconcile(account.address);
+          w.localStorage.setItem(
+            "outright.transaction.v1:" + f.client.scope(account.address),
+            JSON.stringify(failed),
+          );
+          await connect();
+          assert.equal(el("receipt-link").textContent, sent.signature);
+          let prompts = 0;
+          f.sign = async (bytes) => {
+            prompts++;
+            return sign(bytes);
+          };
+          const before = f.rpc.sent.length;
+          const form = el("collateral-form");
+          form.elements.namedItem("amount").value = "1";
+          const deposit = form.querySelector('button[value="deposit"]');
+          deposit.click();
+          await until(
+            () =>
+              el("feedback").textContent.includes("new blockhash") &&
+              !el("wallet-button").disabled,
+            "repeat deposit did not report the blockhash wait",
+          );
+          assert.equal(el("review-dialog").open, false);
+          assert.equal(el("receipt-link").textContent, sent.signature);
+          assert.deepEqual(
+            await f.journal.read(f.client.scope(account.address)),
+            failed,
+          );
+          f.rpc.getLatestBlockhashAndContext = async () => ({
+            context: { slot: 123 },
+            value: { blockhash: pub(24).toBase58(), lastValidBlockHeight: 201 },
+          });
+          deposit.click();
+          await until(
+            () => el("review-dialog").open && !el("sign").disabled,
+            "fresh deposit review did not open",
+          );
+          assert.equal(prompts, 0);
+          assert.equal(f.rpc.sent.length, before);
+          assert.equal(el("receipt-link").textContent, sent.signature);
+          el("review-dialog").close();
+        } finally {
+          f.sign = sign;
+          f.rpc.getLatestBlockhashAndContext = latest;
+          f.rpc.status = null;
+          f.records.clear();
+          w.localStorage.clear();
+          if (el("wallet-button").textContent !== "Connect wallet")
+            changed({ accounts: [] });
+        }
+      },
+    );
     await t.test(
       "resolved market offers bounded settlement review and clears it on disconnect",
       async () => {
