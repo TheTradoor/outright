@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Funded local validator](#funded-local-validator)
+[Upstream accounting update](#upstream-accounting-update)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -814,3 +814,23 @@ pinned by SHA-256 in the workflow. These checks do not establish public-cluster
 compatibility, hosted service uptime, mobile-wallet behavior or independent
 security review. Follow [the local market guide](LOCAL_MARKET.md) to reproduce
 the environment.
+
+## Upstream accounting update
+
+The 14 November 2026 (UTC+7) update merges the upstream engine through
+`a712af767eeb217876a3d3c50e3849b60ea54462` and pins the corresponding wrapper
+`357157e6e14d1d10ce78a995d5d50bb3c1f2ae13`. All upstream commits and authors are
+retained. Engine source, specification and tests match the new baseline.
+
+Host validation passed 371 default engine tests, 439 fuzz-feature tests and
+443 JavaScript tests. The engine suites overlap. Rust conformance reproduced
+the checked-in contract exactly; compared with the preceding release, only the
+engine and wrapper revision fields changed. Account layouts and instruction
+bytes did not change. Cargo updated only the wrapper pin in the host lockfile.
+
+The update includes upstream backing-expiry, lien-credit, loss-domain and
+resolved-close fixes. [Upstream sources](UPSTREAM.md) records the affected
+issues. The matching wrapper reports nine deliberately failing tests in its
+broader gates; Outright's passing checks do not supersede those findings or
+constitute independent review. The [mainnet release requirements](MAINNET_RELEASE.md)
+separate verified application behavior from the prerequisites for public funds.

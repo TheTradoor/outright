@@ -5,7 +5,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-percolator-prog = { git = "https://github.com/aeyakovenko/percolator-prog", rev = "b42fe017c2bc953778f90d0cb85cd1d426b6e783", features = ["no-entrypoint"] }
+percolator-prog = { git = "https://github.com/aeyakovenko/percolator-prog", rev = "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13", features = ["no-entrypoint"] }
 percolator = { path = "../.." }
 serde_json = "1.0"
 solana-program = "=1.18.26"

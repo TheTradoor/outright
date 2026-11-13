@@ -1358,6 +1358,14 @@ impl<'a, T> MarketGroupV16ViewMut<'a, T> {
         )
     }
 
+    pub fn kani_book_kf_loss_support_for_source_domain_not_atomic(
+        &mut self,
+        domain: usize,
+        support: u128,
+    ) -> V16Result<()> {
+        self.book_kf_loss_support_for_source_domain_not_atomic(domain, support)
+    }
+
     #[cfg(kani)]
     pub fn kani_leg_kf_delta_for_settlement(
         &self,
@@ -1641,11 +1649,16 @@ impl<'a, T> MarketGroupV16ViewMut<'a, T> {
         Self::resolved_receipt_claimable_against_ledger(receipt, ledger)
     }
 
+    /// `Ok(true)` when one source domain was realized or demoted; `Ok(false)` when no
+    /// claim was processed (none left, or the next one must keep waiting).
     pub fn kani_realize_one_source_domain_for_resolved_close_not_atomic(
         &mut self,
         account: &mut PortfolioV16ViewMut<'_>,
     ) -> V16Result<bool> {
-        self.realize_one_source_domain_for_resolved_close_not_atomic(account)
+        Ok(
+            self.realize_one_source_domain_for_resolved_close_not_atomic(account)?
+                == ResolvedSourceRealizationV16::Processed,
+        )
     }
 
     pub fn kani_create_resolved_payout_receipt_if_needed(

@@ -67,7 +67,7 @@ cargo install cargo-build-sbf --version 4.6.0 --locked
 npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
 
 git clone https://github.com/aeyakovenko/percolator-prog.git ../percolator-prog
-git -C ../percolator-prog checkout --detach b42fe017c2bc953778f90d0cb85cd1d426b6e783
+git -C ../percolator-prog checkout --detach 357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
 bash protocol/svm/run.sh ../percolator-prog
 ```
 

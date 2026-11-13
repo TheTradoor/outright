@@ -284,6 +284,11 @@ available_backing_num =
      - valid_liened_insurance_num
      - impaired_liened_insurance_num)
 
+unliened_claim_bound_num =
+    max(0, positive_claim_bound_num
+           - valid_liened_backing_num
+           - valid_liened_insurance_num)
+
 require available_backing_num >= 0
 require 0 <= credit_rate_num <= CREDIT_RATE_SCALE
 
@@ -291,12 +296,39 @@ if positive_claim_bound_num == 0:
     credit_rate_num = CREDIT_RATE_SCALE only if the engine proves
         no exact, bucketed, pending, unresolved, or recovery claim exists for D;
     otherwise credit_rate_num = 0
+else if available_backing_num == 0:
+    credit_rate_num = 0
+else if available_backing_num >= unliened_claim_bound_num:
+    credit_rate_num = CREDIT_RATE_SCALE
 else:
     credit_rate_num =
-        min(CREDIT_RATE_SCALE,
-            floor(available_backing_num * CREDIT_RATE_SCALE
-                  / positive_claim_bound_num))
+        floor(available_backing_num * CREDIT_RATE_SCALE
+              / unliened_claim_bound_num)
 ```
+
+`credit_rate_num` is the rate at which UN-LIENED claim face is credited, so it is the unliened backing over the claim bound that this backing is still owed to. A valid lien locks at least as much face as the backing it pledges (`required_face_num >= required_backing_num`, §2.2), and locked face is excluded from soft credit and from any further lien, so a lien's pledged backing and the same amount of claim bound leave the rate together. Leaving lien-covered face in the denominator would count a claim that its own lien already covers against the remaining backing a second time: one claimant's lien would then cut the rate of every other claimant of a fully backed domain. The haircut part of a lien created below the full rate (`face_claim_locked - backing_reserved`) stays in `unliened_claim_bound_num`, and impaired liens are not deducted (their backing is forfeited or encumbered while their face is still owed); both only lower the rate. A lien whose locked face is partially burned keeps whole atoms of backing up to the next atom above its remaining face, so locked face covers pledged backing to within one atom per lien; soft credit is floored per claimant and never exceeds `available_backing_num`.
+
+With `total_backing_num = fresh_reserved_backing_num + insurance_credit_reserved_num - impaired_liened_insurance_num`, every state MUST satisfy:
+
+```text
+// no over-credit: liens plus all soft credit on unliened face fit in the backing
+valid_liened_backing_num + valid_liened_insurance_num
+  + floor(credit_rate_num * unliened_claim_bound_num / CREDIT_RATE_SCALE)
+  <= total_backing_num
+
+// a lien cannot cut the rate of a domain whose backing covers its claims
+total_backing_num >= positive_claim_bound_num and available_backing_num > 0
+  => credit_rate_num == CREDIT_RATE_SCALE
+
+// no lien state can lift the rate above the lien-free rate
+credit_rate_num <= min(CREDIT_RATE_SCALE,
+                       floor(total_backing_num * CREDIT_RATE_SCALE
+                             / positive_claim_bound_num))
+```
+
+Creating a lien MUST NOT raise `credit_rate_num`.
+
+The provider exit gate does not follow the lien-aware rate. A withdrawal of unliened counterparty backing MUST leave `available_backing_num >= positive_claim_bound_num`: the unliened backing left behind covers the whole claim bound, lien-covered face included. With no lien outstanding this is exactly "the rate stays full". With liens it is stricter (the rate is already full once total backing covers the claims), so a provider's surplus stays in place by the pledged amount until the liens are released. The gate has always had this watermark; the rate change alters how claims are credited, not what a provider may take out.
 
 `fresh_reserved_backing_num` is actual account equity already locked for that source domain and still inside Fresh backing buckets. It is not an optimistic estimate. It cannot be withdrawn, pledged to another domain, used by another instance, or released without a full account refresh and source-credit recomputation. Expired, impaired, or consumed backing is not available for new credit.
 
@@ -314,7 +346,7 @@ spent_backing_num >= provider_receivable_num
 insurance_credit_reserved_num >= valid_liened_insurance_num + impaired_liened_insurance_num
 ```
 
-Any transition that changes bucket freshness, lien state, or backing consumption MUST update bucket-local and source-domain aggregates in the same atomic instruction or recompute them from bucket state. Bucket expiry, lien consumption, lien release, and lien impairment MUST NOT increase `available_backing_num`, `credit_rate_num`, or lien creation capacity unless new independently proven backing is added.
+Any transition that changes bucket freshness, lien state, or backing consumption MUST update bucket-local and source-domain aggregates in the same atomic instruction or recompute them from bucket state. Bucket expiry, lien consumption, lien release, and lien impairment MUST NOT increase `available_backing_num`, `credit_rate_num`, or lien creation capacity unless new independently proven backing is added. A lien release (the un-pledge of §2.2) returns only the lien's own pledged backing to `fresh_unliened_backing_num`, and with it the same amount of claim bound to `unliened_claim_bound_num`; that is the backing the lien itself removed, not new credit. In a domain whose backing covers its claims the rate is `CREDIT_RATE_SCALE` after the release, as it was before it whenever any backing was unliened, and a release can never lift `credit_rate_num` above the lien-free rate defined above. Bucket expiry and lien impairment remove backing while the affected face returns to `unliened_claim_bound_num`, so they can only lower `credit_rate_num`.
 
 ### 2.1 Claim bounds
 
@@ -450,6 +482,8 @@ Unliened backing in an expired bucket contributes zero. Liened backing in an exp
 3. route the source domain to recovery.
 
 The expiry/impairment transition is aggregate and bounded by bucket id. Individual liens referencing an impaired bucket become impaired by bucket status and settle later through bounded cranks. Impaired lien backing is not available for new credit and does not count toward `available_backing_num`.
+
+The credit-rate reads of a full account refresh are not limited to the source domains the account already holds claims in. A favorable K/F delta on an active leg is credited to that leg's source domain `(asset, opposing_side)`, and the same refresh then reads that domain's rate although the account did not reference the domain before. In Live, the permissionless refresh MUST therefore treat the source domain of every active leg, together with every domain the account holds claims in, as a domain it reads. If the bucket of any of them is still Fresh at or past its expiry slot, the refresh MUST apply rule 2 to it before settlement instead of failing on it, and the account MUST classify as refresh work while such a bucket exists, whether or not its certificate is otherwise current. The discovery is bounded by `N` plus the account's bounded claim set (the reference implementation expires one bucket per call and returns before valuation). It MUST NOT expire a bucket before its expiry slot and MUST NOT select a bucket outside those domains. Owner-initiated operations MAY keep failing closed on such a bucket, because one permissionless crank on the same account removes it. Without this rule an account about to receive its first claim in a lapsed domain can be neither refreshed nor liquidated through any permissionless route.
 
 The instruction MUST prove after expiry by independent recomputation from bucket state:
 ```text
@@ -934,6 +968,10 @@ available_backing_num =
      - valid_liened_insurance_num
      - impaired_liened_insurance_num)
 available_backing_num >= 0
+unliened_claim_bound_num =
+    max(0, positive_claim_bound_num - valid_liened_backing_num - valid_liened_insurance_num)
+credit_rate_num * unliened_claim_bound_num <= available_backing_num * CREDIT_RATE_SCALE
+lien-covered claim face is in neither term of credit_rate_num: while any backing is unliened, a valid lien never lowers the rate of a domain whose total backing covers its claims
 impaired_liened_backing_num and impaired_liened_insurance_num are not counted in available_backing_num
 insurance-backed liens satisfy the same create/consume/release/impair conservation as counterparty-backed liens
 valid_liened_insurance_num and impaired_liened_insurance_num are backed by canonical insurance reservations
@@ -961,6 +999,19 @@ A Recovery forfeit removes the forfeited leg's effective OI from its own side
 only, whether it clears the leg or, while opposite real positions remain, keeps
 it as a zero-basis pending obligation. The Live equality above therefore
 excludes Recovery assets.
+
+Each leg's `effective_pos_q` is rounded up while `A_side` is rounded down, so
+the effective quantities of one side's legs can sum to more than `OI_eff_side`.
+A dead-leg exit (Recovery forfeit or resolved close) therefore removes
+`min(abs(effective_pos_q), OI_eff_side)`, the leg's remaining share of the
+aggregate, and MUST NOT fail because the side carries less. Once `OI_eff_side`
+is zero, a side without pending obligations resets and its remaining legs
+detach as prior-reset obligations. A side that still carries pending
+obligations cannot reset (§9); its remaining current-epoch legs then detach, or
+convert to pending obligations, with a zero effective-OI change. Their loss
+weight is removed or retained exactly as for any other leg. No other
+transition may clear or retain a current-epoch nonzero-basis leg without
+removing at least one effective-OI atom.
 
 When a side reset or leg clear combines two valid sub-atom social-loss carries,
 the sum is normalized modulo `SOCIAL_LOSS_DEN`. Crossing the denominator adds
@@ -1149,6 +1200,12 @@ consume - counterparty cure:    counterparty_backing_principal -= X ;
                                 support_consumed. NO funded-stock debit -> NO
                                 TokenValueFlowProof (pure reclassification, same
                                 proof family as forfeit below)
+consume - K/F loss support:     counterparty_backing_principal -= X in the source
+                                domain ; += X' <= X in the loss domain (the
+                                loss-domain booking rule of section 8) ;
+                                junior_residual_pool += X - X' ; V flat. Pure
+                                reclassification inside the class, proven by the
+                                ReservationEncumbranceProof of both domains
 consume - insurance cure:       I -= X ; junior_residual_pool += X ; V flat ;
                                 partition category: support_consumed ; funded by
                                 an insurance-stock debit -> balanced
@@ -1175,6 +1232,14 @@ The resolved-payout exclusion of `counterparty_backing_principal` from the junio
 Realization EXTENT and no-double-pay are exact. For a domain claim of face `F` backed at credit rate `r`, realization consumes the backed face and credits realizable value `floor(r·F)` to account capital; the consumed face is burned from the account's positive PnL in the SAME step, so it can never also enter the receipt pool. The unbacked shortfall `F − floor(r·F)` is NOT paid to this winner — the realizable-limited thesis holds that unbacked positive PnL is not the winner's value. It is NOT stranded either: the realized face is refined out of the junior bound (`refine_resolved_unreceipted_bound`), so the shortfall returns to `junior_residual_pool` and is redistributed to the remaining junior claimants through the higher post-refine haircut rate. Conservation is exact (verified across the full backing range, including the dust regime, by `backed_winner_close_conserves_across_all_backing_levels`): `total_paid(account) ≤ original_face(account)`, the vault never over-drains or strands, and the close always finalizes (no DoS). Realization is idempotent: a second realization finds the source claims consumed and the backing spent, so it credits zero.
 
 DISTRIBUTION CHARACTERIZATION (not a solvency property; a deliberate design choice): payout is realizable-limited, so it is NOT monotone in backing at the boundary. A claim with zero backing realizes nothing (rate 0 → realize is skipped) and its full face enters the receipt pool, drawing the junior haircut; a claim with dust backing realizes the dust and refines the rest back to the pool, so its OWN payout is ~dust while the rest of its face benefits the other junior claimants. This is the intended consequence of "usable PnL is limited to realizable source-domain backing" — it is conservation-safe and griefer-funded (raising a domain's backing requires the griefer to deposit real atoms via `deposit_fresh_counterparty_backing`, which fund the very payout), not a loss-of-funds or DoS. Order-independence holds for the SNAPSHOT (residual and bound at capture), not for the exact per-account payment, which can depend on whether a lazy receipt realizes before or after a bucket expiry; the snapshot invariance is what the conservation proofs assert. Stripping a claim that was realizable in Live by resolving the market is forbidden. If a deployment instead keeps backing principal inside `C_tot`, it MUST rewrite both the senior-stack relation and the realization steps as intra-`C_tot` transfers (loser `−X`, winner `+X`) and drop `counterparty_backing_principal` as a separate class — but it MUST NOT mix the two models. `settlement_rounding_residue_total` and `unallocated_protocol_surplus` are protocol-owned, non-user-claim value and MUST NOT be used as proof of account health, source-credit backing, insurance credit, hedge collateral, or payout entitlement unless explicitly moved through a balanced `TokenValueFlowProof` and all senior invariants remain true.
+
+**Zero-conversion claims.** A claim whose realizable value `floor(r·F)` is zero whole atoms is demoted to the junior pool once it is final, and waits otherwise. It is final when the bucket is Expired or Impaired; when the claim is impaired; when the bucket is Empty and no loss-side position, stale account or obligation remains; when it is the domain's last claim and no creditor position or obligation remains; or, in general, when the market group is payout-ready and the claim would still convert to zero whole atoms with every lien on the domain's backing released (the rate recomputed with `valid_liened_backing_num` and `valid_liened_insurance_num` at zero). Payout readiness means no stored position, stale account, loss barrier or negative PnL remains anywhere, so no loss can still be booked into any domain; the domain's fresh backing is then all the claim will ever be measured against, and a share below one atom of it rounds to zero for good (§1, divisions round against the account). Such claims retire independently of each other and of every other claimant. If they waited for co-claimants, the co-claimants would wait for them in turn until the bucket lapsed, and a single atom of backing dropped into a domain would be enough to hold all of its claimants that long.
+
+The one remaining wait is for pledged backing. A lien takes its backing out of `available_backing_num`; in a domain whose backing does not cover its claims the rate of the unliened face falls with it (to zero once all of the backing is pledged, §2), so a claim can convert to zero only because a co-claimant has not been closed yet; demoting it then would leave its share to the lien holder. Such a claim keeps its source attribution until the lien holders' closes have released their liens, each a bounded permissionless step.
+
+A wait never rolls back progress. It MUST NOT fail an instruction that has already performed a pre-payout close step in the same call: releasing the account's last source lien, settling and detaching a leg, or advancing the fee anchor. Such an instruction commits the step and returns progress without payout; only a call that changed nothing fails (`LockActive`). In particular, the detach of the market group's last stored leg and every lien release commit. A rolled-back detach keeps the whole group from becoming payout-ready, and a rolled-back release keeps pledged the backing that other claims are waiting for. Either leaves claims waiting on work that was already done, in the worst case until every Fresh bucket has lapsed and claims backed in their own domain are paid at the common junior rate.
+
+Retiring a zero-conversion claim leaves its sub-atom share in the bucket, exactly as every realization leaves the remainder of its floor. That backing raises the rate of the claims realized after it or, when none of them can convert it, stays in the bucket until it lapses into the junior pool. Which claimant converts such a remainder therefore depends on the order of the closes, by less than one atom per claim that preceded it.
 
 Public instructions that do not touch quote-token stock classes MAY rely on a valid prior stock reconciliation plus a balanced zero-value flow proof. Recovery MUST perform direct stock reconciliation before clearing recovery state. A balanced flow proof alone is insufficient if stock classes are not already reconciled.
 
@@ -1423,7 +1488,19 @@ below T's rate, no remaining T claimant's rate falls, no account is credited
 more than its position's PnL, and liened or impaired T face is never netted.
 After that netting, still before support-and-burn: (a) unliened face in any
 other source domain whose credit rate is exactly 1 is realized one for one, its
-counterparty backing (booked as ordinary support consumption) moving to `L`;
+counterparty backing (booked as ordinary support consumption) moving to `L`.
+Unliened face the account holds in `L` itself at credit rate exactly 1 is the
+same case with nothing to move: the claim on `L` and the new debt to `L` are
+the same money, so `min(remaining loss, positive face, whole unliened L claim)`
+of the two cancel one for one (the account's `L` claim, `L`'s claim bound and
+`PNL` fall together) while `L`'s backing is left exactly where it is, where it
+backs the gain this loss pays for. Nothing is consumed (no spent,
+provider-receivable or consumed-lien entry) and nothing reaches the junior
+pool; `L`'s remaining claimants keep rate 1 because claims fall and backing
+does not. No principal moves, so this cancellation does not depend on a
+domain-loss barrier or on `L`'s bucket accepting fresh principal; it is skipped
+only while `L`'s bucket has lapsed without being expired (its stored rate no
+longer holds). Face in `L` below rate 1 is partially backed face under (b);
 (b) if the account holds unliened face in a domain with credit rate below 1,
 the whole remaining loss is paid from free capital directly into `L` backing
 (`C_tot -= x`, `L` principal `+= x`, `V` flat) and that face is kept -- it is
@@ -1432,6 +1509,30 @@ would spend `x / rate` face for `x` of loss and strand the difference in the
 source domain once its losers book. Health is unchanged either way (`C - x +
 P*r` equals `C + (P - x/r)*r`). Only a loss beyond free capital, or one met by
 liened face, takes the support-and-burn path.
+
+Loss-domain booking of consumed support. A K/F loss is owed to `L` whether the
+account pays it from capital or by giving up claims. Counterparty backing that
+the support-and-burn path consumes from the account's own source claims toward
+a K/F loss -- in Live, whatever the netting above left to that path; in
+Resolved mode, where that netting does not run, every K/F loss met by positive
+face -- MUST NOT be left in the junior pool while `L` can take it. The source
+domain books it exactly as ordinary support consumption (spent /
+provider-receivable / consumed lockstep), and the consumed atoms are booked
+for `L` by the same rule that books the capital-paid part of the same loss:
+in Live all of it joins `L` as loser-paid principal (refilling `L`'s provider
+receivable first) unless `L`'s bucket is Impaired; in Resolved mode nothing is
+booked for a terminal domain (Impaired, or no claim and no creditor leg left),
+otherwise `L` takes what the resolved loss-backing capacity allows (the whole
+amount while `L`'s bucket is Fresh, unlapsed and funded; otherwise its support
+gap plus the provider receivable already advanced). Whatever that rule does
+not book stays junior residual, where consumption already put it; `V`,
+`C_tot` and `I` are flat throughout. Insurance-funded support and junior-pool
+(haircut) support are not counterparty backing and are not moved, and nothing
+is taken back out of the junior pool once the resolved payout snapshot is
+captured. Without this a provider in `L` pays the opposite side's gain from
+its principal and is never repaid, and the consumed backing is retired at
+terminal. The face burned by that path, and the rate it is burned at, are
+unchanged.
 
 If full B settlement is too large, partial settlement is allowed. While `B_remaining > 0`, no user-favorable action may continue.
 
@@ -1788,6 +1889,10 @@ resolved-claim, and rebalance-on-touch routes required for user exits.
 102. `per_class_stock_reconciliation_matches_o1_ledgers_where_available`.
 103. `account_kf_settlement_key_roundtrips_and_orders_loss_domain_slot_priority`.
 104. `whole_account_kf_settlement_is_leg_and_account_order_independent`.
+105. `lapsed_backing_in_active_leg_source_domain_expires_in_permissionless_refresh_before_first_claim` (a Fresh bucket at or past expiry in the source domain of an active leg is expired by the Live permissionless refresh of that account before the leg's favorable delta is attributed, one bucket per call after the account's existing claim domains, never before its expiry slot; the account is neither un-refreshable nor un-liquidatable while the bucket waits).
+106. `lien_and_unliened_source_support_sum_capped_by_shared_backing` (a lien holder's reserve plus every other claimant's soft credit fit in the domain backing; in a fully backed domain the lien cuts no other claimant).
+107. `lien_create_release_never_cuts_fully_backed_domain_rate` (creating a lien never raises `credit_rate_num` and leaves it full when the domain's backing covers its claims; releasing it restores the pre-lien state and rate).
+108. `counterparty_backing_withdraw_beside_lien_cannot_underback_claims` (a backing debit that leaves the full rate leaves total backing >= total claims; the provider gate itself keeps `available_backing_num >= positive_claim_bound_num`).
 -------------------------------------------------------------------------------
 15. Audit summary and intended tradeoff
 -------------------------------------------------------------------------------

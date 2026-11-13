@@ -5,7 +5,7 @@ upstream_checkout="${1:?Pass the exact percolator-prog checkout directory}"
 upstream_checkout="$(cd "$upstream_checkout" && pwd)"
 shift
 node "$native_root/protocol/check-source.mjs"
-test "$(git -C "$upstream_checkout" rev-parse HEAD)" = b42fe017c2bc953778f90d0cb85cd1d426b6e783
+test "$(git -C "$upstream_checkout" rev-parse HEAD)" = 357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
 git -C "$upstream_checkout" diff --quiet HEAD
 test -z "$(git -C "$upstream_checkout" ls-files --others --exclude-standard -- src Cargo.toml Cargo.lock .cargo build.rs tests/fixtures/auth_matcher)"
 test -z "${CARGO_TARGET_DIR:-}"
