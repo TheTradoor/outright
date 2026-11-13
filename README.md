@@ -46,7 +46,7 @@ The Rust version is pinned in [rust-toolchain.toml](rust-toolchain.toml).
 These commands test the engine. They do not deploy a program or start a
 trading application.
 
-For the native integration, install Node.js 22 or newer and run:
+For the native integration, install Node.js 22.12 or newer and run:
 
 ```sh
 npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
