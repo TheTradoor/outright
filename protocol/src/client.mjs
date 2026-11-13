@@ -17,6 +17,7 @@ import {
   recordedSettlementPayout,
   settlementReviewState,
 } from "./settlement.mjs";
+import { isRecoveryAction, recoveryPosition } from "./recovery.mjs";
 import bs58 from "bs58";
 import {
   buildInstruction,
@@ -474,20 +475,36 @@ export async function readSnapshot(
     ),
     vaultBalance: vault.amount,
     recordedSettlementPayout: recordedSettlementPayout(market, portfolio),
+    // Recovery can consume accounting not exposed by the display readers.
+    // Bind its review to the complete market and portfolio data, including K/F
+    // checkpoints, source backing and close-progress records.
+    recoveryStateHash: portfolio
+      ? await sha256(
+          Buffer.concat([
+            Buffer.from(marketInfo.data),
+            Buffer.from(portfolioInfo.data),
+          ]),
+        )
+      : null,
   });
 }
 
 export function planAction(profile, snapshot, action, rentLamports = 0) {
   const settlement = isSettlementAction(action.type);
+  const recovery = isRecoveryAction(action.type);
   if (
     settlement
       ? snapshot.market.mode !== "resolved"
-      : snapshot.market.mode !== "live"
+      : recovery
+        ? !["live", "recovery"].includes(snapshot.market.mode)
+        : snapshot.market.mode !== "live"
   )
     throw new Error(
       settlement
         ? "Settlement requires a resolved market"
-        : "This action requires a live market",
+        : recovery
+          ? "Recovery exit requires a live or recovery market"
+          : "This action requires a live market",
     );
   const common = {
     owner: snapshot.owner,
@@ -553,7 +570,36 @@ export function planAction(profile, snapshot, action, rentLamports = 0) {
   } else {
     const p = snapshot.portfolio;
     if (!p) throw new Error("Create a portfolio first");
-    if (["deposit", "withdraw"].includes(action.type) || settlement) {
+    if (recovery) {
+      if (action.acceptForfeiture !== true)
+        throw new Error(
+          "Acknowledge the forfeiture before reviewing a recovery exit",
+        );
+      const position = recoveryPosition(snapshot, action.assetIndex);
+      if (!position)
+        throw new Error(
+          "The selected position is not eligible for recovery exit",
+        );
+      if (action.marketId !== position.market_id.toString())
+        throw new Error(
+          "Recovery asset incarnation changed; select the position again",
+        );
+      const budget = parseUnits(action.budget, profile.collateral.decimals);
+      instructions.push(
+        buildInstruction(
+          profile.program.address,
+          action.type,
+          {
+            portfolioId: p.portfolioId,
+            positionEpoch: p.positionEpoch,
+            assetIndex: action.assetIndex,
+            bDeltaBudget: budget,
+          },
+          common,
+        ),
+      );
+      summary = "Forfeit unbooked gains and advance recovery exit";
+    } else if (["deposit", "withdraw"].includes(action.type) || settlement) {
       const amount = settlement
         ? null
         : parseUnits(action.amount, profile.collateral.decimals);
@@ -778,11 +824,11 @@ export class OutrightClient {
         minContextSlot: snapshot.slot,
       });
       if (
-        isSettlementAction(action.type) &&
+        (isSettlementAction(action.type) || isRecoveryAction(action.type)) &&
         (await this.#readReceipt(owner))?.blockhash === recent.value.blockhash
       )
         throw new Error(
-          "Wait for a new blockhash before the next settlement step",
+          `Wait for a new blockhash before the next ${isRecoveryAction(action.type) ? "recovery" : "settlement"} step`,
         );
       boundedNumber(
         recent.context.slot,
@@ -890,12 +936,13 @@ export class OutrightClient {
       )
         throw new Error("Review expired or another transaction is pending");
       if (
-        isSettlementAction(prepared.action.type) &&
+        (isSettlementAction(prepared.action.type) ||
+          isRecoveryAction(prepared.action.type)) &&
         (await this.#readReceipt(prepared.owner))?.blockhash ===
           stored.blockhash
       )
         throw new Error(
-          "Wait for a new blockhash before the next settlement step",
+          `Wait for a new blockhash before the next ${isRecoveryAction(prepared.action.type) ? "recovery" : "settlement"} step`,
         );
       const signedBytes = await signTransaction(new Uint8Array(stored.bytes));
       const signed = VersionedTransaction.deserialize(signedBytes);
@@ -928,6 +975,12 @@ export class OutrightClient {
       // Recheck the network and deployed code after the wallet prompt. State may
       // move between checks and execution; the program's bindings remain final.
       const fresh = await this.snapshot(prepared.owner);
+      if (
+        isRecoveryAction(prepared.action.type) &&
+        (!prepared.snapshot.recoveryStateHash ||
+          fresh.recoveryStateHash !== prepared.snapshot.recoveryStateHash)
+      )
+        throw new Error("Recovery accounting changed; review the action again");
       if (
         isSettlementAction(prepared.action.type) &&
         settlementReviewState(fresh) !==

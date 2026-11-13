@@ -374,6 +374,165 @@ fn from_js_instruction(out: &Value) -> Instruction {
     }
 }
 
+fn planned_recovery_exit(env: &V16Svm, actor: usize) -> Instruction {
+    let owner = env.actors[actor].signer.pubkey();
+    let group = env.primary_market_state().1;
+    let plan = js(json!({"operation":"planAction", "owner":owner.to_string(),
+        "slot":env.current_slot(),
+        "profile":{"program":{"address":env.program_id.to_string()},"market":env.market.to_string(),
+            "vault":env.vault.to_string(),"collateral":{"mint":env.mint.to_string(),"decimals":6,"symbol":"TEST"}},
+        "marketAccount":account_json(env,env.market),
+        "portfolioAccount":account_json(env,env.actors[actor].portfolio),
+        "action":{"type":"forfeitRecoveryLeg","assetIndex":0,"marketId":group.assets[0].market_id.to_string(),
+            "budget":"0.000001","acceptForfeiture":true}}));
+    assert_eq!(plan["rentLamports"], 0);
+    assert_eq!(plan["instructions"].as_array().unwrap().len(), 1);
+    from_js_instruction(&plan["instructions"][0])
+}
+
+#[test]
+fn wallet_recovery_exit_forfeits_unbooked_gain_applies_loss_and_rejects_stale_consent() {
+    use percolator_prog::ix::CrankObservationHint;
+    let config = MarketConfig {
+        initial_price: 100,
+        maintenance_margin_bps: 1_000,
+        initial_margin_bps: 1_000,
+        max_price_move_bps_per_slot: 500,
+        max_accrual_dt_slots: 1,
+        actor_deposits: [0; 5],
+        ..MarketConfig::default()
+    };
+    let mut env = V16Svm::new_with_asset_count([103; 32], config, 1);
+    env.configure_permissionless_resolve(100, 1).unwrap();
+    // Create the wallet client's deterministic portfolios through System/SBF.
+    for actor in [0, 1] {
+        let owner = Keypair::from_bytes(&env.actors[actor].signer.to_bytes()).unwrap();
+        let plan = js(
+            json!({"operation":"planAction", "owner":owner.pubkey().to_string(),
+            "profile":{"program":{"address":env.program_id.to_string()},"market":env.market.to_string(),
+                "vault":env.vault.to_string(),"collateral":{"mint":env.mint.to_string(),"decimals":6,"symbol":"TEST"}},
+            "marketAccount":account_json(&env,env.market),"action":{"type":"initialize"},
+            "rentLamports":Rent::default().minimum_balance(percolator_prog::constants::PORTFOLIO_ACCOUNT_LEN)}),
+        );
+        let instructions: Vec<_> = plan["instructions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(from_js_instruction)
+            .collect();
+        send_many(&mut env, &instructions, &[&owner]).unwrap();
+        env.actors[actor].portfolio =
+            Pubkey::from_str(plan["portfolio"].as_str().unwrap()).unwrap();
+        env.deposit_primary(actor, 1_000).unwrap();
+    }
+    let supply = env.mint_supply();
+    env.trade_no_cpi(0, 1, 0, 10 * percolator::POS_SCALE as i128, 100, 0)
+        .unwrap();
+    let owner = Keypair::from_bytes(&env.actors[0].signer.to_bytes()).unwrap();
+    let other = Keypair::from_bytes(&env.actors[1].signer.to_bytes()).unwrap();
+    let mut active = build(
+        &env,
+        "forfeitRecoveryLeg",
+        json!({"portfolioId":env.primary_portfolio_id(0).to_string(),
+            "positionEpoch":env.primary_portfolio_position_epoch(0).to_string(),
+            "assetIndex":0,"bDeltaBudget":"1"}),
+        json!({"owner":owner.pubkey().to_string(),"market":env.market.to_string(),"portfolio":env.actors[0].portfolio.to_string()}),
+    );
+    let before = snapshot(&env, &[env.actors[0].portfolio, env.actors[1].portfolio]);
+    rejected(
+        send(&mut env, active.clone(), &[&owner]),
+        2,
+        PercolatorError::EngineLockActive,
+    );
+    assert_unchanged(&env, &before);
+    env.warp_to_slot(2);
+    env.push_auth_mark(0, 2, 105).unwrap();
+    // Accrue with an unrelated empty portfolio, leaving both traders' K/F stale.
+    env.crank(
+        2,
+        2,
+        vec![CrankObservationHint {
+            asset_index: 0,
+            oracle_accounts: 0,
+        }],
+    )
+    .unwrap();
+    assert_eq!(env.primary_market_state().1.assets[0].effective_price, 105);
+    assert_eq!(env.primary_portfolio(0).pnl.get(), 0);
+    assert_eq!(env.primary_portfolio(1).pnl.get(), 0);
+    assert_ne!(
+        env.primary_portfolio(0).legs[0].k_snap.get(),
+        env.primary_market_state().1.assets[0].k_long,
+        "the winner still has an unbooked price gain"
+    );
+    env.shutdown_asset(0, 2).unwrap();
+    env.svm.expire_blockhash();
+    assert_eq!(
+        env.primary_market_state().1.assets[0].lifecycle,
+        percolator::AssetLifecycleV16::Recovery
+    );
+    active = planned_recovery_exit(&env, 0);
+    let before = snapshot(&env, &[env.actors[0].portfolio, env.actors[1].portfolio]);
+    let mut wrong_owner = active.clone();
+    wrong_owner.accounts[0].pubkey = other.pubkey();
+    rejected(
+        send(&mut env, wrong_owner, &[&other]),
+        2,
+        PercolatorError::Unauthorized,
+    );
+    assert_unchanged(&env, &before);
+    let mut stale = active.clone();
+    stale.data[9..17].copy_from_slice(&(env.primary_portfolio_position_epoch(0) + 1).to_le_bytes());
+    rejected(
+        send(&mut env, stale, &[&owner]),
+        2,
+        PercolatorError::EngineProvenanceMismatch,
+    );
+    assert_unchanged(&env, &before);
+    let invalid = Instruction {
+        program_id: env.program_id,
+        accounts: vec![],
+        data: vec![255],
+    };
+    assert_eq!(
+        send_many(&mut env, &[active.clone(), invalid], &[&owner]).unwrap_err(),
+        TransactionError::InstructionError(3, InstructionError::InvalidInstructionData)
+    );
+    assert_unchanged(&env, &before);
+    let custody_before = env.all_token_account_data();
+    let epoch = env.primary_portfolio_position_epoch(0);
+    send(&mut env, active.clone(), &[&owner]).expect("owner-reviewed Recovery gain forfeiture");
+    assert_eq!(env.primary_portfolio_position_epoch(0), epoch + 1);
+    assert_eq!(env.primary_portfolio(0).capital.get(), 1_000);
+    assert_eq!(
+        env.primary_portfolio(0).pnl.get(),
+        0,
+        "the unbooked 50-atom gain is discarded"
+    );
+    env.svm.expire_blockhash();
+    let before = snapshot(&env, &[env.actors[0].portfolio, env.actors[1].portfolio]);
+    rejected(
+        send(&mut env, active, &[&owner]),
+        2,
+        PercolatorError::EngineProvenanceMismatch,
+    );
+    assert_unchanged(&env, &before);
+    let loss = planned_recovery_exit(&env, 1);
+    send(&mut env, loss, &[&other]).expect("owner-reviewed Recovery loss settlement");
+    assert_eq!(
+        env.primary_portfolio(1).capital.get(),
+        950,
+        "a one-atom shared-loss budget does not cap the 50-atom price loss"
+    );
+    assert_eq!(
+        env.all_token_account_data(),
+        custody_before,
+        "forfeit does not transfer tokens"
+    );
+    assert_eq!(env.mint_supply(), supply);
+    eprintln!("JS Recovery exit: 50 atoms forfeited, 50 atoms charged, one-atom B budget; custody unchanged");
+}
+
 fn account_json(env: &V16Svm, address: Pubkey) -> Value {
     match env.svm.get_account(&address) {
         Some(a) => {

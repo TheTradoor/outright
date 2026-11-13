@@ -580,6 +580,25 @@ td {
 .account-panel .field-note {
   margin-bottom: 22px;
 }
+.recovery-panel {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid #45484a;
+}
+.recovery-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 18px 0;
+  color: #e3dfd6;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.recovery-consent input {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  accent-color: #e3dfd6;
+}
 #initialize {
   margin-bottom: 18px;
 }

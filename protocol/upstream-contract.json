@@ -141,6 +141,16 @@
       "name": "initPortfolio"
     },
     {
+      "args": {
+        "assetIndex": 258,
+        "bDeltaBudget": "340282366920938463463374607431768211455",
+        "portfolioId": "9007199254740993",
+        "positionEpoch": "562949953421311"
+      },
+      "hex": "2b0100000000002000ffffffffffff01000201ffffffffffffffffffffffffffffffff",
+      "name": "forfeitRecoveryLeg"
+    },
+    {
       "args": {},
       "hex": "1e00000000000000000000000000000000",
       "name": "closeResolved"

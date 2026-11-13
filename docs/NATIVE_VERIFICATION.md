@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 262 JavaScript
-tests, including 18 DOM cases, and 14 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 287 JavaScript
+tests, including 21 DOM cases, and 15 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,8 +10,8 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Resolved keeper and restart protection](#resolved-keeper-and-restart-protection)
-for the latest coverage, and the preceding section for dependency changes.
+[Owner-reviewed Recovery exits](#owner-reviewed-recovery-exits) for the latest
+coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
 
@@ -374,3 +374,44 @@ missing ATAs and payout halts without starving other configured targets. Full
 market discovery, asset Recovery exits, payout-halt repair, market teardown,
 multi-asset insolvency stress and hosted operation remain unfinished. There is
 still no public deployment or independent audit.
+
+## Owner-reviewed Recovery exits
+
+The wallet planner and terminal now expose `ForfeitRecoveryLeg` for an eligible
+retained position. The wire fixture comes from the pinned Rust encoder and
+includes a large portfolio ID, the maximum position epoch and a full-width
+shared-loss budget. The client requires explicit forfeiture consent, binds the
+selected asset incarnation and rejects active live exposure. The terminal keeps
+ordinary trading and settlement controls separate from the Recovery action.
+
+The new SBF test creates deterministic portfolios through System and program
+instructions, deposits 1,000 atoms for each counterparty, opens ten units at 100,
+and advances the mark to 105 through a public crank on another portfolio. Neither
+trader has refreshed that price change. After public asset shutdown, the planner
+discards the winner's 50-atom unbooked gain and applies the loser's 50-atom loss.
+The resulting capital is 1,000 and 950 atoms. Both actions use a one-atom B-loss
+budget, demonstrating that it does not cap price losses. The actions transfer no
+tokens and preserve mint supply.
+
+Live exposure, the wrong owner and a stale position epoch reject with exact
+program errors. A later invalid instruction rolls back the forfeiture and all
+tracked financial state. A successful step increments the position epoch;
+replaying the earlier consent with a fresh blockhash rejects. These tests do not
+claim that a forfeiture completes the market's Recovery process.
+
+RPC tests cover admission, explicit consent, asset identity, exact amount
+encoding, unchanged instruction custody, reconciliation and duplicate prevention
+after a failed transaction and client reload. The complete market and portfolio
+data are hashed during review and checked again after signing, so changes in
+accounting omitted from UI projections also invalidate review. State can still
+change after that read and before execution.
+
+The 21 DOM cases include Recovery consent, loss-budget wording, disconnect
+cleanup and suppression of forfeiture for ordinary live positions. A profile
+with unsupported collateral decimals is rejected without replacing the active
+profile. Six-decimal classic SPL collateral remains the only supported scale.
+These are DOM tests, not browser rendering or wallet-extension verification.
+
+Payout-halt repair, broader multi-asset insolvency, complete teardown, hosted
+services and public-cluster validation remain open. Engine and wrapper pins are
+unchanged; no public funds or deployment are involved in these tests.

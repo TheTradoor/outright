@@ -107,8 +107,17 @@ The resolved fixtures adapt the pinned wrapper's INV-067 late-backing trace.
 Every economic transition uses public instructions. The wallet case uses an
 upstream backing-discovery step; the keeper case executes the JavaScript planner
 for discovery and payouts. The operator path is opt-in and services configured
-targets and asset hints only. Asset Recovery forfeits, general insolvency stress
-and complete market teardown remain outside this client's coverage.
+targets and asset hints only. General insolvency stress and complete market
+teardown remain outside this client's coverage.
+
+The Recovery exit fixture creates deterministic wallet portfolios, funds them,
+opens a matched position, moves the mark and shuts down the asset through public
+instructions. The wallet planner forfeits a 50-atom unbooked gain and settles the
+counterparty's 50-atom price loss. Its one-atom shared-loss budget is not a total
+loss cap. Live exposure, unauthorized ownership and stale position consent
+reject; a later instruction failure rolls back the exit. Custody and mint supply
+remain unchanged by the successful forfeitures. This trace does not establish
+complete Recovery payout or market teardown.
 
 Local VM results do not establish current-cluster compatibility or approve a
 production binary. Program deployment, funded liquidity, market limits, and
