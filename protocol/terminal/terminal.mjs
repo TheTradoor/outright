@@ -40,6 +40,21 @@ function invalidateReview() {
   review = null;
   if ($("review-dialog").open) $("review-dialog").close();
 }
+function clearSnapshot(message = "Not connected") {
+  snapshot = null;
+  prices.clear();
+  for (const id of ["wallet-balance", "capital", "pnl"]) setText(id, message);
+  for (const id of ["price", "oi-long", "oi-short"])
+    setText(id, "Not available");
+  setText("market-title", "Select a market");
+  setText("market-state", "Offline");
+  setText("maker-state", "Unavailable");
+  setText("snapshot-label", "No chain snapshot");
+  $("asset-select").replaceChildren();
+  $("chart-empty").hidden = false;
+  renderPositions([]);
+  drawChart();
+}
 function controls() {
   const ready = Boolean(client && account && snapshot && !busy && !loading);
   $("wallet-button").disabled = busy;
@@ -52,7 +67,9 @@ function controls() {
   $("trade-review").disabled =
     !ready ||
     !snapshot?.portfolio ||
-    !snapshot?.maker ||
+    !snapshot?.maker?.matcherEnabled ||
+    snapshot.maker.matcherExpirySlot <= BigInt(snapshot.slot) ||
+    selectedAsset()?.lifecycle !== "active" ||
     snapshot.market.mode !== "live";
   $("asset-select").disabled = !client || !snapshot || busy;
   $("sign").disabled = busy || !review;
@@ -75,23 +92,16 @@ function resetWallet() {
   stopWalletEvents?.();
   stopWalletEvents = null;
   generation++;
+  loading = false;
   wallet = null;
   account = null;
-  snapshot = null;
   invalidateReview();
-  prices.clear();
+  clearSnapshot();
   setText("wallet-button", "Connect wallet");
-  for (const id of ["wallet-balance", "capital", "pnl"])
-    setText(id, "Not connected");
-  setText("price", "Not available");
-  setText("oi-long", "Not available");
-  setText("oi-short", "Not available");
-  setText("market-state", "Offline");
-  setText("snapshot-label", "No chain snapshot");
-  setText("position-count", "0");
-  $("chart-empty").hidden = false;
-  renderPositions([]);
-  drawChart();
+  setText(
+    "footer-state",
+    client ? `${client.profile.cluster} profile loaded` : "Awaiting deployment",
+  );
   controls();
   renderReceipt(null);
 }
@@ -100,6 +110,12 @@ function renderReceipt(record) {
   $("reconcile").hidden =
     !record || ["confirmed", "finalized", "failed"].includes(record.status);
   if (!record) {
+    $("receipt-link").removeAttribute("href");
+    setText("receipt-link", "");
+    setText(
+      "receipt-note",
+      "Transaction receipts stay in this browser. Keep your signature until confirmation is known.",
+    );
     setText("receipt-state", "No transaction submitted");
     setText(
       "receipt-description",
@@ -148,7 +164,9 @@ function renderPositions(positions) {
     cell.className = "empty-cell";
     cell.textContent = snapshot
       ? "No active positions in this portfolio."
-      : "Connect a wallet to read your portfolio.";
+      : account
+        ? "Portfolio data is unavailable. Refresh to try again."
+        : "Connect a wallet to read your portfolio.";
     return;
   }
   for (const p of positions) {
@@ -174,20 +192,12 @@ function renderPositions(positions) {
   }
 }
 function selectedAsset() {
-  return snapshot?.market.assets[Number($("asset-select").value)];
+  const value = $("asset-select").value;
+  return value === "" ? undefined : snapshot?.market.assets[Number(value)];
 }
 function renderMarket() {
   const asset = selectedAsset();
-  if (!snapshot || !asset) return;
-  setText("price", units(asset.effective_price));
-  setText("oi-long", units(asset.oi_eff_long_q));
-  setText("oi-short", units(asset.oi_eff_short_q));
-  setText(
-    "market-title",
-    client.profile.assets.find((a) => a.index === asset.index)?.symbol ||
-      `Asset ${asset.index}`,
-  );
-  setText("market-state", `${snapshot.market.mode} / ${asset.lifecycle}`);
+  if (!snapshot) return;
   setText("snapshot-label", `Confirmed snapshot / slot ${snapshot.slot}`);
   setText("footer-state", `${client.profile.cluster} connected`);
   setText("wallet-balance", units(snapshot.tokenBalance));
@@ -210,13 +220,33 @@ function renderMarket() {
         ? "Verification failed"
         : "Unavailable",
   );
+  renderPositions(snapshot.positions);
+  if (!asset) {
+    prices.clear();
+    for (const id of ["price", "oi-long", "oi-short"])
+      setText(id, "Not available");
+    setText("market-title", "No enabled assets");
+    setText("market-state", snapshot.market.mode);
+    $("chart-empty").hidden = false;
+    drawChart();
+    controls();
+    return;
+  }
+  setText("price", units(asset.effective_price));
+  setText("oi-long", units(asset.oi_eff_long_q));
+  setText("oi-short", units(asset.oi_eff_short_q));
+  setText(
+    "market-title",
+    client.profile.assets.find((a) => a.index === asset.index)?.symbol ||
+      `Asset ${asset.index}`,
+  );
+  setText("market-state", `${snapshot.market.mode} / ${asset.lifecycle}`);
   const points = prices.get(asset.index) || [];
   if (!points.length || points.at(-1).slot !== snapshot.slot)
     points.push({ slot: snapshot.slot, value: asset.effective_price });
   prices.set(asset.index, points.slice(-120));
   $("chart-empty").hidden = points.length > 0;
   drawChart();
-  renderPositions(snapshot.positions);
   controls();
 }
 function drawChart() {
@@ -290,13 +320,16 @@ async function refresh() {
     if (current === generation) renderReceipt(record);
   } catch (error) {
     if (current === generation) {
-      snapshot = null;
+      invalidateReview();
+      clearSnapshot("Not available");
       setText("footer-state", "Connection needs attention");
       notice(error.message, true);
     }
   } finally {
-    loading = false;
-    controls();
+    if (current === generation) {
+      loading = false;
+      controls();
+    }
   }
 }
 async function loadProfile(input) {
@@ -338,6 +371,13 @@ function compatible(w) {
     )
   );
 }
+function supportsAccount(a) {
+  return (
+    a.features.includes("solana:signTransaction") &&
+    (client.profile.cluster === "localnet" ||
+      a.chains.includes("solana:devnet"))
+  );
+}
 function showWallets() {
   const list = $("wallet-list");
   list.replaceChildren();
@@ -355,12 +395,7 @@ function showWallets() {
     button.addEventListener("click", () =>
       action(async () => {
         const connected = await w.features["standard:connect"].connect();
-        const accounts = connected.accounts.filter(
-          (a) =>
-            a.features.includes("solana:signTransaction") &&
-            (client.profile.cluster === "localnet" ||
-              a.chains.includes("solana:devnet")),
-        );
+        const accounts = connected.accounts.filter(supportsAccount);
         if (!accounts.length)
           throw new Error(
             "Choose an account that supports this network and transaction signing",
@@ -394,7 +429,7 @@ async function selectAccount(w, a) {
       invalidateReview();
       if (event.accounts) {
         const next = event.accounts.find((v) => v.address === account?.address);
-        if (!next) {
+        if (!next || !supportsAccount(next)) {
           resetWallet();
           notice(
             "Wallet account changed. Reconnect the account you want to use.",
@@ -402,6 +437,9 @@ async function selectAccount(w, a) {
         } else {
           account = next;
           generation++;
+          loading = false;
+          clearSnapshot("Refreshing");
+          setText("footer-state", "Refreshing wallet account");
           void refresh();
         }
       }
@@ -485,8 +523,8 @@ $("wallet-button").addEventListener("click", () => {
 registry.on("register", () => {
   if ($("wallet-dialog").open) showWallets();
 });
-registry.on("unregister", (w) => {
-  if (w === wallet) resetWallet();
+registry.on("unregister", (...wallets) => {
+  if (wallets.includes(wallet)) resetWallet();
   if ($("wallet-dialog").open) showWallets();
 });
 $("asset-select").addEventListener("change", () => {
