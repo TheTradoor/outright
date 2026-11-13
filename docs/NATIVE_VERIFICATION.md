@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 14 November 2026 (UTC+7): the source and Rust
-contract checks and terminal build passed. The client now has 419 JavaScript
-tests, including 49 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 427 JavaScript
+tests, including 53 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Submission progress and receipt recovery](#submission-progress-and-receipt-recovery)
+[Cross-tab receipt consistency](#cross-tab-receipt-consistency)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -713,3 +713,34 @@ JavaScript tests pass, including 49 terminal DOM scenarios. The 17-case SBF
 suite, engine, wrapper, account layouts, transaction instructions and dependency
 pins are unchanged. These are not real-wallet, physical-mobile, public-cluster
 or independent-security-audit results.
+
+## Cross-tab receipt consistency
+
+Built on merged commit `7d4effda174c31450315c6a530ea07ab96ebabca`. Another tab
+could advance a transaction receipt while an account snapshot was in flight.
+The older response could still become actionable, and the terminal could pair
+it with the newer receipt. A separate race after a submission error could hide
+the saved signature if another tab had already confirmed or failed it.
+
+The client now rereads the receipt after account RPC reads and applies its
+minimum and landing slots before returning a snapshot. The terminal also checks
+the receipt read used for display before rendering balances or enabling actions.
+A newer receipt remains visible while stale balances are cleared; refreshing
+with a sufficiently recent response restores the controls. Submission recovery
+uses the latest validated receipt, including final results, while the existing
+pending-transaction gate continues to block only unresolved receipts.
+
+Four client regressions share one durable journal between separate client
+instances and advance pending, confirmed, finalized or failed receipts while
+holding an older account read. Four terminal regressions cover a later display
+receipt and recovery after another tab confirms, finalizes or fails a submitted
+transaction. All eight fail against the preceding implementation and pass after
+the fix. They preserve the original signature and do not send another transaction.
+The prior delayed-recovery test now holds the complete receipt read and continues
+to verify that an obsolete result cannot restore a disconnected wallet session.
+
+The source checks, Rust contract comparison, terminal build and all 427
+JavaScript tests pass, including 53 terminal DOM scenarios. Engine, wrapper,
+transaction instructions, account layouts, dependency pins and the 17-case SBF
+suite are unchanged. These deterministic tests do not establish real-wallet,
+physical-mobile or public-cluster compatibility, or replace an independent audit.
