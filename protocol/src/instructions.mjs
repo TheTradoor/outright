@@ -216,6 +216,35 @@ export function buildInstruction(program, name, args, a) {
         throw new Error("Crank identities must differ");
       if (a.oracleAccounts.some((v) => reserved.includes(key(v).toBase58())))
         throw new Error("Oracle account aliases a crank identity");
+      if (a.resolvedPayout !== undefined) {
+        if (expected !== 0 || args.observations.length > 1)
+          throw new Error(
+            "Resolved cranks accept one backing hint and no oracle accounts",
+          );
+        const { userToken, vault } = a.resolvedPayout;
+        const authority = vaultAuthority(program, a.market);
+        const addresses = [
+          ...reserved,
+          userToken,
+          vault,
+          authority,
+          TOKEN_PROGRAM_ID,
+        ].map((v) => key(v).toBase58());
+        if (new Set(addresses).size !== addresses.length)
+          throw new Error(
+            "Resolved payout accounts must not alias crank identities",
+          );
+        keys = [
+          meta(a.owner),
+          meta(a.market, false, true),
+          meta(a.portfolio, false, true),
+          meta(userToken, false, true),
+          meta(vault, false, true),
+          meta(authority),
+          meta(TOKEN_PROGRAM_ID),
+        ];
+        break;
+      }
       keys = [
         meta(a.owner, true),
         meta(a.market, false, true),

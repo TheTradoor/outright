@@ -32,7 +32,8 @@ pub fn export() -> Value {
             min_nonzero_im_req: "u128", liquidation_fee_bps: "u64"),
         "wrapper": fields!(state::WrapperConfigV16;
             marketauth: "key", collateral_mint: "key", secondary_collateral_mint: "key",
-            trade_fee_base_bps: "u64", maintenance_fee_per_slot: "u128"),
+            trade_fee_base_bps: "u64", maintenance_fee_per_slot: "u128",
+            force_close_delay_slots: "u64"),
         "assetOffset": offset_of!(Market<[u8; c::ASSET_ORACLE_WRAPPER_LEN]>, engine)
             + offset_of!(EngineAssetSlotV16Account, asset),
         "asset": fields!(AssetStateV16Account;

@@ -11,7 +11,10 @@ import {
 import { planCrank } from "../src/keeper.mjs";
 import { recordedSettlementPayout } from "../src/settlement.mjs";
 import { PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "../src/token.mjs";
+import {
+  getAssociatedTokenAddressSync,
+  createAssociatedTokenAccountIdempotentInstruction,
+} from "../src/token.mjs";
 
 const wireInstruction = (ix) => ({
   programId: ix.programId.toBase58(),
@@ -22,7 +25,22 @@ const account = (value) => value && { ...value, data: Buffer.from(value.data) };
 
 const input = JSON.parse(readFileSync(0, "utf8"));
 let result;
-if (input.operation === "readPortfolio") {
+if (input.operation === "createPayoutAta") {
+  const owner = new PublicKey(input.owner),
+    mint = new PublicKey(input.mint);
+  const ata = getAssociatedTokenAddressSync(mint, owner, true);
+  result = {
+    address: ata.toBase58(),
+    instruction: wireInstruction(
+      createAssociatedTokenAccountIdempotentInstruction(
+        new PublicKey(input.payer),
+        ata,
+        owner,
+        mint,
+      ),
+    ),
+  };
+} else if (input.operation === "readPortfolio") {
   result = readPortfolio(
     { ...input.account, data: Buffer.from(input.account.data) },
     input.expected,
@@ -67,7 +85,12 @@ if (input.operation === "readPortfolio") {
   result = wireInstruction(
     planCrank(
       input.config,
-      { market, portfolio, slot: input.slot },
+      {
+        market,
+        portfolio,
+        slot: input.slot,
+        payoutTokenExists: Boolean(input.payoutTokenAccount),
+      },
       input.discoveryIndex,
     ),
   );

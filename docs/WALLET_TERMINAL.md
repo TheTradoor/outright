@@ -215,4 +215,7 @@ Refresh after each confirmed step. A zero-due claim is disabled; an accounting
 close can still be necessary. The terminal does not declare a portfolio fully
 settled or automatically repeat transactions. Expiring backing, resolving
 engine payout halts, asset Recovery forfeits and market teardown still require
-operator tooling. The current keeper rejects resolved-market targets.
+operator tooling. The keeper now supports backing discovery and bounded resolved
+settlement when configured with `settleResolved: true`. It requires an existing
+owner payout ATA and waits for the program's permissionless-close delay. Payout
+halts, asset Recovery forfeits and account teardown remain outside that worker.

@@ -105,7 +105,7 @@ The state directory must be private, durable and used by exactly one worker.`);
 main().catch((error) => {
   // Do not echo RPC response bodies, key material or credential-bearing URLs.
   const safe =
-    /^(Keeper|Crank|Market|Portfolio|Asset|On-chain|Oracle|Resolved|Sending|Transaction|Invalid|Unsupported|Configure|Duplicate|Devnet|Use |Unknown|Missing|--)/.test(
+    /^(Keeper|Crank|Market|Portfolio|Asset|On-chain|Oracle|Resolved|Sending|Transaction|Collateral|Token|Invalid|Unsupported|Configure|Duplicate|Devnet|Use |Unknown|Missing|--)/.test(
       error.message,
     );
   console.error(

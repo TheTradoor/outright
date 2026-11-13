@@ -33,6 +33,62 @@ for (const f of contract.fixtures)
   });
 const sample = (name) =>
   structuredClone(contract.fixtures.find((f) => f.name === name).args);
+
+test("resolved crank rejects oracle tails, multiple discovery hints and custody aliases", () => {
+  const key = (n) => new PublicKey(Buffer.alloc(32, n));
+  const args = {
+    nowSlot: "10",
+    observations: [{ assetIndex: 0, oracleAccounts: 0 }],
+  };
+  const accounts = {
+    owner: key(1),
+    market: key(2),
+    portfolio: key(3),
+    oracleAccounts: [],
+    resolvedPayout: { userToken: key(4), vault: key(5) },
+  };
+  assert.throws(
+    () =>
+      buildInstruction(
+        key(9),
+        "permissionlessCrank",
+        {
+          ...args,
+          observations: [
+            ...args.observations,
+            { assetIndex: 1, oracleAccounts: 0 },
+          ],
+        },
+        accounts,
+      ),
+    /one backing hint/,
+  );
+  assert.throws(
+    () =>
+      buildInstruction(
+        key(9),
+        "permissionlessCrank",
+        { ...args, observations: [{ assetIndex: 0, oracleAccounts: 1 }] },
+        { ...accounts, oracleAccounts: [key(6)] },
+      ),
+    /no oracle/,
+  );
+  for (const alias of [
+    accounts.owner,
+    accounts.market,
+    accounts.portfolio,
+    accounts.resolvedPayout.vault,
+    TOKEN_PROGRAM_ID,
+  ])
+    assert.throws(
+      () =>
+        buildInstruction(key(9), "permissionlessCrank", args, {
+          ...accounts,
+          resolvedPayout: { ...accounts.resolvedPayout, userToken: alias },
+        }),
+      /alias/,
+    );
+});
 for (const name of ["tradeNoCpi", "tradeCpi"]) {
   test(`${name} rejects the signed minimum that the program cannot negate`, () => {
     assert.throws(

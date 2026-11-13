@@ -248,7 +248,13 @@ export async function verifyProgram(program, data, pin) {
     );
 }
 
-function tokenAccount(info, address, mint, owner, vault = false) {
+export function readTokenAccount(
+  info,
+  address,
+  mint,
+  owner,
+  unencumbered = false,
+) {
   if (
     !info ||
     info.executable ||
@@ -263,10 +269,22 @@ function tokenAccount(info, address, mint, owner, vault = false) {
     !same(a.mint, mint) ||
     !same(a.owner, owner) ||
     a.isNative ||
-    (vault && (a.delegate || a.closeAuthority))
+    (unencumbered && (a.delegate || a.closeAuthority))
   )
     throw new Error("Token account authority, mint, or state mismatch");
   return a;
+}
+
+export function verifyCollateralMint(info, collateral) {
+  const mint = unpackMint(key(collateral.mint), info, TOKEN_PROGRAM_ID);
+  if (
+    !mint.isInitialized ||
+    mint.decimals !== collateral.decimals ||
+    (mint.mintAuthority?.toBase58() ?? null) !== collateral.mintAuthority ||
+    (mint.freezeAuthority?.toBase58() ?? null) !== collateral.freezeAuthority
+  )
+    throw new Error("Collateral mint configuration changed");
+  return mint;
 }
 
 // Anyone can transfer SOL to the deterministic address before its owner opens
@@ -365,21 +383,8 @@ export async function readSnapshot(
     !same(mintInfo.owner, TOKEN_PROGRAM_ID)
   )
     throw new Error("Unsupported collateral mint");
-  const mint = unpackMint(
-    key(profile.collateral.mint),
-    mintInfo,
-    TOKEN_PROGRAM_ID,
-  );
-  if (
-    !mint.isInitialized ||
-    mint.decimals !== profile.collateral.decimals ||
-    (mint.mintAuthority?.toBase58() ?? null) !==
-      profile.collateral.mintAuthority ||
-    (mint.freezeAuthority?.toBase58() ?? null) !==
-      profile.collateral.freezeAuthority
-  )
-    throw new Error("Collateral mint configuration changed");
-  const vault = tokenAccount(
+  verifyCollateralMint(mintInfo, profile.collateral);
+  const vault = readTokenAccount(
     vaultInfo,
     profile.vault,
     profile.collateral.mint,
@@ -389,7 +394,7 @@ export async function readSnapshot(
   if (vault.amount < market.vault)
     throw new Error("Vault token balance is below recorded custody");
   const user = userTokenInfo
-    ? tokenAccount(userTokenInfo, userToken, profile.collateral.mint, owner)
+    ? readTokenAccount(userTokenInfo, userToken, profile.collateral.mint, owner)
     : null;
   if (
     walletInfo &&

@@ -49,7 +49,7 @@ wallet requirements, transaction states, and current limits.
 | Resolved settlement | Owner-signed bounded close steps and additional receipt payouts; creates a missing destination ATA atomically |
 | Matcher trade | Immediate bounded-price CPI trade against a configured, funded maker |
 | Bilateral trade | Low-level instruction builder; both owners must sign |
-| Permissionless crank | Bounded localnet/devnet worker for configured portfolios and oracle accounts |
+| Permissionless crank | Bounded localnet/devnet worker; resolved backing discovery and payouts require `settleResolved: true` and an existing owner ATA |
 
 Amounts remain integer values. `parseUnits` rejects excess precision, scientific
 notation, zero amounts, and SPL Token overflow. Displayed capital and recorded
@@ -69,7 +69,9 @@ against the compiled wrapper and SPL Token. They cover the bilateral lifecycle,
 atomic allocation and ATA creation, bounded CPI execution, revoked maker
 consent, account-binding failures, fractional funding, bounded partial
 liquidation, underfunded resolved settlement and rollback. The resolved fixture
-checks a later payout after backing expires and rejects duplicate payment.
+checks a later payout after backing expires and rejects duplicate payment. A
+separate trace runs discovery and payouts through the keeper planner without an
+owner signature, including rejection of a forged slot before the close delay.
 Funding uses a controlled AuthMark fixture; the
 operator's liquidation test uses synthetic Pyth observations. The CPI matcher
 is an upstream test fixture. These are local execution tests, not public-cluster
