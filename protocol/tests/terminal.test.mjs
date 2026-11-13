@@ -237,6 +237,191 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
       );
       await connect();
     }
+    const choose = (candidate = wallet) => {
+      el("wallet-button").click();
+      [...el("wallet-list").querySelectorAll("button")]
+        .find((b) => b.textContent === candidate.name)
+        .click();
+    };
+    const choiceSettled = () =>
+      until(
+        () => !el("wallet-button").disabled,
+        "wallet choice did not settle",
+      );
+    const choiceError = (pattern) => {
+      const error = el("wallet-dialog").querySelector('[role="alert"]');
+      assert.ok(
+        error && !error.hidden,
+        "connection error must be inside the open chooser",
+      );
+      assert.match(error.textContent, pattern);
+      assert.equal(el("wallet-dialog").open, true);
+      assert.equal(el("wallet-button").textContent, "Connect wallet");
+    };
+    const choiceCase = (name, work) =>
+      t.test(name, { timeout: 15_000 }, async () => {
+        changed({ accounts: [] });
+        const previousConnect = wallet.features["standard:connect"].connect;
+        const previousAccounts = wallet.accounts;
+        const sent = f.rpc.sent.length;
+        try {
+          await work();
+        } finally {
+          wallet.features["standard:connect"].connect = previousConnect;
+          wallet.accounts = previousAccounts;
+          if (el("wallet-dialog").open) el("wallet-dialog").close();
+          changed({ accounts: [] });
+          await choiceSettled();
+          assert.equal(
+            f.rpc.sent.length,
+            sent,
+            "wallet selection must not send a transaction",
+          );
+        }
+      });
+    await choiceCase(
+      "wallet connection rejection is visible in the chooser and retry succeeds",
+      async () => {
+        const connectWallet = wallet.features["standard:connect"].connect;
+        wallet.features["standard:connect"].connect = async () => {
+          throw new Error("Connection rejected by wallet");
+        };
+        choose();
+        await choiceSettled();
+        choiceError(/Connection rejected by wallet/);
+        wallet.features["standard:connect"].connect = connectWallet;
+        [...el("wallet-list").querySelectorAll("button")]
+          .find((b) => b.textContent === wallet.name)
+          .click();
+        await choiceSettled();
+        assert.equal(el("wallet-dialog").open, false);
+        assert.equal(el("price").textContent, "150");
+        assert.equal(el("wallet-error").hidden, true);
+      },
+    );
+    for (const rejected of [false, true])
+      await choiceCase(
+        `closing wallet selection ignores a late ${rejected ? "rejection" : "approval"}`,
+        async () => {
+          let resolve, reject;
+          const pending = new Promise((yes, no) => {
+            resolve = yes;
+            reject = no;
+          });
+          wallet.features["standard:connect"].connect = () => pending;
+          try {
+            choose();
+            el("wallet-dialog").close();
+            if (rejected) reject(new Error("Late connection rejection"));
+            else resolve({ accounts: [account] });
+            await choiceSettled();
+            assert.equal(el("wallet-button").textContent, "Connect wallet");
+            assert.equal(el("wallet-dialog").open, false);
+            assert.equal(
+              el("feedback").hidden,
+              true,
+              "canceled connection must not overwrite current feedback",
+            );
+            unavailable();
+          } finally {
+            resolve({ accounts: [account] });
+            await choiceSettled();
+          }
+        },
+      );
+    await choiceCase(
+      "an unregistered wallet cannot attach after its connection resolves",
+      async () => {
+        let resolve;
+        const pending = new Promise((yes) => {
+          resolve = yes;
+        });
+        const candidate = {
+          ...wallet,
+          name: "Removed wallet",
+          features: {
+            ...wallet.features,
+            "standard:connect": { version: "1.0.0", connect: () => pending },
+          },
+        };
+        const remove = registry.register(candidate);
+        try {
+          choose(candidate);
+          remove();
+          resolve({ accounts: [account] });
+          await choiceSettled();
+          assert.equal(el("wallet-button").textContent, "Connect wallet");
+          unavailable();
+          choiceError(/no longer available/i);
+        } finally {
+          resolve({ accounts: [account] });
+          await choiceSettled();
+          remove();
+        }
+      },
+    );
+    await choiceCase(
+      "a stale connect result cannot authorize an account the wallet has removed",
+      async () => {
+        wallet.features["standard:connect"].connect = async () => {
+          wallet.accounts = [];
+          return { accounts: [account] };
+        };
+        choose();
+        await choiceSettled();
+        assert.equal(el("wallet-button").textContent, "Connect wallet");
+        unavailable();
+        choiceError(/account.*network|account.*available/i);
+      },
+    );
+    const otherAccount = {
+      ...account,
+      address: pub(45).toBase58(),
+      publicKey: pub(45).toBytes(),
+    };
+    for (const lost of ["authorization", "signing support"])
+      await choiceCase(`account selection rechecks lost ${lost}`, async () => {
+        wallet.accounts = [account, otherAccount];
+        wallet.features["standard:connect"].connect = async () => ({
+          accounts: [account, otherAccount],
+        });
+        choose();
+        await choiceSettled();
+        const choice = [...el("wallet-list").querySelectorAll("button")].find(
+          (b) => b.textContent === account.address,
+        );
+        assert.ok(choice, "account choices must be visible");
+        wallet.accounts =
+          lost === "authorization"
+            ? [otherAccount]
+            : [{ ...account, features: [] }, otherAccount];
+        choice.click();
+        await choiceSettled();
+        assert.equal(el("wallet-button").textContent, "Connect wallet");
+        unavailable();
+        choiceError(/account.*available/i);
+      });
+    await choiceCase(
+      "a current authorized replacement account remains selectable",
+      async () => {
+        wallet.accounts = [account, otherAccount];
+        wallet.features["standard:connect"].connect = async () => ({
+          accounts: [account, otherAccount],
+        });
+        choose();
+        await choiceSettled();
+        const choice = [...el("wallet-list").querySelectorAll("button")].find(
+          (b) => b.textContent === account.address,
+        );
+        wallet.accounts = [{ ...account }, otherAccount];
+        choice.click();
+        await choiceSettled();
+        assert.equal(el("wallet-dialog").open, false);
+        assert.equal(el("price").textContent, "150");
+        assert.equal(el("trade-review").disabled, false);
+      },
+    );
+    await connect();
     await t.test(
       "trade review separates the market base fee from the taker cap",
       async () => {

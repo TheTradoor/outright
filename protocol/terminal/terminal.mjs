@@ -24,6 +24,7 @@ let client = null,
   busy = false,
   loading = false,
   generation = 0,
+  walletSelection = 0,
   stopWalletEvents = null;
 const prices = new Map();
 function units(value, decimals = 6) {
@@ -439,6 +440,50 @@ function supportsAccount(a) {
       a.chains.includes("solana:devnet"))
   );
 }
+function walletError(message = "") {
+  setText("wallet-error", message);
+  $("wallet-error").hidden = !message;
+}
+function selectionAction(work) {
+  const current = walletSelection,
+    selectedClient = client;
+  const active = () =>
+    current === walletSelection &&
+    selectedClient === client &&
+    $("wallet-dialog").open;
+  return action(async () => {
+    if (!active()) return;
+    walletError();
+    try {
+      await work(active);
+    } catch (error) {
+      // The page behind a modal dialog is inert. Keep connection errors in
+      // the chooser, and ignore an answer to a choice the user has closed.
+      if (active())
+        walletError(error.message || "The wallet could not be connected.");
+    }
+  });
+}
+function requireWallet(w) {
+  if (!registry.get().includes(w) || !compatible(w))
+    throw new Error(
+      "This wallet is no longer available. Choose another wallet.",
+    );
+}
+async function selectAvailableAccount(w, a, active) {
+  if (!active()) return;
+  requireWallet(w);
+  // Account objects may be replaced while the user is choosing. Use the
+  // wallet's currently authorized object, not the earlier connect result.
+  const current = w.accounts.find(
+    (next) => next.address === a.address && supportsAccount(next),
+  );
+  if (!current)
+    throw new Error(
+      "This account is no longer available for this network. Connect again.",
+    );
+  await selectAccount(w, current);
+}
 function showWallets() {
   const list = $("wallet-list");
   list.replaceChildren();
@@ -454,14 +499,21 @@ function showWallets() {
     button.className = "button outline";
     button.textContent = w.name;
     button.addEventListener("click", () =>
-      action(async () => {
+      selectionAction(async (active) => {
+        requireWallet(w);
         const connected = await w.features["standard:connect"].connect();
-        const accounts = connected.accounts.filter(supportsAccount);
+        if (!active()) return;
+        requireWallet(w);
+        const offered = new Set(connected.accounts.map((a) => a.address));
+        const accounts = w.accounts.filter(
+          (a) => offered.has(a.address) && supportsAccount(a),
+        );
         if (!accounts.length)
           throw new Error(
             "Choose an account that supports this network and transaction signing",
           );
-        if (accounts.length === 1) await selectAccount(w, accounts[0]);
+        if (accounts.length === 1)
+          await selectAvailableAccount(w, accounts[0], active);
         else {
           list.replaceChildren();
           setText("wallet-help", "Choose the account to use for this market.");
@@ -470,7 +522,7 @@ function showWallets() {
             b.className = "button outline";
             b.textContent = a.address;
             b.addEventListener("click", () =>
-              action(() => selectAccount(w, a)),
+              selectionAction((active) => selectAvailableAccount(w, a, active)),
             );
             list.append(b);
           }
@@ -644,8 +696,14 @@ $("wallet-button").addEventListener("click", () => {
     notice("Load a deployment profile before connecting your wallet.");
     return;
   }
+  walletSelection++;
+  walletError();
   showWallets();
   $("wallet-dialog").showModal();
+});
+$("wallet-dialog").addEventListener("cancel", () => walletSelection++);
+$("wallet-dialog").addEventListener("close", () => {
+  if (!$("wallet-dialog").open) walletSelection++;
 });
 registry.on("register", () => {
   if ($("wallet-dialog").open) showWallets();
