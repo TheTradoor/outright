@@ -11,6 +11,7 @@ it is not a promise that the application has no other bugs.
 
 | Status | Meaning | Required evidence |
 | --- | --- | --- |
+| **Verified passing** | A complete scoped check passed without implying that unrelated failures are resolved. | Exact target, source/artifact identity, counts and complete result. |
 | **Fixed and verified** | The correction is present and the relevant checks passed. | Source change, affected behavior and an identifiable passing run. |
 | **Reproduced / open** | A failure has been observed against the recorded artifacts and is not yet resolved. | Exact failing test or transaction, assertion/error, source and artifact identity. |
 | **Unverified** | The behavior is reported or required, but the necessary direct check is incomplete. | Keep open until the reproduction or acceptance evidence exists. |
@@ -84,10 +85,10 @@ was also rejected without changing the expected balances.
 
 ## Corrections in the current investigation
 
-The following corrections are present in the current working tree, after the
-PR #21 baseline. They have passed local regression checks; a corrective commit
-and its CI identity must be recorded before treating this table as a published
-release record. The earlier 452-test baseline remains historical evidence.
+The following corrections are recorded in [PR #22](https://github.com/TheTradoor/outright/pull/22),
+client revision `6966fbf55689e09a4ff928fec2805958095c13de` and tree
+`d3f38d587bfcc89386ff7548cd8c787340c469e1`. The earlier 452-test baseline
+remains historical evidence.
 
 | Done | ID | Behavior corrected | Status | Current evidence and limit |
 | --- | --- | --- | --- | --- |
@@ -104,7 +105,18 @@ The affected terminal/onboarding/adapter tests passed **82/82**. The final local
 native run, recorded in `pr22-native-final.log`, passed **471 tests with zero
 failures, skips or cancellations**, with engine source verification and Rust
 conformance. This count includes test harness parents and is not a physical
-wallet or mainnet acceptance count. The preserved [before-fix failures](qualification/2026-11-14/wallet-before.log) and [after-fix passing run](qualification/2026-11-14/wallet-after.log) provide the adapter regression comparison. Current-change CI remains pending.
+wallet or mainnet acceptance count. The preserved [before-fix failures](qualification/2026-11-14/wallet-before.log) and [after-fix passing run](qualification/2026-11-14/wallet-after.log) provide the adapter regression comparison. All ten GitHub push/PR checks passed for the exact client revision before [PR #22](https://github.com/TheTradoor/outright/pull/22) merged as `77691cb3084ca9f8f0190aafd934fb6c4518f625`. The merge tree equals the tested tree.
+
+### CI for the current client correction
+
+| Done | Check | Result | Evidence |
+| --- | --- | --- | --- |
+| [x] | Default engine | 371 passed, no failed or ignored tests | [Engine run](https://github.com/TheTradoor/outright/actions/runs/43511981402) |
+| [x] | Fuzz-feature engine | 439 passed, no failed or ignored tests; overlaps default | Same engine run |
+| [x] | Native protocol | Source and Rust conformance, 471 native tests and terminal build passed | [Native run](https://github.com/TheTradoor/outright/actions/runs/43511981328) |
+| [x] | Application SBF integration | 17 passed, no failed, ignored or filtered tests | [SBF run](https://github.com/TheTradoor/outright/actions/runs/43511981234) |
+| [x] | Current-validator RPC lifecycle | Seven transactions; collateral starts and ends at 1,000,000,000 atoms, final portfolio capital zero | [Validator run](https://github.com/TheTradoor/outright/actions/runs/43511981276), [retained report](qualification/2026-11-14/validator-report.json) |
+| [ ] | Browser visual review of this revision | Unverified: browser CDP attachment timed out twice, and the native accessibility provider was unavailable | DOM tests and build checks passed; neither substitutes for visual or real-wallet acceptance |
 
 ## Upstream-wide failures: current investigation
 
@@ -127,7 +139,7 @@ suite passes.
 | --- | --- | --- | --- | --- | --- |
 | [ ] | UP-CU | Full `v16_cu` gate | Reproduced / open; full target environment blocked | All eight CU failures reproduced in the focused harness. Current full-target compilation was killed twice by SIGKILL before assertions ran. | Repair the observed failures and run the complete target in a suitable environment. Focused execution cannot be presented as a full-gate pass. |
 | [ ] | UP-STATE | Full `v16_program_stateful_fuzz` gate | Reproduced / open | The focused INV-086 case failed with an effective-exposure imbalance. The full 336-test run is still in progress. | Explain and repair the divergence, retain the exact scenario, and rerun focused and full gates. |
-| [ ] | UP-REG | Full `v16_program_fuzz_regressions` gate | Unverified — running | The current run started 148 tests; no final outcome is recorded here yet. | Capture the complete result and investigate any failure; partial progress is not a pass. |
+| [x] | UP-REG | Full `v16_program_fuzz_regressions` gate | Verified passing | **148 passed**, zero failed, ignored or filtered; 501.17 seconds, exit 0. | [Complete run log](qualification/2026-11-14/regressions.log). This does not close the nine failures in the other gates. |
 | [ ] | UP-MAP | Reconcile test failures with invariant metadata | Exact failure inventory mapped; causes unresolved | Eight exact CU failures and one stateful failure are confirmed below; ten counterexample IDs remain a separate inventory. | Complete the cause-level mapping and distinguish policy conflicts, harness faults and production defects. |
 
 ### Confirmed failing-test inventory
@@ -160,7 +172,8 @@ not establish that all failures have independent production causes. The
 stale-oracle failures occur below their compute limits. Do not relax freshness
 guards merely to satisfy the test expectations. The earlier candidate
 `v16_program_reward_price_tracks_actual_catchup_across_report_and_crank_orders`
-is not included in the confirmed failure inventory.
+passed its complete 96-world control in 127.70 seconds and is not included
+in the confirmed failure inventory; see the [control log](qualification/2026-11-14/authenticated-control.log).
 
 CASE-09 reports: `action 11 RebalanceReduce { actor: 155, asset: 37 }: live
 asset 1 has unclassified effective exposure imbalance [1, 0]`. Its observed
@@ -172,7 +185,12 @@ asset 1 has unclassified effective exposure imbalance [1, 0]`. Its observed
 
 The preserved [failure log](qualification/2026-11-14/inv086.log) and
 [scenario JSON](qualification/2026-11-14/inv086-scenario.json) record this case.
-Rounding is a candidate explanation, not an established resolution. Adding a
+The reference check compares sums of rounded per-leg exposure. The engine
+specification separately requires aggregate long/short OI equality and explicitly
+permits a side's rounded leg quantities to exceed its aggregate OI (`spec.md`,
+effective-OI rules). The observed model failure alone therefore does not prove
+a loss of funds or an aggregate-OI violation. Reconciliation must explain the
+rounding residue and preserve the actual accounting invariants. Adding a
 one-atom tolerance without proving that the exposure/accounting invariant is
 preserved would hide the failure rather than repair it.
 
@@ -188,8 +206,9 @@ preserved would hide the failure rather than repair it.
 | Full CU compilation | Two attempts were killed by signal 9: ordinary debug build, then a single-job attempt with `-C debuginfo=0 -C codegen-units=256`. This is an environment/resource termination, not an observed assertion failure. |
 | Focused CU harness | Compiled with unchanged original assertion sources; 211 registered cases, eight selected executions, eight observed failures with exit code 101. This is not full-suite qualification. |
 | Focused stateful result | INV-086 failed as recorded above; cause unresolved. |
-| Full stateful and regression results | Both still running when this record was updated; final counts pending. |
-| Corrective commit for current client fixes | Pending publication; local final native run passed 471 tests. |
+| Full stateful result | Not completed in this evidence record; the focused failure is confirmed separately. |
+| Full regression result | 148 passed, zero failed/ignored/filtered; 501.17 seconds, exit 0. |
+| Corrective commit for current client fixes | `6966fbf55689e09a4ff928fec2805958095c13de`; local final native run passed 471 tests. |
 | Corrective commit for upstream-wide failures | None claimed. |
 
 Focused harness provenance: original harness SHA-256

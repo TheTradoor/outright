@@ -1,0 +1,50 @@
+{
+  "network": "localnet",
+  "genesisHash": "2Sw7CwnkMdxS9nZEEXn6E8Wbnqz3pPftvSyWPMLng9S5",
+  "program": "BSEDoKR55ZrXKT5UysmfDo7nxgFVN1xqXsxEuTpB5y9b",
+  "market": "7AAJmdgrrx3mDTEsKwhirsZnvTLC1dFyahWhVV45y1E3",
+  "trader": "94esRhxSWHfnCxFQKCNMybiTT6SUFsUMDe4S519wm8Wo",
+  "instrument": "TEST/USD, fixed test price",
+  "signatures": [
+    {
+      "action": "initialize",
+      "signature": "5KfTVaQg9mA9SzsnftMmMmVYrq9aKjnwuwrNP2JEX7zYCR27gKZXZnnGRVfA3zFf49BVi9DwRqPttg9Ha6RG4kSi"
+    },
+    {
+      "action": "deposit",
+      "signature": "5ibGFjE4SwSzFPNXtAkj71k5o8rbwwUdruFw2Y3FDkUB3dwxXzzw14AJPoZXyoXKYfPPqZXWSZQQHfDtTgZso6FL"
+    },
+    {
+      "action": "trade",
+      "side": "buy",
+      "signature": "2h4xYFEv43oiQEB8wE4F6bBbPRvqDQQvYkERYueDummnXpLxNJDujfuEZyMv51tGgzHpNLYBmyCpAkqorV5Qs3eW"
+    },
+    {
+      "action": "trade",
+      "side": "sell",
+      "signature": "4EqjyD7mLLaY9E2mibceA4C5P2WPQhiY1SgY8rtGhiNR8TWCUve3j6f5T2JCPyRq5wStZkFxqfhTtPmK4JY9pd5K"
+    },
+    {
+      "action": "trade",
+      "side": "sell",
+      "signature": "5ZMgAWprUSq8WMRrwyRFoCo5DX71cxLx7UAqHnPZbk7Cv9ccRsAzHzAEwKBHyhhVk6yNQ5wNdEHJRGYpk3yF6wDM"
+    },
+    {
+      "action": "trade",
+      "side": "buy",
+      "signature": "5VBKc826K1kDVRWm3fUCgogdomyMXFfQiTvt5fLaNoDMuWs79wbd6ocnqbEpUeU8M4TkJGDKQRQCs7f4E7CnKqpW"
+    },
+    {
+      "action": "withdraw",
+      "signature": "5TQg9jy6qHoMnooqTH57aBYXAiSv7LLpM268KxXCoTASrg3xybYVH923LM9JfCAgDvJ5q5yWmhDt71nt4UEwgBN7"
+    }
+  ],
+  "beforeTokenAtoms": "1000000000",
+  "afterTokenAtoms": "1000000000",
+  "finalPortfolioCapital": "0",
+  "makerCapital": "10000000000",
+  "status": "passed",
+  "at": "2026-11-13T21:38:32.644Z",
+  "source_commit": "6966fbf55689e09a4ff928fec2805958095c13de",
+  "workflow_url": "https://github.com/TheTradoor/outright/actions/runs/43511981276"
+}
