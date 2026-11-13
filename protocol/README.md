@@ -35,6 +35,7 @@ wallet requirements, transaction states, and current limits.
 | `src/client.mjs` | Deployment verification, coherent snapshots, action planning and transaction lifecycle |
 | `terminal/` | Wallet Standard interface, transaction review and receipts |
 | `profile.mjs` | Read-only enrollment of a deployment against local build artifacts |
+| `src/keeper.mjs`, `operator/` | Bounded oracle/portfolio crank, fee limits and durable receipts |
 | `inspect.mjs` | Low-level read-only portfolio inspection |
 
 ## Supported actions
@@ -46,7 +47,7 @@ wallet requirements, transaction states, and current limits.
 | Withdraw | Engine-permitted withdrawal; creates a missing destination ATA atomically |
 | Matcher trade | Immediate bounded-price CPI trade against a configured, funded maker |
 | Bilateral trade | Low-level instruction builder; both owners must sign |
-| Permissionless crank | Low-level encoding only; no operator scheduler |
+| Permissionless crank | Bounded localnet/devnet worker for configured portfolios and oracle accounts |
 
 Amounts remain integer values. `parseUnits` rejects excess precision, scientific
 notation, zero amounts, and SPL Token overflow. Displayed capital and recorded
@@ -65,6 +66,8 @@ atomic allocation and ATA creation, bounded CPI execution, revoked maker
 consent, account-binding failures and rollback. The CPI matcher is an upstream
 test fixture. These are local execution tests, not public-cluster validation.
 
-The terminal supports localnet and devnet only. Funded liquidity, oracle and
+The terminal and keeper support localnet and devnet only. The
+[operator guide](../docs/MARKET_OPERATIONS.md) covers setup, simulation, sending,
+fee limits and restart. Funded liquidity, provider oracle publishing, hosted
 keeper operations, recovery exits, broader risk coverage and independent review
 remain public-release requirements.
