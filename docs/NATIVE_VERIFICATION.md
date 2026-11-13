@@ -1,7 +1,7 @@
 # Native integration verification
 
 Latest local verification completed on 14 November 2026 (UTC+7): the source and Rust
-contract checks and terminal build passed. The client now has 427 JavaScript
+contract checks and terminal build passed. The client now has 433 JavaScript
 tests, including 53 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Cross-tab receipt consistency](#cross-tab-receipt-consistency)
+[Keeper deferral after simulation](#keeper-deferral-after-simulation)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -744,3 +744,36 @@ JavaScript tests pass, including 53 terminal DOM scenarios. Engine, wrapper,
 transaction instructions, account layouts, dependency pins and the 17-case SBF
 suite are unchanged. These deterministic tests do not establish real-wallet,
 physical-mobile or public-cluster compatibility, or replace an independent audit.
+
+## Keeper deferral after simulation
+
+Built on merged commit `0a9c701658f27eb3a86767dd42649cee45b0aa71`. A resolved
+target's payout account can disappear, or its market can halt payouts, while the
+keeper simulates a transaction. The final read detected those conditions but
+let the planner's deferral escape as an error, stopping CLI watch and preventing
+it from checking subsequent targets.
+
+The final planning step now handles the same explicit deferral conditions as
+the initial step. It durably saves the newer bank floor and advances the target
+cursor without signing, reserving a fee or broadcasting. Market-mode and
+settlement-policy comparisons run first, so changes that introduce a new owner
+delay remain fatal errors. Invalid custody, deployment and account bindings
+retain their existing checks. A payout halt is observed, never repaired by this
+worker.
+
+Two unit scenarios reproduce the post-simulation payout changes, verify zero
+signatures and reserved fees, reject an older bank after restart, then resume
+with one submitted transaction and preserved duplicate protection. Two real CLI
+watch processes use a local JSON-RPC fixture to defer, continue to an eligible
+target, stop cleanly and reconcile on restart without resending. Two additional
+scenarios ensure changes to the force-close delay or resolution slot are
+reported as settlement-policy errors rather than ordinary deferrals. All six
+new tests fail against the preceding implementation. The full keeper suite
+passes 100 tests.
+
+The source checks, Rust contract comparison, terminal build and all 433
+JavaScript tests pass, including the unchanged 53 terminal DOM scenarios.
+Engine, wrapper, instruction builders, account layouts, dependency pins and the
+17-case SBF suite are unchanged. These local RPC and process tests do not prove
+public-cluster compatibility, hosted keeper uptime, real-wallet or physical
+mobile behavior, or replace an independent security audit.

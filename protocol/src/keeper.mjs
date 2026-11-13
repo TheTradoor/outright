@@ -602,9 +602,6 @@ export class OutrightKeeper {
       // Recheck deployment and account bindings after simulation. The on-chain
       // program remains authoritative when state changes before execution.
       const fresh = await readKeeperSnapshot(rpc, c, target, fee.context.slot);
-      if (fresh.portfolio === null)
-        return deferTarget("portfolioMissing", fresh.slot);
-      const freshInstruction = planCrank(c, fresh, asset.index);
       if (fresh.market.mode !== snapshot.market.mode)
         throw new Error("Market mode changed after simulation");
       if (
@@ -616,6 +613,15 @@ export class OutrightKeeper {
           fresh.market.resolved_slot !== snapshot.market.resolved_slot)
       )
         throw new Error("Market settlement policy changed after simulation");
+      let freshInstruction;
+      try {
+        freshInstruction = planCrank(c, fresh, asset.index);
+      } catch (error) {
+        // A valid target can become temporarily unavailable while simulating.
+        // Keep the verified bank floor and advance without signing or fees.
+        if (!(error instanceof DeferredTarget)) throw error;
+        return deferTarget(error.reason, fresh.slot);
+      }
       if (
         !freshInstruction.data
           .subarray(9)

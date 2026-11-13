@@ -227,14 +227,21 @@ async function resolvedFixture() {
   return f;
 }
 
-function addSecondTarget(f) {
+function addSecondTarget(f, owner = f.raw.targets[0].owner) {
   const target = {
     ...f.raw.targets[0],
     address: pub(6).toBase58(),
+    owner,
     portfolioId: "18",
   };
   const data = Buffer.from(f.accounts.get(f.raw.targets[0].address).data);
   pub(6).toBuffer().copy(data, contract.constants.portfolioAddressOffset);
+  new PublicKey(owner)
+    .toBuffer()
+    .copy(data, contract.constants.portfolioOwnerOffset);
+  new PublicKey(owner)
+    .toBuffer()
+    .copy(data, contract.constants.portfolioProvenanceOwnerOffset);
   data.writeBigUInt64LE(18n, contract.constants.portfolioIdOffset);
   f.accounts.set(target.address, info(pub(9), data));
   f.raw.targets.push(target);
@@ -670,6 +677,106 @@ test("resolved custody or policy changes after simulation prevent signing", asyn
   }
 });
 
+for (const reason of ["payoutAccountMissing", "payoutHalted"])
+  test(`resolved ${reason} after simulation defers durably and resumes without an extra fee`, async () => {
+    const f = await resolvedFixture();
+    const second = addSecondTarget(f);
+    const destination = f.accounts.get(f.payoutToken);
+    const market = f.accounts.get(f.raw.deployment.market).data;
+    const haltOffset =
+      contract.constants.marketGroupOffset +
+      contract.layouts.payoutLedgerOffset +
+      contract.layouts.payoutLedger.payout_halted.offset;
+    let signatures = 0,
+      simulations = 0;
+    const signer = {
+      publicKey: f.signer.publicKey,
+      get secretKey() {
+        signatures++;
+        return f.signer.secretKey;
+      },
+    };
+    f.rpc.simulateTransaction = async () => {
+      simulations++;
+      return { context: { slot: f.rpc.slot }, value: { err: null } };
+    };
+    f.rpc.getFeeForMessage = async () => {
+      if (simulations === 1) {
+        if (reason === "payoutAccountMissing") f.accounts.delete(f.payoutToken);
+        else market[haltOffset] = 1;
+        f.rpc.slot = 126;
+      }
+      return { context: { slot: f.rpc.slot }, value: 5000 };
+    };
+    const keeper = new OutrightKeeper(f.raw, {
+      connection: f.rpc,
+      journal: f.journal,
+      signer,
+    });
+    const result = await keeper.tick({ send: true });
+    assert.equal(result.status, "deferred");
+    assert.equal(result.reason, reason);
+    assert.equal(result.target, f.portfolio.toBase58());
+    assert.equal(f.state().cursor, 1);
+    assert.equal(f.state().minimumSlot, 126);
+    assert.equal(f.state().attempts, 0);
+    assert.equal(f.state().reservedFees, "0");
+    assert.equal(f.state().pending, null);
+    assert.equal(f.state().lastSubmittedBlockhash, null);
+    assert.equal(signatures, 0);
+    assert.equal(f.rpc.sent.length, 0);
+
+    const restarted = new OutrightKeeper(f.raw, {
+      connection: f.rpc,
+      journal: f.journal,
+      signer,
+    });
+    f.rpc.slot = 125;
+    await assert.rejects(restarted.tick({ send: true }), /snapshot slot/);
+    assert.equal(f.state().cursor, 1);
+    f.rpc.slot = 126;
+    f.accounts.set(f.payoutToken, destination);
+    market[haltOffset] = 0;
+    const next = await restarted.tick({ send: true });
+    assert.equal(next.status, "submitted");
+    assert.equal(next.target, second.address);
+    assert.equal(signatures, 1);
+    assert.equal(f.rpc.sent.length, 1);
+    assert.equal(f.state().attempts, 1);
+    assert.equal(f.state().reservedFees, "5000");
+    f.rpc.status = { slot: 126, confirmationStatus: "confirmed", err: null };
+    assert.equal((await restarted.tick({ send: true })).status, "confirmed");
+    assert.equal(
+      (await restarted.tick({ send: true })).status,
+      "waitingForBlockhash",
+    );
+    assert.equal(signatures, 1);
+    assert.equal(f.rpc.sent.length, 1);
+  });
+
+for (const policy of ["force_close_delay_slots", "resolved_slot"])
+  test(`a changed ${policy} after simulation cannot be hidden by owner-delay deferral`, async () => {
+    const f = await resolvedFixture();
+    f.rpc.getFeeForMessage = async () => {
+      const offset =
+        policy === "force_close_delay_slots"
+          ? contract.constants.headerLength +
+            contract.layouts.wrapper[policy].offset
+          : contract.constants.marketGroupOffset +
+            contract.layouts.market[policy].offset;
+      f.accounts
+        .get(f.raw.deployment.market)
+        .data.writeBigUInt64LE(124n, offset);
+      return { context: { slot: f.rpc.slot }, value: 5000 };
+    };
+    await assert.rejects(
+      f.keeper.tick({ send: true }),
+      /settlement policy changed/,
+    );
+    assert.equal(f.state(), null);
+    assert.equal(f.rpc.sent.length, 0);
+  });
+
 test("keeper retains duplicate protection across restart, dry runs and old journals", async () => {
   const f = await resolvedFixture();
   const first = await f.keeper.tick({ send: true });
@@ -1065,24 +1172,49 @@ function watchUntilSubmitted(args) {
   });
 }
 
-for (const [resolved, missing] of [
-  [false, false],
-  [false, true],
-  [true, false],
-  [true, true],
+for (const [resolved, deferredReason] of [
+  [false, null],
+  [false, "portfolioMissing"],
+  [true, null],
+  [true, "portfolioMissing"],
+  [true, "payoutAccountMissing"],
+  [true, "payoutHalted"],
 ])
-  test(`CLI ${resolved ? "resolved" : "live"} ${missing ? "watch with missing target" : "signing"}, restart and duplicate protection use durable state`, async () => {
+  test(`CLI ${resolved ? "resolved" : "live"} ${deferredReason ? `watch with ${deferredReason}` : "signing"}, restart and duplicate protection use durable state`, async () => {
     const f = resolved ? await resolvedFixture() : await fixture(),
       directory = await mkdtemp(join(tmpdir(), "outright-keeper-cli-"));
     let expectedTarget = f.raw.targets[0].address;
-    if (missing) {
-      expectedTarget = addSecondTarget(f).address;
-      f.accounts.delete(f.portfolio.toBase58());
+    if (deferredReason) {
+      const owner =
+        deferredReason === "payoutAccountMissing"
+          ? pub(4).toBase58()
+          : f.raw.targets[0].owner;
+      expectedTarget = addSecondTarget(f, owner).address;
+      if (deferredReason === "portfolioMissing")
+        f.accounts.delete(f.portfolio.toBase58());
+      if (deferredReason === "payoutAccountMissing") {
+        const destination = f.accounts.get(f.payoutToken);
+        const data = Buffer.from(destination.data);
+        new PublicKey(owner).toBuffer().copy(data, 32);
+        f.accounts.set(
+          getAssociatedTokenAddressSync(
+            pub(5),
+            new PublicKey(owner),
+            true,
+          ).toBase58(),
+          { ...destination, data },
+        );
+      }
       f.raw.intervalMs = 1000;
     }
     const stateDir = join(directory, "state");
     let sends = 0,
+      estimates = 0,
       observedSignature;
+    const haltOffset =
+      contract.constants.marketGroupOffset +
+      contract.layouts.payoutLedgerOffset +
+      contract.layouts.payoutLedger.payout_halted.offset;
     const server = createServer(async (request, response) => {
       try {
         let text = "";
@@ -1095,8 +1227,13 @@ for (const [resolved, missing] of [
             break;
           case "getMultipleAccounts":
             assert.equal(params[1].commitment, "confirmed");
+            if (
+              deferredReason === "payoutHalted" &&
+              params[0].includes(expectedTarget)
+            )
+              f.accounts.get(f.raw.deployment.market).data[haltOffset] = 0;
             result = {
-              context: { slot: 124 },
+              context: { slot: f.rpc.slot },
               value: params[0].map((a) => {
                 const info = f.accounts.get(a);
                 return info
@@ -1112,7 +1249,7 @@ for (const [resolved, missing] of [
             break;
           case "getLatestBlockhash":
             result = {
-              context: { slot: 124 },
+              context: { slot: f.rpc.slot },
               value: {
                 blockhash: pub(23).toBase58(),
                 lastValidBlockHeight: 100,
@@ -1126,12 +1263,22 @@ for (const [resolved, missing] of [
             assert.equal(params[1].sigVerify, false);
             assert.equal(params[1].replaceRecentBlockhash, false);
             result = {
-              context: { slot: 124 },
+              context: { slot: f.rpc.slot },
               value: { err: null, logs: [], unitsConsumed: 100000 },
             };
             break;
           case "getFeeForMessage":
-            result = { context: { slot: 124 }, value: 5000 };
+            estimates++;
+            if (
+              estimates === 1 &&
+              ["payoutAccountMissing", "payoutHalted"].includes(deferredReason)
+            ) {
+              if (deferredReason === "payoutAccountMissing")
+                f.accounts.delete(f.payoutToken);
+              else f.accounts.get(f.raw.deployment.market).data[haltOffset] = 1;
+              f.rpc.slot = 126;
+            }
+            result = { context: { slot: f.rpc.slot }, value: 5000 };
             break;
           case "sendTransaction": {
             const tx = VersionedTransaction.deserialize(
@@ -1153,7 +1300,7 @@ for (const [resolved, missing] of [
             assert.equal(params[0][0], observedSignature);
             assert.equal(params[1].searchTransactionHistory, true);
             result = {
-              context: { slot: 124 },
+              context: { slot: f.rpc.slot },
               value: [
                 {
                   slot: 124,
@@ -1195,13 +1342,13 @@ for (const [resolved, missing] of [
       ];
       const run = () =>
         promisify(execFile)(process.execPath, args, { timeout: 20000 });
-      if (missing) {
+      if (deferredReason) {
         const results = await watchUntilSubmitted(args);
         assert.deepEqual(
           results.map((r) => r.status),
           ["deferred", "submitted"],
         );
-        assert.equal(results[0].reason, "portfolioMissing");
+        assert.equal(results[0].reason, deferredReason);
         assert.equal(results[1].target, expectedTarget);
       } else {
         const first = await run();
@@ -1209,9 +1356,11 @@ for (const [resolved, missing] of [
       }
       const second = await run();
       assert.equal(JSON.parse(second.stdout).status, "confirmed");
-      if (missing) {
+      if (
+        ["portfolioMissing", "payoutAccountMissing"].includes(deferredReason)
+      ) {
         const deferred = await run();
-        assert.equal(JSON.parse(deferred.stdout).reason, "portfolioMissing");
+        assert.equal(JSON.parse(deferred.stdout).reason, deferredReason);
       }
       const third = await run();
       assert.equal(JSON.parse(third.stdout).status, "waitingForBlockhash");
