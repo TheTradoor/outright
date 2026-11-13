@@ -125,8 +125,10 @@ in this client. An opposite trade is not guaranteed to close a position if other
 transactions change the position first. The terminal therefore has no one-click
 close, liquidation-price estimate or leverage slider.
 
-Resolved and recovery markets are read-only in this release. Permissionless
-cleanup, recovery payout operations, sustained oracle and keeper services,
-market indexing and alerts remain necessary before public release. The upstream
+Resolved and recovery markets are read-only in the wallet terminal. A separate
+[keeper client](MARKET_OPERATIONS.md) can perform bounded maintenance for
+configured test-network portfolios. Full recovery payouts, sustained oracle
+publishing and hosted keeper services, market indexing and alerts remain
+necessary before public release. The upstream
 engine is unaudited research software; local test results do not make it suitable
 for real funds.
