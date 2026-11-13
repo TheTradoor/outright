@@ -4,6 +4,7 @@ import {
   browserJournal,
   validateProfile,
 } from "../src/client.mjs";
+import { isSettlementAction } from "../src/settlement.mjs";
 
 const $ = (id) => document.getElementById(id);
 const setText = (id, value) => {
@@ -44,6 +45,11 @@ function clearSnapshot(message = "Not connected") {
   snapshot = null;
   prices.clear();
   for (const id of ["wallet-balance", "capital", "pnl"]) setText(id, message);
+  $("settlement-panel").hidden = true;
+  $("settlement-balances").hidden = true;
+  setText("settlement-status", "");
+  for (const id of ["settlement-face", "settlement-paid", "settlement-due"])
+    setText(id, "Not available");
   for (const id of ["price", "oi-long", "oi-short"])
     setText(id, "Not available");
   setText("market-title", "Select a market");
@@ -60,10 +66,20 @@ function controls() {
   $("wallet-button").disabled = busy;
   $("settings-button").disabled = busy;
   $("refresh").disabled = !client || !account || busy || loading;
-  $("initialize").hidden = Boolean(snapshot?.portfolio);
-  $("initialize").disabled = !ready || Boolean(snapshot?.portfolio);
+  const live = snapshot?.market.mode === "live";
+  const resolved = snapshot?.market.mode === "resolved";
+  $("initialize").hidden =
+    Boolean(snapshot?.portfolio) || Boolean(snapshot && !live);
+  $("initialize").disabled = !ready || !live || Boolean(snapshot?.portfolio);
+  $("collateral-form").hidden = Boolean(snapshot && !live);
   for (const button of $("collateral-form").querySelectorAll("button"))
-    button.disabled = !ready || !snapshot.portfolio;
+    button.disabled = !ready || !live || !snapshot?.portfolio;
+  $("settlement-close").disabled = !ready || !resolved || !snapshot?.portfolio;
+  $("settlement-claim").disabled =
+    !ready ||
+    !resolved ||
+    !snapshot?.portfolio ||
+    snapshot.recordedSettlementPayout === 0n;
   $("trade-review").disabled =
     !ready ||
     !snapshot?.portfolio ||
@@ -221,6 +237,30 @@ function renderMarket() {
         : "Unavailable",
   );
   renderPositions(snapshot.positions);
+  $("settlement-panel").hidden = snapshot.market.mode !== "resolved";
+  const receipt = snapshot.portfolio?.resolvedPayout;
+  $("settlement-balances").hidden = !receipt?.present;
+  setText(
+    "settlement-status",
+    !snapshot.portfolio
+      ? "No portfolio for this wallet."
+      : snapshot.market.resolvedPayout.payout_halted
+        ? "Payouts are halted by the engine. Operator recovery is required."
+        : receipt?.present
+          ? "Receipt values exclude separate capital payouts. Refresh after each confirmed step."
+          : "No payout receipt is recorded. This alone does not mean settlement is complete.",
+  );
+  for (const [id, value] of [
+    ["settlement-face", receipt?.terminal_positive_claim_face],
+    ["settlement-paid", receipt?.paid_effective],
+    ["settlement-due", snapshot.recordedSettlementPayout],
+  ])
+    setText(
+      id,
+      value === undefined
+        ? "Not available"
+        : units(value, client.profile.collateral.decimals),
+    );
   if (!asset) {
     prices.clear();
     for (const id of ["price", "oi-long", "oi-short"])
@@ -487,6 +527,21 @@ async function reviewAction(value) {
         "Market rules determine fees at execution. Mark-movement fees can exceed the base fee cap, up to the engine fee limit. Backing fees are separate.",
       ],
     );
+  if (isSettlementAction(value.type))
+    fields.push(
+      [
+        "Maintenance fee per slot",
+        `${units(prepared.snapshot.market.wrapper.maintenance_fee_per_slot, client.profile.collateral.decimals)} ${client.profile.collateral.symbol}`,
+      ],
+      [
+        "Additional payout at recorded rate",
+        `${units(prepared.snapshot.recordedSettlementPayout, client.profile.collateral.decimals)} ${client.profile.collateral.symbol}`,
+      ],
+      [
+        "Settlement",
+        "This is a bounded step. It may update accounting without a transfer. The recorded payout excludes capital and is not a guaranteed quote. Refresh after confirmation.",
+      ],
+    );
   $("review-details").replaceChildren();
   for (const [title, text] of fields) {
     const row = document.createElement("div"),
@@ -546,6 +601,12 @@ $("asset-select").addEventListener("change", () => {
 $("refresh").addEventListener("click", () => action(refresh));
 $("initialize").addEventListener("click", () =>
   action(() => reviewAction({ type: "initialize" })),
+);
+$("settlement-close").addEventListener("click", () =>
+  action(() => reviewAction({ type: "closeResolved" })),
+);
+$("settlement-claim").addEventListener("click", () =>
+  action(() => reviewAction({ type: "claimResolvedPayoutTopup" })),
 );
 $("collateral-form").addEventListener("submit", (event) => {
   event.preventDefault();

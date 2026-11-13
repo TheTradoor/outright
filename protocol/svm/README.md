@@ -25,6 +25,13 @@ SPL account state.
 - Refresh and partially liquidate unhealthy long and short positions through
   the keeper planner with synthetic Pyth data. Check rounded fees, remaining
   exposure, health, custody, stale-oracle rejection and transaction rollback.
+- Settle an underfunded resolved market through the JavaScript close and claim
+  instructions. Preserve a partial payout receipt, release expired backing
+  through the upstream public crank, and pay the remaining available amount
+  exactly once. Reject another owner's destination and roll back a successful
+  payout when a later instruction fails.
+- Execute the wallet planner's resolved close with atomic ATA creation. A later
+  instruction failure must roll back the new ATA, custody and accounting.
 
 Rejection tests assert the exact program error and failing instruction index.
 They compare complete market, affected portfolio, and tracked SPL accounts
@@ -91,6 +98,12 @@ must still prevent withdrawal under the pinned engine's rule.
 The suite does not cover live oracle delivery, live Hybrid funding,
 mark-movement or backing fees, full recovery, production matcher behavior,
 hosted keeper availability or wallet-extension compatibility.
+
+The resolved fixture adapts the pinned wrapper's INV-067 late-backing trace.
+Every economic transition uses public instructions. Its backing discovery step
+uses the upstream fixture: automatic resolved-market cranking is not implemented
+by the Outright keeper. Asset Recovery forfeits, general insolvency stress and
+complete market teardown remain outside this client's coverage.
 
 Local VM results do not establish current-cluster compatibility or approve a
 production binary. Program deployment, funded liquidity, market limits, and

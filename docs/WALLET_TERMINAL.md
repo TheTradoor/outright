@@ -2,7 +2,8 @@
 
 The terminal is a client for a configured Percolator deployment. It can create
 a portfolio, deposit collateral, request an immediate maker trade with an
-explicit price limit, and withdraw when the engine permits it. It does not
+explicit price limit, withdraw when the engine permits it, and advance settlement
+after the market resolves. It does not
 deploy a market, provide a counterparty, or operate an oracle.
 
 No public Outright market is configured. The shipped profile is `null`.
@@ -169,10 +170,49 @@ in this client. An opposite trade is not guaranteed to close a position if other
 transactions change the position first. The terminal therefore has no one-click
 close, liquidation-price estimate or leverage slider.
 
-Resolved and recovery markets are read-only in the wallet terminal. A separate
+Recovery markets remain read-only in the wallet terminal. Resolved markets use
+the settlement controls below. A separate
 [keeper client](MARKET_OPERATIONS.md) can perform bounded maintenance for
 configured test-network portfolios. Full recovery payouts, sustained oracle
 publishing and hosted keeper services, market indexing and alerts remain
 necessary before public release. The upstream
 engine is unaudited research software; local test results do not make it suitable
 for real funds.
+
+## Resolved-market settlement
+
+Once a verified market is resolved, the terminal hides deposit and withdrawal
+controls and offers two owner-signed actions:
+
+- **Advance settlement** runs one bounded `CloseResolved` step. A successful
+  transaction can advance accounting without transferring collateral. More
+  steps or operator progress may still be required.
+- **Claim additional payout** runs `ClaimResolvedPayoutTopup` when the recorded
+  receipt rate and vault show an additional amount payable. It does not unwind
+  positions or perform backing discovery.
+
+Both actions use the verified owner's associated token account. If it does not
+exist, the same transaction creates it, with rent shown before signing. The
+legacy close instruction fee field is zero; the pinned wrapper uses its actual
+market maintenance fee policy, which is included in review.
+
+Receipt face value, amount already paid against that receipt, and additional
+payout at the recorded rate are displayed separately. They exclude separate
+capital payouts. Unpaid face value is not a withdrawal balance or a promise of
+full repayment. The additional amount is rounded down with integer arithmetic
+and capped by recorded vault custody; execution may observe a different state.
+No receipt, no active positions or zero capital alone establishes completion.
+
+The client simulates before review and rechecks identity, receipt values, payout
+rate, custody, positions and the maintenance fee policy after signing. A changed
+review requires another simulation. Settlement instructions have no sequence
+argument, so the next step must use a blockhash different from the previous
+saved transaction. This prevents an old signature from being mistaken for a
+new continuation, including after a reload or another tab's confirmation.
+The program's execution checks remain authoritative after the client recheck.
+
+Refresh after each confirmed step. A zero-due claim is disabled; an accounting
+close can still be necessary. The terminal does not declare a portfolio fully
+settled or automatically repeat transactions. Expiring backing, resolving
+engine payout halts, asset Recovery forfeits and market teardown still require
+operator tooling. The current keeper rejects resolved-market targets.

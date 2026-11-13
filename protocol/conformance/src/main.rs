@@ -33,6 +33,18 @@ fn main() {
     let fixtures = vec![
         fixture("initPortfolio", json!({}), Instruction::InitPortfolio),
         fixture(
+            "closeResolved",
+            json!({}),
+            Instruction::CloseResolved {
+                fee_rate_per_slot: 0,
+            },
+        ),
+        fixture(
+            "claimResolvedPayoutTopup",
+            json!({}),
+            Instruction::ClaimResolvedPayoutTopup,
+        ),
+        fixture(
             "deposit",
             json!({"portfolioId":"17","expectedSequence":"3","amount":"1000000"}),
             Instruction::Deposit {

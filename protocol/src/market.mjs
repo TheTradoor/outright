@@ -25,6 +25,11 @@ export function readMarket(account, { programId, address, collateralMint }) {
   const header = fields(b, c.marketGroupOffset, l.market);
   const config = fields(b, c.marketGroupOffset + l.configOffset, l.config);
   const wrapper = fields(b, c.headerLength, l.wrapper);
+  const resolvedPayout = fields(
+    b,
+    c.marketGroupOffset + l.payoutLedgerOffset,
+    l.payoutLedger,
+  );
   if (header.market_group_id !== keyString(address))
     throw new Error("Market identity mismatch");
   if (collateralMint && wrapper.collateral_mint !== keyString(collateralMint))
@@ -71,6 +76,7 @@ export function readMarket(account, { programId, address, collateralMint }) {
     mode: modes[header.mode],
     config,
     wrapper,
+    resolvedPayout,
     assets: Object.freeze(assets),
   });
 }

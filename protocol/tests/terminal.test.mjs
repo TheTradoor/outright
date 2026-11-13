@@ -6,6 +6,7 @@ import { JSDOM } from "jsdom";
 import bs58 from "bs58";
 import { OutrightClient } from "../src/client.mjs";
 import { fixture, withMaker } from "./support/client-fixture.mjs";
+import { setSettlement } from "./support/settlement-fixture.mjs";
 
 // Execute the actual terminal module and HTML with deterministic wallet/RPC
 // fixtures. This is DOM behavior coverage, not browser-extension or layout QA.
@@ -466,6 +467,109 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
           }
         },
       );
+    await t.test(
+      "resolved market offers bounded settlement review and clears it on disconnect",
+      async () => {
+        const marketData = Buffer.from(
+          f.accounts.get(f.market.toBase58()).data,
+        );
+        const portfolioData = Buffer.from(
+          f.accounts.get(f.identity.address.toBase58()).data,
+        );
+        try {
+          setSettlement(f);
+          await connect();
+          assert.equal(el("settlement-panel").hidden, false);
+          assert.equal(el("collateral-form").hidden, true);
+          assert.equal(el("initialize").hidden, true);
+          assert.equal(el("trade-review").disabled, true);
+          assert.equal(el("settlement-face").textContent, "0.002");
+          assert.equal(el("settlement-paid").textContent, "0.00125");
+          assert.equal(el("settlement-due").textContent, "0.00025");
+          for (const id of ["settlement-close", "settlement-claim"]) {
+            assert.equal(el(id).disabled, false);
+            el(id).click();
+            await until(
+              () => el("review-dialog").open && !el("sign").disabled,
+              "settlement review did not open",
+            );
+            assert.match(el("review-details").textContent, /bounded step/);
+            assert.match(
+              el("review-details").textContent,
+              /Maintenance fee per slot/,
+            );
+            assert.match(el("review-details").textContent, /0.00025 TEST/);
+            el("review-dialog").close();
+          }
+          changed({ accounts: [] });
+          assert.equal(el("settlement-panel").hidden, true);
+          assert.equal(el("settlement-face").textContent, "Not available");
+          assert.equal(el("settlement-due").textContent, "Not available");
+          assert.equal(el("settlement-close").disabled, true);
+        } finally {
+          f.accounts.get(f.market.toBase58()).data = marketData;
+          f.accounts.get(f.identity.address.toBase58()).data = portfolioData;
+          if (el("wallet-button").textContent !== "Connect wallet")
+            changed({ accounts: [] });
+        }
+      },
+    );
+    await t.test(
+      "zero-due settlement disables claims even without enabled assets",
+      async () => {
+        const marketData = Buffer.from(
+          f.accounts.get(f.market.toBase58()).data,
+        );
+        const portfolioData = Buffer.from(
+          f.accounts.get(f.identity.address.toBase58()).data,
+        );
+        try {
+          setSettlement(f, { receipt: { paid_effective: 1500n } });
+          await connect();
+          noAssets = true;
+          el("refresh").click();
+          await until(
+            () =>
+              el("market-title").textContent === "No enabled assets" &&
+              !el("refresh").disabled,
+            "resolved empty-assets refresh failed",
+          );
+          assert.equal(el("settlement-panel").hidden, false);
+          assert.equal(el("settlement-due").textContent, "0");
+          assert.equal(el("settlement-claim").disabled, true);
+          assert.equal(el("settlement-close").disabled, false);
+        } finally {
+          noAssets = false;
+          f.accounts.get(f.market.toBase58()).data = marketData;
+          f.accounts.get(f.identity.address.toBase58()).data = portfolioData;
+          changed({ accounts: [] });
+        }
+      },
+    );
+    await t.test(
+      "recovery market cannot expose resolved or live wallet actions",
+      async () => {
+        const marketData = Buffer.from(
+          f.accounts.get(f.market.toBase58()).data,
+        );
+        const portfolioData = Buffer.from(
+          f.accounts.get(f.identity.address.toBase58()).data,
+        );
+        try {
+          setSettlement(f, { market: { mode: 2 } });
+          await connect();
+          assert.equal(el("settlement-panel").hidden, true);
+          assert.equal(el("settlement-close").disabled, true);
+          assert.equal(el("settlement-claim").disabled, true);
+          assert.equal(el("collateral-form").hidden, true);
+          assert.equal(el("trade-review").disabled, true);
+        } finally {
+          f.accounts.get(f.market.toBase58()).data = marketData;
+          f.accounts.get(f.identity.address.toBase58()).data = portfolioData;
+          changed({ accounts: [] });
+        }
+      },
+    );
     await t.test(
       "unregistering multiple wallets clears the selected wallet",
       async () => {

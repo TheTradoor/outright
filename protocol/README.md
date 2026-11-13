@@ -46,6 +46,7 @@ wallet requirements, transaction states, and current limits.
 | Create portfolio | Seeded system allocation and program initialization in one transaction |
 | Deposit | Classic SPL Token collateral from the owner's associated token account |
 | Withdraw | Engine-permitted withdrawal from a flat portfolio; creates a missing destination ATA atomically |
+| Resolved settlement | Owner-signed bounded close steps and additional receipt payouts; creates a missing destination ATA atomically |
 | Matcher trade | Immediate bounded-price CPI trade against a configured, funded maker |
 | Bilateral trade | Low-level instruction builder; both owners must sign |
 | Permissionless crank | Bounded localnet/devnet worker for configured portfolios and oracle accounts |
@@ -67,7 +68,9 @@ simulation failure, lost RPC responses, pending transaction recovery and expiry.
 against the compiled wrapper and SPL Token. They cover the bilateral lifecycle,
 atomic allocation and ATA creation, bounded CPI execution, revoked maker
 consent, account-binding failures, fractional funding, bounded partial
-liquidation and rollback. Funding uses a controlled AuthMark fixture; the
+liquidation, underfunded resolved settlement and rollback. The resolved fixture
+checks a later payout after backing expires and rejects duplicate payment.
+Funding uses a controlled AuthMark fixture; the
 operator's liquidation test uses synthetic Pyth observations. The CPI matcher
 is an upstream test fixture. These are local execution tests, not public-cluster
 validation. See the [verification record](../docs/NATIVE_VERIFICATION.md) for

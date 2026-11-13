@@ -55,6 +55,11 @@ export function encodeInstruction(name, a = {}) {
   switch (name) {
     case "initPortfolio":
       return Buffer.from([1]);
+    case "closeResolved":
+      // The wrapper ignores this legacy fee field and uses the market policy.
+      return Buffer.concat([Buffer.from([30]), Buffer.alloc(16)]);
+    case "claimResolvedPayoutTopup":
+      return Buffer.from([46]);
     case "deposit":
     case "withdraw": {
       // SPL Token movement is u64 even though the engine's wire field is u128.
@@ -150,6 +155,8 @@ export function buildInstruction(program, name, args, a) {
       break;
     case "deposit":
     case "withdraw":
+    case "closeResolved":
+    case "claimResolvedPayoutTopup":
       if (key(a.userToken).equals(key(a.vault)))
         throw new Error("User token account cannot be the vault");
       keys = [
@@ -159,7 +166,7 @@ export function buildInstruction(program, name, args, a) {
         meta(a.userToken, false, true),
         meta(a.vault, false, true),
       ];
-      if (name === "withdraw")
+      if (name !== "deposit")
         keys.push(meta(vaultAuthority(program, a.market)));
       keys.push(meta(TOKEN_PROGRAM_ID));
       break;
