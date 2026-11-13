@@ -70,8 +70,27 @@ export function readPortfolio(account, { programId, address, market, owner }) {
     const offset = c.headerLength + l.legsOffset + i * l.legLength;
     const leg = fields(b, offset, l.leg);
     if (leg.active) {
-      if (leg.side > 1 || leg.market_id === 0n || leg.basis_pos_q === 0n)
+      // An attached leg can have no exposure and still retain loss weight.
+      // Match validate_active_leg's static bounds before admitting that state.
+      const raw = leg.basis_pos_q < 0n ? -leg.basis_pos_q : leg.basis_pos_q;
+      if (
+        leg.side > 1 ||
+        leg.market_id === 0n ||
+        raw > BigInt(l.maxPositionAbsQ) ||
+        leg.a_basis < BigInt(l.minASide) ||
+        leg.a_basis > BigInt(l.adlOne) ||
+        leg.k_snap === -(1n << 127n) ||
+        leg.f_snap === -(1n << 127n) ||
+        leg.loss_weight === 0n ||
+        leg.loss_weight > BigInt(l.socialLossDen) ||
+        leg.b_rem >= BigInt(l.socialLossDen) ||
+        leg.b_epoch_snap !== leg.epoch_snap
+      )
         throw new Error("Invalid active position");
+      const currentWeight =
+        (raw * BigInt(l.socialWeightScale) + leg.a_basis - 1n) / leg.a_basis;
+      if (leg.loss_weight < currentWeight)
+        throw new Error("Position loss weight is below its current exposure");
       bitmap |= 1n << BigInt(i);
       positions.push(Object.freeze({ slot: i, ...leg }));
     } else {

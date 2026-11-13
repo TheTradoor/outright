@@ -25,6 +25,7 @@ import {
   planCrank,
 } from "../src/keeper.mjs";
 import { openKeeperJournal } from "../operator/journal.mjs";
+import { setRecovery } from "./support/recovery-fixture.mjs";
 
 const pub = (n) => new PublicKey(Buffer.alloc(32, n));
 const info = (owner, data, executable = false) => ({
@@ -225,6 +226,30 @@ async function resolvedFixture() {
   });
   return f;
 }
+
+for (const mode of [0, 2])
+  test(`keeper continues a zero-exposure obligation in ${mode === 0 ? "asset" : "market"} Recovery`, async () => {
+    const f = await fixture();
+    setRecovery(
+      {
+        accounts: f.accounts,
+        market: new PublicKey(f.raw.deployment.market),
+        identity: { address: f.portfolio },
+      },
+      { mode, leg: { basis_pos_q: 0n } },
+    );
+    const config = validateKeeperConfig(f.raw);
+    const s = await readKeeperSnapshot(f.rpc, config, config.targets[0]);
+    assert.equal(s.portfolio.positions[0].basis_pos_q, 0n);
+    const ix = planCrank(config, s, 0);
+    assert.equal(ix.keys.length, 3);
+    assert.equal(ix.data[9], 0);
+    const result = await f.keeper.tick({ send: true });
+    assert.equal(result.status, "submitted");
+    assert.equal(f.rpc.sent.length, 1);
+    assert.equal((await f.keeper.tick({ send: true })).status, "pending");
+    assert.equal(f.rpc.sent.length, 1);
+  });
 
 test("resolved settlement is explicit and the default preserves configuration hashes", async () => {
   const f = await fixture();
@@ -463,7 +488,10 @@ test("a corrupt stored blockhash stops signing without replacing the pending rec
   for (const value of [1, false, {}, []]) {
     const broken = { ...original, lastSubmittedBlockhash: value };
     await f.journal.write(broken);
-    await assert.rejects(f.keeper.tick({ send: true }), /Invalid keeper blockhash/);
+    await assert.rejects(
+      f.keeper.tick({ send: true }),
+      /Invalid keeper blockhash/,
+    );
     assert.deepEqual(f.state(), broken);
   }
   assert.equal(f.rpc.sent.length, 1);

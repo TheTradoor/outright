@@ -88,6 +88,14 @@ target's active legs plus one rotating discovery asset. Newly created portfolios
 are not discovered automatically. Global recovery uses committed state without
 oracle accounts; it does not implement every recovery or wind-down instruction.
 
+An owner forfeiture may leave a zero-exposure leg with retained loss weight.
+The reader keeps that leg visible, allowing the keeper to continue from its
+committed state. Releasing the obligation and finalizing global Recovery can
+take separate transactions. A local two-asset SBF trace covers that transition,
+the new authenticated owner-delay window and one exact principal payout through
+the resolved planner. This does not establish settlement of every portfolio or
+complete market teardown.
+
 ## Resolved settlement
 
 Set `settleResolved` to `true` to service resolved markets. It defaults to false;
@@ -231,4 +239,4 @@ live Pyth publishing, public-cluster compatibility or hosted-service uptime.
 
 Public release still requires reproducible deployment, a running provider
 publisher, funded maker liquidity, portfolio discovery/indexing, monitoring,
-full recovery exits, broader stress coverage and independent security review.
+broader recovery and stress coverage, complete market teardown and independent security review.

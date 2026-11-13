@@ -597,6 +597,35 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
         }
       },
     );
+    for (const side of [0, 1])
+      await t.test(
+        `zero-exposure ${side === 0 ? "long" : "short"} obligation renders as pending cleanup`,
+        async () => {
+          const marketData = Buffer.from(
+            f.accounts.get(f.market.toBase58()).data,
+          );
+          const portfolioData = Buffer.from(
+            f.accounts.get(f.identity.address.toBase58()).data,
+          );
+          try {
+            setRecovery(f, { side, leg: { basis_pos_q: 0n } });
+            await connect();
+            assert.equal(el("position-count").textContent, "1");
+            const cells = el("positions").querySelectorAll("td");
+            assert.equal(cells[1].textContent, side === 0 ? "Long" : "Short");
+            assert.equal(cells[2].textContent, "0");
+            assert.equal(cells[4].textContent, "Pending cleanup");
+            assert.equal(el("recovery-panel").hidden, false);
+            assert.equal(el("recovery-review").disabled, true);
+            assert.equal(el("trade-review").disabled, true);
+            assert.equal(el("settlement-panel").hidden, true);
+          } finally {
+            f.accounts.get(f.market.toBase58()).data = marketData;
+            f.accounts.get(f.identity.address.toBase58()).data = portfolioData;
+            changed({ accounts: [] });
+          }
+        },
+      );
     await t.test(
       "ordinary live positions do not offer a recovery forfeiture",
       async () => {

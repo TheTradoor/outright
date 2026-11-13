@@ -1,4 +1,6 @@
 //! Export wire fixtures from the pinned upstream encoder, not a second serializer.
+#![recursion_limit = "256"]
+
 use core::mem::offset_of;
 use percolator::{
     MarketGroupV16HeaderAccount, PortfolioAccountV16Account, ProvenanceHeaderV16Account,

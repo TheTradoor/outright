@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 287 JavaScript
-tests, including 21 DOM cases, and 15 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 310 JavaScript
+tests, including 22 terminal DOM scenarios, and 16 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,8 +10,8 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Owner-reviewed Recovery exits](#owner-reviewed-recovery-exits) for the latest
-coverage. Earlier sections record settlement and dependency changes.
+[Retained obligations and Recovery finalization](#retained-obligations-and-recovery-finalization)
+for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
 
@@ -415,3 +415,51 @@ These are DOM tests, not browser rendering or wallet-extension verification.
 Payout-halt repair, broader multi-asset insolvency, complete teardown, hosted
 services and public-cluster validation remain open. Engine and wrapper pins are
 unchanged; no public funds or deployment are involved in these tests.
+
+## Retained obligations and Recovery finalization
+
+Built on merged commit `68cd6f08bdc0103f63589e6266964b25b8a3db43`.
+An SBF regression reproduced a client failure after a successful owner forfeiture:
+the program retained an active leg with zero position basis and positive loss
+weight, but `readPortfolio` rejected it as an invalid position. The exposure
+reader independently rejected zero basis in the current side epoch. Together
+these checks prevented wallet refresh and keeper continuation for valid state.
+
+The reader now admits retained obligations and checks the pinned engine's
+static active-leg bounds. Loss weight, shared-loss remainder, the B epoch and
+price/funding snapshots are read at Rust-exported offsets. Nonzero loss weight,
+its exposure-derived lower bound, the scale limits and epoch consistency remain
+required. The terminal displays zero effective exposure as **Pending cleanup**;
+it does not treat the leg as absent or the portfolio as settled.
+
+The new SBF trace adapts upstream INV-071 for both long and short target legs:
+
+1. Create deterministic wallet portfolios, deposit 2,012 collateral atoms across
+   four actors and trade two assets through public instructions.
+2. Move the second asset's authenticated mark, shut down both assets and use
+   the wallet planner to forfeit the target, its peer and a debtor's legs.
+3. Read and display the target's retained zero-basis obligation. Attempting to
+   remove its account rejects without changing tracked financial state.
+4. Expire the debtor's bounded close. The keeper planner triggers global
+   Recovery, then releases the target's obligation in a separate transaction.
+   A later instruction failure rolls back that cleanup. A successful cleanup
+   advances the position epoch without changing token custody.
+5. Finalize Recovery in a later crank. The authenticated Clock sets the resolved
+   slot and starts a fresh five-slot owner window; frozen asset clocks stay fixed.
+6. Reject a forged early payout slot. At the real deadline, pay exactly 1,000
+   atoms to the owner's verified ATA, leave 1,012 atoms in the vault and reject
+   another payout with `EngineNonProgress` and unchanged tracked state.
+7. Close the terminal target through the upstream owner instruction. Its rent
+   moves to the market slab; mint supply is unchanged throughout the trace.
+
+RPC tests exercise the same retained shape in both market and asset Recovery,
+DrainOnly and active-side states, including malformed accounting rejection.
+Keeper tests cover submission and pending-receipt duplicate prevention. The DOM
+suite checks both sides display zero exposure with pending cleanup and require
+fresh forfeiture consent. The full local suites and contract check pass.
+
+This establishes one target's payout after global Recovery. Other portfolios
+still require settlement; it does not prove complete market teardown or general
+insolvency liveness. Payout-halt repair, broader stress coverage, hosted services,
+wallet-extension and mobile testing, public-cluster validation and independent
+security review remain open. No engine or wrapper source was changed.

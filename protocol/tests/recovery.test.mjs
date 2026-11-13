@@ -15,6 +15,77 @@ const action = {
   acceptForfeiture: true,
 };
 
+for (const side of [0, 1])
+  for (const [name, options, eligible] of [
+    ["asset Recovery", {}, true],
+    ["market Recovery", { mode: 2, lifecycle: 2 }, true],
+    ["DrainOnly", { lifecycle: 3, sideMode: 1 }, true],
+    ["active side", { lifecycle: 2 }, false],
+  ])
+    test(`zero-basis ${side === 0 ? "long" : "short"} obligation remains readable in ${name}`, async () => {
+      const f = setRecovery(await fixture(), {
+        ...options,
+        side,
+        leg: { basis_pos_q: 0n },
+      });
+      const s = await f.client.snapshot(f.owner.publicKey);
+      assert.equal(s.portfolio.positions.length, 1);
+      assert.equal(s.positions[0].effectiveSizeQ, 0n);
+      assert.equal(s.positions[0].needsCleanup, true);
+      assert.equal(s.positions[0].loss_weight, 10_000_000n);
+      assert.equal(Boolean(recoveryPosition(s, 0)), eligible);
+      if (eligible)
+        assert.equal(planAction(f.profile, s, action).instructions.length, 1);
+    });
+
+for (const [name, leg] of [
+  ["zero loss weight", { basis_pos_q: 0n, loss_weight: 0n }],
+  [
+    "excess loss weight",
+    {
+      basis_pos_q: 0n,
+      loss_weight: BigInt(contract.layouts.socialLossDen) + 1n,
+    },
+  ],
+  [
+    "excess remainder",
+    { basis_pos_q: 0n, b_rem: BigInt(contract.layouts.socialLossDen) },
+  ],
+  ["mismatched B epoch", { basis_pos_q: 0n, b_epoch_snap: 1n }],
+  ["zero A basis", { basis_pos_q: 0n, a_basis: 0n }],
+  [
+    "oversized A basis",
+    { basis_pos_q: 0n, a_basis: BigInt(contract.layouts.adlOne) + 1n },
+  ],
+  ["insufficient retained weight", { loss_weight: 1n }],
+  [
+    "out-of-range basis",
+    { basis_pos_q: BigInt(contract.layouts.maxPositionAbsQ) + 1n },
+  ],
+  ["minimum K snapshot", { basis_pos_q: 0n, k_snap: -(1n << 127n) }],
+  ["minimum F snapshot", { basis_pos_q: 0n, f_snap: -(1n << 127n) }],
+])
+  test(`obligation support still rejects ${name}`, async () => {
+    const f = setRecovery(await fixture(), { leg });
+    await assert.rejects(
+      f.client.snapshot(f.owner.publicKey),
+      /Invalid active position|loss weight/,
+    );
+    assert.equal(f.rpc.sent.length, 0);
+  });
+
+test("zero exposure does not bypass asset incarnation or epoch validation", async () => {
+  for (const leg of [{ market_id: 2n }, { epoch_snap: 2n, b_epoch_snap: 2n }]) {
+    const f = setRecovery(await fixture(), {
+      leg: { basis_pos_q: 0n, ...leg },
+    });
+    await assert.rejects(
+      f.client.snapshot(f.owner.publicKey),
+      /identity|epoch/,
+    );
+  }
+});
+
 for (const [name, options, allowed] of [
   ["asset Recovery", {}, true],
   ["market Recovery", { mode: 2, lifecycle: 2 }, true],

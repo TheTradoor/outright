@@ -76,6 +76,11 @@ separate trace runs discovery and payouts through the keeper planner without an
 owner signature, including rejection of a forged slot before the close delay.
 The Recovery exit case checks discarded unbooked gains, applied price losses,
 stale consent, owner authorization, unchanged custody and transaction rollback.
+A separate two-asset trace follows a retained zero-exposure obligation through
+global Recovery, cleanup, finalization and one exact owner payout. The reader
+preserves the obligation for wallet refresh and keeper continuation. The test
+also verifies the owner-delay boundary, duplicate rejection and rent returned
+to the market when the terminal target is removed.
 Funding uses a controlled AuthMark fixture; the
 operator's liquidation test uses synthetic Pyth observations. The CPI matcher
 is an upstream test fixture. These are local execution tests, not public-cluster
@@ -85,5 +90,5 @@ exact coverage and remaining requirements.
 The terminal and keeper support localnet and devnet only. The
 [operator guide](../docs/MARKET_OPERATIONS.md) covers setup, simulation, sending,
 fee limits and restart. Funded liquidity, provider oracle publishing, hosted
-keeper operations, full recovery and teardown, broader risk coverage and independent review
+keeper operations, broader recovery and risk coverage, complete teardown and independent review
 remain public-release requirements.
