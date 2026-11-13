@@ -469,10 +469,22 @@ async function reviewAction(value) {
   ];
   if (value.type === "trade")
     fields.push(
-      ["Trading fee", `${units(BigInt(client.profile.maker.feeBps), 2)}%`],
+      [
+        "Current base fee",
+        `${units(prepared.snapshot.market.wrapper.trade_fee_base_bps, 2)}%`,
+      ],
+      ["Base fee cap", `${units(BigInt(client.profile.maker.feeBps), 2)}%`],
+      [
+        "Engine fee limit",
+        `${units(prepared.snapshot.market.config.max_trading_fee_bps, 2)}%`,
+      ],
       [
         "Backing fee cap",
         `${units(BigInt(client.profile.maker.backingFeeCapBps), 2)}%`,
+      ],
+      [
+        "Fee policy",
+        "Market rules determine fees at execution. Mark-movement fees can exceed the base fee cap, up to the engine fee limit. Backing fees are separate.",
       ],
     );
   $("review-details").replaceChildren();
@@ -632,11 +644,16 @@ setInterval(() => {
   });
 }, 10_000);
 controls();
-fetch(new URL("./deployment.json", import.meta.url), { cache: "no-store" })
+fetch(new URL("./deployment.json", import.meta.url), {
+  cache: "no-store",
+  signal: AbortSignal.timeout(15_000),
+})
   .then((response) => {
     if (!response.ok)
       throw new Error("Deployment configuration could not be loaded");
     return response.json();
   })
-  .then((profile) => profile && loadProfile(profile))
-  .catch((error) => notice(error.message, true));
+  .then((profile) => profile && !client && loadProfile(profile))
+  .catch((error) => {
+    if (!client) notice(error.message, true);
+  });
