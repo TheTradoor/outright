@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 405 JavaScript
-tests, including 35 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 413 JavaScript
+tests, including 43 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Wallet session changes during reconciliation](#wallet-session-changes-during-reconciliation)
+[Wallet selection lifecycle](#wallet-selection-lifecycle)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -647,3 +647,35 @@ suite and the code it exercises are unchanged; its last local run is recorded
 in the preceding wallet-retry section. No engine, wrapper, dependency, account
 layout or transaction instruction changed. These results do not establish
 browser-extension, mobile-wallet or public-cluster compatibility.
+
+
+## Wallet selection lifecycle
+
+Built on merged commit `69c6625e40b390c65d59874fde1b39ec3294b486`. A pending
+connection could attach a wallet after the chooser had closed or the wallet had
+unregistered. A connect result or account-choice button could also retain an
+account whose authorization or signing support had been removed. Connection
+errors were written behind the still-open modal dialog.
+
+Selection work is now scoped to the current chooser and deployment profile.
+The terminal ignores responses after the chooser closes, checks that the wallet
+remains registered and compatible, and intersects the connection result with
+currently authorized accounts. A later account choice resolves the current
+account object and repeats its support checks. Errors appear inside the chooser
+with an alert role, and retry clears the error. Closing the chooser does not
+cancel the wallet provider's own prompt or revoke permissions already granted.
+The outstanding connection still holds the terminal busy until it settles.
+
+Eight additional DOM cases cover rejection and retry, delayed approval and
+rejection after closing the chooser, unregistration during connection, removed
+accounts in a connect result, lost authorization or signing support while an
+account list is open, and a valid replacement account object. Seven fail against
+the preceding terminal; the valid-account control already passes. No connection
+case broadcasts a transaction. The fixture runs the actual terminal module with
+deterministic Wallet Standard, DOM and RPC adapters.
+
+Source checks, Rust contract comparison, the terminal build and all 413
+JavaScript tests pass, including 43 terminal DOM scenarios. The 17-case SBF suite,
+engine, wrapper, account layouts, instruction builders and dependency pins are
+unchanged. These results do not establish compatibility with a real wallet
+extension, a physical mobile device or a public cluster.

@@ -26,6 +26,24 @@ The browser must support Web Crypto Ed25519, Web Locks and local storage.
 Web Locks coordinate signing and receipt reconciliation across tabs. Private
 keys remain with the wallet.
 
+## Connect and choose an account
+
+Connection errors appear inside the wallet chooser, where the same wallet can
+be selected again after its request settles. Connecting does not sign or send a
+transaction.
+
+Closing the chooser discards an unfinished connection result. A later approval
+or rejection cannot attach that wallet or overwrite the current page feedback.
+The wallet may still display its own prompt; dismiss it there if it remains open.
+The terminal stays busy until that wallet request settles. Closing the chooser
+does not revoke permissions already granted in the wallet.
+
+The wallet must still be registered and compatible when its response arrives.
+Only accounts returned by that connection and still authorized by the wallet
+can be selected. Account authorization and network/signing support are checked
+again when choosing from a list. If an account was removed or became
+incompatible, reconnect to obtain current choices.
+
 ## Enroll a deployment
 
 Build the pinned program from its recorded source. Deploy and initialize it
