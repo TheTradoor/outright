@@ -1,0 +1,140 @@
+{
+  "id": 132217445081,
+  "run_id": 43520468937,
+  "workflow_name": "Wrapper qualification",
+  "head_branch": "fix/program-qualification",
+  "run_url": "https://api.github.com/repos/TheTradoor/outright/actions/runs/43520468937",
+  "run_attempt": 1,
+  "node_id": "CR_kwDOVsWP1M8AAAAeyMYa2Q",
+  "head_sha": "9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1",
+  "url": "https://api.github.com/repos/TheTradoor/outright/actions/jobs/132217445081",
+  "html_url": "https://github.com/TheTradoor/outright/actions/runs/43520468937/job/132217445081",
+  "status": "completed",
+  "conclusion": "failure",
+  "created_at": "2026-11-13T22:44:38Z",
+  "started_at": "2026-11-13T22:54:25Z",
+  "completed_at": "2026-11-13T23:04:36Z",
+  "name": "qualify (v16_cu-14, v16_cu, 14)",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2026-11-13T22:54:26Z",
+      "completed_at": "2026-11-13T22:54:28Z"
+    },
+    {
+      "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2,
+      "started_at": "2026-11-13T22:54:28Z",
+      "completed_at": "2026-11-13T22:54:29Z"
+    },
+    {
+      "name": "Fetch the same immutable source",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3,
+      "started_at": "2026-11-13T22:54:29Z",
+      "completed_at": "2026-11-13T22:54:31Z"
+    },
+    {
+      "name": "Install pinned host toolchain",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4,
+      "started_at": "2026-11-13T22:54:31Z",
+      "completed_at": "2026-11-13T22:54:38Z"
+    },
+    {
+      "name": "Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 5,
+      "started_at": "2026-11-13T22:54:38Z",
+      "completed_at": "2026-11-13T22:54:38Z"
+    },
+    {
+      "name": "Install locked native client dependencies",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 6,
+      "started_at": "2026-11-13T22:54:38Z",
+      "completed_at": "2026-11-13T22:54:38Z"
+    },
+    {
+      "name": "Reuse locked host dependencies",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7,
+      "started_at": "2026-11-13T22:54:38Z",
+      "completed_at": "2026-11-13T22:54:49Z"
+    },
+    {
+      "name": "Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8,
+      "started_at": "2026-11-13T22:54:49Z",
+      "completed_at": "2026-11-13T22:54:50Z"
+    },
+    {
+      "name": "Restore checked SBF artifacts",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9,
+      "started_at": "2026-11-13T22:54:50Z",
+      "completed_at": "2026-11-13T22:54:50Z"
+    },
+    {
+      "name": "Execute every assigned test and retain failures",
+      "status": "completed",
+      "conclusion": "failure",
+      "number": 10,
+      "started_at": "2026-11-13T22:54:50Z",
+      "completed_at": "2026-11-13T23:04:33Z"
+    },
+    {
+      "name": "Preserve inventory, results and per-test logs",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 11,
+      "started_at": "2026-11-13T23:04:33Z",
+      "completed_at": "2026-11-13T23:04:34Z"
+    },
+    {
+      "name": "Post Reuse locked host dependencies",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 21,
+      "started_at": "2026-11-13T23:04:34Z",
+      "completed_at": "2026-11-13T23:04:34Z"
+    },
+    {
+      "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 22,
+      "started_at": "2026-11-13T23:04:34Z",
+      "completed_at": "2026-11-13T23:04:34Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 23,
+      "started_at": "2026-11-13T23:04:34Z",
+      "completed_at": "2026-11-13T23:04:34Z"
+    }
+  ],
+  "check_run_url": "https://api.github.com/repos/TheTradoor/outright/check-runs/132217445081",
+  "labels": [
+    "ubuntu-24.04"
+  ],
+  "runner_id": 1000001652,
+  "runner_name": "GitHub Actions 1000001652",
+  "runner_group_id": 0,
+  "runner_group_name": "GitHub Actions"
+}

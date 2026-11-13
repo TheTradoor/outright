@@ -1,0 +1,48 @@
+{
+  "network": "localnet",
+  "genesisHash": "4DSe1bhMDCFBnNE87JHMYjzmWoJdRm3yg9Qi7ipBeQfK",
+  "program": "fMLRSrHT1Rv67EkMBbmVejahecRXw68VfvUQyAmNnr8",
+  "market": "3s9SCNFsv1dfEG6GxVz4qf28dfyh3S8UKufxz29MeoUh",
+  "trader": "7ptSKMwvtxgbzQdDUYcC2QFzgwJBvD19AR9SatP589Nk",
+  "instrument": "TEST/USD, fixed test price",
+  "signatures": [
+    {
+      "action": "initialize",
+      "signature": "3cLRE6HV8gUE99wDtuB9FJtv7h1w1GEV4qUXhn4h3ZianYT5x4H6cpmA7V6Z249s9jkLwnFwkt19QiZg2LJUuQKA"
+    },
+    {
+      "action": "deposit",
+      "signature": "4FLW8qMCFrzW7pmLY6pjocNJ13MAA2QqdabTsq7oUikpHukkabA7KQtoVbq7ooBjkCs2P6TKoMd4f7SCAqjar5TW"
+    },
+    {
+      "action": "trade",
+      "side": "buy",
+      "signature": "3cGnYL1MeuNBaWdDXNccjuAbwuziLquiQGirSou3wnhN4M5NMYpg6r6KBwTgGau4a5Yu3bBD3NWTUEfvPBgHBui6"
+    },
+    {
+      "action": "trade",
+      "side": "sell",
+      "signature": "3VDhsL8A3GMqY9jEe6T5USGKxzJXeFEoXkT6qJ59axKPNb31945wKodymKmhZyHSLChEiJz7frwXM4aqNBg6mso2"
+    },
+    {
+      "action": "trade",
+      "side": "sell",
+      "signature": "vqYbuDFnfzG7xLeqTANPLCYgrLDv4TpEDqrcRDZLjjbj1pTxcbJNdouE6vNYAwEwMTnGTZSAsQYKVvQpyTk6wFD"
+    },
+    {
+      "action": "trade",
+      "side": "buy",
+      "signature": "fkdCb2hgjNXkGTm9BRdBj8HzjMP8vV7XfLjuWPSpuwL9KV7uT7UsW7TdPdbNsJCF4mmy5hvmYoXtTxvwzvWpomB"
+    },
+    {
+      "action": "withdraw",
+      "signature": "2SG3ETSd912Tvg8HVLZwpoWxBGSpQu2UVPG2FhSFN28evRd3XqAfEtjp3vHzo8icwHm5YcJZM7Q5bgc7ac4A2WAH"
+    }
+  ],
+  "beforeTokenAtoms": "1000000000",
+  "afterTokenAtoms": "1000000000",
+  "finalPortfolioCapital": "0",
+  "makerCapital": "10000000000",
+  "status": "passed",
+  "at": "2026-11-13T22:39:36.336Z"
+}

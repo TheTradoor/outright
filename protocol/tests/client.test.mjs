@@ -71,6 +71,38 @@ test("a base fee change during signing requires a fresh review even within conse
   assert.equal(await f.client.pending(f.owner.publicKey), null);
 });
 
+for (const observation of ["expired", "future", "zero price"])
+  test(`trade preparation rejects ${observation} oracle data while deposits stay independently admitted`, async () => {
+    const f = await withMaker(await fixture());
+    const data = f.accounts.get(f.market.toBase58()).data;
+    const base = contract.constants.marketGroupOffset + contract.constants.marketHeaderLength;
+    const oracleOffset = base + contract.layouts.oracle.last_good_oracle_slot.offset;
+    const priceOffset = base + contract.layouts.assetOffset + contract.layouts.asset.effective_price.offset;
+    if (observation === "expired")
+      data.writeBigUInt64LE(BigInt(f.rpc.slot - f.profile.maxOracleAgeSlots - 1), oracleOffset);
+    if (observation === "future") data.writeBigUInt64LE(BigInt(f.rpc.slot + 1), oracleOffset);
+    if (observation === "zero price") data.writeBigUInt64LE(0n, priceOffset);
+    let simulations = 0;
+    const simulate = f.rpc.simulateTransaction;
+    f.rpc.simulateTransaction = async (...args) => {
+      simulations++;
+      return simulate(...args);
+    };
+    const trade = { type: "trade", side: "buy", size: "0.1", limitPrice: "150", assetIndex: 0 };
+    await assert.rejects(f.client.prepare(f.owner.publicKey, trade), /Oracle is stale/);
+    assert.equal(simulations, 0, "invalid oracle data must be rejected before simulation or signing");
+    const deposit = await f.client.prepare(f.owner.publicKey, { type: "deposit", amount: "1" });
+    assert.match(deposit.summary, /Deposit 1 TEST/);
+    assert.equal(simulations, 1, "deposit retains its existing simulation path");
+    data.writeBigUInt64LE(BigInt(f.rpc.slot - f.profile.maxOracleAgeSlots), oracleOffset);
+    data.writeBigUInt64LE(150_000_000n, priceOffset);
+    const restored = await f.client.prepare(f.owner.publicKey, trade);
+    assert.match(restored.summary, /Buy up to/);
+    assert.equal(simulations, 2, "the inclusive existing oracle-age boundary remains valid");
+    assert.equal(f.rpc.sent.length, 0);
+    assert.equal(f.records.size, 0);
+  });
+
 test("Rust market fixture exposes collateral, assets and risk configuration", () => {
   const m = readMarket(
     info(pub(9), Buffer.from(contract.marketFixtureHex, "hex")),

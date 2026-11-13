@@ -1,0 +1,10 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @outright/percolator-client@0.1.0 build
+> node terminal/build.mjs
+
+
+  dist/terminal.js            402.2kb
+  dist/terminal.js.LEGAL.txt    5.5kb
+
+⚡ Done in 188ms

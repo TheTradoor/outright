@@ -1,11 +1,14 @@
 # Full wrapper qualification
 
 `Complete wrapper qualification` is the aggregate gate for the exact source commit in
-`qualification/wrapper-source.json`. It requires every CU, stateful, regression and
-native client lifecycle test to execute successfully. The initial baseline contains
-1,566 / 336 / 148 / 17 tests;
+`qualification/wrapper-source.json`. It requires every default-feature library unit
+and integration test, plus the native client lifecycle tests, to execute successfully.
+The initial baseline contains 1,566 CU, 336 stateful, 148 regression, 17 native lifecycle,
+8 library, 7 Anchor probe, 8 listing/oracle scope, and 9 open-issue regression executions;
 those numbers are minimum inventory checks, not a selection of tests. Added tests
 are discovered and executed automatically. Known failures remain failures.
+Some integration binaries include the same shared controls. These counts measure
+test executions in each Cargo target, not distinct production scenarios.
 
 The manifest pins the original wrapper upstream, engine, matcher, and toolchain
 versions. The current candidate applies the checked-in `program-repair.patch` to the
@@ -34,11 +37,36 @@ tests execute on CU shard zero. Stateful and regression binaries compile intact,
 their dynamically listed test names are divided deterministically over twelve and four
 shards. A separate shard runs all seventeen native client lifecycle tests by importing
 the existing lifecycle harness and driver against the same candidate. It does not
-invoke the older runner that requires a clean baseline HEAD. All thirty-three jobs
+invoke the older runner that requires a clean baseline HEAD. All jobs
 use standard `ubuntu-24.04` runners, one compiler job,
 disabled incremental compilation, zero debug information, 256 final codegen units,
-and one test process at a time. At most twelve matrix jobs run concurrently. Host
+and one test process at a time. The library and three additional integration targets
+each have their own shard, for thirty-seven jobs total. At most twelve matrix jobs run concurrently. Host
 dependencies share a cache keyed by locked dependencies and the host build profile.
+
+Before attestation, each shard, and aggregation, the pinned host Cargo runs
+`cargo +1.95.0 metadata --locked --no-deps --format-version 1`. The guard selects the
+exact wrapper package, normalizes source paths relative to its checkout, resolves the
+default feature closure, and requires exact equality between configured targets and
+every default-enabled target with `test = true`. Only the known generated CU/native
+harnesses are removed from that original-target inventory, after their paths and
+bytes are verified. A new uncovered target, missing library, or changed feature gate
+fails qualification. Generated harnesses therefore cannot change the original inventory.
+Fetching sources itself does not require Cargo or a Rust toolchain.
+
+Suite entries default to `kind: "test"` and `target: <suite name>`. The library entry
+uses `kind: "lib", target: "percolator_prog"`; it compiles with standard
+`cargo +1.95.0 test --locked --lib --no-run --message-format=json`, with the same
+single-job/zero-debug profile and `CARGO_PROFILE_TEST_CODEGEN_UNITS=256`.
+Canonical harness hashes use Cargo's source path, including `src/v16_program.rs` for
+the library. Intact integration targets use the existing `cargo rustc --test` path.
+
+The explicit `separate_targets` roster records `v16-kani` as requiring feature `kani`.
+That roster must exactly match default-disabled test targets; it cannot hide a target
+enabled by default features. Kani proofs and rustdoc tests are separate qualifications,
+not passing exclusions in this gate. Metadata retains the library's `doctest` flag;
+the pinned wrapper source has no runnable documentation examples. The two examples
+marked `test = false` are reported in inventory, not counted as executed tests.
 
 The four SBF programs build once, with locked dependencies, cargo-build-sbf 4.6.0,
 platform-tools v1.52 and the v0 architecture required by the pinned LiteSVM 0.1
@@ -50,6 +78,22 @@ qualification, an audit, or proof of mainnet readiness.**
 
 Each shard saves the complete `--list` inventory, its assigned names, each test's
 exit status and log digest, the generated harness digest, source pins, and SBF hashes.
+The content identity also binds every tracked `protocol/` path and its actual bytes,
+including the native lifecycle harness, JavaScript driver, and package lock. Its
+SHA256 uses sorted UTF-8 paths with explicit path/content lengths; the report retains
+each file's path, length, and SHA256. Git revision and working-copy status are recorded
+separately as metadata. A documentation-only successor can therefore verify identical
+content evidence while retaining the revision that actually executed each shard.
+
+The program attestation records the canonical harness and driver hashes for every
+configured shard. CU hashes are computed from the exact wrapper source without writing
+generated files; intact integration suites use their original source bytes; native
+lifecycle uses this repository's lifecycle and driver bytes. Each shard verifies that
+complete map before compilation and checks wrapper source, protocol content, and the
+canonical map again after execution. The aggregate job fetches the exact candidate and
+recomputes the map independently, rejecting matching reports that claim a different
+harness or driver. A changed protocol file cannot reuse an older attestation.
+
 Tests run with `--exact --include-ignored --nocapture --test-threads=1`: an ignored
 test cannot become a silent skip. Each invocation must report exactly one pass and
 zero failures/ignored tests. Normal failures and individual timeouts do not stop
@@ -92,8 +136,14 @@ python3 scripts/wrapper_qualification.py run --workspace /tmp/wrapper-sources --
 Repeat for every ID emitted by `matrix`, preserving failed jobs' results. Then:
 
 ```sh
-python3 scripts/wrapper_qualification.py aggregate --reports /tmp/results --output /tmp/wrapper-qualification.json
+python3 scripts/wrapper_qualification.py aggregate --workspace /tmp/wrapper-sources --reports /tmp/results --output /tmp/wrapper-qualification.json
 ```
+
+Aggregation requires the exact wrapper and matcher checkout, including the reviewed
+overlay, even when all test reports already exist. SBF binaries are not required for
+this independent source/harness comparison; their recorded hashes must agree across
+all reports. Do not edit protocol files between attestation, shard execution, and
+aggregation. Results from the previous identity format must be regenerated.
 
 The result is valid only when the aggregate command succeeds. Do not treat an
 individual green shard, successful compilation, or partial log as full qualification.

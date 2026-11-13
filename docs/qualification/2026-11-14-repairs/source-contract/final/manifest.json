@@ -1,0 +1,162 @@
+{
+  "schema": "outright.inv048-ownership-repair.v1",
+  "recorded_at": "2026-11-13T23:18:17.493544+00:00",
+  "combined_candidate_tree": "6621d5edd799f68ce0864f740ddc6da22e01c701",
+  "candidate_plus_scoped_repair_tree": "8b54b827082b2b838beacd88d4d99bd12878d2ca",
+  "scoped_patch": {
+    "path": "/workspace/scratch/31e010aaee78/inv048-ownership-contract.patch",
+    "sha256": "3d96380de1d1bf23e1b8a25c194f779f0e895019ab9fac4beb8f2d7b54f20b61"
+  },
+  "final_source": {
+    "path": "/workspace/scratch/31e010aaee78/inv048-repair/tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs",
+    "sha256": "1144d20c722c6a5019712962ce80a96ed66f8d3efa195d1dda0739f985db3407"
+  },
+  "delta": {
+    "insertions": 26,
+    "deletions": 2,
+    "files": 1
+  },
+  "rationale": "The prior source-ownership check demanded obsolete equality of independently ceil-rounded leg sums and aggregate OI. The existing strict transition model already reconciles those with typed signed residue. This patch preserves all 13 prior owners, adds the residue owner linked to the executable public dual-exit witness, and requires registration of the six existing behavioral controls; it copies no arithmetic expressions or branch syntax.",
+  "model_unchanged": {
+    "path": "/workspace/scratch/31e010aaee78/inv048-repair/tests/support/fuzz_model.rs",
+    "sha256": "7d60d9a10d1c24cd8afa7061699e82c088a7982c0a92aec1c2761e7bc48a39fb"
+  },
+  "sbf_unchanged": {
+    "path": "/workspace/scratch/31e010aaee78/oracle-repair-after.so",
+    "sha256": "527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180"
+  },
+  "binary": {
+    "path": "/workspace/scratch/31e010aaee78/oracle-repair/target/debug/deps/outright_inv048_qualification-00c4d04780ed521a",
+    "sha256": "6e9d8c75b7297071a9ab520b8eb88a5b97bece1e34ee95f71a38be1777a8a5a0"
+  },
+  "focused_harness": {
+    "path": "/workspace/scratch/31e010aaee78/inv048-repair/tests/outright_inv048_qualification.rs",
+    "sha256": "8a110142b45193e0f26c5d688779ca6626ae702fb132c6e59a651b0a1d9a0835"
+  },
+  "harness_scope": "Original v16_cu prelude with complete INV048, INV018 and INV081 modules retained; full INV048 module and all six rounding controls executed.",
+  "original_before": {
+    "log": {
+      "path": "/workspace/scratch/31e010aaee78/inv048-results/before-inv048.log",
+      "sha256": "705a3f4a256b3a4a58e83710df748e8efbf9fcd6a5ce6f862efa14423bcb8d88"
+    },
+    "status": "FAILED",
+    "passed": 2,
+    "failed": 1,
+    "ignored": 0,
+    "filtered_out": 60,
+    "seconds": 4.05,
+    "tests": [
+      {
+        "name": "inv_048_matched_trade_and_open_interest_coherence::v16_program_all_trade_routes_keep_oi_equal_to_active_leg_scan",
+        "result": "ok"
+      },
+      {
+        "name": "inv_048_matched_trade_and_open_interest_coherence::v16_program_position_mutation_composition_is_source_complete",
+        "result": "ok"
+      },
+      {
+        "name": "inv_048_matched_trade_and_open_interest_coherence::v16_program_typed_matched_book_obligation_oracle_is_source_complete",
+        "result": "FAILED"
+      }
+    ]
+  },
+  "after": {
+    "log": {
+      "path": "/workspace/scratch/31e010aaee78/inv048-ownership-results/inv048.log",
+      "sha256": "4a3362c2e24ef6dc5e0cdd152ab89f94b63dc592744cc6192b5ad80bde0d6eff"
+    },
+    "status": "ok",
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "filtered_out": 60,
+    "seconds": 4.55,
+    "tests": [
+      {
+        "name": "inv_048_matched_trade_and_open_interest_coherence::v16_program_all_trade_routes_keep_oi_equal_to_active_leg_scan",
+        "result": "ok"
+      },
+      {
+        "name": "inv_048_matched_trade_and_open_interest_coherence::v16_program_position_mutation_composition_is_source_complete",
+        "result": "ok"
+      },
+      {
+        "name": "inv_048_matched_trade_and_open_interest_coherence::v16_program_typed_matched_book_obligation_oracle_is_source_complete",
+        "result": "ok"
+      }
+    ]
+  },
+  "controls": {
+    "log": {
+      "path": "/workspace/scratch/31e010aaee78/inv048-ownership-results/model-controls.log",
+      "sha256": "7ec1f92bbd7727020baf3289323f787aa0872160f9f4d11903ca59f8cc655941"
+    },
+    "status": "ok",
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0,
+    "filtered_out": 57,
+    "seconds": 0.0,
+    "tests": [
+      {
+        "name": "support::fuzz_model::effective_oi_rounding_regressions::canonical_resize_rejects_a_raw_atom_hidden_by_the_same_ceil_quantity",
+        "result": "ok"
+      },
+      {
+        "name": "support::fuzz_model::effective_oi_rounding_regressions::capped_dead_leg_removal_requires_a_typed_terminal_witness",
+        "result": "ok"
+      },
+      {
+        "name": "support::fuzz_model::effective_oi_rounding_regressions::ceil_leg_sums_reconcile_with_equal_aggregate_oi_without_tolerance",
+        "result": "ok"
+      },
+      {
+        "name": "support::fuzz_model::effective_oi_rounding_regressions::exhausted_unilateral_side_requires_one_reset_and_no_repeated_reset",
+        "result": "ok"
+      },
+      {
+        "name": "support::fuzz_model::effective_oi_rounding_regressions::independent_indices_basis_and_aggregate_reject_one_atom_mutations",
+        "result": "ok"
+      },
+      {
+        "name": "support::fuzz_model::effective_oi_rounding_regressions::repeated_index_flooring_has_signed_residue_larger_than_one_atom_per_leg",
+        "result": "ok"
+      }
+    ]
+  },
+  "inventory": {
+    "path": "/workspace/scratch/31e010aaee78/inv048-ownership-results/list.txt",
+    "sha256": "6c016b26e289ed9b5e5a2880960b2a44c84f15c3310e4bf86275adb3997fc10b"
+  },
+  "compile": {
+    "path": "/workspace/scratch/31e010aaee78/inv048-ownership-results/compile.log",
+    "sha256": "4075a5c089e3fcd7cb766a2e3e9790d9b55c34a1278d388c31bb46056c6a0797"
+  },
+  "history": {
+    "status": "Previous AST-expression draft rejected in review and superseded; historical evidence only, do not integrate.",
+    "source": {
+      "path": "/workspace/scratch/31e010aaee78/inv048-results/ast-draft-source.rs",
+      "sha256": "2f9ff37ca09da7bfeb40633f95850bf458a8e74286356c4d9e155ad3be6e3b36"
+    },
+    "patch": {
+      "path": "/workspace/scratch/31e010aaee78/inv048-source-contract.patch",
+      "sha256": "8c936ee98d1d6253cf664c33aaf119760af8b6b330821a7edc1f64aa3a7e7c29"
+    }
+  },
+  "other_source_review": "49 presence/absence/scoped-section checks in INV028/029/030/073/086 reviewed; no other stale expectations. Read-only source review, not additional test execution.",
+  "environment": {
+    "rust": "1.95.0",
+    "jobs": 1,
+    "rustc_flags": [
+      "-C",
+      "debuginfo=0",
+      "-C",
+      "codegen-units=256"
+    ],
+    "PERCOLATOR_FUZZ_SBF": "/workspace/scratch/31e010aaee78/oracle-repair-after.so"
+  },
+  "limits": [
+    "Focused source-ownership repair and tests do not replace broad CI.",
+    "No production source, model runtime guards, or accounting arithmetic changed."
+  ]
+}

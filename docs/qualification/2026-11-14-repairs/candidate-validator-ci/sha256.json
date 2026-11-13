@@ -1,0 +1,14 @@
+{
+  "README.md": "c539304488bae09127313ff84c87ee66c312e4c1d1c0a90e7734fab515160e3f",
+  "artifact/attestation.json": "be23094314ab77ff39f717007cc15a71f2a3477c91dd95d95d48f43c94e31275",
+  "artifact/build-matcher.log": "b5877719039701199c03c121529757833ac16c1ca6fe5f72a678535697ddceb1",
+  "artifact/build-program.log": "8daa206df5eb4f432740d42c602b77cd9774ccca2898c1f38160bb08227b149d",
+  "artifact/lifecycle-report.json": "ca726df234b26d0819f1f35b8a8446423a2ab0a3b363028fd42a435182c22574",
+  "artifact/lifecycle.log": "f9c8d8f74fbb2954e3871243b4d7f50689ac1dc3a02260cdb0faaca5e8b42f23",
+  "artifact/summary.json": "a4a92ff76700b3abe1e48ea4f48a6a63afcb56889edf56f16743064b8cb72a4d",
+  "artifact/validator-output.log": "cb5564f1faf4d8cf00e2ab01a9a060860b7d32074e85e53bd5e722873a72f1c5",
+  "artifact/validator.log": "1967b91aea874f4f39166fe391764c330a0789ab213aa268168598c90ed22db2",
+  "candidate-current-validator.zip": "6cd797c898a5dbdcd718ad83b07b519f52cd80dcd9704bc82de1d9a0df05ad24",
+  "job.log": "713120e6293e519a5746f60d5e0ee710b73b8c2259eb0d06a23a79c75da2098c",
+  "run-metadata.json": "cb3b0d8824e8ba42ebc71e7038e03499688bfb1991d386cc159ecb1be3fdc1bc"
+}

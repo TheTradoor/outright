@@ -1,0 +1,125 @@
+▶ terminal recovers from unavailable RPC and wallet lifecycle changes
+  ✔ connected wallet renders verified balances and maker status (26.97737ms)
+  ✔ a late startup profile cannot replace a manually selected profile (6.650933ms)
+  ✔ wallet connection rejection is visible in the chooser and retry succeeds (31.910485ms)
+  ✔ closing wallet selection ignores a late approval (6.874531ms)
+  ✔ closing wallet selection ignores a late rejection (7.877787ms)
+  ✔ an unregistered wallet cannot attach after its connection resolves (9.285168ms)
+  ✔ a stale connect result cannot authorize an account the wallet has removed (7.006155ms)
+  ✔ account selection rechecks lost authorization (12.537905ms)
+  ✔ account selection rechecks lost signing support (13.051351ms)
+  ✔ a current authorized replacement account remains selectable (32.221177ms)
+  ✔ trade review separates the market base fee from the taker cap (24.707908ms)
+  ✖ expired oracle data disables trade review with a reason, and fresh data restores it (20.242189ms)
+  ✖ future oracle data disables trade review with a reason, and fresh data restores it (13.151197ms)
+  ✖ zero price oracle data disables trade review with a reason, and fresh data restores it (12.965742ms)
+  ✔ an empty asset list still updates portfolio data and clears the old chart (11.019548ms)
+  ✔ a revoked maker disables trade review (11.306381ms)
+  ✔ an expired maker disables trade review (13.484137ms)
+  ✔ RPC failure clears actionable market data and recovery restores it (12.998755ms)
+  ✔ disconnect clears old maker, network and receipt messages (13.977022ms)
+  ✔ an account losing signing support disconnects immediately (8.04542ms)
+  ✔ a late RPC response cannot repopulate a disconnected wallet (12.949431ms)
+  ✔ a late simulation success preserves the disconnected session (20.877663ms)
+  ✔ a late simulation RPC failure preserves the disconnected session (24.631373ms)
+  ✔ a late reconciliation confirmed preserves the disconnected session (33.987572ms)
+  ✔ a late reconciliation RPC failure preserves the disconnected session (23.743409ms)
+  ✔ reconciliation RPC unavailable disables stale actions and retains the saved signature (35.863604ms)
+  ✔ reconciliation malformed status disables stale actions and retains the saved signature (33.542433ms)
+  ✔ reconciliation receipt write failure disables stale actions and retains the saved signature (27.609056ms)
+  ✔ an obsolete poll cannot clear or reread the refreshed wallet session (29.212001ms)
+  ✔ review cancellation stays unavailable from the wallet prompt through broadcast (39.557664ms)
+  ✔ post-send persistence failure preserves recovery: acknowledged (36.050864ms)
+  ✔ post-send persistence failure preserves recovery: response lost (24.821847ms)
+  ✔ post-send persistence failure preserves recovery: receipt unreadable (36.345552ms)
+  ✔ post-send persistence failure preserves recovery: previous final receipt (35.629018ms)
+  ✔ submission failure recovers a receipt already confirmed by another tab (27.594068ms)
+  ✔ submission failure recovers a receipt already finalized by another tab (31.911677ms)
+  ✔ submission failure recovers a receipt already failed by another tab (28.159994ms)
+  ✔ refresh cannot pair a newer receipt with older account balances (30.104413ms)
+  ✔ a late submission receipt lookup cannot repopulate a disconnected wallet (26.16603ms)
+  ✔ a late submitted result stays with the disconnected account (30.062792ms)
+  ✔ a late unknown result stays with the disconnected account (38.144423ms)
+  ✔ a late receipt write failure result stays with the disconnected account (31.013124ms)
+  ✔ a failed deposit keeps its receipt until a fresh blockhash permits a new review (272.279014ms)
+  ✔ resolved market offers bounded settlement review and clears it on disconnect (32.166812ms)
+  ✔ settlement-close clears a changed review without sending (40.673521ms)
+  ✔ settlement-claim clears a changed review without sending (29.320052ms)
+  ✔ account closure explains the SOL destination and clears controls after removal (34.209596ms)
+  ✔ a closed market clears wallet actions and explains the stopped deployment (18.689178ms)
+  ✔ zero-due settlement disables claims even without enabled assets (13.465081ms)
+  ✔ recovery exit requires consent and explains the budget before signing (15.940226ms)
+  ✔ zero-exposure long obligation renders as pending cleanup (13.447464ms)
+  ✔ zero-exposure short obligation renders as pending cleanup (7.886081ms)
+  ✔ ordinary live positions do not offer a recovery forfeiture (6.312331ms)
+  ✔ unsupported collateral decimals leave the active profile unchanged (13.213729ms)
+  ✔ recovery market cannot expose resolved or live wallet actions (6.61218ms)
+  ✔ unregistering multiple wallets clears the selected wallet (12.803285ms)
+✖ terminal recovers from unavailable RPC and wallet lifecycle changes (1770.570209ms)
+ℹ tests 57
+ℹ suites 0
+ℹ pass 53
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2995.735868
+
+✖ failing tests:
+
+test at protocol/tests/terminal.test.mjs:450:15
+✖ expired oracle data disables trade review with a reason, and fresh data restores it (20.242189ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/31e010aaee78/terminal-freshness-repair/protocol/tests/terminal.test.mjs:467:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async TestContext.<anonymous> (file:///workspace/scratch/31e010aaee78/terminal-freshness-repair/protocol/tests/terminal.test.mjs:450:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at protocol/tests/terminal.test.mjs:450:15
+✖ future oracle data disables trade review with a reason, and fresh data restores it (13.151197ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/31e010aaee78/terminal-freshness-repair/protocol/tests/terminal.test.mjs:467:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async TestContext.<anonymous> (file:///workspace/scratch/31e010aaee78/terminal-freshness-repair/protocol/tests/terminal.test.mjs:450:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at protocol/tests/terminal.test.mjs:450:15
+✖ zero price oracle data disables trade review with a reason, and fresh data restores it (12.965742ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/31e010aaee78/terminal-freshness-repair/protocol/tests/terminal.test.mjs:467:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async TestContext.<anonymous> (file:///workspace/scratch/31e010aaee78/terminal-freshness-repair/protocol/tests/terminal.test.mjs:450:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -112,6 +112,94 @@ def matrix(config):
             for index in range(settings["shards"])]
 
 
+def suite_target(suite, config):
+    settings = config["suites"][suite]
+    kind, target = settings.get("kind", "test"), settings.get("target", suite)
+    assert kind in ("lib", "test", "bin", "example"), f"Unsupported test target kind: {kind}"
+    if suite in ("v16_cu", "outright_native_lifecycle"):
+        assert (kind, target) == ("test", suite), "Generated suite target cannot be remapped"
+    return kind, target
+
+
+def cargo_metadata(wrapper, config):
+    # Called only after the pinned host toolchain is installed, never by fetch.
+    return json.loads(output(["cargo", "+" + config["host_rust"], "metadata", "--locked",
+                              "--no-deps", "--format-version", "1"], wrapper))
+
+
+def default_features(features):
+    enabled = {"default"} if "default" in features else set()
+    while True:
+        previous = enabled.copy()
+        for name in previous:
+            for member in features.get(name, []):
+                if member in features:
+                    enabled.add(member)
+                elif "/" in member and "?/" not in member:
+                    dependency = member.split("/", 1)[0]
+                    # Strong dependency-feature syntax enables an implicit
+                    # optional-dependency feature; namespaced/weak refs do not.
+                    if features.get(dependency) == ["dep:" + dependency]:
+                        enabled.add(dependency)
+        if enabled == previous:
+            return sorted(enabled)
+
+
+def target_inventory(workspace, config):
+    check_source(workspace, config)
+    wrapper = (workspace / "percolator-prog").resolve()
+    metadata = cargo_metadata(wrapper, config)
+    packages = [package for package in metadata["packages"]
+                if Path(package["manifest_path"]).resolve() == wrapper / "Cargo.toml"]
+    assert len(packages) == 1, "Expected exactly the checked wrapper package"
+    package = packages[0]
+    enabled = default_features(package["features"])
+    targets = []
+    for target in package["targets"]:
+        kinds = sorted(target["kind"])
+        kind = "lib" if any(k in kinds for k in ("lib", "rlib", "dylib", "cdylib", "staticlib", "proc-macro")) else kinds[0]
+        path = Path(target["src_path"]).resolve().relative_to(wrapper).as_posix()
+        name = target["name"]
+        required = sorted(target.get("required-features", []))
+        generated = re.fullmatch(r"outright_qualification_cu_(\d{2})", name)
+        if generated or name == "outright_native_lifecycle":
+            assert (kind, path, target["test"], required) == ("test", f"tests/{name}.rs", True, []), "Unexpected generated target shape"
+            assert not output(["git", "ls-files", "--", path], wrapper), "Reserved generated harness is tracked"
+            if generated:
+                index = int(generated[1])
+                assert index < config["suites"]["v16_cu"]["shards"], "Unknown generated CU target"
+                expected_hash = cu_plan(wrapper, config, index, write=False)[4]
+            else:
+                assert name in config["suites"], "Unconfigured generated native target"
+                expected_hash = digest(ROOT / "protocol/svm/lifecycle.rs")
+            assert digest(wrapper / path) == expected_hash, "Noncanonical generated Cargo target"
+            continue
+        targets.append({"kind": kind, "cargo_kinds": kinds, "target": name, "source": path,
+                        "test": target["test"], "doctest": target.get("doctest", False),
+                        "required_features": required,
+                        "default_enabled": set(required) <= set(enabled)})
+    targets.sort(key=lambda target: (target["kind"], target["target"]))
+    keys = [(target["kind"], target["target"]) for target in targets]
+    assert len(keys) == len(set(keys)), "Duplicate Cargo target identity"
+    actual = {(target["kind"], target["target"]) for target in targets
+              if target["test"] and target["default_enabled"]}
+    configured = [suite_target(suite, config) for suite in config["suites"]
+                  if suite != "outright_native_lifecycle"]
+    assert len(configured) == len(set(configured)), "Duplicate configured Cargo test target"
+    assert set(configured) == actual, f"Default Cargo target coverage mismatch: uncovered={sorted(actual - set(configured))}, unexpected={sorted(set(configured) - actual)}"
+    disabled = {(target["kind"], target["target"]): target["required_features"]
+                for target in targets if target["test"] and not target["default_enabled"]}
+    separate = {}
+    for target in config.get("separate_targets", []):
+        key = (target["kind"], target["target"])
+        assert key not in separate and target["reason"].strip(), "Duplicate/unexplained separate target"
+        separate[key] = sorted(target["required_features"])
+    assert separate == disabled, "Separate target roster must match only default-disabled required-feature targets"
+    return {"package": package["name"], "version": package["version"],
+            "default_features": enabled, "targets": targets,
+            "scope": "default-feature unit and integration test targets; rustdoc and Kani proofs are separate"}
+
+
 def module_owners(modules, config):
     # Weights affect scheduling only. Runtime discovery always includes new tests.
     count = config["suites"]["v16_cu"]["shards"]
@@ -157,11 +245,92 @@ def artifact_hashes(workspace):
     return {name: digest(workspace / name) for name in ARTIFACTS}
 
 
+def protocol_source():
+    """Bind sorted tracked paths and their actual bytes, independent of Git revision."""
+    names = subprocess.check_output(
+        ["git", "ls-files", "-z", "--", "protocol/"], cwd=ROOT,
+    ).split(b"\0")
+    names = sorted(name for name in names if name)
+    assert names and len(names) == len(set(names)), "Missing/duplicate tracked protocol files"
+    checksum = hashlib.sha256(b"outright-protocol-source-v1\0")
+    files = []
+    for encoded_name in names:
+        name = encoded_name.decode("utf-8")
+        path = ROOT / name
+        assert path.is_file() and not path.is_symlink(), f"Expected tracked regular file: {name}"
+        content = path.read_bytes()
+        checksum.update(len(encoded_name).to_bytes(8, "big"))
+        checksum.update(encoded_name)
+        checksum.update(len(content).to_bytes(8, "big"))
+        checksum.update(content)
+        files.append({"path": name, "bytes": len(content),
+                      "sha256": hashlib.sha256(content).hexdigest()})
+    return {"sha256": checksum.hexdigest(), "files": files}
+
+
+def source_metadata():
+    # Revision is evidence metadata, not content identity: docs-only successors
+    # can verify prior results while preserving which revision actually ran them.
+    return {"outright_revision": output(["git", "rev-parse", "HEAD"], ROOT),
+            "tracked_worktree_dirty": bool(output(["git", "status", "--porcelain", "--untracked-files=no"], ROOT))}
+
+
+def canonical_harnesses(workspace, config, inventory=None):
+    wrapper = workspace / "percolator-prog"
+    inventory = target_inventory(workspace, config) if inventory is None else inventory
+    sources = {(target["kind"], target["target"]): target["source"] for target in inventory["targets"]}
+    harnesses = {}
+    for shard in matrix(config):
+        suite = shard["suite"]
+        kind, target = suite_target(suite, config)
+        driver_hash = None
+        if suite == "v16_cu":
+            target, _, _, _, harness_hash = cu_plan(wrapper, config, shard["index"], write=False)
+            source_path = f"tests/{target}.rs"
+        elif suite == "outright_native_lifecycle":
+            harness_hash = digest(ROOT / "protocol/svm/lifecycle.rs")
+            driver_hash = digest(ROOT / "protocol/svm/driver.mjs")
+            source_path = "tests/outright_native_lifecycle.rs"
+        else:
+            source_path = sources[(kind, target)]
+            harness_hash = digest(wrapper / source_path)
+        harnesses[shard["id"]] = {"kind": kind, "target": target, "source": source_path,
+                                  "harness_sha256": harness_hash, "driver_sha256": driver_hash}
+    return harnesses
+
+
 def identity(config):
     return {"wrapper": config["wrapper"], "matcher": config["matcher"],
             "overlay": config.get("overlay"),
             "engine_ref": config["engine_ref"], "manifest_sha256": digest(MANIFEST),
-            "runner_sha256": digest(__file__)}
+            "runner_sha256": digest(__file__), "protocol_source": protocol_source()}
+
+
+def check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory):
+    check_source(workspace, config)
+    assert identity(config) == expected_identity, "Protocol/qualification source changed during execution"
+    current_inventory = target_inventory(workspace, config)
+    assert current_inventory == inventory, "Cargo target inventory changed"
+    assert canonical_harnesses(workspace, config, current_inventory) == harnesses, "Canonical harness/driver map changed"
+
+
+def attest(workspace, config):
+    check_source(workspace, config)
+    expected_identity = identity(config)
+    inventory = target_inventory(workspace, config)
+    harnesses = canonical_harnesses(workspace, config, inventory)
+    hashes = artifact_hashes(workspace)
+    check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
+    return {"identity": expected_identity, "source_metadata": source_metadata(),
+            "cargo_targets": inventory, "harnesses": harnesses, "hashes": hashes}
+
+
+def compile_command(config, kind, target):
+    command = ["cargo", "+" + config["host_rust"]]
+    if kind == "lib":
+        return command + ["test", "--locked", "--lib", "--no-run", "--message-format=json"]
+    return command + ["rustc", "--locked", "--" + kind, target,
+                      "--message-format=json", "--", "-C", "debuginfo=0", "-C", "codegen-units=256"]
 
 
 def run_logged(command, cwd, log, timeout, env=None):
@@ -201,21 +370,31 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
     suite, index = shard["suite"], shard["index"]
     wrapper = workspace / "percolator-prog"
     result_dir.mkdir(parents=True, exist_ok=True)
-    report = {**identity(config), **shard, "status": "incomplete", "registered": [],
+    expected_identity = identity(config)
+    report = {**expected_identity, **shard, "source_metadata": source_metadata(),
+              "status": "incomplete", "registered": [],
               "assigned": [], "results": [], "modules": [], "owned_modules": [],
               "included_modules": []}
     try:
         check_source(workspace, config)
+        inventory = target_inventory(workspace, config)
+        harnesses = canonical_harnesses(workspace, config, inventory)
         attestation = json.loads(artifacts.read_text())
-        assert attestation["identity"] == identity(config), "Artifact/source identity mismatch"
+        assert attestation["identity"] == expected_identity, "Artifact/source identity mismatch"
+        assert attestation["cargo_targets"] == inventory, "Artifact Cargo target inventory mismatch"
+        assert attestation["harnesses"] == harnesses, "Artifact canonical harness/driver map mismatch"
+        report["harnesses"] = harnesses
+        report["cargo_targets"] = inventory
+        report["program_source_metadata"] = attestation["source_metadata"]
+        report.update(harnesses[shard_id])
         hashes = artifact_hashes(workspace)
         assert hashes == attestation["hashes"], "SBF artifact digest mismatch"
         report["sbf_hashes"] = hashes
-        target = suite
+        target = report["target"]
         if suite == "v16_cu":
             target, modules, owned, included, generated_hash = cu_plan(wrapper, config, index)
-            report.update(modules=modules, owned_modules=owned, included_modules=included,
-                          harness_sha256=generated_hash)
+            assert target == report["target"] and generated_hash == report["harness_sha256"], "Generated CU plan differs from canonical map"
+            report.update(modules=modules, owned_modules=owned, included_modules=included)
         elif suite == "outright_native_lifecycle":
             source = ROOT / "protocol/svm/lifecycle.rs"
             destination = wrapper / "tests/outright_native_lifecycle.rs"
@@ -223,17 +402,18 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
                 assert destination.read_bytes() == source.read_bytes()
             else:
                 destination.write_bytes(source.read_bytes())
-            report["harness_sha256"] = digest(source)
+        assert digest(wrapper / report["source"]) == report["harness_sha256"], "Test harness differs from canonical source"
+        check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
         env = {key: value for key, value in os.environ.items()
                if not key.startswith(("PERCOLATOR_", "PROPTEST_"))
                and key not in ("CARGO_TARGET_DIR", "SBF_OUT_PATH", "RUSTFLAGS", "CARGO_ENCODED_RUSTFLAGS")}
         env.update(CARGO_BUILD_JOBS="1", CARGO_INCREMENTAL="0",
-                   CARGO_PROFILE_DEV_DEBUG="0", CARGO_PROFILE_TEST_DEBUG="0")
+                   CARGO_PROFILE_DEV_DEBUG="0", CARGO_PROFILE_TEST_DEBUG="0",
+                   CARGO_PROFILE_TEST_CODEGEN_UNITS="256")
         if suite == "outright_native_lifecycle":
             env["OUTRIGHT_NATIVE_DRIVER"] = str(ROOT / "protocol/svm/driver.mjs")
         compile_log = result_dir / "compile.log"
-        command = ["cargo", "+" + config["host_rust"], "rustc", "--locked", "--test", target,
-                   "--message-format=json", "--", "-C", "debuginfo=0", "-C", "codegen-units=256"]
+        command = compile_command(config, report["kind"], target)
         code, elapsed = run_logged(command, wrapper, compile_log, config["compile_timeout_seconds"], env)
         report["compile"] = {"command": command, "exit_code": code, "seconds": elapsed}
         assert code == 0, f"Host compilation failed ({code}); see compile.log"
@@ -246,6 +426,7 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
                 binaries.append(record["executable"])
         assert len(binaries) == 1, f"Expected one test binary, received {binaries}"
         binary = binaries[0]
+        report["host_executable_sha256"] = digest(binary)
         registered = test_names(output([binary, "--list", "--format", "terse"], wrapper))
         report["registered"] = registered
         assigned = assigned_names(registered, suite, index, config, report["modules"], report["owned_modules"])
@@ -261,8 +442,9 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
                                       "seconds": elapsed, "log": log.name, "log_sha256": digest(log)})
             print(f'{shard_id} {number + 1}/{len(assigned)} {"PASS" if passed else "FAIL"} {name}', flush=True)
             write_json(result_dir / "result.json", report)
-        check_source(workspace, config)
+        check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
         assert artifact_hashes(workspace) == hashes, "Tests modified program artifacts"
+        assert digest(binary) == report["host_executable_sha256"], "Tests modified host test executable"
         report["status"] = "complete"
     except Exception as error:
         report["error"] = str(error)
@@ -271,13 +453,16 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
     return 0 if report["status"] == "complete" and all(r["passed"] for r in report["results"]) else 1
 
 
-def verify_reports(reports, config):
+def verify_reports(reports, config, workspace):
+    check_source(workspace, config)
     jobs = matrix(config)
     assert len(reports) == len(jobs), f"Missing/extra reports: {len(reports)} != {len(jobs)}"
     assert {r["id"] for r in reports} == {j["id"] for j in jobs}, "Duplicate/missing shards"
     for report in reports:
         assert {key: report[key] for key in ("id", "suite", "index")} in jobs, "Invalid shard identity"
     expected_identity = identity(config)
+    inventory = target_inventory(workspace, config)
+    harnesses = canonical_harnesses(workspace, config, inventory)
     hashes = None
     summary = {}
     for suite, settings in config["suites"].items():
@@ -287,7 +472,12 @@ def verify_reports(reports, config):
         full_listing = None
         for report in subset:
             assert {key: report[key] for key in expected_identity} == expected_identity, "Mixed source/runner identities"
+            assert report["cargo_targets"] == inventory, "Noncanonical Cargo target inventory"
+            assert report["harnesses"] == harnesses, "Noncanonical harness/driver map"
+            assert {key: report[key] for key in harnesses[report["id"]]} == harnesses[report["id"]], "Noncanonical tested harness/driver"
             assert report["status"] == "complete", f'Incomplete shard {report["id"]}: {report.get("error")}'
+            executable_hash = report.get("host_executable_sha256")
+            assert isinstance(executable_hash, str) and re.fullmatch(r"[0-9a-f]{64}", executable_hash), "Missing/malformed host executable digest"
             if hashes is None:
                 hashes = report["sbf_hashes"]
             assert report["sbf_hashes"] == hashes, "Mixed SBF artifacts"
@@ -300,6 +490,12 @@ def verify_reports(reports, config):
             registered_union.update(registered)
             executed.extend(r["name"] for r in report["results"])
             if suite == "v16_cu":
+                _, canonical_modules, canonical_owned, canonical_included, _ = cu_plan(
+                    workspace / "percolator-prog", config, report["index"], write=False,
+                )
+                assert report["modules"] == canonical_modules, "Noncanonical source module inventory"
+                assert report["owned_modules"] == canonical_owned, "Noncanonical module ownership"
+                assert report["included_modules"] == canonical_included, "Noncanonical harness module closure"
                 if modules:
                     assert set(report["modules"]) == modules, "Different source module inventories"
                 modules = set(report["modules"])
@@ -317,7 +513,13 @@ def verify_reports(reports, config):
         if suite == "v16_cu":
             assert len(owned_modules) == len(set(owned_modules)) and set(owned_modules) == modules
         summary[suite] = {"passed": len(executed), "tests": sorted(executed)}
-    return {"identity": expected_identity, "sbf_hashes": hashes, "suites": summary, "passed": True}
+    check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
+    return {"identity": expected_identity, "candidate_source_metadata": source_metadata(),
+            "tested_source_metadata": {report["id"]: report["source_metadata"] for report in reports},
+            "program_source_metadata": {report["id"]: report["program_source_metadata"] for report in reports},
+            "host_executable_sha256": {report["id"]: report["host_executable_sha256"] for report in reports},
+            "cargo_targets": inventory, "harnesses": harnesses,
+            "sbf_hashes": hashes, "suites": summary, "passed": True}
 
 
 def main():
@@ -339,16 +541,16 @@ def main():
     elif args.command == "fetch":
         fetch(args.workspace.resolve(), config)
     elif args.command == "attest":
-        check_source(args.workspace.resolve(), config)
-        write_json(args.output, {"identity": identity(config), "hashes": artifact_hashes(args.workspace.resolve())})
+        write_json(args.output, attest(args.workspace.resolve(), config))
     elif args.command == "prepare":
         shard = next(j for j in matrix(config) if j["id"] == args.shard)
         print(json.dumps(cu_plan(args.workspace.resolve() / "percolator-prog", config, shard["index"])))
     elif args.command == "run":
         return run_shard(args.workspace.resolve(), config, args.shard, args.artifacts.resolve(), args.output.resolve())
     else:
+        assert args.workspace is not None, "aggregate requires --workspace with the exact candidate checkout"
         reports = [json.loads(path.read_text()) for path in sorted(args.reports.glob("**/result.json"))]
-        summary = verify_reports(reports, config)
+        summary = verify_reports(reports, config, args.workspace.resolve())
         write_json(args.output, summary)
         for suite, result in summary["suites"].items():
             print(f'{suite}: {result["passed"]} passed, exact execution coverage verified')

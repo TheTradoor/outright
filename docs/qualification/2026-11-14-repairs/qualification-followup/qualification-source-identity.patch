@@ -1,0 +1,851 @@
+diff --git a/.github/workflows/wrapper-qualification.yml b/.github/workflows/wrapper-qualification.yml
+index 53cab2f..12971cb 100644
+--- a/.github/workflows/wrapper-qualification.yml
++++ b/.github/workflows/wrapper-qualification.yml
+@@ -143,6 +143,10 @@ jobs:
+       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+         with:
+           persist-credentials: false
++      - name: Fetch the exact candidate for independent harness verification
++        run: python3 scripts/wrapper_qualification.py fetch --workspace "$RUNNER_TEMP/wrapper-sources"
++      - name: Install pinned host toolchain for Cargo target inventory
++        run: rustup toolchain install 1.95.0 --profile minimal
+       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+         with:
+           pattern: wrapper-result-*
+@@ -150,6 +154,7 @@ jobs:
+       - name: Require all shards, all registered tests, and all passing results
+         run: |
+           python3 scripts/wrapper_qualification.py aggregate \
++            --workspace "$RUNNER_TEMP/wrapper-sources" \
+             --reports "$RUNNER_TEMP/wrapper-results" \
+             --output "$RUNNER_TEMP/wrapper-qualification.json"
+           test '${{ needs.plan.result }}' = success
+diff --git a/docs/WRAPPER_QUALIFICATION.md b/docs/WRAPPER_QUALIFICATION.md
+index de35e16..06cc159 100644
+--- a/docs/WRAPPER_QUALIFICATION.md
++++ b/docs/WRAPPER_QUALIFICATION.md
+@@ -1,11 +1,14 @@
+ # Full wrapper qualification
+ 
+ `Complete wrapper qualification` is the aggregate gate for the exact source commit in
+-`qualification/wrapper-source.json`. It requires every CU, stateful, regression and
+-native client lifecycle test to execute successfully. The initial baseline contains
+-1,566 / 336 / 148 / 17 tests;
++`qualification/wrapper-source.json`. It requires every default-feature library unit
++and integration test, plus the native client lifecycle tests, to execute successfully.
++The initial baseline contains 1,566 CU, 336 stateful, 148 regression, 17 native lifecycle,
++8 library, 7 Anchor probe, 8 listing/oracle scope, and 9 open-issue regression executions;
+ those numbers are minimum inventory checks, not a selection of tests. Added tests
+ are discovered and executed automatically. Known failures remain failures.
++Some integration binaries include the same shared controls. These counts measure
++test executions in each Cargo target, not distinct production scenarios.
+ 
+ The manifest pins the original wrapper upstream, engine, matcher, and toolchain
+ versions. The current candidate applies the checked-in `program-repair.patch` to the
+@@ -34,12 +37,37 @@ tests execute on CU shard zero. Stateful and regression binaries compile intact,
+ their dynamically listed test names are divided deterministically over twelve and four
+ shards. A separate shard runs all seventeen native client lifecycle tests by importing
+ the existing lifecycle harness and driver against the same candidate. It does not
+-invoke the older runner that requires a clean baseline HEAD. All thirty-three jobs
++invoke the older runner that requires a clean baseline HEAD. All jobs
+ use standard `ubuntu-24.04` runners, one compiler job,
+ disabled incremental compilation, zero debug information, 256 final codegen units,
+-and one test process at a time. At most twelve matrix jobs run concurrently. Host
++and one test process at a time. The library and three additional integration targets
++each have their own shard, for thirty-seven jobs total. At most twelve matrix jobs run concurrently. Host
+ dependencies share a cache keyed by locked dependencies and the host build profile.
+ 
++Before attestation, each shard, and aggregation, the pinned host Cargo runs
++`cargo +1.95.0 metadata --locked --no-deps --format-version 1`. The guard selects the
++exact wrapper package, normalizes source paths relative to its checkout, resolves the
++default feature closure, and requires exact equality between configured targets and
++every default-enabled target with `test = true`. Only the known generated CU/native
++harnesses are removed from that original-target inventory, after their paths and
++bytes are verified. A new uncovered target, missing library, or changed feature gate
++fails qualification. Generated harnesses therefore cannot change the original inventory.
++Fetching sources itself does not require Cargo or a Rust toolchain.
++
++Suite entries default to `kind: "test"` and `target: <suite name>`. The library entry
++uses `kind: "lib", target: "percolator_prog"`; it compiles with standard
++`cargo +1.95.0 test --locked --lib --no-run --message-format=json`, with the same
++single-job/zero-debug profile and `CARGO_PROFILE_TEST_CODEGEN_UNITS=256`.
++Canonical harness hashes use Cargo's source path, including `src/v16_program.rs` for
++the library. Intact integration targets use the existing `cargo rustc --test` path.
++
++The explicit `separate_targets` roster records `v16-kani` as requiring feature `kani`.
++That roster must exactly match default-disabled test targets; it cannot hide a target
++enabled by default features. Kani proofs and rustdoc tests are separate qualifications,
++not passing exclusions in this gate. Metadata retains the library's `doctest` flag;
++the pinned wrapper source has no runnable documentation examples. The two examples
++marked `test = false` are reported in inventory, not counted as executed tests.
++
+ The four SBF programs build once, with locked dependencies, cargo-build-sbf 4.6.0,
+ platform-tools v1.52 and the v0 architecture required by the pinned LiteSVM 0.1
+ harnesses. All shards verify the same source identities and artifact hashes before
+@@ -50,6 +78,22 @@ qualification, an audit, or proof of mainnet readiness.**
+ 
+ Each shard saves the complete `--list` inventory, its assigned names, each test's
+ exit status and log digest, the generated harness digest, source pins, and SBF hashes.
++The content identity also binds every tracked `protocol/` path and its actual bytes,
++including the native lifecycle harness, JavaScript driver, and package lock. Its
++SHA256 uses sorted UTF-8 paths with explicit path/content lengths; the report retains
++each file's path, length, and SHA256. Git revision and working-copy status are recorded
++separately as metadata. A documentation-only successor can therefore verify identical
++content evidence while retaining the revision that actually executed each shard.
++
++The program attestation records the canonical harness and driver hashes for every
++configured shard. CU hashes are computed from the exact wrapper source without writing
++generated files; intact integration suites use their original source bytes; native
++lifecycle uses this repository's lifecycle and driver bytes. Each shard verifies that
++complete map before compilation and checks wrapper source, protocol content, and the
++canonical map again after execution. The aggregate job fetches the exact candidate and
++recomputes the map independently, rejecting matching reports that claim a different
++harness or driver. A changed protocol file cannot reuse an older attestation.
++
+ Tests run with `--exact --include-ignored --nocapture --test-threads=1`: an ignored
+ test cannot become a silent skip. Each invocation must report exactly one pass and
+ zero failures/ignored tests. Normal failures and individual timeouts do not stop
+@@ -92,9 +136,15 @@ python3 scripts/wrapper_qualification.py run --workspace /tmp/wrapper-sources --
+ Repeat for every ID emitted by `matrix`, preserving failed jobs' results. Then:
+ 
+ ```sh
+-python3 scripts/wrapper_qualification.py aggregate --reports /tmp/results --output /tmp/wrapper-qualification.json
++python3 scripts/wrapper_qualification.py aggregate --workspace /tmp/wrapper-sources --reports /tmp/results --output /tmp/wrapper-qualification.json
+ ```
+ 
++Aggregation requires the exact wrapper and matcher checkout, including the reviewed
++overlay, even when all test reports already exist. SBF binaries are not required for
++this independent source/harness comparison; their recorded hashes must agree across
++all reports. Do not edit protocol files between attestation, shard execution, and
++aggregation. Results from the previous identity format must be regenerated.
++
+ The result is valid only when the aggregate command succeeds. Do not treat an
+ individual green shard, successful compilation, or partial log as full qualification.
+ Install locked client dependencies with `npm ci --prefix protocol --ignore-scripts
+diff --git a/qualification/wrapper-source.json b/qualification/wrapper-source.json
+index 9ef4170..f72e8ca 100644
+--- a/qualification/wrapper-source.json
++++ b/qualification/wrapper-source.json
+@@ -30,6 +30,24 @@
+     "outright_native_lifecycle": {
+       "shards": 1,
+       "minimum_tests": 17
++    },
++    "anchor_v2_realloc_probe": {
++      "shards": 1,
++      "minimum_tests": 7
++    },
++    "listing_oracle_scope": {
++      "shards": 1,
++      "minimum_tests": 8
++    },
++    "open_issue_regressions": {
++      "shards": 1,
++      "minimum_tests": 9
++    },
++    "percolator_prog_lib": {
++      "kind": "lib",
++      "target": "percolator_prog",
++      "shards": 1,
++      "minimum_tests": 8
+     }
+   },
+   "test_timeout_seconds": 1800,
+@@ -299,5 +317,15 @@
+     "path": "qualification/program-repair.patch",
+     "sha256": "0b1474d1b0a7ab54b0890b6c121fc9292530ffedbfe0cc414e54afbceb91cfb8",
+     "tree": "6621d5edd799f68ce0864f740ddc6da22e01c701"
+-  }
++  },
++  "separate_targets": [
++    {
++      "kind": "bin",
++      "target": "v16-kani",
++      "required_features": [
++        "kani"
++      ],
++      "reason": "Kani proof harness; separate proof runner"
++    }
++  ]
+ }
+diff --git a/scripts/tests/test_wrapper_qualification.py b/scripts/tests/test_wrapper_qualification.py
+index 21d3aae..b7e6db1 100644
+--- a/scripts/tests/test_wrapper_qualification.py
++++ b/scripts/tests/test_wrapper_qualification.py
+@@ -1,9 +1,12 @@
+ import copy
++import contextlib
+ import importlib.util
++import io
+ from pathlib import Path
+ import tempfile
+ import unittest
+ import subprocess
++from unittest.mock import patch
+ 
+ SPEC = importlib.util.spec_from_file_location("qualification", Path(__file__).resolve().parents[1] / "wrapper_qualification.py")
+ q = importlib.util.module_from_spec(SPEC)
+@@ -11,65 +14,149 @@ SPEC.loader.exec_module(q)
+ 
+ 
+ class QualificationTests(unittest.TestCase):
++    def commit(self, path, message="fixture"):
++        subprocess.run(["git", "add", "."], cwd=path, check=True)
++        subprocess.run(["git", "-c", "user.name=Qualification test", "-c",
++                        "user.email=qualification@example.invalid", "commit", "-qm", message],
++                       cwd=path, check=True)
++        return q.output(["git", "rev-parse", "HEAD"], path)
++
+     def setUp(self):
+         self.config = q.load_manifest()
+         self.config["suites"] = {
+             "v16_cu": {"shards": 2, "minimum_tests": 2},
+             "v16_program_stateful_fuzz": {"shards": 2, "minimum_tests": 2},
++            "percolator_prog_lib": {"kind": "lib", "target": "percolator_prog", "shards": 1, "minimum_tests": 1},
+         }
++        self.config["separate_targets"] = [{"kind": "bin", "target": "v16-kani",
++                                             "required_features": ["kani"], "reason": "Separate proof runner"}]
+         self.config["cu_balance_weights"] = {"inv_a": 1, "inv_b": 1}
+         self.config["cu_dependencies"] = {"inv_a": ["inv_b"]}
++        self.config.pop("overlay", None)
++        temporary = tempfile.TemporaryDirectory()
++        self.addCleanup(temporary.cleanup)
++        root = Path(temporary.name)
++        self.protocol_root = root / "outright"
++        self.workspace = root / "workspace"
++        wrapper = self.workspace / "percolator-prog"
++        matcher = self.workspace / "percolator-match"
++        for path in (self.protocol_root, wrapper, matcher):
++            path.mkdir(parents=True)
++            subprocess.run(["git", "init", "-q", str(path)], check=True)
++        (self.protocol_root / "protocol/svm").mkdir(parents=True)
++        (self.protocol_root / "protocol/svm/lifecycle.rs").write_text("#[test] fn native() {}\n")
++        (self.protocol_root / "protocol/svm/driver.mjs").write_text("export const driver = 1;\n")
++        (self.protocol_root / "protocol/package-lock.json").write_text('{"lockfileVersion":3}\n')
++        (self.protocol_root / "protocol/client.mjs").write_text("export const client = 1;\n")
++        self.commit(self.protocol_root)
++        root_patch = patch.object(q, "ROOT", self.protocol_root)
++        root_patch.start()
++        self.addCleanup(root_patch.stop)
++        (wrapper / "tests").mkdir()
++        (wrapper / "tests/v16_cu.rs").write_text(
++            'fn helper() {}\n#[path = "invariants/cu/a.rs"]\nmod inv_a;\n'
++            '#[path = "invariants/cu/b.rs"]\nmod inv_b;\n')
++        (wrapper / "tests/v16_program_stateful_fuzz.rs").write_text("#[test] fn stateful() {}\n")
++        (wrapper / "src").mkdir()
++        (wrapper / "src/v16_program.rs").write_text("#[test] fn library() {}\n")
++        (wrapper / "kani").mkdir()
++        (wrapper / "kani/v16_kani.rs").write_text("fn main() {}\n")
++        pin = self.config["engine_ref"]
++        (wrapper / "Cargo.lock").write_text(f'git+https://github.com/aeyakovenko/percolator?rev={pin}#{pin}\n')
++        self.config["wrapper"]["ref"] = self.commit(wrapper)
++        (matcher / "README.md").write_text("matcher fixture\n")
++        self.config["matcher"]["ref"] = self.commit(matcher)
++        self.metadata = {"packages": [{"name": "percolator-prog", "version": "0.1.0",
++            "manifest_path": str(wrapper / "Cargo.toml"),
++            "features": {"default": ["anchor-v2"], "anchor-v2": ["dep:anchor-lang-v2"], "kani": []},
++            "targets": [
++                self.metadata_target("percolator_prog", "src/v16_program.rs", ["cdylib", "lib"]),
++                self.metadata_target("v16_cu", "tests/v16_cu.rs", ["test"]),
++                self.metadata_target("v16_program_stateful_fuzz", "tests/v16_program_stateful_fuzz.rs", ["test"]),
++                self.metadata_target("v16-kani", "kani/v16_kani.rs", ["bin"], required=["kani"]),
++                self.metadata_target("example", "examples/example.rs", ["example"], test=False),
++            ]}]}
++        metadata_patch = patch.object(q, "cargo_metadata", side_effect=self.metadata_result)
++        metadata_patch.start()
++        self.addCleanup(metadata_patch.stop)
++        self.make_reports()
++
++    def metadata_target(self, name, path, kind, test=True, required=()):
++        return {"name": name, "kind": kind, "src_path": str(self.workspace / "percolator-prog" / path),
++                "test": test, "doctest": "lib" in kind, "required-features": list(required)}
++
++    def metadata_result(self, wrapper, config):
++        metadata = copy.deepcopy(self.metadata)
++        for source in (wrapper / "tests").glob("outright_*.rs"):
++            metadata["packages"][0]["targets"].append(self.metadata_target(source.stem, f"tests/{source.name}", ["test"]))
++        return metadata
++
++    def make_reports(self):
++        inventory = q.target_inventory(self.workspace, self.config)
++        harnesses = q.canonical_harnesses(self.workspace, self.config, inventory)
+         self.reports = []
+         for job in q.matrix(self.config):
+             is_cu = job["suite"] == "v16_cu"
+             modules = ["inv_a", "inv_b"] if is_cu else []
+             owned = q.module_owners(modules, self.config)[job["index"]] if is_cu else []
++            included = q.cu_plan(self.workspace / "percolator-prog", self.config,
++                                 job["index"], write=False)[3] if is_cu else []
+             registered = ["inv_a::one", "inv_b::two"] if is_cu else ["one", "two", "three", "four"]
++            if job["suite"] == "outright_native_lifecycle":
++                registered = ["native"]
++            elif job["suite"] == "percolator_prog_lib":
++                registered = ["library"]
+             assigned = q.assigned_names(registered, job["suite"], job["index"], self.config, modules, owned)
+             self.reports.append({**q.identity(self.config), **job, "status": "complete",
++                **harnesses[job["id"]], "harnesses": copy.deepcopy(harnesses),
++                "cargo_targets": copy.deepcopy(inventory),
++                "source_metadata": q.source_metadata(), "program_source_metadata": q.source_metadata(),
+                 "registered": registered, "assigned": assigned,
+                 "results": [{"name": name, "passed": True, "exit_code": 0} for name in assigned],
+-                "modules": modules, "owned_modules": owned, "included_modules": modules,
++                "modules": modules, "owned_modules": owned, "included_modules": included,
+                 "sbf_hashes": {"program": "checked-digest"}})
+ 
++    def verify(self, reports=None):
++        return q.verify_reports(self.reports if reports is None else reports, self.config, self.workspace)
++
+     def test_complete_exact_coverage(self):
+-        result = q.verify_reports(self.reports, self.config)
++        result = self.verify()
+         self.assertEqual(result["suites"]["v16_cu"]["passed"], 2)
+ 
+     def test_missing_shard_fails(self):
+         with self.assertRaises(AssertionError):
+-            q.verify_reports(self.reports[:-1], self.config)
++            self.verify(self.reports[:-1])
+ 
+     def test_duplicate_shard_fails(self):
+         self.reports[-1] = copy.deepcopy(self.reports[0])
+         with self.assertRaises(AssertionError):
+-            q.verify_reports(self.reports, self.config)
++            self.verify()
+ 
+     def test_missing_test_fails(self):
+         self.reports[0]["results"].clear()
+         with self.assertRaises(AssertionError):
+-            q.verify_reports(self.reports, self.config)
++            self.verify()
+ 
+     def test_failed_test_fails(self):
+         self.reports[0]["results"][0]["passed"] = False
+         self.reports[0]["results"][0]["exit_code"] = 101
+         with self.assertRaises(AssertionError):
+-            q.verify_reports(self.reports, self.config)
++            self.verify()
+ 
+     def test_interrupted_test_fails(self):
+         self.reports[0]["status"] = "incomplete"
+         with self.assertRaises(AssertionError):
+-            q.verify_reports(self.reports, self.config)
++            self.verify()
+ 
+     def test_mixed_binary_fails(self):
+         self.reports[0]["sbf_hashes"] = {"program": "other"}
+         with self.assertRaises(AssertionError):
+-            q.verify_reports(self.reports, self.config)
++            self.verify()
+ 
+     def test_unexecuted_dependency_test_fails(self):
+         self.reports[0]["registered"].append("inv_b::added")
+         with self.assertRaises(AssertionError):
+-            q.verify_reports(self.reports, self.config)
++            self.verify()
+ 
+     def test_added_tests_are_executed_not_filtered_to_baseline(self):
+         for report in self.reports[:2]:
+@@ -78,7 +165,7 @@ class QualificationTests(unittest.TestCase):
+                                         report["modules"], report["owned_modules"])
+             report["assigned"] = assigned
+             report["results"] = [{"name": name, "passed": True, "exit_code": 0} for name in assigned]
+-        result = q.verify_reports(self.reports, self.config)
++        result = self.verify()
+         self.assertEqual(result["suites"]["v16_cu"]["passed"], 3)
+ 
+     def test_generator_preserves_original_and_transitive_dependencies(self):
+@@ -122,6 +209,157 @@ class QualificationTests(unittest.TestCase):
+             with self.assertRaisesRegex(AssertionError, "Generated CU harness changed"):
+                 q.check_extra_files(path, "wrapper", self.config)
+ 
++    def add_native_suite(self):
++        self.config["suites"]["outright_native_lifecycle"] = {"shards": 1, "minimum_tests": 1}
++        self.make_reports()
++
++    def test_protocol_identity_covers_every_tracked_path_and_bytes(self):
++        before = q.protocol_source()
++        self.assertEqual({record["path"] for record in before["files"]}, {
++            "protocol/client.mjs", "protocol/package-lock.json",
++            "protocol/svm/lifecycle.rs", "protocol/svm/driver.mjs",
++        })
++        (self.protocol_root / "protocol/package-lock.json").write_text('{"lockfileVersion":4}\n')
++        self.assertNotEqual(q.protocol_source()["sha256"], before["sha256"])
++
++    def test_protocol_identity_binds_paths_as_well_as_identical_bytes(self):
++        before = q.protocol_source()
++        subprocess.run(["git", "mv", "protocol/client.mjs", "protocol/renamed.mjs"],
++                       cwd=self.protocol_root, check=True)
++        self.assertNotEqual(q.protocol_source()["sha256"], before["sha256"])
++
++    def test_altered_native_driver_rejected(self):
++        self.add_native_suite()
++        (self.protocol_root / "protocol/svm/driver.mjs").write_text("export const driver = 2;\n")
++        with self.assertRaisesRegex(AssertionError, "Mixed source/runner identities"):
++            self.verify()
++
++    def test_altered_native_lifecycle_rejected(self):
++        self.add_native_suite()
++        (self.protocol_root / "protocol/svm/lifecycle.rs").write_text("#[test] fn replacement() {}\n")
++        with self.assertRaisesRegex(AssertionError, "Mixed source/runner identities"):
++            self.verify()
++
++    def test_mixed_protocol_source_rejected(self):
++        self.reports[0]["protocol_source"]["sha256"] = "0" * 64
++        with self.assertRaisesRegex(AssertionError, "Mixed source/runner identities"):
++            self.verify()
++
++    def test_altered_cu_harness_hash_rejected(self):
++        self.reports[0]["harness_sha256"] = "0" * 64
++        with self.assertRaisesRegex(AssertionError, "Noncanonical tested harness/driver"):
++            self.verify()
++
++    def test_matching_but_forged_harness_maps_rejected(self):
++        for report in self.reports:
++            report["harnesses"]["v16_cu-00"]["harness_sha256"] = "0" * 64
++        with self.assertRaisesRegex(AssertionError, "Noncanonical harness/driver map"):
++            self.verify()
++
++    def test_altered_reported_driver_hash_rejected(self):
++        self.add_native_suite()
++        self.reports[-1]["driver_sha256"] = "0" * 64
++        with self.assertRaisesRegex(AssertionError, "Noncanonical tested harness/driver"):
++            self.verify()
++
++    def test_canonical_harness_map_does_not_write_generated_sources(self):
++        before = sorted((self.workspace / "percolator-prog/tests").iterdir())
++        q.canonical_harnesses(self.workspace, self.config)
++        self.assertEqual(sorted((self.workspace / "percolator-prog/tests").iterdir()), before)
++
++    def test_docs_only_revision_reuses_identical_content_evidence(self):
++        before_identity, before_metadata = q.identity(self.config), q.source_metadata()
++        (self.protocol_root / "README.md").write_text("Documentation only\n")
++        self.commit(self.protocol_root, "documentation")
++        self.assertEqual(q.identity(self.config), before_identity)
++        self.assertNotEqual(q.source_metadata()["outright_revision"], before_metadata["outright_revision"])
++        result = self.verify()
++        self.assertEqual(result["tested_source_metadata"]["v16_cu-00"], before_metadata)
++        self.assertEqual(result["candidate_source_metadata"], q.source_metadata())
++
++    def test_post_execution_protocol_change_rejected(self):
++        before_identity = q.identity(self.config)
++        inventory = q.target_inventory(self.workspace, self.config)
++        harnesses = q.canonical_harnesses(self.workspace, self.config, inventory)
++        (self.protocol_root / "protocol/client.mjs").write_text("export const client = 2;\n")
++        with self.assertRaisesRegex(AssertionError, "source changed during execution"):
++            q.check_unchanged_sources(self.workspace, self.config, before_identity, harnesses, inventory)
++
++    def fixture_attestation(self):
++        for name in q.ARTIFACTS:
++            path = self.workspace / name
++            path.parent.mkdir(parents=True, exist_ok=True)
++            path.write_bytes(b"unit-test artifact: " + name.encode())
++        return q.attest(self.workspace, self.config)
++
++    def test_program_attestation_binds_all_canonical_harnesses_and_protocol(self):
++        self.add_native_suite()
++        attestation = self.fixture_attestation()
++        self.assertEqual(attestation["identity"], q.identity(self.config))
++        self.assertEqual(attestation["harnesses"], q.canonical_harnesses(self.workspace, self.config))
++        self.assertEqual(attestation["source_metadata"], q.source_metadata())
++        self.assertEqual(attestation["cargo_targets"], q.target_inventory(self.workspace, self.config))
++        self.assertEqual(set(attestation["hashes"]), set(q.ARTIFACTS))
++
++    def test_run_rejects_forged_attested_harness_map_before_compilation(self):
++        attestation = self.fixture_attestation()
++        attestation["harnesses"]["v16_cu-00"]["harness_sha256"] = "0" * 64
++        path = self.workspace / "artifacts.json"
++        q.write_json(path, attestation)
++        destination = self.workspace / "results"
++        with patch.object(q, "run_logged") as run, contextlib.redirect_stderr(io.StringIO()):
++            code = q.run_shard(self.workspace, self.config, "v16_cu-00", path, destination)
++        run.assert_not_called()
++        self.assertEqual(code, 1)
++        self.assertIn("canonical harness/driver map mismatch", (destination / "result.json").read_text())
++
++    def test_uncovered_new_default_target_rejected(self):
++        self.metadata["packages"][0]["targets"].append(self.metadata_target("new_suite", "tests/new_suite.rs", ["test"]))
++        with self.assertRaisesRegex(AssertionError, "Default Cargo target coverage mismatch"):
++            q.target_inventory(self.workspace, self.config)
++
++    def test_missing_library_configuration_rejected(self):
++        del self.config["suites"]["percolator_prog_lib"]
++        with self.assertRaisesRegex(AssertionError, "Default Cargo target coverage mismatch"):
++            q.target_inventory(self.workspace, self.config)
++
++    def test_kani_cannot_be_excluded_if_default_feature_closure_enables_it(self):
++        features = self.metadata["packages"][0]["features"]
++        features["default"].append("proofs")
++        features["proofs"] = ["kani"]
++        with self.assertRaisesRegex(AssertionError, "Default Cargo target coverage mismatch"):
++            q.target_inventory(self.workspace, self.config)
++
++    def test_separate_kani_roster_cannot_hide_default_target(self):
++        self.config["separate_targets"].append({"kind": "lib", "target": "percolator_prog",
++            "required_features": [], "reason": "Invalid exclusion"})
++        with self.assertRaisesRegex(AssertionError, "Separate target roster"):
++            q.target_inventory(self.workspace, self.config)
++
++    def test_missing_or_misdeclared_kani_roster_rejected(self):
++        for separate in ([], [{"kind": "bin", "target": "v16-kani", "required_features": ["other"], "reason": "Wrong feature"}]):
++            with self.subTest(separate=separate):
++                self.config["separate_targets"] = separate
++                with self.assertRaisesRegex(AssertionError, "Separate target roster"):
++                    q.target_inventory(self.workspace, self.config)
++
++    def test_exact_generated_harnesses_do_not_change_original_target_inventory(self):
++        before = q.target_inventory(self.workspace, self.config)
++        q.cu_plan(self.workspace / "percolator-prog", self.config, 0)
++        self.assertEqual(q.target_inventory(self.workspace, self.config), before)
++
++    def test_library_uses_standard_test_compile_and_source(self):
++        self.assertEqual(q.compile_command(self.config, "lib", "percolator_prog"),
++            ["cargo", "+1.95.0", "test", "--locked", "--lib", "--no-run", "--message-format=json"])
++        harness = q.canonical_harnesses(self.workspace, self.config)["percolator_prog_lib-00"]
++        self.assertEqual((harness["kind"], harness["target"], harness["source"]),
++                         ("lib", "percolator_prog", "src/v16_program.rs"))
++
++    def test_reported_target_inventory_cannot_disagree_with_candidate(self):
++        self.reports[0]["cargo_targets"]["default_features"] = []
++        with self.assertRaisesRegex(AssertionError, "Noncanonical Cargo target inventory"):
++            self.verify()
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/scripts/wrapper_qualification.py b/scripts/wrapper_qualification.py
+index 5914120..61b0608 100644
+--- a/scripts/wrapper_qualification.py
++++ b/scripts/wrapper_qualification.py
+@@ -112,6 +112,94 @@ def matrix(config):
+             for index in range(settings["shards"])]
+ 
+ 
++def suite_target(suite, config):
++    settings = config["suites"][suite]
++    kind, target = settings.get("kind", "test"), settings.get("target", suite)
++    assert kind in ("lib", "test", "bin", "example"), f"Unsupported test target kind: {kind}"
++    if suite in ("v16_cu", "outright_native_lifecycle"):
++        assert (kind, target) == ("test", suite), "Generated suite target cannot be remapped"
++    return kind, target
++
++
++def cargo_metadata(wrapper, config):
++    # Called only after the pinned host toolchain is installed, never by fetch.
++    return json.loads(output(["cargo", "+" + config["host_rust"], "metadata", "--locked",
++                              "--no-deps", "--format-version", "1"], wrapper))
++
++
++def default_features(features):
++    enabled = {"default"} if "default" in features else set()
++    while True:
++        previous = enabled.copy()
++        for name in previous:
++            for member in features.get(name, []):
++                if member in features:
++                    enabled.add(member)
++                elif "/" in member and "?/" not in member:
++                    dependency = member.split("/", 1)[0]
++                    # Strong dependency-feature syntax enables an implicit
++                    # optional-dependency feature; namespaced/weak refs do not.
++                    if features.get(dependency) == ["dep:" + dependency]:
++                        enabled.add(dependency)
++        if enabled == previous:
++            return sorted(enabled)
++
++
++def target_inventory(workspace, config):
++    check_source(workspace, config)
++    wrapper = (workspace / "percolator-prog").resolve()
++    metadata = cargo_metadata(wrapper, config)
++    packages = [package for package in metadata["packages"]
++                if Path(package["manifest_path"]).resolve() == wrapper / "Cargo.toml"]
++    assert len(packages) == 1, "Expected exactly the checked wrapper package"
++    package = packages[0]
++    enabled = default_features(package["features"])
++    targets = []
++    for target in package["targets"]:
++        kinds = sorted(target["kind"])
++        kind = "lib" if any(k in kinds for k in ("lib", "rlib", "dylib", "cdylib", "staticlib", "proc-macro")) else kinds[0]
++        path = Path(target["src_path"]).resolve().relative_to(wrapper).as_posix()
++        name = target["name"]
++        required = sorted(target.get("required-features", []))
++        generated = re.fullmatch(r"outright_qualification_cu_(\d{2})", name)
++        if generated or name == "outright_native_lifecycle":
++            assert (kind, path, target["test"], required) == ("test", f"tests/{name}.rs", True, []), "Unexpected generated target shape"
++            assert not output(["git", "ls-files", "--", path], wrapper), "Reserved generated harness is tracked"
++            if generated:
++                index = int(generated[1])
++                assert index < config["suites"]["v16_cu"]["shards"], "Unknown generated CU target"
++                expected_hash = cu_plan(wrapper, config, index, write=False)[4]
++            else:
++                assert name in config["suites"], "Unconfigured generated native target"
++                expected_hash = digest(ROOT / "protocol/svm/lifecycle.rs")
++            assert digest(wrapper / path) == expected_hash, "Noncanonical generated Cargo target"
++            continue
++        targets.append({"kind": kind, "cargo_kinds": kinds, "target": name, "source": path,
++                        "test": target["test"], "doctest": target.get("doctest", False),
++                        "required_features": required,
++                        "default_enabled": set(required) <= set(enabled)})
++    targets.sort(key=lambda target: (target["kind"], target["target"]))
++    keys = [(target["kind"], target["target"]) for target in targets]
++    assert len(keys) == len(set(keys)), "Duplicate Cargo target identity"
++    actual = {(target["kind"], target["target"]) for target in targets
++              if target["test"] and target["default_enabled"]}
++    configured = [suite_target(suite, config) for suite in config["suites"]
++                  if suite != "outright_native_lifecycle"]
++    assert len(configured) == len(set(configured)), "Duplicate configured Cargo test target"
++    assert set(configured) == actual, f"Default Cargo target coverage mismatch: uncovered={sorted(actual - set(configured))}, unexpected={sorted(set(configured) - actual)}"
++    disabled = {(target["kind"], target["target"]): target["required_features"]
++                for target in targets if target["test"] and not target["default_enabled"]}
++    separate = {}
++    for target in config.get("separate_targets", []):
++        key = (target["kind"], target["target"])
++        assert key not in separate and target["reason"].strip(), "Duplicate/unexplained separate target"
++        separate[key] = sorted(target["required_features"])
++    assert separate == disabled, "Separate target roster must match only default-disabled required-feature targets"
++    return {"package": package["name"], "version": package["version"],
++            "default_features": enabled, "targets": targets,
++            "scope": "default-feature unit and integration test targets; rustdoc and Kani proofs are separate"}
++
++
+ def module_owners(modules, config):
+     # Weights affect scheduling only. Runtime discovery always includes new tests.
+     count = config["suites"]["v16_cu"]["shards"]
+@@ -157,11 +245,92 @@ def artifact_hashes(workspace):
+     return {name: digest(workspace / name) for name in ARTIFACTS}
+ 
+ 
++def protocol_source():
++    """Bind sorted tracked paths and their actual bytes, independent of Git revision."""
++    names = subprocess.check_output(
++        ["git", "ls-files", "-z", "--", "protocol/"], cwd=ROOT,
++    ).split(b"\0")
++    names = sorted(name for name in names if name)
++    assert names and len(names) == len(set(names)), "Missing/duplicate tracked protocol files"
++    checksum = hashlib.sha256(b"outright-protocol-source-v1\0")
++    files = []
++    for encoded_name in names:
++        name = encoded_name.decode("utf-8")
++        path = ROOT / name
++        assert path.is_file() and not path.is_symlink(), f"Expected tracked regular file: {name}"
++        content = path.read_bytes()
++        checksum.update(len(encoded_name).to_bytes(8, "big"))
++        checksum.update(encoded_name)
++        checksum.update(len(content).to_bytes(8, "big"))
++        checksum.update(content)
++        files.append({"path": name, "bytes": len(content),
++                      "sha256": hashlib.sha256(content).hexdigest()})
++    return {"sha256": checksum.hexdigest(), "files": files}
++
++
++def source_metadata():
++    # Revision is evidence metadata, not content identity: docs-only successors
++    # can verify prior results while preserving which revision actually ran them.
++    return {"outright_revision": output(["git", "rev-parse", "HEAD"], ROOT),
++            "tracked_worktree_dirty": bool(output(["git", "status", "--porcelain", "--untracked-files=no"], ROOT))}
++
++
++def canonical_harnesses(workspace, config, inventory=None):
++    wrapper = workspace / "percolator-prog"
++    inventory = target_inventory(workspace, config) if inventory is None else inventory
++    sources = {(target["kind"], target["target"]): target["source"] for target in inventory["targets"]}
++    harnesses = {}
++    for shard in matrix(config):
++        suite = shard["suite"]
++        kind, target = suite_target(suite, config)
++        driver_hash = None
++        if suite == "v16_cu":
++            target, _, _, _, harness_hash = cu_plan(wrapper, config, shard["index"], write=False)
++            source_path = f"tests/{target}.rs"
++        elif suite == "outright_native_lifecycle":
++            harness_hash = digest(ROOT / "protocol/svm/lifecycle.rs")
++            driver_hash = digest(ROOT / "protocol/svm/driver.mjs")
++            source_path = "tests/outright_native_lifecycle.rs"
++        else:
++            source_path = sources[(kind, target)]
++            harness_hash = digest(wrapper / source_path)
++        harnesses[shard["id"]] = {"kind": kind, "target": target, "source": source_path,
++                                  "harness_sha256": harness_hash, "driver_sha256": driver_hash}
++    return harnesses
++
++
+ def identity(config):
+     return {"wrapper": config["wrapper"], "matcher": config["matcher"],
+             "overlay": config.get("overlay"),
+             "engine_ref": config["engine_ref"], "manifest_sha256": digest(MANIFEST),
+-            "runner_sha256": digest(__file__)}
++            "runner_sha256": digest(__file__), "protocol_source": protocol_source()}
++
++
++def check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory):
++    check_source(workspace, config)
++    assert identity(config) == expected_identity, "Protocol/qualification source changed during execution"
++    current_inventory = target_inventory(workspace, config)
++    assert current_inventory == inventory, "Cargo target inventory changed"
++    assert canonical_harnesses(workspace, config, current_inventory) == harnesses, "Canonical harness/driver map changed"
++
++
++def attest(workspace, config):
++    check_source(workspace, config)
++    expected_identity = identity(config)
++    inventory = target_inventory(workspace, config)
++    harnesses = canonical_harnesses(workspace, config, inventory)
++    hashes = artifact_hashes(workspace)
++    check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
++    return {"identity": expected_identity, "source_metadata": source_metadata(),
++            "cargo_targets": inventory, "harnesses": harnesses, "hashes": hashes}
++
++
++def compile_command(config, kind, target):
++    command = ["cargo", "+" + config["host_rust"]]
++    if kind == "lib":
++        return command + ["test", "--locked", "--lib", "--no-run", "--message-format=json"]
++    return command + ["rustc", "--locked", "--" + kind, target,
++                      "--message-format=json", "--", "-C", "debuginfo=0", "-C", "codegen-units=256"]
+ 
+ 
+ def run_logged(command, cwd, log, timeout, env=None):
+@@ -201,21 +370,31 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
+     suite, index = shard["suite"], shard["index"]
+     wrapper = workspace / "percolator-prog"
+     result_dir.mkdir(parents=True, exist_ok=True)
+-    report = {**identity(config), **shard, "status": "incomplete", "registered": [],
++    expected_identity = identity(config)
++    report = {**expected_identity, **shard, "source_metadata": source_metadata(),
++              "status": "incomplete", "registered": [],
+               "assigned": [], "results": [], "modules": [], "owned_modules": [],
+               "included_modules": []}
+     try:
+         check_source(workspace, config)
++        inventory = target_inventory(workspace, config)
++        harnesses = canonical_harnesses(workspace, config, inventory)
+         attestation = json.loads(artifacts.read_text())
+-        assert attestation["identity"] == identity(config), "Artifact/source identity mismatch"
++        assert attestation["identity"] == expected_identity, "Artifact/source identity mismatch"
++        assert attestation["cargo_targets"] == inventory, "Artifact Cargo target inventory mismatch"
++        assert attestation["harnesses"] == harnesses, "Artifact canonical harness/driver map mismatch"
++        report["harnesses"] = harnesses
++        report["cargo_targets"] = inventory
++        report["program_source_metadata"] = attestation["source_metadata"]
++        report.update(harnesses[shard_id])
+         hashes = artifact_hashes(workspace)
+         assert hashes == attestation["hashes"], "SBF artifact digest mismatch"
+         report["sbf_hashes"] = hashes
+-        target = suite
++        target = report["target"]
+         if suite == "v16_cu":
+             target, modules, owned, included, generated_hash = cu_plan(wrapper, config, index)
+-            report.update(modules=modules, owned_modules=owned, included_modules=included,
+-                          harness_sha256=generated_hash)
++            assert target == report["target"] and generated_hash == report["harness_sha256"], "Generated CU plan differs from canonical map"
++            report.update(modules=modules, owned_modules=owned, included_modules=included)
+         elif suite == "outright_native_lifecycle":
+             source = ROOT / "protocol/svm/lifecycle.rs"
+             destination = wrapper / "tests/outright_native_lifecycle.rs"
+@@ -223,17 +402,18 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
+                 assert destination.read_bytes() == source.read_bytes()
+             else:
+                 destination.write_bytes(source.read_bytes())
+-            report["harness_sha256"] = digest(source)
++        assert digest(wrapper / report["source"]) == report["harness_sha256"], "Test harness differs from canonical source"
++        check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
+         env = {key: value for key, value in os.environ.items()
+                if not key.startswith(("PERCOLATOR_", "PROPTEST_"))
+                and key not in ("CARGO_TARGET_DIR", "SBF_OUT_PATH", "RUSTFLAGS", "CARGO_ENCODED_RUSTFLAGS")}
+         env.update(CARGO_BUILD_JOBS="1", CARGO_INCREMENTAL="0",
+-                   CARGO_PROFILE_DEV_DEBUG="0", CARGO_PROFILE_TEST_DEBUG="0")
++                   CARGO_PROFILE_DEV_DEBUG="0", CARGO_PROFILE_TEST_DEBUG="0",
++                   CARGO_PROFILE_TEST_CODEGEN_UNITS="256")
+         if suite == "outright_native_lifecycle":
+             env["OUTRIGHT_NATIVE_DRIVER"] = str(ROOT / "protocol/svm/driver.mjs")
+         compile_log = result_dir / "compile.log"
+-        command = ["cargo", "+" + config["host_rust"], "rustc", "--locked", "--test", target,
+-                   "--message-format=json", "--", "-C", "debuginfo=0", "-C", "codegen-units=256"]
++        command = compile_command(config, report["kind"], target)
+         code, elapsed = run_logged(command, wrapper, compile_log, config["compile_timeout_seconds"], env)
+         report["compile"] = {"command": command, "exit_code": code, "seconds": elapsed}
+         assert code == 0, f"Host compilation failed ({code}); see compile.log"
+@@ -261,7 +441,7 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
+                                       "seconds": elapsed, "log": log.name, "log_sha256": digest(log)})
+             print(f'{shard_id} {number + 1}/{len(assigned)} {"PASS" if passed else "FAIL"} {name}', flush=True)
+             write_json(result_dir / "result.json", report)
+-        check_source(workspace, config)
++        check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
+         assert artifact_hashes(workspace) == hashes, "Tests modified program artifacts"
+         report["status"] = "complete"
+     except Exception as error:
+@@ -271,13 +451,16 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
+     return 0 if report["status"] == "complete" and all(r["passed"] for r in report["results"]) else 1
+ 
+ 
+-def verify_reports(reports, config):
++def verify_reports(reports, config, workspace):
++    check_source(workspace, config)
+     jobs = matrix(config)
+     assert len(reports) == len(jobs), f"Missing/extra reports: {len(reports)} != {len(jobs)}"
+     assert {r["id"] for r in reports} == {j["id"] for j in jobs}, "Duplicate/missing shards"
+     for report in reports:
+         assert {key: report[key] for key in ("id", "suite", "index")} in jobs, "Invalid shard identity"
+     expected_identity = identity(config)
++    inventory = target_inventory(workspace, config)
++    harnesses = canonical_harnesses(workspace, config, inventory)
+     hashes = None
+     summary = {}
+     for suite, settings in config["suites"].items():
+@@ -287,6 +470,9 @@ def verify_reports(reports, config):
+         full_listing = None
+         for report in subset:
+             assert {key: report[key] for key in expected_identity} == expected_identity, "Mixed source/runner identities"
++            assert report["cargo_targets"] == inventory, "Noncanonical Cargo target inventory"
++            assert report["harnesses"] == harnesses, "Noncanonical harness/driver map"
++            assert {key: report[key] for key in harnesses[report["id"]]} == harnesses[report["id"]], "Noncanonical tested harness/driver"
+             assert report["status"] == "complete", f'Incomplete shard {report["id"]}: {report.get("error")}'
+             if hashes is None:
+                 hashes = report["sbf_hashes"]
+@@ -300,6 +486,12 @@ def verify_reports(reports, config):
+             registered_union.update(registered)
+             executed.extend(r["name"] for r in report["results"])
+             if suite == "v16_cu":
++                _, canonical_modules, canonical_owned, canonical_included, _ = cu_plan(
++                    workspace / "percolator-prog", config, report["index"], write=False,
++                )
++                assert report["modules"] == canonical_modules, "Noncanonical source module inventory"
++                assert report["owned_modules"] == canonical_owned, "Noncanonical module ownership"
++                assert report["included_modules"] == canonical_included, "Noncanonical harness module closure"
+                 if modules:
+                     assert set(report["modules"]) == modules, "Different source module inventories"
+                 modules = set(report["modules"])
+@@ -317,7 +509,12 @@ def verify_reports(reports, config):
+         if suite == "v16_cu":
+             assert len(owned_modules) == len(set(owned_modules)) and set(owned_modules) == modules
+         summary[suite] = {"passed": len(executed), "tests": sorted(executed)}
+-    return {"identity": expected_identity, "sbf_hashes": hashes, "suites": summary, "passed": True}
++    check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
++    return {"identity": expected_identity, "candidate_source_metadata": source_metadata(),
++            "tested_source_metadata": {report["id"]: report["source_metadata"] for report in reports},
++            "program_source_metadata": {report["id"]: report["program_source_metadata"] for report in reports},
++            "cargo_targets": inventory, "harnesses": harnesses,
++            "sbf_hashes": hashes, "suites": summary, "passed": True}
+ 
+ 
+ def main():
+@@ -339,16 +536,16 @@ def main():
+     elif args.command == "fetch":
+         fetch(args.workspace.resolve(), config)
+     elif args.command == "attest":
+-        check_source(args.workspace.resolve(), config)
+-        write_json(args.output, {"identity": identity(config), "hashes": artifact_hashes(args.workspace.resolve())})
++        write_json(args.output, attest(args.workspace.resolve(), config))
+     elif args.command == "prepare":
+         shard = next(j for j in matrix(config) if j["id"] == args.shard)
+         print(json.dumps(cu_plan(args.workspace.resolve() / "percolator-prog", config, shard["index"])))
+     elif args.command == "run":
+         return run_shard(args.workspace.resolve(), config, args.shard, args.artifacts.resolve(), args.output.resolve())
+     else:
++        assert args.workspace is not None, "aggregate requires --workspace with the exact candidate checkout"
+         reports = [json.loads(path.read_text()) for path in sorted(args.reports.glob("**/result.json"))]
+-        summary = verify_reports(reports, config)
++        summary = verify_reports(reports, config, args.workspace.resolve())
+         write_json(args.output, summary)
+         for suite, result in summary["suites"].items():
+             print(f'{suite}: {result["passed"]} passed, exact execution coverage verified')

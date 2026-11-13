@@ -143,6 +143,10 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+      - name: Fetch the exact candidate for independent harness verification
+        run: python3 scripts/wrapper_qualification.py fetch --workspace "$RUNNER_TEMP/wrapper-sources"
+      - name: Install pinned host toolchain for Cargo target inventory
+        run: rustup toolchain install 1.95.0 --profile minimal
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: wrapper-result-*
@@ -150,6 +154,7 @@ jobs:
       - name: Require all shards, all registered tests, and all passing results
         run: |
           python3 scripts/wrapper_qualification.py aggregate \
+            --workspace "$RUNNER_TEMP/wrapper-sources" \
             --reports "$RUNNER_TEMP/wrapper-results" \
             --output "$RUNNER_TEMP/wrapper-qualification.json"
           test '${{ needs.plan.result }}' = success

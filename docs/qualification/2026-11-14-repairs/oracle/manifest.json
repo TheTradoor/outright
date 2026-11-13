@@ -1,5 +1,5 @@
 {
-  "status": "INV072 complete; INV077 module running",
+  "status": "Scoped repair validation complete; broad INV077 module interrupted/incomplete after 9 completed cases, with no terminal summary.",
   "base_wrapper_commit": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
   "engine_commit": "a712af767eeb217876a3d3c50e3849b60ea54462",
   "production_change": {
@@ -128,20 +128,20 @@
       "log": "after-composite-liquidation.log"
     }
   ],
-  "pending_validation": [
-    "INV077 full 77-case module"
-  ],
+  "pending_validation": [],
   "limitations": [
     "Local synthetic SBF/LiteSVM evidence only; no mainnet transactions or deployment.",
     "This is not whole-project or independent-security qualification.",
     "All-Live 950,000 CU bound is unchanged and has only 29 CU margin on this exact compiler/artifact.",
-    "No commit/push performed; original shared repository and SBF remain unchanged."
+    "No commit/push performed; original shared repository and SBF remain unchanged.",
+    "The local full 77-case INV077 run was interrupted: only 9 completed cases are recorded; no 77-case pass, total duration, or exit status is claimed."
   ],
   "evidence_sha256": {
     "after-composite-liquidation.log": "57d0fe4d62161ba04e5dde50b4925e63b995fd1983ba0cae2ee9bff5e101edd9",
     "after-delayed.log": "6f14d1facfb8806375d94e2a4fe21e6699e3ae325946f357e622627a62c17e04",
     "after-inv072-module.log": "46ede5c7c269cd367920579b2f718e3b4a7a22c9402ffd544da39926ae488f76",
     "after-inv072.log": "043b73a49fee5352de0c70c7f750ce4fbf17cfce3d87c5acd3d67f56abce1e81",
+    "after-inv077-module-interrupted.log": "4cd0c8c3eb47f417b5c079791de2af2f29562b38723e6087f8ca3a22b959bceb",
     "after-liquidation-14.log": "54e0111de4b5a4314dd0d7c77980e41eb619f3449198c22e81b67e802c6526b7",
     "after-live-950k.log": "4eaee04647a6207a0708a8357e540da82989b292a32145852a22298350b6a24d",
     "after-refresh-14.log": "99b2d9519d8b87445e9601df96710fa065de4aaada1b1f5ed7ee72a19f6e6960",
@@ -152,11 +152,44 @@
     "before-same-slot-final-source.log": "0b0613e7c11266397dd9d2ad8293e54955d2d6851a06b271537de32ebfe78c28",
     "host-build.log": "7c109c4b2001889830d77c43eaf124c1af719af47993c3ef5ed04f46b5df5457",
     "inv072-fixture-only.patch": "6a712d2542c970da8a8fe983d040a66ac5de948a59249f7a8032c4c4a8d9b4f8",
+    "inv077-interrupted-status.json": "ebbf7572b7fc49e7c04e7a1a387cb3a088dba60dd557c082b384d761bde62525",
     "oracle-repair-complete.patch": "d476f64d1690c294276b997b634b005c51767b729aabf3911abce950611e3122",
     "original-inv072.log": "5921d323f3ac9a116c39736f525d3b74d49bb802f3b40551a3d09988404c7a8a",
     "original-inv077.log": "9a12b7fc3260d7cd67fe0b0c0e52ce335ca2c27cc8a860d5b22baf08807a2ecb",
     "recovery-production-and-inv077.patch": "a20cb13a0d74de0b0f48c8a34ab71a96856c1515b32c3cf2122dcfd4914cc56e",
     "reproduce-focused-cu-harness.py": "be95e6bb7aec56be7c6255e4b897a2e9745a378aaae570a56455d8eed6b058ae",
     "sbf-build.log": "0dec62fd8a5f57e6d0733a21c00ddcd4a01745f910e7bbb1ab2914a3ad22745b"
-  }
+  },
+  "incomplete_validation": [
+    {
+      "status": "interrupted/incomplete",
+      "reason": "Local unified-exec session 48501 is unavailable: write_stdin returned Unknown process id 48501. The captured test log has no terminal module summary.",
+      "recorded_at_utc": "2026-11-13T22:45:08.332283+00:00",
+      "planned_cases": 77,
+      "completed_ok_cases": 9,
+      "observed_failed_cases": 0,
+      "started_without_result": [
+        "inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_max_market_dense_backing_expiry_has_bounded_terminal_progress"
+      ],
+      "not_started_cases": 67,
+      "completed_cases": [
+        "inv_077_bounded_work_and_maximum_shape_compute::native_insurance_exit::v16_program_native_insurance_partial_redemption_reaches_bounded_terminal_exit",
+        "inv_077_bounded_work_and_maximum_shape_compute::native_insurance_exit::v16_program_native_multisig_insurance_recreation_preserves_unsigned_retirement",
+        "inv_077_bounded_work_and_maximum_shape_compute::public_native_insurance_capacity::v16_program_public_max_market_native_partial_insurance_ledgers_complete_in_both_orders",
+        "inv_077_bounded_work_and_maximum_shape_compute::retired_sibling_recovery::v16_program_max_market_retired_siblings_preserve_oversized_force_close_and_owner_exit",
+        "inv_077_bounded_work_and_maximum_shape_compute::secondary_quote_completion::v16_program_secondary_quote_repair_after_expiry_has_atomic_bounded_disposition",
+        "inv_077_bounded_work_and_maximum_shape_compute::short_side_b_budget::v16_program_max_shape_short_b_budget_has_exact_public_progress",
+        "inv_077_bounded_work_and_maximum_shape_compute::terminal_destination_variants::v16_program_terminal_sweep_preserves_destination_authorities_and_exact_disposal",
+        "inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_dual_quote_provider_expiry_has_bounded_terminal_disposition",
+        "inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_freezable_quote_terminal_retry_preserves_retirement_and_rent"
+      ],
+      "duration_seconds": null,
+      "exit_code": null,
+      "duration_note": "No terminal result was emitted, so no completed-suite duration or exit status is claimed.",
+      "log": "after-inv077-module-interrupted.log",
+      "log_sha256": "4cd0c8c3eb47f417b5c079791de2af2f29562b38723e6087f8ca3a22b959bceb",
+      "restart": "No automatic broad restart; root reports complete source-shard GitHub CI 43520468937 running separately.",
+      "targeted_evidence": "The separately completed delayed/same-slot Recovery tests, four compute controls, and full INV072 11/11 are unaffected."
+    }
+  ]
 }

@@ -30,6 +30,24 @@
     "outright_native_lifecycle": {
       "shards": 1,
       "minimum_tests": 17
+    },
+    "anchor_v2_realloc_probe": {
+      "shards": 1,
+      "minimum_tests": 7
+    },
+    "listing_oracle_scope": {
+      "shards": 1,
+      "minimum_tests": 8
+    },
+    "open_issue_regressions": {
+      "shards": 1,
+      "minimum_tests": 9
+    },
+    "percolator_prog_lib": {
+      "kind": "lib",
+      "target": "percolator_prog",
+      "shards": 1,
+      "minimum_tests": 8
     }
   },
   "test_timeout_seconds": 1800,
@@ -297,7 +315,17 @@
   },
   "overlay": {
     "path": "qualification/program-repair.patch",
-    "sha256": "0b1474d1b0a7ab54b0890b6c121fc9292530ffedbfe0cc414e54afbceb91cfb8",
-    "tree": "6621d5edd799f68ce0864f740ddc6da22e01c701"
-  }
+    "sha256": "031848cbccf8dd971ba3fc16b4c39db56093a24cbbc527aaf6e8182d71c061c6",
+    "tree": "8b54b827082b2b838beacd88d4d99bd12878d2ca"
+  },
+  "separate_targets": [
+    {
+      "kind": "bin",
+      "target": "v16-kani",
+      "required_features": [
+        "kani"
+      ],
+      "reason": "Kani proof harness; separate proof runner"
+    }
+  ]
 }

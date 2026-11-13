@@ -1,0 +1,20 @@
+{
+  "id": 14084557630,
+  "node_id": "MDg6QXJ0aWZhY3QxNDA4NDU1NzYzMA==",
+  "name": "wrapper-result-v16_cu-14",
+  "size_in_bytes": 90379,
+  "url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14084557630",
+  "archive_download_url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14084557630/zip",
+  "expired": false,
+  "digest": "sha256:1bf3fa809898c46d4f43d66f4b897a28a4e110113da2272af6866abb496495d6",
+  "created_at": "2026-11-13T23:04:34Z",
+  "updated_at": "2026-11-13T23:04:34Z",
+  "expires_at": "2026-11-27T23:04:33Z",
+  "workflow_run": {
+    "id": 43520468937,
+    "repository_id": 1455787988,
+    "head_repository_id": 1455787988,
+    "head_branch": "fix/program-qualification",
+    "head_sha": "9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1"
+  }
+}

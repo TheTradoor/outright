@@ -1,0 +1,30 @@
+{
+  "status": "interrupted/incomplete",
+  "reason": "Local unified-exec session 48501 is unavailable: write_stdin returned Unknown process id 48501. The captured test log has no terminal module summary.",
+  "recorded_at_utc": "2026-11-13T22:45:08.332283+00:00",
+  "planned_cases": 77,
+  "completed_ok_cases": 9,
+  "observed_failed_cases": 0,
+  "started_without_result": [
+    "inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_max_market_dense_backing_expiry_has_bounded_terminal_progress"
+  ],
+  "not_started_cases": 67,
+  "completed_cases": [
+    "inv_077_bounded_work_and_maximum_shape_compute::native_insurance_exit::v16_program_native_insurance_partial_redemption_reaches_bounded_terminal_exit",
+    "inv_077_bounded_work_and_maximum_shape_compute::native_insurance_exit::v16_program_native_multisig_insurance_recreation_preserves_unsigned_retirement",
+    "inv_077_bounded_work_and_maximum_shape_compute::public_native_insurance_capacity::v16_program_public_max_market_native_partial_insurance_ledgers_complete_in_both_orders",
+    "inv_077_bounded_work_and_maximum_shape_compute::retired_sibling_recovery::v16_program_max_market_retired_siblings_preserve_oversized_force_close_and_owner_exit",
+    "inv_077_bounded_work_and_maximum_shape_compute::secondary_quote_completion::v16_program_secondary_quote_repair_after_expiry_has_atomic_bounded_disposition",
+    "inv_077_bounded_work_and_maximum_shape_compute::short_side_b_budget::v16_program_max_shape_short_b_budget_has_exact_public_progress",
+    "inv_077_bounded_work_and_maximum_shape_compute::terminal_destination_variants::v16_program_terminal_sweep_preserves_destination_authorities_and_exact_disposal",
+    "inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_dual_quote_provider_expiry_has_bounded_terminal_disposition",
+    "inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_freezable_quote_terminal_retry_preserves_retirement_and_rent"
+  ],
+  "duration_seconds": null,
+  "exit_code": null,
+  "duration_note": "No terminal result was emitted, so no completed-suite duration or exit status is claimed.",
+  "log": "after-inv077-module-interrupted.log",
+  "log_sha256": "4cd0c8c3eb47f417b5c079791de2af2f29562b38723e6087f8ca3a22b959bceb",
+  "restart": "No automatic broad restart; root reports complete source-shard GitHub CI 43520468937 running separately.",
+  "targeted_evidence": "The separately completed delayed/same-slot Recovery tests, four compute controls, and full INV072 11/11 are unaffected."
+}

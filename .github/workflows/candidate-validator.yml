@@ -1,0 +1,61 @@
+name: Candidate validator
+
+on:
+  push:
+    branches: [master]
+    paths: ["qualification/**", "protocol/**", "scripts/candidate_validator.py", "scripts/candidate_validator.mjs", "scripts/tests/test_candidate_validator.py", "scripts/wrapper_qualification.py", ".github/workflows/candidate-validator.yml"]
+  pull_request:
+    paths: ["qualification/**", "protocol/**", "scripts/candidate_validator.py", "scripts/candidate_validator.mjs", "scripts/tests/test_candidate_validator.py", "scripts/wrapper_qualification.py", ".github/workflows/candidate-validator.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: candidate-validator-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lifecycle:
+    name: Candidate current-validator lifecycle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      CARGO_BUILD_JOBS: "1"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - name: Validate fail-closed report checks and harness syntax
+        run: |
+          python3 -m unittest discover -s scripts/tests -p test_candidate_validator.py -v
+          node --check scripts/candidate_validator.mjs
+      - name: Install pinned current-validator tools
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal
+          cargo +1.95.0 install cargo-build-sbf --version 4.6.0 --locked
+          curl --fail --location --retry 2 --output "$RUNNER_TEMP/agave.tar.bz2" https://github.com/anza-xyz/agave/releases/download/v4.4.1/solana-release-x86_64-unknown-linux-gnu.tar.bz2
+          echo "5b0f0fc7e4eedace05f6455de00aa1f2f3d1642068f1e8d50760ba49112c3941  $RUNNER_TEMP/agave.tar.bz2" | sha256sum --check
+          tar -xjf "$RUNNER_TEMP/agave.tar.bz2" -C "$RUNNER_TEMP"
+      - name: Install locked client dependencies
+        run: npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
+      - name: Verify candidate, build SBPF v3, and execute complete RPC lifecycle
+        run: |
+          python3 scripts/candidate_validator.py \
+            --workspace "$RUNNER_TEMP/candidate-validator-sources" \
+            --output "$RUNNER_TEMP/candidate-validator-results" \
+            --state "$RUNNER_TEMP/candidate-validator-private-state" \
+            --validator "$RUNNER_TEMP/solana-release/bin/solana-test-validator"
+      - name: Preserve public qualification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: candidate-current-validator
+          path: ${{ runner.temp }}/candidate-validator-results/
+          if-no-files-found: error
+          retention-days: 14

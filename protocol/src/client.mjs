@@ -507,6 +507,16 @@ export async function readSnapshot(
   });
 }
 
+export function isTradeOracleFresh(profile, snapshot, asset) {
+  const slot = BigInt(snapshot.slot),
+    oracleSlot = asset.oracle.last_good_oracle_slot;
+  return (
+    Boolean(asset.effective_price) &&
+    oracleSlot <= slot &&
+    slot - oracleSlot <= BigInt(profile.maxOracleAgeSlots)
+  );
+}
+
 export function planAction(profile, snapshot, action, rentLamports = 0) {
   const settlement = isSettlementAction(action.type);
   const recovery = isRecoveryAction(action.type);
@@ -715,13 +725,7 @@ export function planAction(profile, snapshot, action, rentLamports = 0) {
         !["buy", "sell"].includes(action.side)
       )
         throw new Error("Select an active asset and a trade side");
-      const slot = BigInt(snapshot.slot),
-        oracleSlot = asset.oracle.last_good_oracle_slot;
-      if (
-        !asset.effective_price ||
-        oracleSlot > slot ||
-        slot - oracleSlot > BigInt(profile.maxOracleAgeSlots)
-      )
+      if (!isTradeOracleFresh(profile, snapshot, asset))
         throw new Error("Oracle is stale; wait for the keeper before trading");
       const size = parseUnits(action.size, 6),
         limit = parseUnits(action.limitPrice, 6);

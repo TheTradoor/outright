@@ -446,6 +446,51 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
         el("review-dialog").close();
       },
     );
+    for (const observation of ["expired", "future", "zero price"])
+      await t.test(
+        `${observation} oracle data disables trade review with a reason, and fresh data restores it`,
+        async () => {
+          const data = f.accounts.get(f.market.toBase58()).data;
+          const base = contract.constants.marketGroupOffset + contract.constants.marketHeaderLength;
+          const oracleOffset = base + contract.layouts.oracle.last_good_oracle_slot.offset;
+          const priceOffset = base + contract.layouts.assetOffset + contract.layouts.asset.effective_price.offset;
+          const oldSlot = data.readBigUInt64LE(oracleOffset);
+          const oldPrice = data.readBigUInt64LE(priceOffset);
+          const sent = f.rpc.sent.length;
+          try {
+            if (observation === "expired")
+              data.writeBigUInt64LE(BigInt(f.rpc.slot - f.profile.maxOracleAgeSlots - 1), oracleOffset);
+            if (observation === "future") data.writeBigUInt64LE(BigInt(f.rpc.slot + 1), oracleOffset);
+            if (observation === "zero price") data.writeBigUInt64LE(0n, priceOffset);
+            el("refresh").click();
+            await until(() => !el("wallet-button").disabled, "oracle refresh did not settle");
+            assert.equal(el("trade-review").disabled, true);
+            assert.equal(el("trade-availability").hidden, false);
+            assert.match(el("trade-availability").textContent, /wait.*refresh/is);
+            assert.equal(el("trade-review").getAttribute("aria-describedby"), "trade-availability");
+            assert.equal(el("collateral-form").querySelector('[value="deposit"]').disabled, false);
+            assert.equal(el("refresh").disabled, false);
+            // Direct event dispatch bypasses a disabled button; the client still
+            // rejects the actual oracle bytes before a review or wallet prompt.
+            const form = el("trade-form");
+            form.elements.namedItem("size").value = "0.1";
+            form.elements.namedItem("limitPrice").value = "150";
+            form.dispatchEvent(new w.Event("submit", { cancelable: true }));
+            await until(() => !el("wallet-button").disabled, "blocked trade did not settle");
+            assert.match(el("feedback").textContent, /Oracle is stale/);
+            assert.equal(el("review-dialog").open, false);
+            assert.equal(f.rpc.sent.length, sent);
+          } finally {
+            data.writeBigUInt64LE(oldSlot, oracleOffset);
+            data.writeBigUInt64LE(oldPrice, priceOffset);
+            el("refresh").click();
+            await until(() => !el("wallet-button").disabled, "fresh oracle refresh did not settle");
+          }
+          assert.equal(el("trade-review").disabled, false);
+          assert.equal(el("trade-availability").hidden, true);
+          assert.equal(el("trade-review").hasAttribute("aria-describedby"), false);
+        },
+      );
     await t.test(
       "an empty asset list still updates portfolio data and clears the old chart",
       async () => {

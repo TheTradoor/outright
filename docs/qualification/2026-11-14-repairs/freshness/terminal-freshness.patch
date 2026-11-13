@@ -1,0 +1,202 @@
+diff --git a/docs/MAINNET_RELEASE.md b/docs/MAINNET_RELEASE.md
+index 7c8261c..d48448a 100644
+--- a/docs/MAINNET_RELEASE.md
++++ b/docs/MAINNET_RELEASE.md
+@@ -46,7 +46,7 @@ repositories continue to say the software is unaudited and not production ready.
+ | Funded maker and insurance | The 10,000 TEST fixture is synthetic. Actual collateral, maker consent, capital limits, inventory policy and insurance funding are not established. A matcher alone supplies no capital. |
+ | Market risk policy | SOL/USD with USDC is the initial product candidate. Collateral identity, oracle feed, leverage/margin, OI and position limits, fees, funding and exit delays require stress-tested, reviewed values. No production risk values are inferred from the fixed-price fixture. |
+ | Oracle and maintenance services | Real authenticated observations, freshness handling, bounded keeper progress, service restart, fee budgets and monitoring must be exercised together. An administrative fixed-price pusher is not a production price service. |
+-| Trader application | The hosted release must load its verified market automatically, explain unavailable markets, reconcile each signature, and keep deposit/trade controls closed on stale or unverifiable state. Wallet extensions, mobile wallet browsers and interruption/recovery need direct tests. |
++| Trader application | The hosted release must load its verified market automatically, explain unavailable markets, reconcile each signature, and keep transaction actions closed on unverifiable state. Trade review is disabled when the latest snapshot fails the configured oracle freshness checks; preparation and submission recheck verified state. Deposits retain their custody and simulation checks without a separate oracle freshness requirement. Wallet extensions, mobile wallet browsers and interruption/recovery need direct tests. |
+ | Operations and incident response | Define the responsible operator, alerts, RPC/provider failure response, permissionless exit instructions, authority rotation and incident communications. Verify recovery without wiping unresolved receipts. |
+ 
+ An approved deployment is a specific set of source commits, build artifacts,
+diff --git a/protocol/src/client.mjs b/protocol/src/client.mjs
+index 2fe3dd3..4233bb8 100644
+--- a/protocol/src/client.mjs
++++ b/protocol/src/client.mjs
+@@ -507,6 +507,16 @@ export async function readSnapshot(
+   });
+ }
+ 
++export function isTradeOracleFresh(profile, snapshot, asset) {
++  const slot = BigInt(snapshot.slot),
++    oracleSlot = asset.oracle.last_good_oracle_slot;
++  return (
++    Boolean(asset.effective_price) &&
++    oracleSlot <= slot &&
++    slot - oracleSlot <= BigInt(profile.maxOracleAgeSlots)
++  );
++}
++
+ export function planAction(profile, snapshot, action, rentLamports = 0) {
+   const settlement = isSettlementAction(action.type);
+   const recovery = isRecoveryAction(action.type);
+@@ -715,13 +725,7 @@ export function planAction(profile, snapshot, action, rentLamports = 0) {
+         !["buy", "sell"].includes(action.side)
+       )
+         throw new Error("Select an active asset and a trade side");
+-      const slot = BigInt(snapshot.slot),
+-        oracleSlot = asset.oracle.last_good_oracle_slot;
+-      if (
+-        !asset.effective_price ||
+-        oracleSlot > slot ||
+-        slot - oracleSlot > BigInt(profile.maxOracleAgeSlots)
+-      )
++      if (!isTradeOracleFresh(profile, snapshot, asset))
+         throw new Error("Oracle is stale; wait for the keeper before trading");
+       const size = parseUnits(action.size, 6),
+         limit = parseUnits(action.limitPrice, 6);
+diff --git a/protocol/terminal/index.html b/protocol/terminal/index.html
+index b8ede5c..1496d4e 100644
+--- a/protocol/terminal/index.html
++++ b/protocol/terminal/index.html
+@@ -277,6 +277,10 @@
+                   <path d="M4 16 16 4M5 4h11v11" /></svg
+               ></span>
+             </button>
++            <p id="trade-availability" class="field-note" role="status" hidden>
++              Price data is not current in the latest snapshot. Wait for a market
++              update, then select Refresh before reviewing a trade.
++            </p>
+             <p class="field-note">
+               Fills must respect your price limit. A trade may fill partially.
+               Orders do not rest on an order book.
+diff --git a/protocol/terminal/terminal.mjs b/protocol/terminal/terminal.mjs
+index 9dfba0d..9c0de2e 100644
+--- a/protocol/terminal/terminal.mjs
++++ b/protocol/terminal/terminal.mjs
+@@ -3,6 +3,7 @@ import {
+   OutrightClient,
+   browserJournal,
+   validateProfile,
++  isTradeOracleFresh,
+ } from "../src/client.mjs";
+ import {
+   isSettlementAction,
+@@ -95,6 +96,16 @@ function controls() {
+   $("refresh").disabled = !client || !account || busy || loading;
+   const live = snapshot?.market.mode === "live";
+   const resolved = snapshot?.market.mode === "resolved";
++  const asset = selectedAsset();
++  const oracleUnavailable = Boolean(
++    live &&
++      asset?.lifecycle === "active" &&
++      !isTradeOracleFresh(client.profile, snapshot, asset),
++  );
++  $("trade-availability").hidden = !oracleUnavailable;
++  if (oracleUnavailable)
++    $("trade-review").setAttribute("aria-describedby", "trade-availability");
++  else $("trade-review").removeAttribute("aria-describedby");
+   $("initialize").hidden =
+     Boolean(snapshot?.portfolio) || Boolean(snapshot && !live);
+   $("initialize").disabled = !ready || !live || Boolean(snapshot?.portfolio);
+@@ -119,7 +130,8 @@ function controls() {
+     !snapshot?.portfolio ||
+     !snapshot?.maker?.matcherEnabled ||
+     snapshot.maker.matcherExpirySlot <= BigInt(snapshot.slot) ||
+-    selectedAsset()?.lifecycle !== "active" ||
++    asset?.lifecycle !== "active" ||
++    oracleUnavailable ||
+     snapshot.market.mode !== "live";
+   $("asset-select").disabled = !client || !snapshot || busy;
+   $("sign").disabled = busy || !review;
+diff --git a/protocol/tests/client.test.mjs b/protocol/tests/client.test.mjs
+index 850aec3..e8fe3ab 100644
+--- a/protocol/tests/client.test.mjs
++++ b/protocol/tests/client.test.mjs
+@@ -71,6 +71,38 @@ test("a base fee change during signing requires a fresh review even within conse
+   assert.equal(await f.client.pending(f.owner.publicKey), null);
+ });
+ 
++for (const observation of ["expired", "future", "zero price"])
++  test(`trade preparation rejects ${observation} oracle data while deposits stay independently admitted`, async () => {
++    const f = await withMaker(await fixture());
++    const data = f.accounts.get(f.market.toBase58()).data;
++    const base = contract.constants.marketGroupOffset + contract.constants.marketHeaderLength;
++    const oracleOffset = base + contract.layouts.oracle.last_good_oracle_slot.offset;
++    const priceOffset = base + contract.layouts.assetOffset + contract.layouts.asset.effective_price.offset;
++    if (observation === "expired")
++      data.writeBigUInt64LE(BigInt(f.rpc.slot - f.profile.maxOracleAgeSlots - 1), oracleOffset);
++    if (observation === "future") data.writeBigUInt64LE(BigInt(f.rpc.slot + 1), oracleOffset);
++    if (observation === "zero price") data.writeBigUInt64LE(0n, priceOffset);
++    let simulations = 0;
++    const simulate = f.rpc.simulateTransaction;
++    f.rpc.simulateTransaction = async (...args) => {
++      simulations++;
++      return simulate(...args);
++    };
++    const trade = { type: "trade", side: "buy", size: "0.1", limitPrice: "150", assetIndex: 0 };
++    await assert.rejects(f.client.prepare(f.owner.publicKey, trade), /Oracle is stale/);
++    assert.equal(simulations, 0, "invalid oracle data must be rejected before simulation or signing");
++    const deposit = await f.client.prepare(f.owner.publicKey, { type: "deposit", amount: "1" });
++    assert.match(deposit.summary, /Deposit 1 TEST/);
++    assert.equal(simulations, 1, "deposit retains its existing simulation path");
++    data.writeBigUInt64LE(BigInt(f.rpc.slot - f.profile.maxOracleAgeSlots), oracleOffset);
++    data.writeBigUInt64LE(150_000_000n, priceOffset);
++    const restored = await f.client.prepare(f.owner.publicKey, trade);
++    assert.match(restored.summary, /Buy up to/);
++    assert.equal(simulations, 2, "the inclusive existing oracle-age boundary remains valid");
++    assert.equal(f.rpc.sent.length, 0);
++    assert.equal(f.records.size, 0);
++  });
++
+ test("Rust market fixture exposes collateral, assets and risk configuration", () => {
+   const m = readMarket(
+     info(pub(9), Buffer.from(contract.marketFixtureHex, "hex")),
+diff --git a/protocol/tests/terminal.test.mjs b/protocol/tests/terminal.test.mjs
+index 47a1fcd..9bbb15f 100644
+--- a/protocol/tests/terminal.test.mjs
++++ b/protocol/tests/terminal.test.mjs
+@@ -446,6 +446,51 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
+         el("review-dialog").close();
+       },
+     );
++    for (const observation of ["expired", "future", "zero price"])
++      await t.test(
++        `${observation} oracle data disables trade review with a reason, and fresh data restores it`,
++        async () => {
++          const data = f.accounts.get(f.market.toBase58()).data;
++          const base = contract.constants.marketGroupOffset + contract.constants.marketHeaderLength;
++          const oracleOffset = base + contract.layouts.oracle.last_good_oracle_slot.offset;
++          const priceOffset = base + contract.layouts.assetOffset + contract.layouts.asset.effective_price.offset;
++          const oldSlot = data.readBigUInt64LE(oracleOffset);
++          const oldPrice = data.readBigUInt64LE(priceOffset);
++          const sent = f.rpc.sent.length;
++          try {
++            if (observation === "expired")
++              data.writeBigUInt64LE(BigInt(f.rpc.slot - f.profile.maxOracleAgeSlots - 1), oracleOffset);
++            if (observation === "future") data.writeBigUInt64LE(BigInt(f.rpc.slot + 1), oracleOffset);
++            if (observation === "zero price") data.writeBigUInt64LE(0n, priceOffset);
++            el("refresh").click();
++            await until(() => !el("wallet-button").disabled, "oracle refresh did not settle");
++            assert.equal(el("trade-review").disabled, true);
++            assert.equal(el("trade-availability").hidden, false);
++            assert.match(el("trade-availability").textContent, /wait.*refresh/is);
++            assert.equal(el("trade-review").getAttribute("aria-describedby"), "trade-availability");
++            assert.equal(el("collateral-form").querySelector('[value="deposit"]').disabled, false);
++            assert.equal(el("refresh").disabled, false);
++            // Direct event dispatch bypasses a disabled button; the client still
++            // rejects the actual oracle bytes before a review or wallet prompt.
++            const form = el("trade-form");
++            form.elements.namedItem("size").value = "0.1";
++            form.elements.namedItem("limitPrice").value = "150";
++            form.dispatchEvent(new w.Event("submit", { cancelable: true }));
++            await until(() => !el("wallet-button").disabled, "blocked trade did not settle");
++            assert.match(el("feedback").textContent, /Oracle is stale/);
++            assert.equal(el("review-dialog").open, false);
++            assert.equal(f.rpc.sent.length, sent);
++          } finally {
++            data.writeBigUInt64LE(oldSlot, oracleOffset);
++            data.writeBigUInt64LE(oldPrice, priceOffset);
++            el("refresh").click();
++            await until(() => !el("wallet-button").disabled, "fresh oracle refresh did not settle");
++          }
++          assert.equal(el("trade-review").disabled, false);
++          assert.equal(el("trade-availability").hidden, true);
++          assert.equal(el("trade-review").hasAttribute("aria-describedby"), false);
++        },
++      );
+     await t.test(
+       "an empty asset list still updates portfolio data and clears the old chart",
+       async () => {

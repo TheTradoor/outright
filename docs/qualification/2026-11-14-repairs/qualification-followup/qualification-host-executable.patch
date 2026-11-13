@@ -1,0 +1,74 @@
+diff --git a/scripts/tests/test_wrapper_qualification.py b/scripts/tests/test_wrapper_qualification.py
+index b7e6db1..a52a20f 100644
+--- a/scripts/tests/test_wrapper_qualification.py
++++ b/scripts/tests/test_wrapper_qualification.py
+@@ -111,6 +111,7 @@ class QualificationTests(unittest.TestCase):
+                 **harnesses[job["id"]], "harnesses": copy.deepcopy(harnesses),
+                 "cargo_targets": copy.deepcopy(inventory),
+                 "source_metadata": q.source_metadata(), "program_source_metadata": q.source_metadata(),
++                "host_executable_sha256": "a" * 64,
+                 "registered": registered, "assigned": assigned,
+                 "results": [{"name": name, "passed": True, "exit_code": 0} for name in assigned],
+                 "modules": modules, "owned_modules": owned, "included_modules": included,
+@@ -119,6 +120,24 @@ class QualificationTests(unittest.TestCase):
+     def verify(self, reports=None):
+         return q.verify_reports(self.reports if reports is None else reports, self.config, self.workspace)
+ 
++    def test_missing_host_executable_digest_rejected(self):
++        del self.reports[0]["host_executable_sha256"]
++        with self.assertRaisesRegex(AssertionError, "Missing/malformed host executable digest"):
++            self.verify()
++
++    def test_malformed_host_executable_digest_rejected(self):
++        for value in (None, 123, "", "not-a-hash", "a" * 63, "A" * 64):
++            with self.subTest(value=value):
++                self.reports[0]["host_executable_sha256"] = value
++                with self.assertRaisesRegex(AssertionError, "Missing/malformed host executable digest"):
++                    self.verify()
++
++    def test_distinct_host_executable_digests_retained(self):
++        self.reports[0]["host_executable_sha256"] = "b" * 64
++        result = self.verify()
++        self.assertEqual(result["host_executable_sha256"][self.reports[0]["id"]], "b" * 64)
++        self.assertEqual(result["host_executable_sha256"][self.reports[1]["id"]], "a" * 64)
++
+     def test_complete_exact_coverage(self):
+         result = self.verify()
+         self.assertEqual(result["suites"]["v16_cu"]["passed"], 2)
+diff --git a/scripts/wrapper_qualification.py b/scripts/wrapper_qualification.py
+index 61b0608..2d4df94 100644
+--- a/scripts/wrapper_qualification.py
++++ b/scripts/wrapper_qualification.py
+@@ -426,6 +426,7 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
+                 binaries.append(record["executable"])
+         assert len(binaries) == 1, f"Expected one test binary, received {binaries}"
+         binary = binaries[0]
++        report["host_executable_sha256"] = digest(binary)
+         registered = test_names(output([binary, "--list", "--format", "terse"], wrapper))
+         report["registered"] = registered
+         assigned = assigned_names(registered, suite, index, config, report["modules"], report["owned_modules"])
+@@ -443,6 +444,7 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
+             write_json(result_dir / "result.json", report)
+         check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
+         assert artifact_hashes(workspace) == hashes, "Tests modified program artifacts"
++        assert digest(binary) == report["host_executable_sha256"], "Tests modified host test executable"
+         report["status"] = "complete"
+     except Exception as error:
+         report["error"] = str(error)
+@@ -474,6 +476,8 @@ def verify_reports(reports, config, workspace):
+             assert report["harnesses"] == harnesses, "Noncanonical harness/driver map"
+             assert {key: report[key] for key in harnesses[report["id"]]} == harnesses[report["id"]], "Noncanonical tested harness/driver"
+             assert report["status"] == "complete", f'Incomplete shard {report["id"]}: {report.get("error")}'
++            executable_hash = report.get("host_executable_sha256")
++            assert isinstance(executable_hash, str) and re.fullmatch(r"[0-9a-f]{64}", executable_hash), "Missing/malformed host executable digest"
+             if hashes is None:
+                 hashes = report["sbf_hashes"]
+             assert report["sbf_hashes"] == hashes, "Mixed SBF artifacts"
+@@ -513,6 +517,7 @@ def verify_reports(reports, config, workspace):
+     return {"identity": expected_identity, "candidate_source_metadata": source_metadata(),
+             "tested_source_metadata": {report["id"]: report["source_metadata"] for report in reports},
+             "program_source_metadata": {report["id"]: report["program_source_metadata"] for report in reports},
++            "host_executable_sha256": {report["id"]: report["host_executable_sha256"] for report in reports},
+             "cargo_targets": inventory, "harnesses": harnesses,
+             "sbf_hashes": hashes, "suites": summary, "passed": True}
+ 

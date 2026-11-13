@@ -1,0 +1,124 @@
+{
+  "status": "complete",
+  "passed": 32,
+  "failed": 0,
+  "wrapper_base": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "candidate_tree": "6621d5edd799f68ce0864f740ddc6da22e01c701",
+  "engine_ref": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "host_rust": "1.95.0",
+  "default_features": true,
+  "source_edits": false,
+  "test_runner_sha256": "8bd4e330e67c93d2ca350049891ac9de9385a3e290d30aff93519d815b6de9f5",
+  "artifacts": {
+    "program": {
+      "path": "/workspace/scratch/31e010aaee78/oracle-repair-after.so",
+      "sha256": "527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180"
+    },
+    "auth_matcher": {
+      "path": "/workspace/scratch/31e010aaee78/program-integration/tests/fixtures/auth_matcher/target/deploy/auth_matcher.so",
+      "sha256": "50e532267926e180f013200c1799e26127dd23dc150866cffd491424629ddf93"
+    },
+    "hostile_matcher": {
+      "path": "/workspace/scratch/31e010aaee78/program-integration/tests/fixtures/hostile_matcher/target/deploy/hostile_matcher.so",
+      "sha256": "e0c20fad34a7822cc6ce42a3c77ff08a8591977102f0c497a339d66a9dd6240a"
+    },
+    "matcher": {
+      "path": "/workspace/scratch/31e010aaee78/percolator-match/target/deploy/percolator_match.so",
+      "sha256": "15ca5d638e7911157ef075b60170c06d82ef2208f6565002cf6620315e6dc3ea"
+    }
+  },
+  "targets": [
+    {
+      "target": "anchor_v2_realloc_probe",
+      "status": "complete",
+      "registered": [
+        "appending_assets_grows_market_account_past_10_kib",
+        "support::fuzz_model::effective_oi_rounding_regressions::canonical_resize_rejects_a_raw_atom_hidden_by_the_same_ceil_quantity",
+        "support::fuzz_model::effective_oi_rounding_regressions::capped_dead_leg_removal_requires_a_typed_terminal_witness",
+        "support::fuzz_model::effective_oi_rounding_regressions::ceil_leg_sums_reconcile_with_equal_aggregate_oi_without_tolerance",
+        "support::fuzz_model::effective_oi_rounding_regressions::exhausted_unilateral_side_requires_one_reset_and_no_repeated_reset",
+        "support::fuzz_model::effective_oi_rounding_regressions::independent_indices_basis_and_aggregate_reject_one_atom_mutations",
+        "support::fuzz_model::effective_oi_rounding_regressions::repeated_index_flooring_has_signed_residue_larger_than_one_atom_per_leg"
+      ],
+      "passed": 7,
+      "failed": 0,
+      "binary": "/workspace/scratch/31e010aaee78/oracle-repair/target/debug/deps/anchor_v2_realloc_probe-51679af275051845",
+      "binary_sha256": "eb9c6c36bb091b5f8dc8343f9283f8d4ac286076b80920579363d34caa3f85c9",
+      "compile_log_sha256": "12e513b822e244f6ac3415901491e6200289dc2fa886ee212bb6f8ba998abb90",
+      "result_file": "/workspace/scratch/31e010aaee78/supplemental-wrapper-results/anchor_v2_realloc_probe/result.json",
+      "result_sha256": "d3d3a5a457b0815aefc6b349ff5188bd85bf598653fe3d4831e9d1544006ca34"
+    },
+    {
+      "target": "listing_oracle_scope",
+      "status": "complete",
+      "registered": [
+        "crank_on_positioned_asset_succeeds_after_permissionless_listing",
+        "listing_new_asset_oracle_while_other_asset_has_open_pnl",
+        "support::fuzz_model::effective_oi_rounding_regressions::canonical_resize_rejects_a_raw_atom_hidden_by_the_same_ceil_quantity",
+        "support::fuzz_model::effective_oi_rounding_regressions::capped_dead_leg_removal_requires_a_typed_terminal_witness",
+        "support::fuzz_model::effective_oi_rounding_regressions::ceil_leg_sums_reconcile_with_equal_aggregate_oi_without_tolerance",
+        "support::fuzz_model::effective_oi_rounding_regressions::exhausted_unilateral_side_requires_one_reset_and_no_repeated_reset",
+        "support::fuzz_model::effective_oi_rounding_regressions::independent_indices_basis_and_aggregate_reject_one_atom_mutations",
+        "support::fuzz_model::effective_oi_rounding_regressions::repeated_index_flooring_has_signed_residue_larger_than_one_atom_per_leg"
+      ],
+      "passed": 8,
+      "failed": 0,
+      "binary": "/workspace/scratch/31e010aaee78/oracle-repair/target/debug/deps/listing_oracle_scope-19cc26ed29d6e852",
+      "binary_sha256": "122a0dd617b1fb8798f044a6969df4ba629069670de2e597d9a835bc0ad9c8e8",
+      "compile_log_sha256": "5ac88996cf55ba3cd00964de9a137b092617fa03dfc40eb2221bea632e1f5bb2",
+      "result_file": "/workspace/scratch/31e010aaee78/supplemental-wrapper-results/listing_oracle_scope/result.json",
+      "result_sha256": "861b74a543419143b4eda187ff42cdb915b31d80ec7ab70651ef3a9816ac531a"
+    },
+    {
+      "target": "open_issue_regressions",
+      "status": "complete",
+      "registered": [
+        "issue170_backing_authority_canonicalizes_history_then_reuse_succeeds",
+        "issue386_maintenance_fee_split_is_cadence_independent",
+        "issue438_insurance_withdrawal_respects_both_domain_barriers",
+        "support::fuzz_model::effective_oi_rounding_regressions::canonical_resize_rejects_a_raw_atom_hidden_by_the_same_ceil_quantity",
+        "support::fuzz_model::effective_oi_rounding_regressions::capped_dead_leg_removal_requires_a_typed_terminal_witness",
+        "support::fuzz_model::effective_oi_rounding_regressions::ceil_leg_sums_reconcile_with_equal_aggregate_oi_without_tolerance",
+        "support::fuzz_model::effective_oi_rounding_regressions::exhausted_unilateral_side_requires_one_reset_and_no_repeated_reset",
+        "support::fuzz_model::effective_oi_rounding_regressions::independent_indices_basis_and_aggregate_reject_one_atom_mutations",
+        "support::fuzz_model::effective_oi_rounding_regressions::repeated_index_flooring_has_signed_residue_larger_than_one_atom_per_leg"
+      ],
+      "passed": 9,
+      "failed": 0,
+      "binary": "/workspace/scratch/31e010aaee78/oracle-repair/target/debug/deps/open_issue_regressions-51fff12709c0a9d5",
+      "binary_sha256": "5881b724e4c8b7750af4752b20af83df5083b34d262fdc73a74aa8dd3bd7c9ab",
+      "compile_log_sha256": "0049430bc15f983788aff018c2d0b9bce75f82740563a41174b46ce52efd97af",
+      "result_file": "/workspace/scratch/31e010aaee78/supplemental-wrapper-results/open_issue_regressions/result.json",
+      "result_sha256": "5de442f136b66a78ff41efe0fb974b56f623b9c79847140246bd5906519c49d4"
+    },
+    {
+      "target": "library",
+      "status": "complete",
+      "registered": [
+        "processor::tests::backing_domain_fee_policy_rejects_share_without_fee",
+        "processor::tests::backing_domain_fee_split_routes_to_insurance_and_provider_earnings",
+        "processor::tests::portfolio_id_allocator_normalizes_legacy_zero_and_rejects_exhaustion",
+        "processor::tests::portfolio_position_epoch_is_zero_initialized_checked_and_monotonic",
+        "processor::tests::pre_expiry_portfolio_tail_reads_disabled_and_grows_zero_initialized",
+        "processor::tests::premium_funding_rate_e9_clamps_and_preserves_sign",
+        "processor::tests::wrapper_config_len_matches_struct_size",
+        "test_id"
+      ],
+      "passed": 8,
+      "failed": 0,
+      "binary": "/workspace/scratch/31e010aaee78/oracle-repair/target/debug/deps/percolator_prog-b92fab50c0cc0375",
+      "binary_sha256": "d37e0a0d9dde25c298d52ba05b8efb9b8c11beff0dedd13b44501feb93a18b43",
+      "compile_log_sha256": "c251643d571adfba8418bf3ceab51c81e000765ce00dfdc725f3e9914e78a85a",
+      "result_file": "/workspace/scratch/31e010aaee78/supplemental-wrapper-results/library/result.json",
+      "result_sha256": "9220a47f0755c87db06d59a0a15fa2631ffcbe5c9a6bfe3d95f5eacb9c748eb2"
+    }
+  ],
+  "notes": [
+    "All registered tests executed individually with --exact --include-ignored --nocapture --test-threads=1.",
+    "Integration counts include six shared support model controls each: 1+6 realloc, 2+6 listing, 3+6 open issues.",
+    "Library has seven processor tests plus macro-generated test_id.",
+    "Kani feature-gated binary is not a default test target and was not executed.",
+    "Library tests execute host code; integration tests execute the exact SBF specified in PERCOLATOR_FUZZ_SBF.",
+    "Current PR25/33-shard qualification run was not modified or canceled."
+  ]
+}
