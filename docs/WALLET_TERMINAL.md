@@ -84,11 +84,20 @@ This version accepts six-decimal classic SPL collateral. Token-2022 extensions,
 native SOL accounts and other collateral scales are unsupported. A maker
 verification failure blocks trades while valid custody actions remain available.
 
+Portfolio creation also accepts an empty System account at the deterministic
+address when it has already received SOL. Allocation, ownership assignment and
+initialization execute atomically. Only missing rent is transferred; excess SOL
+is not trading collateral. Other occupied accounts are rejected.
+
 Every action receives a fresh snapshot and unsigned simulation before review.
 Signing uses the exact reviewed message. The client rejects a modified message,
 invalid signature, changed network, changed deployment, expired review and
-expired blockhash before it broadcasts. Market changes after simulation can
-still cause the program to reject the transaction.
+expired blockhash before it broadcasts. After signing, it reads verified state
+again, rebuilds the requested action and requires identical instruction bytes
+and account metas. Changed maker consent, sequence bindings, oracle freshness,
+market mode or required rent force a new review. SOL must still cover the reviewed
+network fee and rent. State can still change between this check and execution,
+so the program remains authoritative.
 
 ## Confirmation and recovery
 
@@ -107,6 +116,11 @@ There is no automatic re-signing, replacement deposit, or assumption that a
 missing status means failure. If history remains unavailable after expiry,
 the operator must reconcile the signature and portfolio state through a reliable
 RPC. Keep the receipt; do not clear browser data to bypass this state.
+
+Disconnects, unsupported wallet accounts and failed RPC reads clear actionable
+market data. A late response cannot restore a disconnected session. Empty asset
+lists still update balances and positions; expired or revoked maker consent
+disables trade review.
 
 Receipts are local to the browser. They are not an indexer, tax record or complete
 trade history. The chart contains observations collected during the current

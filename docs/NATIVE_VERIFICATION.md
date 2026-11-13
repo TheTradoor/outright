@@ -113,3 +113,53 @@ server is a deterministic RPC fixture, not a public cluster.
 
 Live provider publishing, a funded public deployment, hosted service recovery,
 portfolio discovery and full wallet-extension validation remain unverified.
+
+
+## Portfolio allocation and terminal recovery
+
+Built on merged commit `4dcc76ef156b69f3cf032a613581da37bd011c5e`, retaining the
+same engine and wrapper pins. Verification on 13 November 2026 covers the Rust
+contract comparison, 141 JavaScript tests, eight SBF tests and terminal bundle.
+
+The new SBF case funds the deterministic portfolio address from another wallet
+before creation. It verifies atomic allocation and initialization with less
+than, exactly and more than the required rent. A later duplicate initialization
+must fail with `AlreadyInitialized` and roll back allocation, rent, market and
+tracked token-account changes. Excess SOL remains outside trading collateral.
+
+Client regressions change matcher bytecode, consent, oracle freshness, market
+mode, portfolio sequence, fee-payer balance and account allocation while the
+wallet prompt is open. Changed instructions or invalid state must prevent
+broadcast. Additional cases reject malformed RPC slots and block heights and
+preserve the action captured before asynchronous work begins.
+
+Ten DOM tests run the actual terminal HTML and module under jsdom with fixture
+wallets and RPC data. They cover disconnects, unsupported accounts, a late RPC
+response, RPC failure and recovery, empty asset lists, revoked and expired maker
+consent, stale receipt text and multi-wallet unregistration. This is Node-based
+DOM coverage. It does not test rendering, mobile behavior or a wallet extension.
+
+### Dependency review
+
+The Solana web3.js dependency uses an exact `jayson` 5.0.0 override. Its browser
+JSON-RPC interface retains the SDK's request/callback API and uses Web Crypto
+for request identifiers. The CLI integration test exercises this path through
+an actual local HTTP server, including restart reconciliation. The override
+removes the old `uuid` and `stream-json` dependency paths. The terminal bundle
+also builds with this dependency set.
+
+The remaining `npm audit` result contains three high-severity package entries
+for one underlying advisory: [GHSA-3gc7-fjrx-p6mg](https://github.com/advisories/GHSA-3gc7-fjrx-p6mg).
+`bigint-buffer` 1.1.5 has no published official fix. It enters through
+`@solana/spl-token` and `@solana/buffer-layout-utils`. The reported overflow is
+in the native binding. A clean `npm ci --ignore-scripts` installs no native
+binding, and `protocol/.npmrc` makes script suppression the project default.
+The browser bundle uses the package's JavaScript implementation. Account readers
+also validate exact SPL account sizes before decoding fixed-width integers.
+
+These measures do not remove the advisory or constitute a patched dependency.
+A previously built native binding can remain after `npm install`; use a clean
+`npm ci --ignore-scripts`, and do not rebuild the optional binding. Resolve or
+independently review this dependency before a public release. The audit's
+suggested downgrade to SPL Token 0.1.8 is not an API-compatible repair and was
+not applied.

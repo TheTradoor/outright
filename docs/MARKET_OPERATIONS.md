@@ -12,7 +12,7 @@ market deployment tool, or a source of liquidity.
 
 ## Before running
 
-Use Node.js 22 or newer on a POSIX host with a durable local filesystem. Install
+Use Node.js 22.12 or newer on a POSIX host with a durable local filesystem. Install
 the locked dependencies with `npm ci --prefix protocol --ignore-scripts`.
 
 An operator needs an initialized deployment enrolled with
