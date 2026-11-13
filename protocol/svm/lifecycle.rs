@@ -71,6 +71,46 @@ fn resolved_close(env: &V16Svm, actor: usize, name: &str) -> Instruction {
     )
 }
 
+fn portfolio_close(env: &V16Svm, actor: usize) -> Instruction {
+    build(
+        env,
+        "closePortfolio",
+        json!({
+        "portfolioId":env.primary_portfolio_id(actor).to_string(),
+        "expectedSequence":env.primary_portfolio_matcher_sequence(actor).to_string(),
+        "positionEpoch":env.primary_portfolio_position_epoch(actor).to_string()}),
+        json!({"owner":env.actors[actor].signer.pubkey().to_string(),
+            "market":env.market.to_string(),"portfolio":env.actors[actor].portfolio.to_string()}),
+    )
+}
+
+fn slab_close(env: &V16Svm) -> Instruction {
+    let market = js(
+        json!({"operation":"readMarket","account":account_json(env,env.market),
+        "expected":{"programId":env.program_id.to_string(),"address":env.market.to_string(),"collateralMint":env.mint.to_string()}}),
+    );
+    let epoch = &market["assets"][0]["control"]["authority_epoch"];
+    assert_eq!(
+        epoch,
+        &json!(env.primary_control_sequences(0).authority_epoch.to_string())
+    );
+    build(
+        env,
+        "closeSlab",
+        json!({"authorityEpoch":epoch}),
+        json!({"owner":env.actors[4].signer.pubkey().to_string(),"market":env.market.to_string(),
+            "vault":env.vault.to_string(),"mint":env.mint.to_string(),
+            "userToken":env.actors[4].destination_token.to_string()}),
+    )
+}
+
+fn assert_closed_portfolio(env: &V16Svm, portfolio: Pubkey) {
+    if let Some(account) = env.svm.get_account(&portfolio) {
+        assert_eq!(account.lamports, 0);
+        assert!(account.data.is_empty());
+    }
+}
+
 #[test]
 fn javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_once() {
     resolved_receipt_trace(false);
@@ -208,7 +248,8 @@ fn resolved_receipt_trace(use_keeper: bool) {
             send(&mut env, ix, &[&signer]).expect("JS bounded close");
         }
         assert!(resolved_actor_terminal(&env, actor));
-        env.close_primary_portfolio(actor).unwrap();
+        let ix = portfolio_close(&env, actor);
+        send(&mut env, ix, &[&signer]).expect("JS closes the terminal peer portfolio");
     }
     env.warp_to_slot(14);
     let ix = if use_keeper {
@@ -223,6 +264,14 @@ fn resolved_receipt_trace(use_keeper: bool) {
     assert_eq!(view["receipt"]["finalized"], false);
     assert_eq!(view["recordedPayout"], "0");
     assert!(initial_paid > 0 && initial_paid < 1_750);
+    let before_pending_close = snapshot(&env, &[env.actors[0].portfolio]);
+    let premature = portfolio_close(&env, 0);
+    rejected(
+        send(&mut env, premature, &[&owner]),
+        2,
+        PercolatorError::EngineLockActive,
+    );
+    assert_unchanged(&env, &before_pending_close);
     // Repeated claims before additional backing cannot increase payment.
     let ix = payout_ix(&env);
     if use_keeper {
@@ -317,9 +366,174 @@ fn resolved_receipt_trace(use_keeper: bool) {
     assert!(resolved_actor_terminal(&env, 0));
     assert_eq!(env.token_amount(env.actors[0].destination_token), 1_750);
     assert_eq!(env.mint_supply(), supply);
+    finish_market_teardown(&mut env, &owner, &payer, supply);
     eprintln!(
         "JS resolved receipt: keeper={use_keeper}, initial={initial_paid}, topup={due}, total=1750"
     );
+}
+
+fn finish_market_teardown(env: &mut V16Svm, owner: &Keypair, payer: &Keypair, supply: u64) {
+    let portfolio = env.actors[0].portfolio;
+    env.update_market_authority_from_admin(4)
+        .expect("public market authority handoff");
+    let admin = Keypair::from_bytes(&env.actors[4].signer.to_bytes()).unwrap();
+    let before = snapshot(env, &[portfolio]);
+    let premature = slab_close(env);
+    rejected(
+        send(env, premature, &[payer, &admin]),
+        2,
+        PercolatorError::EngineLockActive,
+    );
+    assert_unchanged(env, &before);
+    let close = portfolio_close(env, 0);
+    for offset in [1usize, 9, 17] {
+        let mut stale = close.clone();
+        stale.data[offset] ^= 1;
+        rejected(
+            send(env, stale, &[payer, owner]),
+            2,
+            PercolatorError::EngineStale,
+        );
+        assert_unchanged(env, &before);
+    }
+    let mut wrong_owner = close.clone();
+    wrong_owner.accounts[0].pubkey = payer.pubkey();
+    rejected(
+        send(env, wrong_owner, &[payer]),
+        2,
+        PercolatorError::Unauthorized,
+    );
+    assert_unchanged(env, &before);
+    let invalid = Instruction {
+        program_id: env.program_id,
+        accounts: vec![],
+        data: vec![255],
+    };
+    assert_eq!(
+        send_many(env, &[close.clone(), invalid.clone()], &[payer, owner]).unwrap_err(),
+        TransactionError::InstructionError(3, InstructionError::InvalidInstructionData)
+    );
+    assert_unchanged(env, &before);
+    let market_lamports = env.svm.get_account(&env.market).unwrap().lamports;
+    let account_lamports = env.svm.get_account(&portfolio).unwrap().lamports;
+    let owner_lamports = env.svm.get_account(&owner.pubkey()).unwrap().lamports;
+    let tokens = env.all_token_account_data();
+    send(env, close, &[payer, owner]).expect("JS removes the final portfolio");
+    assert_closed_portfolio(env, portfolio);
+    assert_eq!(
+        env.svm.get_account(&env.market).unwrap().lamports,
+        market_lamports + account_lamports
+    );
+    assert_eq!(
+        env.svm.get_account(&owner.pubkey()).unwrap().lamports,
+        owner_lamports
+    );
+    assert_eq!(env.all_token_account_data(), tokens);
+    let group = env.primary_market_state().1;
+    assert_eq!(
+        (
+            group.materialized_portfolio_count,
+            group.c_tot,
+            group.vault,
+            group.insurance
+        ),
+        (0, 0, 0, 0)
+    );
+
+    // Unbooked SPL surplus is distinct from user claims and protocol residue.
+    let donation = spl_token::instruction::transfer(
+        &spl_token::ID,
+        &env.actors[0].source_token,
+        &env.vault,
+        &owner.pubkey(),
+        &[],
+        7,
+    )
+    .unwrap();
+    send(env, donation, &[payer, owner]).expect("donate seven unbooked collateral atoms");
+    let before = snapshot(env, &[]);
+    let ix = slab_close(env);
+    let mut stale = ix.clone();
+    stale.data[1] ^= 1;
+    rejected(
+        send(env, stale, &[payer, &admin]),
+        2,
+        PercolatorError::EngineStale,
+    );
+    assert_unchanged(env, &before);
+    let mut wrong_authority = ix.clone();
+    wrong_authority.accounts[0].pubkey = owner.pubkey();
+    wrong_authority.accounts[4].pubkey = env.actors[0].destination_token;
+    rejected(
+        send(env, wrong_authority, &[payer, owner]),
+        2,
+        PercolatorError::Unauthorized,
+    );
+    assert_unchanged(env, &before);
+    let mut wrong = ix.clone();
+    wrong.accounts[4].pubkey = env.actors[0].destination_token;
+    rejected(
+        send(env, wrong, &[payer, &admin]),
+        2,
+        PercolatorError::InvalidTokenAccount,
+    );
+    assert_unchanged(env, &before);
+    assert_eq!(
+        send_many(env, &[ix.clone(), invalid], &[payer, &admin]).unwrap_err(),
+        TransactionError::InstructionError(3, InstructionError::InvalidInstructionData)
+    );
+    assert_unchanged(env, &before);
+    let rent = env
+        .svm
+        .get_sysvar::<Rent>()
+        .minimum_balance(percolator_prog::constants::HEADER_LEN);
+    let refund = env.svm.get_account(&env.market).unwrap().lamports - rent
+        + env.svm.get_account(&env.vault).unwrap().lamports;
+    let admin_lamports = env.svm.get_account(&admin.pubkey()).unwrap().lamports;
+    let admin_tokens = env.token_amount(env.actors[4].destination_token);
+    // The earlier failed attempt used the same instruction. A later state does
+    // not make that signature new; retry with a fresh blockhash.
+    env.svm.expire_blockhash();
+    send(env, ix.clone(), &[payer, &admin])
+        .expect("JS closes the vault and writes the market tombstone");
+    let tombstone = env.svm.get_account(&env.market).unwrap();
+    assert_eq!(tombstone.lamports, rent);
+    assert_eq!(tombstone.data.len(), percolator_prog::constants::HEADER_LEN);
+    assert_eq!(
+        tombstone.data[10],
+        percolator_prog::constants::KIND_CLOSED_MARKET
+    );
+    assert_closed_portfolio(env, env.vault);
+    assert_eq!(
+        env.svm.get_account(&admin.pubkey()).unwrap().lamports,
+        admin_lamports + refund
+    );
+    assert_eq!(
+        env.token_amount(env.actors[4].destination_token),
+        admin_tokens + 7
+    );
+    assert_eq!(env.token_amount(env.actors[0].destination_token), 1_750);
+    assert_eq!(env.mint_supply(), supply);
+    let terminal_keys = [
+        env.market,
+        env.vault,
+        env.mint,
+        owner.pubkey(),
+        admin.pubkey(),
+        env.actors[0].destination_token,
+        env.actors[4].destination_token,
+    ];
+    let terminal_accounts = terminal_keys.map(|key| env.svm.get_account(&key));
+    env.svm.expire_blockhash();
+    assert!(
+        send(env, ix, &[payer, &admin]).is_err(),
+        "a closed market cannot close again"
+    );
+    assert_eq!(
+        terminal_keys.map(|key| env.svm.get_account(&key)),
+        terminal_accounts
+    );
+    eprintln!("JS teardown: all primary portfolios removed, seven surplus atoms swept, vault closed, exact rent refund and persistent tombstone");
 }
 
 fn js(input: Value) -> Value {
@@ -1257,7 +1471,7 @@ fn wallet_planner_custody_exit(resolved: bool) {
     input.as_object_mut().unwrap().remove("userToken");
     input["tokenAccountExists"] = json!(false);
     input["rentLamports"] = json!(Rent::default().minimum_balance(165));
-    let withdraw = js(input);
+    let withdraw = js(input.clone());
     let instructions: Vec<_> = withdraw["instructions"]
         .as_array()
         .unwrap()
@@ -1289,6 +1503,32 @@ fn wallet_planner_custody_exit(resolved: bool) {
     assert_eq!(env.token_amount(source), before - 2_500_000);
     assert_eq!(env.token_amount(env.vault), vault_before);
     assert_eq!(read(&env, portfolio, owner.pubkey())["capital"], "0");
+    if resolved {
+        input["marketAccount"] = account_json(&env, env.market);
+        input["portfolioAccount"] = account_json(&env, portfolio);
+        input["action"] = json!({"type":"closePortfolio"});
+        // Closure must not create or require a token account.
+        input["tokenAccountExists"] = json!(false);
+        let planned = js(input);
+        assert_eq!(planned["rentLamports"], 0);
+        let ixs: Vec<_> = planned["instructions"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(from_js_instruction)
+            .collect();
+        assert_eq!(ixs.len(), 1);
+        let market_lamports = env.svm.get_account(&env.market).unwrap().lamports;
+        let portfolio_lamports = env.svm.get_account(&portfolio).unwrap().lamports;
+        let tokens = env.all_token_account_data();
+        send_many(&mut env, &ixs, &[&owner]).expect("wallet-planned account closure");
+        assert_closed_portfolio(&env, portfolio);
+        assert_eq!(
+            env.svm.get_account(&env.market).unwrap().lamports,
+            market_lamports + portfolio_lamports
+        );
+        assert_eq!(env.all_token_account_data(), tokens);
+    }
 }
 
 #[test]

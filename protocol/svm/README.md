@@ -32,6 +32,15 @@ SPL account state.
   payout when a later instruction fails.
 - Execute the wallet planner's resolved close with atomic ATA creation. A later
   instruction failure must roll back the new ATA, custody and accounting.
+- Remove the wallet-planned seeded portfolio after settlement. Its complete SOL
+  balance goes to the market without creating an ATA or moving collateral.
+- Extend both underfunded receipt traces through final primary-market teardown.
+  Unpaid claims and remaining portfolios block early closure. Stale portfolio
+  bindings, a stale authority epoch, wrong owners or destinations reject without
+  state changes. Later invalid instructions roll back portfolio and vault closure.
+  After a public authority handoff, sweep seven unbooked collateral atoms to the
+  new authority, refund exact vault and excess market rent, and retain the typed
+  market tombstone. A repeated close cannot transfer tokens or SOL again.
 - Execute the resolved keeper planner with a dedicated fee payer and an existing
   owner ATA. Check initial payout, backing discovery, the later payout, wrong
   destinations and rollback without the owner's signature. A forged caller slot

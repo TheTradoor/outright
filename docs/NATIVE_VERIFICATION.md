@@ -1,8 +1,8 @@
 # Native integration verification
 
 Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 353 JavaScript
-tests, including 24 terminal DOM scenarios, and 16 SBF tests. A clean dependency install and
+contract checks and terminal build passed. The client now has 381 JavaScript
+tests, including 26 terminal DOM scenarios, and 16 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Complete settlement review](#complete-settlement-review)
+[Resolved account and market closure](#resolved-account-and-market-closure)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -533,3 +533,49 @@ remains authoritative after the client sends. Engine and wrapper source pins,
 payout arithmetic and instruction encodings are unchanged. Public-cluster
 operation, real browser/mobile-wallet testing, complete market teardown and
 independent review remain open.
+
+## Resolved account and market closure
+
+The wallet now offers `ClosePortfolio` in resolved markets after preliminary
+checks of displayed balances, claims, positions and locks. The engine simulation
+must also permit the complete account state. Review explains that every account
+lamport, including rent, moves to the market slab. No token transfer or ATA
+creation is included. The instruction binds portfolio ID, owner sequence and
+position epoch, and the client rechecks complete accounting after signing.
+
+The adapter also provides a low-level single-collateral `CloseSlab` builder.
+Instruction bytes for both operations match fixtures emitted by the pinned Rust
+encoder. The market reader exposes the authority epoch from Rust-exported
+control-sequence offsets. It recognizes the Rust-generated closed-market
+header, verifies its program owner and header, and stops wallet actions with an
+explicit closed-market message.
+
+Both existing underfunded SBF traces now finish the primary market after the
+initial 1,250-atom payout and the later 500-atom payment. JavaScript instructions
+remove every primary portfolio. An outstanding partial receipt rejects removal,
+and the remaining terminal portfolio prevents early market closure. All three
+portfolio bindings, the market authority epoch, ownership and payout destination
+are tested against exact program errors. Later invalid instructions roll back
+portfolio removal and final vault closure, including their rent movements.
+
+After a public market-authority handoff, seven unbooked collateral atoms are
+transferred into the empty vault through SPL Token. Final closure sends exactly
+those seven atoms to the new authority, closes the vault, refunds its rent plus
+the market's excess rent, and retains the closed-market header at its canonical
+rent exemption. The owner's 1,750-atom payout and mint supply remain unchanged.
+Repeating the closure with a fresh blockhash cannot change tracked accounts.
+The wallet planner's seeded-portfolio case also executes its new account-closure
+plan after settlement and checks the exact SOL transfer to the market.
+
+There are 381 passing JavaScript tests, including 26 terminal DOM scenarios.
+The two additional DOM cases cover account-closure review and refresh after
+removal, and disabled wallet actions after market closure. Client tests cover
+simulation rejection, incomplete state, changed accounting during signing,
+strict bindings, missing ATAs and malformed closed headers. The 16 SBF tests,
+Rust contract comparison, source checks and terminal build pass.
+
+This establishes complete teardown for two paths through one underfunded
+single-collateral fixture, not every terminal accounting configuration. Booked
+residue burning, native or dual collateral, payout-halt repair, large scans,
+real browser/mobile wallets, public-cluster operation and independent review
+remain outside this verification.

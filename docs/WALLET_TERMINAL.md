@@ -225,7 +225,7 @@ complete market teardown and broader insolvency scenarios remain unfinished.
 ## Resolved-market settlement
 
 Once a verified market is resolved, the terminal hides deposit and withdrawal
-controls and offers two owner-signed actions:
+controls and offers owner-signed settlement actions:
 
 - **Advance settlement** runs one bounded `CloseResolved` step. A successful
   transaction can advance accounting without transferring collateral. More
@@ -233,8 +233,12 @@ controls and offers two owner-signed actions:
 - **Claim additional payout** runs `ClaimResolvedPayoutTopup` when the recorded
   receipt rate and vault show an additional amount payable. It does not unwind
   positions or perform backing discovery.
+- **Review account closure** prepares `ClosePortfolio` once the displayed
+  balances, positions, locks and payout receipt permit a closure review. These
+  preliminary checks do not establish that the account is empty. Simulation and
+  execution must also accept its source domains, escrow and close-progress state.
 
-Both actions use the verified owner's associated token account. If it does not
+The two payout actions use the verified owner's associated token account. If it does not
 exist, the same transaction creates it, with rent shown before signing. The
 legacy close instruction fee field is zero; the pinned wrapper uses its actual
 market maintenance fee policy, which is included in review.
@@ -269,3 +273,18 @@ operator tooling. The keeper now supports backing discovery and bounded resolved
 settlement when configured with `settleResolved: true`. It requires an existing
 owner payout ATA and waits for the program's permissionless-close delay. Payout
 halts, asset Recovery forfeits and account teardown remain outside that worker.
+
+Account closure transfers every lamport held by the portfolio, including rent,
+to the market account. It does not return SOL to the wallet or pay collateral.
+The review names the portfolio and market destination before signing. The client
+binds the instruction to the portfolio ID, sequence and position epoch and
+rechecks complete accounting after signing. No token account is allocated.
+A failed attempt requires a fresh blockhash before another closure review,
+including after reload or a final receipt written by another tab.
+
+Refresh after confirmation. An absent portfolio disables the settlement and
+closure controls. The terminal does not offer portfolio creation in a resolved
+market. A closed market retains a typed tombstone; its reader stops wallet
+actions with a closed-market message instead of treating the account as a live
+deployment. Final market closure is an authority operation described in the
+[operator guide](MARKET_OPERATIONS.md#terminal-account-and-market-closure).
