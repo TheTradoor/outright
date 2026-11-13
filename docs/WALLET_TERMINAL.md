@@ -2,8 +2,8 @@
 
 The terminal is a client for a configured Percolator deployment. It can create
 a portfolio, deposit collateral, request an immediate maker trade with an
-explicit price limit, withdraw when the engine permits it, and advance settlement
-after the market resolves. It does not
+explicit price limit, withdraw when the engine permits it, advance recovery exits
+with owner consent, and settle after the market resolves. It does not
 deploy a market, provide a counterparty, or operate an oracle.
 
 No public Outright market is configured. The shipped profile is `null`.
@@ -170,14 +170,49 @@ in this client. An opposite trade is not guaranteed to close a position if other
 transactions change the position first. The terminal therefore has no one-click
 close, liquidation-price estimate or leverage slider.
 
-Recovery markets remain read-only in the wallet terminal. Resolved markets use
-the settlement controls below. A separate
+Recovery markets expose the eligible position exit described below. Resolved
+markets use the settlement controls. A separate
 [keeper client](MARKET_OPERATIONS.md) can perform bounded maintenance for
 configured test-network portfolios. Full recovery payouts, sustained oracle
 publishing and hosted keeper services, market indexing and alerts remain
 necessary before public release. The upstream
 engine is unaudited research software; local test results do not make it suitable
 for real funds.
+
+## Recovery position exit
+
+Select a position whose asset is in Recovery, whose market is in Recovery, or
+whose side has a reset obligation accepted by the pinned engine. The terminal
+offers **Review recovery exit** only for an eligible retained leg. An ordinary
+live position must close through trading. The program decides final admission.
+
+The owner must acknowledge that `ForfeitRecoveryLeg` can permanently discard
+positive price and funding gains that have not been booked for the selected leg.
+Losses still apply and can consume collateral. This is not an ordinary trade or
+a withdrawal. One successful step may retain an obligation or require further
+recovery; it does not establish that the portfolio or market is fully settled.
+
+Enter a positive **Shared-loss step budget** in collateral units. The client
+encodes exact atoms in the upstream `b_delta_budget` field. This budget bounds
+the shared-loss settlement work within the step. It does not cap price or
+funding losses, collateral consumed, or positive gains forfeited. For example,
+the SBF test uses a one-atom budget while applying a 50-atom price loss.
+
+The instruction requires the owner signature and binds the portfolio ID,
+position epoch and selected asset index. The client also pins the selected
+asset's market ID. It simulates before review and hashes the complete market
+and portfolio data, including accounting omitted from display fields. Any
+change to either data buffer during signing requires a fresh review before
+broadcast. The on-chain epoch rejects stale position consent. State can still
+move after the final read and before execution; the step's effects follow the
+engine at execution time.
+
+After a submitted recovery step is reconciled, the next attempt requires a
+different blockhash, including after a failed transaction or browser reload.
+The client creates no token accounts and includes no token transfer in this
+action. Refresh after confirmation and use the appropriate withdrawal or
+resolved-settlement path once the engine permits it. Payout-halt repair,
+complete market teardown and broader insolvency scenarios remain unfinished.
 
 ## Resolved-market settlement
 

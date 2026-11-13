@@ -33,6 +33,16 @@ fn main() {
     let fixtures = vec![
         fixture("initPortfolio", json!({}), Instruction::InitPortfolio),
         fixture(
+            "forfeitRecoveryLeg",
+            json!({"portfolioId":"9007199254740993","positionEpoch":"562949953421311","assetIndex":258,"bDeltaBudget":"340282366920938463463374607431768211455"}),
+            Instruction::ForfeitRecoveryLeg {
+                portfolio_id: 9_007_199_254_740_993,
+                position_epoch: (1u64 << 49) - 1,
+                asset_index: 258,
+                b_delta_budget: u128::MAX,
+            },
+        ),
+        fixture(
             "closeResolved",
             json!({}),
             Instruction::CloseResolved {

@@ -34,6 +34,7 @@ wallet requirements, transaction states, and current limits.
 | `src/market.mjs` | Market, asset and oracle state; effective position quantities after ADL |
 | `src/token.mjs` | Strict classic SPL Token layouts, associated addresses and idempotent ATA creation |
 | `src/client.mjs` | Deployment verification, coherent snapshots, action planning and transaction lifecycle |
+| `src/recovery.mjs` | Eligibility for an owner-reviewed Recovery leg exit |
 | `terminal/` | Wallet Standard interface, transaction review and receipts |
 | `profile.mjs` | Read-only enrollment of a deployment against local build artifacts |
 | `src/keeper.mjs`, `operator/` | Bounded oracle/portfolio crank, fee limits and durable receipts |
@@ -47,6 +48,7 @@ wallet requirements, transaction states, and current limits.
 | Deposit | Classic SPL Token collateral from the owner's associated token account |
 | Withdraw | Engine-permitted withdrawal from a flat portfolio; creates a missing destination ATA atomically |
 | Resolved settlement | Owner-signed bounded close steps and additional receipt payouts; creates a missing destination ATA atomically |
+| Recovery exit | Owner-signed forfeiture of unbooked leg gains with explicit consent and a bounded shared-loss step budget; no token transfer |
 | Matcher trade | Immediate bounded-price CPI trade against a configured, funded maker |
 | Bilateral trade | Low-level instruction builder; both owners must sign |
 | Permissionless crank | Bounded localnet/devnet worker; resolved backing discovery and payouts require `settleResolved: true` and an existing owner ATA |
@@ -72,6 +74,8 @@ liquidation, underfunded resolved settlement and rollback. The resolved fixture
 checks a later payout after backing expires and rejects duplicate payment. A
 separate trace runs discovery and payouts through the keeper planner without an
 owner signature, including rejection of a forged slot before the close delay.
+The Recovery exit case checks discarded unbooked gains, applied price losses,
+stale consent, owner authorization, unchanged custody and transaction rollback.
 Funding uses a controlled AuthMark fixture; the
 operator's liquidation test uses synthetic Pyth observations. The CPI matcher
 is an upstream test fixture. These are local execution tests, not public-cluster
@@ -81,5 +85,5 @@ exact coverage and remaining requirements.
 The terminal and keeper support localnet and devnet only. The
 [operator guide](../docs/MARKET_OPERATIONS.md) covers setup, simulation, sending,
 fee limits and restart. Funded liquidity, provider oracle publishing, hosted
-keeper operations, recovery exits, broader risk coverage and independent review
+keeper operations, full recovery and teardown, broader risk coverage and independent review
 remain public-release requirements.

@@ -5,6 +5,7 @@ import {
   validateProfile,
 } from "../src/client.mjs";
 import { isSettlementAction } from "../src/settlement.mjs";
+import { isRecoveryAction, recoveryPosition } from "../src/recovery.mjs";
 
 const $ = (id) => document.getElementById(id);
 const setText = (id, value) => {
@@ -46,6 +47,9 @@ function clearSnapshot(message = "Not connected") {
   prices.clear();
   for (const id of ["wallet-balance", "capital", "pnl"]) setText(id, message);
   $("settlement-panel").hidden = true;
+  $("recovery-panel").hidden = true;
+  $("recovery-consent").checked = false;
+  $("recovery-budget").value = "";
   $("settlement-balances").hidden = true;
   setText("settlement-status", "");
   for (const id of ["settlement-face", "settlement-paid", "settlement-due"])
@@ -80,6 +84,11 @@ function controls() {
     !resolved ||
     !snapshot?.portfolio ||
     snapshot.recordedSettlementPayout === 0n;
+  $("recovery-review").disabled =
+    !ready ||
+    !recoveryPosition(snapshot, selectedAsset()?.index) ||
+    !$("recovery-consent").checked ||
+    !$("recovery-budget").value;
   $("trade-review").disabled =
     !ready ||
     !snapshot?.portfolio ||
@@ -237,6 +246,9 @@ function renderMarket() {
         : "Unavailable",
   );
   renderPositions(snapshot.positions);
+  $("recovery-panel").hidden = !recoveryPosition(snapshot, asset?.index);
+  $("recovery-consent").checked = false;
+  setText("recovery-budget-symbol", client.profile.collateral.symbol);
   $("settlement-panel").hidden = snapshot.market.mode !== "resolved";
   const receipt = snapshot.portfolio?.resolvedPayout;
   $("settlement-balances").hidden = !receipt?.present;
@@ -542,6 +554,32 @@ async function reviewAction(value) {
         "This is a bounded step. It may update accounting without a transfer. The recorded payout excludes capital and is not a guaranteed quote. Refresh after confirmation.",
       ],
     );
+  if (isRecoveryAction(value.type)) {
+    const position = recoveryPosition(prepared.snapshot, value.assetIndex);
+    const symbol =
+      client.profile.assets.find((a) => a.index === value.assetIndex)?.symbol ||
+      `Asset ${value.assetIndex}`;
+    fields.push(
+      ["Position", `${symbol} / ${position.side}`],
+      ["Asset incarnation", value.marketId],
+      [
+        "Shared-loss step budget",
+        `${value.budget} ${client.profile.collateral.symbol}`,
+      ],
+      [
+        "Forfeiture",
+        "This step discards positive price and funding gains that have not been booked for this leg. It still applies losses and may consume collateral. It cannot be undone.",
+      ],
+      [
+        "Budget scope",
+        "The budget only bounds shared-loss settlement work. It does not cap price or funding losses, collateral consumed, or gains forfeited.",
+      ],
+      [
+        "Completion",
+        "One step may leave an obligation or require further recovery. No token withdrawal is included. Refresh after confirmation.",
+      ],
+    );
+  }
   $("review-details").replaceChildren();
   for (const [title, text] of fields) {
     const row = document.createElement("div"),
@@ -608,6 +646,21 @@ $("settlement-close").addEventListener("click", () =>
 $("settlement-claim").addEventListener("click", () =>
   action(() => reviewAction({ type: "claimResolvedPayoutTopup" })),
 );
+$("recovery-consent").addEventListener("change", controls);
+$("recovery-budget").addEventListener("input", controls);
+$("recovery-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const asset = selectedAsset();
+  void action(() =>
+    reviewAction({
+      type: "forfeitRecoveryLeg",
+      assetIndex: asset?.index,
+      marketId: asset?.market_id.toString(),
+      budget: $("recovery-budget").value,
+      acceptForfeiture: $("recovery-consent").checked,
+    }),
+  );
+});
 $("collateral-form").addEventListener("submit", (event) => {
   event.preventDefault();
   const form = new FormData(event.currentTarget);

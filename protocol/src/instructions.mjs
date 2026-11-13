@@ -60,6 +60,16 @@ export function encodeInstruction(name, a = {}) {
       return Buffer.concat([Buffer.from([30]), Buffer.alloc(16)]);
     case "claimResolvedPayoutTopup":
       return Buffer.from([46]);
+    case "forfeitRecoveryLeg":
+      if (integer(a.positionEpoch, "positionEpoch", 64) >= 1n << 49n)
+        throw new Error("positionEpoch: out of range");
+      return Buffer.concat([
+        Buffer.from([43]),
+        u64(a, "portfolioId", true),
+        u64(a, "positionEpoch"),
+        small(a.assetIndex, "assetIndex", 65535, 2),
+        wide(a.bDeltaBudget, "bDeltaBudget", 128, false, true),
+      ]);
     case "deposit":
     case "withdraw": {
       // SPL Token movement is u64 even though the engine's wire field is u128.
@@ -147,6 +157,12 @@ export function buildInstruction(program, name, args, a) {
   let keys;
   switch (name) {
     case "initPortfolio":
+    case "forfeitRecoveryLeg":
+      if (
+        new Set([a.owner, a.market, a.portfolio].map((v) => key(v).toBase58()))
+          .size !== 3
+      )
+        throw new Error("Portfolio instruction identities must differ");
       keys = [
         meta(a.owner, true),
         meta(a.market, false, true),

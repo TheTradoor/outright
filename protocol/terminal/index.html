@@ -330,6 +330,52 @@
               </div>
             </form>
             <section
+              id="recovery-panel"
+              class="recovery-panel"
+              hidden
+              aria-label="Recovery exit"
+            >
+              <div class="panel-heading"><h2>Recovery exit</h2></div>
+              <p class="field-note">
+                Exit the selected recovery position in bounded steps. This can
+                discard unbooked gains and apply losses to your collateral. A
+                successful step may leave an obligation to settle.
+              </p>
+              <form id="recovery-form">
+                <label for="recovery-budget">Shared-loss step budget</label>
+                <div class="field-box">
+                  <input
+                    id="recovery-budget"
+                    name="budget"
+                    inputmode="decimal"
+                    placeholder="Enter amount"
+                    required
+                    aria-describedby="recovery-budget-note"
+                  />
+                  <span id="recovery-budget-symbol">Collateral</span>
+                </div>
+                <p id="recovery-budget-note" class="field-note">
+                  Bounds shared-loss work in this step. It does not cap price or
+                  funding losses, collateral consumed, or gains forfeited.
+                </p>
+                <label class="recovery-consent">
+                  <input id="recovery-consent" type="checkbox" required />
+                  <span
+                    >I understand that this step can permanently forfeit
+                    unbooked gains.</span
+                  >
+                </label>
+                <button
+                  id="recovery-review"
+                  class="button outline full"
+                  type="submit"
+                  disabled
+                >
+                  Review recovery exit <span>↗</span>
+                </button>
+              </form>
+            </section>
+            <section
               id="settlement-panel"
               hidden
               aria-label="Market settlement"

@@ -7,6 +7,7 @@ import bs58 from "bs58";
 import { OutrightClient } from "../src/client.mjs";
 import { fixture, withMaker } from "./support/client-fixture.mjs";
 import { setSettlement } from "./support/settlement-fixture.mjs";
+import { setRecovery } from "./support/recovery-fixture.mjs";
 
 // Execute the actual terminal module and HTML with deterministic wallet/RPC
 // fixtures. This is DOM behavior coverage, not browser-extension or layout QA.
@@ -544,6 +545,104 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
           f.accounts.get(f.identity.address.toBase58()).data = portfolioData;
           changed({ accounts: [] });
         }
+      },
+    );
+    await t.test(
+      "recovery exit requires consent and explains the budget before signing",
+      async () => {
+        const marketData = Buffer.from(
+          f.accounts.get(f.market.toBase58()).data,
+        );
+        const portfolioData = Buffer.from(
+          f.accounts.get(f.identity.address.toBase58()).data,
+        );
+        try {
+          setRecovery(f);
+          await connect();
+          assert.equal(el("recovery-panel").hidden, false);
+          assert.equal(el("trade-review").disabled, true);
+          assert.equal(el("recovery-review").disabled, true);
+          el("recovery-budget").value = "0.000001";
+          el("recovery-budget").dispatchEvent(new w.Event("input"));
+          assert.equal(el("recovery-review").disabled, true);
+          el("recovery-consent").checked = true;
+          el("recovery-consent").dispatchEvent(new w.Event("change"));
+          assert.equal(el("recovery-review").disabled, false);
+          el("recovery-review").click();
+          await until(
+            () => el("review-dialog").open && !el("sign").disabled,
+            "recovery review did not open",
+          );
+          assert.match(
+            el("review-summary").textContent,
+            /Forfeit unbooked gains/,
+          );
+          assert.match(el("review-details").textContent, /0.000001 TEST/);
+          assert.match(
+            el("review-details").textContent,
+            /does not cap price or funding losses/,
+          );
+          assert.match(el("review-details").textContent, /No token withdrawal/);
+          changed({ accounts: [] });
+          assert.equal(el("review-dialog").open, false);
+          assert.equal(el("recovery-panel").hidden, true);
+          assert.equal(el("recovery-consent").checked, false);
+          assert.equal(el("recovery-budget").value, "");
+          assert.equal(el("recovery-review").disabled, true);
+        } finally {
+          f.accounts.get(f.market.toBase58()).data = marketData;
+          f.accounts.get(f.identity.address.toBase58()).data = portfolioData;
+          if (el("wallet-button").textContent !== "Connect wallet")
+            changed({ accounts: [] });
+        }
+      },
+    );
+    await t.test(
+      "ordinary live positions do not offer a recovery forfeiture",
+      async () => {
+        const marketData = Buffer.from(
+          f.accounts.get(f.market.toBase58()).data,
+        );
+        const portfolioData = Buffer.from(
+          f.accounts.get(f.identity.address.toBase58()).data,
+        );
+        try {
+          setRecovery(f, { lifecycle: 2 });
+          await connect();
+          assert.equal(el("recovery-panel").hidden, true);
+          assert.equal(el("recovery-review").disabled, true);
+        } finally {
+          f.accounts.get(f.market.toBase58()).data = marketData;
+          f.accounts.get(f.identity.address.toBase58()).data = portfolioData;
+          changed({ accounts: [] });
+        }
+      },
+    );
+    await t.test(
+      "unsupported collateral decimals leave the active profile unchanged",
+      async () => {
+        const profile = {
+          ...f.profile,
+          collateral: { ...f.profile.collateral, decimals: 9 },
+        };
+        Object.defineProperty(el("profile-file"), "files", {
+          configurable: true,
+          value: [{ size: 4096, text: async () => JSON.stringify(profile) }],
+        });
+        el("profile-file").dispatchEvent(new w.Event("change"));
+        await until(
+          () =>
+            /collateral decimals/.test(el("profile-error").textContent) &&
+            !el("wallet-button").disabled,
+          "invalid decimal profile was not rejected",
+        );
+        await connect();
+        assert.equal(el("wallet-balance").textContent, "1000");
+        changed({ accounts: [] });
+        Object.defineProperty(el("profile-file"), "files", {
+          configurable: true,
+          value: [{ size: 4096, text: async () => JSON.stringify(f.profile) }],
+        });
       },
     );
     await t.test(
