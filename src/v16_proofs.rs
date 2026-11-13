@@ -399,6 +399,42 @@ fn contract_check_prepare_counterparty_lien_impair_delta() {
 }
 
 #[cfg(all(kani, feature = "contracts"))]
+#[kani::proof_for_contract(V16Core::prepare_counterparty_impaired_lien_retirement_delta)]
+#[kani::unwind(8)]
+#[kani::solver(cadical)]
+fn contract_check_prepare_counterparty_impaired_lien_retirement_delta() {
+    let bucket = BackingBucketV16 {
+        market_id: kani::any(),
+        fresh_unliened_backing_num: kani::any(),
+        valid_liened_backing_num: kani::any(),
+        consumed_liened_backing_num: kani::any(),
+        impaired_liened_backing_num: kani::any(),
+        expiry_slot: kani::any(),
+        status: kani::any(),
+        utilization_fee_earnings: kani::any(),
+    };
+    let source = SourceCreditStateV16 {
+        positive_claim_bound_num: kani::any(),
+        exact_positive_claim_num: kani::any(),
+        fresh_reserved_backing_num: kani::any(),
+        valid_liened_backing_num: kani::any(),
+        impaired_liened_backing_num: kani::any(),
+        spent_backing_num: kani::any(),
+        provider_receivable_num: kani::any(),
+        insurance_credit_reserved_num: kani::any(),
+        valid_liened_insurance_num: kani::any(),
+        impaired_liened_insurance_num: kani::any(),
+        credit_rate_num: kani::any(),
+        credit_epoch: kani::any(),
+    };
+    let amount: u128 = kani::any();
+    kani::assume(amount < 1u128 << 96);
+    kani::assume(bucket.impaired_liened_backing_num < 1u128 << 96);
+    kani::assume(source.impaired_liened_backing_num < 1u128 << 96);
+    let _ = V16Core::prepare_counterparty_impaired_lien_retirement_delta(bucket, source, amount);
+}
+
+#[cfg(all(kani, feature = "contracts"))]
 #[kani::proof_for_contract(V16Core::prepare_counterparty_backing_add_delta)]
 #[kani::unwind(8)]
 #[kani::solver(cadical)]
@@ -2396,18 +2432,22 @@ fn composition_attach_value_conservation_under_axiom() {
 
 // Credit-rate arithmetic is already discharged against an independent model
 // in rounding_residue_fuzz. This abstraction preserves the exact extrema used
-// by the source-lien unwind (zero available backing => zero rate; no claim or
-// enough available backing => full rate) and over-approximates only the
-// division-bearing partial-haircut branch, which this composition never uses.
+// by the source-lien unwind (no claim => full rate; zero available backing =>
+// zero rate; available backing covering every claim that valid liens do not
+// cover => full rate) and over-approximates only the division-bearing
+// partial-haircut branch, which this composition never uses.
 #[cfg(all(kani, feature = "closure"))]
 fn axiom_source_credit_rate_extrema(state: SourceCreditStateV16) -> V16Result<u128> {
     V16Core::validate_source_credit_state_shape_static(state)?;
-    let available = V16Core::available_backing_num_for_source_credit_state(state)?;
-    if state.positive_claim_bound_num == 0 || available >= state.positive_claim_bound_num {
+    if state.positive_claim_bound_num == 0 {
         return Ok(CREDIT_RATE_SCALE);
     }
+    let available = V16Core::available_backing_num_for_source_credit_state(state)?;
     if available == 0 {
         return Ok(0);
+    }
+    if available >= V16Core::unliened_claim_bound_num_for_source_credit_state(state)? {
+        return Ok(CREDIT_RATE_SCALE);
     }
     let rate: u128 = kani::any();
     kani::assume(rate < CREDIT_RATE_SCALE);
@@ -3298,4 +3338,129 @@ fn proof_principal_cure_preserves_close_ledger_partition() {
     after_masked.finalized = before.finalized;
     after_masked.canceled = before.canceled;
     assert_eq!(after_masked, before);
+}
+
+/// Issue #132: the two leg-teardown kernels remove zero effective OI for a
+/// current-epoch nonzero-basis leg only when that leg's side has none left
+/// (per-leg effective quantities round up while the side A index rounds down,
+/// so earlier exits can consume the whole side). On such a side the zero
+/// removal succeeds whenever the leg's own counters are present, and changes
+/// only those. On any other side it is rejected, so a live leg can never
+/// detach, or convert to a pending obligation, and leave its effective OI
+/// behind.
+///
+/// Closure layer (plain proof over the kernel bodies, no contract machinery).
+#[cfg(all(kani, feature = "closure"))]
+#[kani::proof]
+#[kani::solver(cadical)]
+fn closure_leg_teardown_removes_zero_effective_oi_only_on_an_exhausted_side() {
+    let leg: PortfolioLegV16 = kani::any();
+    let asset: AssetStateV16 = kani::any();
+    let removed_q: u128 = kani::any();
+    kani::assume(leg.basis_pos_q > i128::MIN);
+    let raw_abs_q = leg.basis_pos_q.unsigned_abs();
+    let (side_oi_q, side_epoch, side_mode, stored, pending, weight_sum, dust) = match leg.side {
+        SideV16::Long => (
+            asset.oi_eff_long_q,
+            asset.epoch_long,
+            asset.mode_long,
+            asset.stored_pos_count_long,
+            asset.pending_obligation_count_long,
+            asset.loss_weight_sum_long,
+            asset.social_loss_dust_long_num,
+        ),
+        SideV16::Short => (
+            asset.oi_eff_short_q,
+            asset.epoch_short,
+            asset.mode_short,
+            asset.stored_pos_count_short,
+            asset.pending_obligation_count_short,
+            asset.loss_weight_sum_short,
+            asset.social_loss_dust_short_num,
+        ),
+    };
+    let prior_reset =
+        side_mode == SideModeV16::ResetPending && leg.epoch_snap.checked_add(1) == Some(side_epoch);
+    let live_leg = leg.active && raw_abs_q != 0 && !prior_reset;
+
+    let cleared = V16Core::kernel_clear_leg(leg, asset, removed_q);
+    let retained = V16Core::kernel_retain_leg_as_pending_obligation(leg, asset, removed_q);
+
+    // Acceptance stays fail-closed: never more than the raw basis or the side
+    // holds, and zero for a live leg only on an exhausted side.
+    if cleared.is_ok() {
+        assert!(leg.active && removed_q <= raw_abs_q);
+        if live_leg {
+            assert!(removed_q <= side_oi_q);
+            assert!(removed_q != 0 || side_oi_q == 0);
+        } else {
+            assert!(removed_q == 0);
+        }
+    }
+    if retained.is_ok() {
+        assert!(leg.active && raw_abs_q != 0 && leg.loss_weight != 0);
+        assert!(removed_q <= raw_abs_q && removed_q <= side_oi_q);
+        assert!(removed_q != 0 || side_oi_q == 0);
+    }
+    if live_leg && removed_q == 0 && side_oi_q != 0 {
+        assert_eq!(cleared, Err(V16Error::InvalidLeg));
+        assert_eq!(retained, Err(V16Error::InvalidLeg));
+    }
+
+    // On an exhausted side the zero removal cannot fail for lack of OI, and it
+    // changes exactly the leg's own counters.
+    if live_leg && removed_q == 0 && side_oi_q == 0 {
+        kani::cover!(
+            pending != 0,
+            "exhausted side still carrying a pending obligation"
+        );
+        if stored != 0
+            && weight_sum >= leg.loss_weight
+            && leg.b_rem < SOCIAL_LOSS_DEN
+            && dust < SOCIAL_LOSS_DEN
+        {
+            let after = cleared.unwrap();
+            let (oi, stored_after, pending_after, weight_after) = match leg.side {
+                SideV16::Long => (
+                    after.oi_eff_long_q,
+                    after.stored_pos_count_long,
+                    after.pending_obligation_count_long,
+                    after.loss_weight_sum_long,
+                ),
+                SideV16::Short => (
+                    after.oi_eff_short_q,
+                    after.stored_pos_count_short,
+                    after.pending_obligation_count_short,
+                    after.loss_weight_sum_short,
+                ),
+            };
+            assert_eq!(
+                (oi, stored_after, pending_after, weight_after),
+                (0, stored - 1, pending, weight_sum - leg.loss_weight)
+            );
+        }
+        if leg.loss_weight != 0 && pending != u64::MAX {
+            let (obligation, after) = retained.unwrap();
+            assert!(obligation.active && obligation.basis_pos_q == 0);
+            assert_eq!(obligation.loss_weight, leg.loss_weight);
+            let (oi, stored_after, pending_after, weight_after) = match leg.side {
+                SideV16::Long => (
+                    after.oi_eff_long_q,
+                    after.stored_pos_count_long,
+                    after.pending_obligation_count_long,
+                    after.loss_weight_sum_long,
+                ),
+                SideV16::Short => (
+                    after.oi_eff_short_q,
+                    after.stored_pos_count_short,
+                    after.pending_obligation_count_short,
+                    after.loss_weight_sum_short,
+                ),
+            };
+            assert_eq!(
+                (oi, stored_after, pending_after, weight_after),
+                (0, stored, pending + 1, weight_sum)
+            );
+        }
+    }
 }

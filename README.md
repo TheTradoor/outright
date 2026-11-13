@@ -63,6 +63,7 @@ See [the development guide](docs/DEVELOPMENT.md) for test scope and
 ## Documentation
 
 - [Product requirements and delivery milestones](PRODUCT.md)
+- [Mainnet release requirements and user experience](docs/MAINNET_RELEASE.md)
 - [Upstream sources and compatibility policy](docs/UPSTREAM.md)
 - [Development and verification](docs/DEVELOPMENT.md)
 - [Native integration verification results](docs/NATIVE_VERIFICATION.md)

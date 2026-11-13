@@ -41,7 +41,7 @@ jobs:
         run: |
           git init "$RUNNER_TEMP/percolator-prog"
           git -C "$RUNNER_TEMP/percolator-prog" remote add origin https://github.com/aeyakovenko/percolator-prog.git
-          git -C "$RUNNER_TEMP/percolator-prog" fetch --depth 1 origin b42fe017c2bc953778f90d0cb85cd1d426b6e783
+          git -C "$RUNNER_TEMP/percolator-prog" fetch --depth 1 origin 357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
           git -C "$RUNNER_TEMP/percolator-prog" checkout --detach FETCH_HEAD
       - name: Execute client instructions against the SBF program
         run: bash protocol/svm/run.sh "$RUNNER_TEMP/percolator-prog"

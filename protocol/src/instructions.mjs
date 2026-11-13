@@ -3,8 +3,8 @@ import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 export const TOKEN_PROGRAM_ID = new PublicKey(
   "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
 );
-export const WRAPPER_COMMIT = "b42fe017c2bc953778f90d0cb85cd1d426b6e783";
-export const ENGINE_COMMIT = "b22bef7d6122fd7d82680ce9859e8b77fd8ef656";
+export const WRAPPER_COMMIT = "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13";
+export const ENGINE_COMMIT = "a712af767eeb217876a3d3c50e3849b60ea54462";
 
 function integer(value, name, bits, signed = false, nonzero = false) {
   // Monetary and identity values never pass through floating point.

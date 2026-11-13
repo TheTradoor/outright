@@ -1337,7 +1337,7 @@ dependencies = [
 [[package]]
 name = "percolator-prog"
 version = "0.1.0"
-source = "git+https://github.com/aeyakovenko/percolator-prog?rev=b42fe017c2bc953778f90d0cb85cd1d426b6e783#b42fe017c2bc953778f90d0cb85cd1d426b6e783"
+source = "git+https://github.com/aeyakovenko/percolator-prog?rev=357157e6e14d1d10ce78a995d5d50bb3c1f2ae13#357157e6e14d1d10ce78a995d5d50bb3c1f2ae13"
 dependencies = [
  "anchor-lang-v2",
  "arrayref",
