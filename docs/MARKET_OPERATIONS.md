@@ -150,8 +150,13 @@ the canonical ATA with SPL Token tooling before starting the worker.
 Owner delay, a missing destination and an engine payout halt return `deferred`
 with `ownerDelay`, `payoutAccountMissing` or `payoutHalted`. They consume no
 transaction fee and advance the cursor so another target can be serviced. A
-policy or account change discovered after simulation prevents signing. Code,
-network, invalid custody and unexpected RPC errors stop the worker for review.
+destination that disappears or a payout halt observed during the final account
+read also defers the target, even if its simulation succeeded. The newer bank
+floor and next target are saved before continuing; no signature, reserved fee
+or send attempt is created for that step. The worker does not repair a halt.
+Market-mode and settlement-policy changes are checked before deferral. Code,
+network, invalid custody, changed account identities and unexpected RPC errors
+still stop the worker for review.
 
 This path does not create markets, resolve a live market, cure an engine payout
 halt, forfeit asset Recovery legs or close portfolio and market accounts. Those
@@ -249,6 +254,12 @@ process that recovers the first process's receipt without sending again.
 Live and resolved CLI watch cases start with a missing target, continue to a
 second portfolio, stop cleanly after submission and reconcile on restart. A
 later missing-target pass preserves duplicate protection and the fee budget.
+Two additional resolved watch cases change the payout destination or halt state
+after simulation. They defer, continue to an eligible target, stop gracefully,
+and reconcile the saved transaction after restart without another send. Unit
+cases verify the persisted bank floor, zero signing and fee reservation on the
+deferred step, and rejection of settlement-policy changes that introduce a new
+owner delay. All six new scenarios fail against the preceding implementation.
 
 `bash protocol/svm/run.sh ../percolator-prog` executes the keeper planner's
 instruction against the pinned SBF wrapper. It checks authenticated Pyth
