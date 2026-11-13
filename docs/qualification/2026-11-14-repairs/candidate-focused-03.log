@@ -1,0 +1,9 @@
+
+running 1 test
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_policy_catchup::v16_program_reward_policy_succession_preserves_receipts_and_effective_price_catchup ... policy catchup pay_first=false: episodes=[(12001223, 5987, 1995), (16653247, 8287, 6444)], payout=9439, budgets=[2917, 2918], residual=4
+policy catchup pay_first=true: episodes=[(12001223, 5987, 1995), (16653247, 8287, 6444)], payout=9439, budgets=[2917, 2918], residual=4
+row422 policy succession: 2 histories, 4 liquidations, 6 exact healthy rollbacks; crank=321153, policy=1882, payout=52134 CU
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 218 filtered out; finished in 3.33s
+

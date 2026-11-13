@@ -8,6 +8,8 @@ test_path="$upstream_checkout/tests/outright_native_lifecycle.rs"
 node "$native_root/protocol/check-source.mjs"
 test "$(git -C "$upstream_checkout" rev-parse HEAD)" = "$expected_commit"
 git -C "$upstream_checkout" diff --quiet HEAD
+# Include ignored inputs: local ignore rules must not hide build configuration.
+test -z "$(git -C "$upstream_checkout" ls-files --others -- src Cargo.toml Cargo.lock .cargo build.rs tests/fixtures/auth_matcher ':(exclude,glob)tests/fixtures/auth_matcher/target/**')"
 test ! -e "$test_path"
 test -z "${CARGO_TARGET_DIR:-}"
 test -z "${PERCOLATOR_FUZZ_SBF:-}"

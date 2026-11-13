@@ -1,0 +1,101 @@
+# Full wrapper qualification
+
+`Complete wrapper qualification` is the aggregate gate for the exact source commit in
+`qualification/wrapper-source.json`. It requires every CU, stateful, regression and
+native client lifecycle test to execute successfully. The initial baseline contains
+1,566 / 336 / 148 / 17 tests;
+those numbers are minimum inventory checks, not a selection of tests. Added tests
+are discovered and executed automatically. Known failures remain failures.
+
+The manifest pins the original wrapper upstream, engine, matcher, and toolchain
+versions. The current candidate applies the checked-in `program-repair.patch` to the
+immutable wrapper base with `git apply --index`. Its SHA256 and expected indexed Git
+tree are verified; every job checks that tree and an unchanged working copy before
+and after execution. This explicitly records an overlay, not a published fork commit.
+Change the wrapper repository/ref and optional overlay in the manifest to qualify a
+reviewed candidate. Use a full commit SHA. No repository credentials,
+wallet keys, deployed accounts, mainnet transactions, or additional token permissions
+are needed. The workflow has only `contents: read`; every Action is pinned to a full
+commit. Existing licenses remain in the fetched repositories and accompany artifacts.
+
+## Compilation and scheduling
+
+The full CU binary exceeded local compiler memory. Sixteen generated harnesses keep
+the original shared prelude and selected invariant module declarations, with their
+transitive helper modules. They import the original test source files without changing
+assertions or test bodies. `tests/v16_cu.rs` remains untouched: source-contract tests
+continue inspecting the complete original harness. The reviewed dependency map was
+derived from Rust identifiers, excluding comments and source-code strings. A new
+cross-module dependency fails compilation until the map is updated.
+
+Each invariant root module has exactly one owner shard. Dependency modules can be
+compiled by several shards; their tests execute only on the owner. Any root/support
+tests execute on CU shard zero. Stateful and regression binaries compile intact, then
+their dynamically listed test names are divided deterministically over twelve and four
+shards. A separate shard runs all seventeen native client lifecycle tests by importing
+the existing lifecycle harness and driver against the same candidate. It does not
+invoke the older runner that requires a clean baseline HEAD. All thirty-three jobs
+use standard `ubuntu-24.04` runners, one compiler job,
+disabled incremental compilation, zero debug information, 256 final codegen units,
+and one test process at a time. At most twelve matrix jobs run concurrently. Host
+dependencies share a cache keyed by locked dependencies and the host build profile.
+
+The four SBF programs build once, with locked dependencies, cargo-build-sbf 4.6.0,
+platform-tools v1.52 and the v0 architecture required by the pinned LiteSVM 0.1
+harnesses. All shards verify the same source identities and artifact hashes before
+and after execution. **This legacy-SVM test gate is not current-cluster deployment
+qualification, an audit, or proof of mainnet readiness.**
+
+## Exact coverage and failures
+
+Each shard saves the complete `--list` inventory, its assigned names, each test's
+exit status and log digest, the generated harness digest, source pins, and SBF hashes.
+Tests run with `--exact --include-ignored --nocapture --test-threads=1`: an ignored
+test cannot become a silent skip. Each invocation must report exactly one pass and
+zero failures/ignored tests. Normal failures and individual timeouts do not stop
+the remaining tests in that shard. A test has a 30-minute deadline; compilation has
+a 90-minute deadline; each shard job has a 180-minute deadline. Any timeout is a
+failure, never a passing exclusion.
+
+The aggregate job requires all expected shard reports, complete module ownership,
+matching source/artifact identities, agreement between full-suite listings, exact
+equality between registered names and executed names, no duplicate execution, and
+all passing results. Missing reports, interrupted jobs, compilation errors, empty
+shards and failure logs keep the gate red. `fail-fast: false` retains independent
+results after another shard fails. Artifacts are retained for fourteen days.
+
+## Reproduction
+
+From this repository, with Python 3 and Git available:
+
+```sh
+python3 -m unittest discover -s scripts/tests -p test_wrapper_qualification.py -v
+python3 scripts/wrapper_qualification.py matrix
+python3 scripts/wrapper_qualification.py fetch --workspace /tmp/wrapper-sources
+```
+
+Install Rust 1.95.0 and cargo-build-sbf 4.6.0, then build each of `percolator-prog`,
+its `tests/fixtures/auth_matcher` and `tests/fixtures/hostile_matcher`, and sibling
+`percolator-match` using:
+
+```sh
+cargo +1.95.0 build-sbf --tools-version v1.52 --arch v0 -- --locked
+```
+
+Record the artifacts and execute a shard:
+
+```sh
+python3 scripts/wrapper_qualification.py attest --workspace /tmp/wrapper-sources --output /tmp/artifacts.json
+python3 scripts/wrapper_qualification.py run --workspace /tmp/wrapper-sources --shard v16_cu-00 --artifacts /tmp/artifacts.json --output /tmp/results/v16_cu-00
+```
+
+Repeat for every ID emitted by `matrix`, preserving failed jobs' results. Then:
+
+```sh
+python3 scripts/wrapper_qualification.py aggregate --reports /tmp/results --output /tmp/wrapper-qualification.json
+```
+
+The result is valid only when the aggregate command succeeds. Do not treat an
+individual green shard, successful compilation, or partial log as full qualification.
+Install locked client dependencies with `npm ci --prefix protocol --ignore-scripts
+--no-audit --no-fund` and Node.js 22 before running the native lifecycle shard.

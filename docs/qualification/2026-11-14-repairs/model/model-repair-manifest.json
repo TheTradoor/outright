@@ -1,0 +1,49 @@
+{
+  "wrapper_pin": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "engine_pin": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "worktree": "/workspace/scratch/31e010aaee78/model-repair",
+  "patch": "/workspace/scratch/31e010aaee78/model-repair.patch",
+  "patch_sha256": "918d8e416694078ed395790ac617bf2b2c2f387acb1a5591923b92e66e5a8e27",
+  "files": {
+    "tests/support/fuzz_model.rs": "7d60d9a10d1c24cd8afa7061699e82c088a7982c0a92aec1c2761e7bc48a39fb",
+    "tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs": "c9b867e633467e2aaaa354e5800a915247522f6878c4aaddcf7aba3c21aac53c",
+    "tests/fixtures/inv_086_ceil_residue_scenario.json": "025b20c4b9a435a9215cd74005168548283a704ba7e2833553a38bdece921659"
+  },
+  "production_changed": false,
+  "test_harness": "tests/outright_model_checked.rs",
+  "test_log_status": "9 final checked-target tests passed: six math/mutation controls, original saved failure through both exit campaigns, existing rebalance terminal exit, and original default public-sequence proptest including retained corpus",
+  "test_binary": "target/debug/deps/outright_model_checked-d2eeab6e0ec02570",
+  "test_binary_sha256": "1c448d4728606a8c3f528c326cd21fe0bc9cd9724dd3f71337970594be2f903e",
+  "production_sbf_sha256": "51b159ed4e9bb79903c9406029f3ea079089ab5564204a3ce51a88af8d8744c2",
+  "compile_log": "/workspace/scratch/31e010aaee78/model-checked-compile.log",
+  "tests": {
+    "mutation_and_math_controls": {
+      "log": "/workspace/scratch/31e010aaee78/model-checked-units.log",
+      "passed": 6,
+      "log_sha256": "d6bb63e5d8a76d68f5d89e0ca54040aaa68bc7a3484acfdf61c20e1cebd3d33f"
+    },
+    "saved_original_failure_both_exit_campaigns": {
+      "log": "/workspace/scratch/31e010aaee78/model-checked-saved-replay.log",
+      "passed": 1,
+      "log_sha256": "8338f5c669a4bdd0a2863642f1e67d38d47eaf258d8c783d68dd70659efe2225"
+    },
+    "rebalance_then_terminal_exit": {
+      "log": "/workspace/scratch/31e010aaee78/model-checked-rebalance-exit.log",
+      "passed": 1,
+      "log_sha256": "a918066f3fa08492cb38ee29443ffd2a4327cbb589494bacdfe5fe8a6fdfc44c"
+    },
+    "original_public_sequence_default_configuration": {
+      "log": "/workspace/scratch/31e010aaee78/model-checked-public-sequence.log",
+      "status": "passed",
+      "passed": 1,
+      "log_sha256": "7fd141b9f4c34753778ec9fe18973cc4b3ed6b9d773fa34fb6ca8e7697963591"
+    }
+  },
+  "supplemental_prior_draft_focused_run": {
+    "log": "/workspace/scratch/31e010aaee78/model-focused-qualification.log",
+    "passed": 21,
+    "failed": 0,
+    "excluded_large_frontiers": 8,
+    "note": "Earlier draft before final reset/pending/barrier/raw-residue guard hardening; supplemental only."
+  }
+}

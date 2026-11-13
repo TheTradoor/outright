@@ -1,0 +1,36 @@
+{
+  "base_commit": "c3e9246664e1dd2d21519681ff336a4539f52c4e",
+  "wrapper_commit": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "old_guard_ignored_config_listing": "",
+  "tracked_wrapper_source_clean": true,
+  "runners": {
+    "svm": {
+      "untracked": {
+        "exit_code": 1,
+        "rejected_before_cargo": true
+      },
+      "ignored": {
+        "exit_code": 1,
+        "rejected_before_cargo": true
+      },
+      "target_output_control": {
+        "reached_toolchain_gate": true,
+        "real_compiler_executed": false
+      }
+    },
+    "localnet": {
+      "untracked": {
+        "exit_code": 1,
+        "rejected_before_cargo": true
+      },
+      "ignored": {
+        "exit_code": 1,
+        "rejected_before_cargo": true
+      },
+      "target_output_control": {
+        "reached_toolchain_gate": true,
+        "real_compiler_executed": false
+      }
+    }
+  }
+}

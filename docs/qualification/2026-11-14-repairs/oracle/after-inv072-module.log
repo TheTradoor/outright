@@ -1,0 +1,19 @@
+
+running 11 tests
+test inv_072_order_robust_crankability::v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle ... INV-072 current-evidence then no-tail refresh CU: authenticate=32729, refresh=130435
+ok
+test inv_072_order_robust_crankability::v16_program_bad_hints_cannot_block_public_expired_close_recovery ... ok
+test inv_072_order_robust_crankability::v16_program_budgeted_out_of_order_crank_refreshes_without_unearned_reward ... ok
+test inv_072_order_robust_crankability::v16_program_crank_hint_matrix_preserves_or_discovers_canonical_progress ... ok
+test inv_072_order_robust_crankability::v16_program_drain_only_three_feed_hint_order_is_economically_normalized ... ok
+test inv_072_order_robust_crankability::v16_program_every_auto_crank_plan_and_hint_parser_stratum_has_public_evidence ... ok
+test inv_072_order_robust_crankability::v16_program_pending_close_hint_table_matches_canonical_economics ... ok
+test inv_072_order_robust_crankability::v16_program_pending_selected_mark_requires_observation ... ok
+test inv_072_order_robust_crankability::v16_program_permissionless_crank_bad_hints_do_not_block_later_canonical_progress ... ok
+test inv_072_order_robust_crankability::v16_program_permissionless_crank_valid_hint_order_is_normalized ... ok
+test inv_072_order_robust_crankability::v16_program_sparse_full_leg_crank_at_hint_cap_has_order_independent_progress ... INV-072 sparse full-leg/full-hint progress: reverse=false ranks=[(16, 1), (0, 0)] peak_cu=781429
+INV-072 sparse full-leg/full-hint progress: reverse=true ranks=[(16, 1), (0, 0)] peak_cu=781344
+ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 201 filtered out; finished in 59.06s
+

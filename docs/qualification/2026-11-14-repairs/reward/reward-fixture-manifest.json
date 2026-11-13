@@ -1,0 +1,17 @@
+{
+  "wrapper_pin": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "fixture_patch_sha256": "ff2a559e0e366aeff651934a9dd49d19e050caf36e6fd80637f643ef776d9754",
+  "focused_harness_sha256": "efdc138f84e61a6b4cd956b3beb00aba7f8bc3d8e79d3d60ca58e8df192b2f37",
+  "sbf_sha256": "51b159ed4e9bb79903c9406029f3ea079089ab5564204a3ce51a88af8d8744c2",
+  "production_diff_empty": true,
+  "files": {
+    "tests/invariants/cu/inv_045_authenticated_reward_handoff.rs": "e9b9918f62d408210e48e2b63d088333fa3c15ee7bb0978e5141fe202c6919cc",
+    "tests/invariants/cu/inv_045_exposed_keeper_provenance.rs": "1ee0956664c64d4ae3b0f6ccc4904e83803a4c9bf8cfeb3f38341b6e36992014",
+    "tests/invariants/cu/inv_045_retained_penalty_handoff.rs": "ae7239ecb11809d71f18b54ba688beab31a0dd3faf893e51f5469b5850b8958a",
+    "tests/invariants/cu/inv_045_reward_maintenance_catchup.rs": "c734d06f602d2f89dccc898b443f178d62d9cef73ac349e5871d49ae2a009b33",
+    "tests/invariants/cu/inv_045_reward_policy_catchup.rs": "523f49e401f66be47702df2fff205a0c54f1b6268c6fc1b3304ed0e3488799f7",
+    "tests/invariants/cu/inv_045_reward_terminal_redemption.rs": "9389b7440a72c04a42883e9a06f1fa5e393a2744f5a5e6e91d9d5f400ff04258"
+  },
+  "compile_log": "/workspace/scratch/31e010aaee78/reward-repair-compile-final.log",
+  "compile_command": "PATH=/home/agent/.cargo/bin:$PATH CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 flock /workspace/scratch/31e010aaee78/qualification-compile.lock cargo +1.95.0 rustc --locked --test outright_reward_repair -- -C debuginfo=0 -C codegen-units=256"
+}

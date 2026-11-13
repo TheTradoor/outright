@@ -1,0 +1,37 @@
+
+running 1 test
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody ... cadence publication: endpoint=8 eager=false slot=6 settle_counterparties=false
+cadence publication: endpoint=8 eager=false slot=8 settle_counterparties=false
+cadence liquidation: endpoint=8 eager=false settle_counterparties=false
+cadence settlement: endpoint=8 eager=false settle_counterparties=false
+funding=1000 endpoint=8 eager=false settle_counterparties=false: price=992800, liquidation=(30093516, 14939, 0, [4364961, 100000000, 9229964, 9229964, 1000], 1555011), payout=1000
+cadence publication: endpoint=8 eager=true slot=6 settle_counterparties=false
+cadence publication: endpoint=8 eager=true slot=7 settle_counterparties=false
+cadence publication: endpoint=8 eager=true slot=8 settle_counterparties=false
+cadence liquidation: endpoint=8 eager=true settle_counterparties=false
+cadence settlement: endpoint=8 eager=true settle_counterparties=false
+funded normalization: endpoint=8, exact residual equality; one-atom funding/value mutations rejected
+funding=1000 endpoint=8 eager=true settle_counterparties=false: price=992800, liquidation=(30090311, 14937, 0, [4365162, 100000000, 9229964, 9229964, 1000], 1555009), payout=1000
+cadence publication: endpoint=14 eager=false slot=6 settle_counterparties=false
+cadence publication: endpoint=14 eager=false slot=14 settle_counterparties=false
+cadence liquidation: endpoint=14 eager=false settle_counterparties=false
+cadence settlement: endpoint=14 eager=false settle_counterparties=false
+funding=1000 endpoint=14 eager=false settle_counterparties=false: price=980000, liquidation=(37119980, 18189, 6062, [3081121, 100000000, 9229964, 9229964, 7062], 1552199), payout=7062
+cadence publication: endpoint=14 eager=true slot=6 settle_counterparties=false
+cadence publication: endpoint=14 eager=true slot=7 settle_counterparties=false
+cadence publication: endpoint=14 eager=true slot=8 settle_counterparties=false
+cadence publication: endpoint=14 eager=true slot=9 settle_counterparties=false
+cadence publication: endpoint=14 eager=true slot=10 settle_counterparties=false
+cadence publication: endpoint=14 eager=true slot=11 settle_counterparties=false
+cadence publication: endpoint=14 eager=true slot=12 settle_counterparties=false
+cadence publication: endpoint=14 eager=true slot=13 settle_counterparties=false
+cadence publication: endpoint=14 eager=true slot=14 settle_counterparties=false
+cadence liquidation: endpoint=14 eager=true settle_counterparties=false
+cadence settlement: endpoint=14 eager=true settle_counterparties=false
+funded normalization: endpoint=14, exact residual equality; one-atom funding/value mutations rejected
+funding=1000 endpoint=14 eager=true settle_counterparties=false: price=980000, liquidation=(37103715, 18181, 6059, [3081918, 100000000, 9229964, 9229964, 7059], 1552194), payout=7059
+paid-price cadence: liquidations=4, exact rollbacks=8, peak CU=354673
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 218 filtered out; finished in 5.88s
+

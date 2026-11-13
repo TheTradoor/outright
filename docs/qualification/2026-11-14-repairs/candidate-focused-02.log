@@ -1,0 +1,9 @@
+
+running 1 test
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_maintenance_catchup::v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchup ... row422 collect_first=false: rewards=4759, keeper_fees=2080, pending_payout_fee=1120, payout=3679, liquidation_budgets=[4760, 4762], residual=3
+row422 collect_first=true: rewards=4759, keeper_fees=2080, pending_payout_fee=0, payout=3679, liquidation_budgets=[4760, 4762], residual=3
+row422 maintenance: two histories, four liquidations, eight exact rollbacks, peak CU=323879
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 218 filtered out; finished in 3.61s
+

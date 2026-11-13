@@ -1,0 +1,9 @@
+
+running 1 test
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::v16_program_retained_stale_penalty_survives_fresh_liquidation_and_catchup ... retained penalty phase=0 price=997600 closed=12001223 penalty=5987 reward=0 budgets=[0, 0]
+retained penalty phase=1 price=980000 closed=20752553 penalty=10169 reward=3389 budgets=[3390, 3390]
+retained penalty: liquidations=2 late_rollbacks=3 fixed_point_rollbacks=3 rewarded_rollbacks=1 discovery=1540072 old_penalty=5987 new_penalties=10169 rewards=3389 payout=4389 CU trade=153647 crank=321132 rejection=349794 payout=49134
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.60s
+

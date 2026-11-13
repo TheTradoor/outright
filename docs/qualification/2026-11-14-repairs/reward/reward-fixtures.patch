@@ -1,0 +1,275 @@
+diff --git a/tests/invariants/cu/inv_045_authenticated_reward_handoff.rs b/tests/invariants/cu/inv_045_authenticated_reward_handoff.rs
+index ccb49823..8b8fa9a6 100644
+--- a/tests/invariants/cu/inv_045_authenticated_reward_handoff.rs
++++ b/tests/invariants/cu/inv_045_authenticated_reward_handoff.rs
+@@ -183,6 +183,68 @@ fn submit_with_cu_limit(
+     cu
+ }
+ 
++// The receipt matrices below need authenticated-origin liquidation. A fresh
++// report alone cannot erase a stale trade's provenance while effective price
++// still lags. Corroborate the already accepted current price through the public
++// crank before testing later authenticated-price receipt lifecycle behavior.
++fn corroborate_current_price(
++    env: &mut V16CuEnv,
++    asset: u16,
++    feed: &[u8; 32],
++    portfolio: Pubkey,
++    signer: &Keypair,
++    portfolios: [Pubkey; 5],
++    tracked: &mut Vec<Pubkey>,
++) -> (Pubkey, u64) {
++    let clock = env.svm.get_sysvar::<Clock>();
++    let before = env.market_state().1;
++    let before_values = values(env, portfolios);
++    let custody = [env.mint, env.vault].map(|key| env.svm.get_account(&key));
++    let prior = state::read_asset_oracle_profile(
++        &env.svm.get_account(&env.market).unwrap().data,
++        asset as usize,
++    ).unwrap();
++    assert_eq!(prior.effective_price_provenance,
++        percolator_prog::constants::EFFECTIVE_PRICE_PROVENANCE_TRADE_DRIVEN);
++    let price = before.assets[asset as usize].effective_price;
++    let report = env.set_pyth_price_with_conf(feed, price as i64, -6, 0, clock.unix_timestamp);
++    tracked.push(report);
++    let ix = Instruction {
++        program_id: env.program_id,
++        accounts: vec![
++            AccountMeta::new(signer.pubkey(), true),
++            AccountMeta::new(env.market, false),
++            AccountMeta::new(portfolio, false),
++            AccountMeta::new_readonly(report, false),
++        ],
++        data: ProgInstruction::PermissionlessCrank {
++            now_slot: u64::MAX,
++            observations: crank_observations_with_accounts(asset, 1),
++        }.encode(),
++    };
++    let cu = submit_with_cu_limit(env, signer, &[ix], tracked, None, 500_000);
++    let after = env.market_state().1;
++    let profile = state::read_asset_oracle_profile(
++        &env.svm.get_account(&env.market).unwrap().data,
++        asset as usize,
++    ).unwrap();
++    assert_eq!(after.assets[asset as usize].effective_price, price);
++    assert_eq!(after.assets[asset as usize].raw_oracle_target_price, price);
++    assert_eq!(profile.effective_price_provenance,
++        percolator_prog::constants::EFFECTIVE_PRICE_PROVENANCE_AUTHENTICATED);
++    assert_eq!(profile.last_good_oracle_slot, clock.slot);
++    assert_eq!(profile.oracle_target_publish_time, clock.unix_timestamp);
++    assert_eq!(values(env, portfolios), before_values,
++        "corroboration itself cannot pay a reward or alter owner value");
++    assert_eq!(after.insurance, before.insurance);
++    assert_eq!(after.insurance_domain_budget, before.insurance_domain_budget);
++    assert_eq!(after.insurance_domain_budget_remaining_total,
++        before.insurance_domain_budget_remaining_total);
++    assert_eq!([env.mint, env.vault].map(|key| env.svm.get_account(&key)), custody);
++    census(env, portfolios);
++    (report, cu)
++}
++
+ fn run_authenticated_handoff(
+     max_funding: u64,
+     fresh_prices: &[u64],
+diff --git a/tests/invariants/cu/inv_045_exposed_keeper_provenance.rs b/tests/invariants/cu/inv_045_exposed_keeper_provenance.rs
+index 6b376659..60b85770 100644
+--- a/tests/invariants/cu/inv_045_exposed_keeper_provenance.rs
++++ b/tests/invariants/cu/inv_045_exposed_keeper_provenance.rs
+@@ -14,6 +14,9 @@
+ //! CPI, underwater/shared-owner recipients, more providers, nonzero funding or
+ //! maintenance, arbitrary histories and terminal redemption remain unproven.
+ //! Row 422 stays OPEN; this is a finite conformance family, not a generic oracle.
++//! Receipt histories first publicly corroborate the current effective price.
++//! Their later lag is authenticated-origin; a merely fresh report during
++//! trade-origin lag remains non-rewardable and is covered by the handoff controls.
+ 
+ use super::*;
+ 
+@@ -177,6 +180,11 @@ fn v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybri
+             assert_eq!(staged.insurance_domain_budget_remaining_total, 0);
+             assert_eq!(env.portfolio_state(keeper).legs, keeper_legs);
+ 
++            let (_, corroboration_cu) = corroborate_current_price(
++                &mut env, 0, &feed, trader_a, &owners[4], portfolios, &mut tracked,
++            );
++            peak_crank = peak_crank.max(corroboration_cu);
++
+             let mut total_fee = 0;
+             let mut total_reward = 0;
+             let mut budgets = [0u128; 2];
+diff --git a/tests/invariants/cu/inv_045_retained_penalty_handoff.rs b/tests/invariants/cu/inv_045_retained_penalty_handoff.rs
+index 7f676fc4..84b2ad28 100644
+--- a/tests/invariants/cu/inv_045_retained_penalty_handoff.rs
++++ b/tests/invariants/cu/inv_045_retained_penalty_handoff.rs
+@@ -1,6 +1,7 @@
+ //! INV-045 / row 422: old liquidation penalties survive a later fresh-report handoff.
+-//! A committed stale-mark liquidation precedes fresh liquidation while price still
+-//! lags. Discovery fees and the old penalty remain outside every new reward/budget.
++//! A committed stale-mark liquidation precedes liquidation at a fully reached
++//! fresh target. Discovery fees and the old penalty remain outside every new
++//! reward/budget; routed histories retain their fresh-but-lagging negative cases.
+ 
+ use super::*;
+ 
+@@ -258,24 +259,29 @@ fn run_retained_handoff_impl(
+     let stale_price = ENTRY - ENTRY * 24 / 10_000;
+     // Replacing the pending target restarts the cap anchor at the accepted price.
+     let handoff_price = stale_price - stale_price * 24 / 10_000;
+-    for (phase, slot, price) in [
+-        (0, 6, stale_price),
+-        (1, 7, handoff_price),
+-        (2, 14, FRESH_TARGET),
+-    ] {
++    let phases = if routes.is_none() {
++        // Permit enough elapsed movement to reach the authenticated target
++        // before the second liquidation. Fresh-but-lagging routed histories
++        // below retain their original zero-reward coverage.
++        [(0, 6, stale_price), (1, 14, FRESH_TARGET), (2, 15, FRESH_TARGET)]
++    } else {
++        [(0, 6, stale_price), (1, 7, handoff_price), (2, 14, FRESH_TARGET)]
++    };
++    for (phase, slot, price) in phases {
+         let now = 995 + slot as i64;
+         set_test_clock(&mut env, slot, now);
++        let report_target = FRESH_TARGET;
+         let report = if phase == 0 {
+             initial
+         } else {
+-            env.set_pyth_price_with_conf(&feed, FRESH_TARGET as i64, -6, 0, now)
++            env.set_pyth_price_with_conf(&feed, report_target as i64, -6, 0, now)
+         };
+         let recipient_report = if routes.is_some() && hybrid_recipient {
+             Some(env.set_pyth_price_with_conf(&recipient_feed, 120, -6, 0, now))
+         } else {
+             None
+         };
+-        let equivocal = env.set_pyth_price_with_conf(&feed, FRESH_TARGET as i64 + 1, -6, 0, now);
++        let equivocal = env.set_pyth_price_with_conf(&feed, report_target as i64 + 1, -6, 0, now);
+         tracked.extend([report, equivocal]);
+         tracked.extend(recipient_report);
+         let valid = observe_with_optional_recipient_report(
+@@ -344,6 +350,7 @@ fn run_retained_handoff_impl(
+             let keeper_before = env.portfolio_state(keeper);
+             let before_cert = health_cert(&env.portfolio_state(target));
+             if phase == 2
++                && before.assets[0].slot_last == slot
+                 && before.assets[0].effective_price == price
+                 && before_cert.certified_liq_deficit == 0
+                 && census(&env, portfolios)[0]
+@@ -389,7 +396,7 @@ fn run_retained_handoff_impl(
+             assert_eq!(after.assets[0].effective_price, price, "phase={phase}");
+             assert_eq!(
+                 after.assets[0].raw_oracle_target_price,
+-                if phase == 0 { MARK } else { FRESH_TARGET }
++                if phase == 0 { MARK } else { report_target }
+             );
+             assert_eq!(
+                 profile.last_good_oracle_slot,
+@@ -439,13 +446,23 @@ fn run_retained_handoff_impl(
+             } else {
+                 assert!(old_penalty > 0);
+                 if phase == 1 {
+-                    assert!(
+-                        price > MARK && MARK > FRESH_TARGET,
+-                        "fresh publication precedes paid-target catchup"
+-                    );
+-                    for wrong in [ENTRY, MARK, FRESH_TARGET, ACCEPTED_PRINT, 900_000] {
++                    if routes.is_none() {
++                        assert_eq!(price, report_target);
++                        let profile = state::read_asset_oracle_profile(
++                            &env.svm.get_account(&env.market).unwrap().data, 0,
++                        ).unwrap();
++                        assert_eq!(profile.effective_price_provenance,
++                            percolator_prog::constants::EFFECTIVE_PRICE_PROVENANCE_AUTHENTICATED);
++                    } else {
++                        assert!(price > MARK && MARK > FRESH_TARGET,
++                            "routed paid-origin publication remains behind its target");
++                    }
++                    for wrong in [ENTRY, MARK, ACCEPTED_PRINT, 900_000] {
+                         assert_ne!(penalty, fee(closed, wrong, 5));
+                     }
++                    if routes.is_some() {
++                        assert_ne!(penalty, fee(closed, FRESH_TARGET, 5));
++                    }
+                 }
+                 new_penalties += penalty;
+                 rewards += reward;
+diff --git a/tests/invariants/cu/inv_045_reward_maintenance_catchup.rs b/tests/invariants/cu/inv_045_reward_maintenance_catchup.rs
+index 8fb64135..9cfa0ffe 100644
+--- a/tests/invariants/cu/inv_045_reward_maintenance_catchup.rs
++++ b/tests/invariants/cu/inv_045_reward_maintenance_catchup.rs
+@@ -2,6 +2,9 @@
+ //! recipient's own maintenance. Asset-0 maintenance budgets and asset-1
+ //! liquidation budgets must remain distinct across fee collection order.
+ //! Public construction and instructions only; finite conformance, row stays OPEN.
++//! Receipt histories first publicly corroborate the current effective price.
++//! Their later lag is authenticated-origin; a merely fresh report during
++//! trade-origin lag remains non-rewardable and is covered by the handoff controls.
+ 
+ use super::*;
+ 
+@@ -190,6 +193,11 @@ fn v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchu
+         assert_eq!(env.market_state().1.assets[1].raw_oracle_target_price, MARK);
+         assert_eq!(env.portfolio_state(keeper).last_fee_slot.get(), 1);
+         treasury(&env, portfolios, discovery, 0, 0, [0; 2]);
++        let (_, corroboration_cu) = corroborate_current_price(
++            &mut env, 1, &feed, trader_a, &owners[4], portfolios, &mut tracked,
++        );
++        peak = peak.max(corroboration_cu);
++
+         let mut fees = 0;
+         let mut rewards = 0;
+         let mut budgets = [0; 2];
+diff --git a/tests/invariants/cu/inv_045_reward_policy_catchup.rs b/tests/invariants/cu/inv_045_reward_policy_catchup.rs
+index af648f58..35a05b43 100644
+--- a/tests/invariants/cu/inv_045_reward_policy_catchup.rs
++++ b/tests/invariants/cu/inv_045_reward_policy_catchup.rs
+@@ -1,6 +1,9 @@
+ //! INV-036/045/061, row422: earned rewards across policy succession during catchup.
+ //! A retained liquidation instruction crosses the policy update after certification;
+ //! paying the earlier receipt before or after that update must preserve entitlement.
++//! Receipt histories first publicly corroborate the current effective price.
++//! Their later lag is authenticated-origin; a merely fresh report during
++//! trade-origin lag remains non-rewardable and is covered by the handoff controls.
+ 
+ use super::*;
+ 
+@@ -124,6 +127,11 @@ fn v16_program_reward_policy_succession_preserves_receipts_and_effective_price_c
+         assert_eq!(staged.assets[0].raw_oracle_target_price, MARK);
+         census(&env, portfolios);
+ 
++        let (_, corroboration_cu) = corroborate_current_price(
++            &mut env, 0, &feed, trader_a, &owners[4], portfolios, &mut tracked,
++        );
++        peak_crank = peak_crank.max(corroboration_cu);
++
+         let mut total_fee = 0;
+         let mut total_reward = 0;
+         let mut paid = 0;
+diff --git a/tests/invariants/cu/inv_045_reward_terminal_redemption.rs b/tests/invariants/cu/inv_045_reward_terminal_redemption.rs
+index aaca50cd..18eb4e54 100644
+--- a/tests/invariants/cu/inv_045_reward_terminal_redemption.rs
++++ b/tests/invariants/cu/inv_045_reward_terminal_redemption.rs
+@@ -3,6 +3,9 @@
+ //! conformance only; retained versus early receipts cross both redemption orders.
+ //! System/SPL/ATA/wrapper construction; only Clock, external Pyth reports, signer
+ //! SOL and program loading are harness inputs. No protocol-account mutation.
++//! Receipt histories first publicly corroborate the current effective price.
++//! Their later lag is authenticated-origin; a merely fresh report during
++//! trade-origin lag remains non-rewardable and is covered by the handoff controls.
+ 
+ use super::*;
+ 
+@@ -159,6 +162,12 @@ fn v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order()
+             let discovery = 2 * fee(POS_SCALE, ACCEPTED_PRINT, bps);
+             assert_eq!(env.market_state().1.assets[0].effective_price, ENTRY);
+             assert_eq!(env.market_state().1.assets[0].raw_oracle_target_price, MARK);
++            let (corroborated_report, corroboration_cu) = corroborate_current_price(
++                &mut env, 0, &feed, trader_a, &owners[4], portfolios, &mut tracked,
++            );
++            providers.push((corroborated_report, env.svm.get_account(&corroborated_report)));
++            peak = peak.max(corroboration_cu);
++
+             let mut fees = 0;
+             let mut rewards = 0;
+             let mut budgets = [0; 2];

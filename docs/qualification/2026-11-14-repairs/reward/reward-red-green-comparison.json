@@ -1,0 +1,183 @@
+{
+  "kind": "test_fixture_correction",
+  "production_changed": false,
+  "wrapper_pin": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "engine_pin": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "fixture_patch_sha256": "ff2a559e0e366aeff651934a9dd49d19e050caf36e6fd80637f643ef776d9754",
+  "program_sha256": "51b159ed4e9bb79903c9406029f3ea079089ab5564204a3ce51a88af8d8744c2",
+  "base_evidence_path": "/workspace/scratch/dee0ea254bf8/outright/docs/qualification/2026-11-14/cu-results.json",
+  "contract_commit": "01ec6161e4174437ee306f329eea87bc28f41f41",
+  "contract": "Fresh report cannot erase TRADE_DRIVEN provenance until effective price reaches an authenticated target. AUTHENTICATED provenance is required for liquidation-penalty reclaimability.",
+  "changes": "Four positive receipt matrices publicly corroborate current effective price with a fresh external report and PermissionlessCrank, proving no economic movement at corroboration, before subsequent authenticated-origin receipt lifecycle. Retained-penalty matrix preserves zero stale reward and waits until fresh target is fully reached for its positive liquidation; same-price terminal fixed-point checks now observe the new slot first. Existing routed negative branches keep original schedules.",
+  "comparisons": [
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::v16_program_retained_stale_penalty_survives_fresh_liquidation_and_catchup",
+      "before": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::v16_program_retained_stale_penalty_survives_fresh_liquidation_and_catchup",
+        "log": "cu-02.log",
+        "exit_code": 101,
+        "elapsed_seconds": 1.56,
+        "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.55s",
+        "panic": [
+          "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::v16_program_retained_stale_penalty_survives_fresh_liquidation_and_catchup' (11) panicked at tests/invariants/cu/inv_045_retained_penalty_handoff.rs:468:13:",
+          "assertion `left == right` failed",
+          "  left: [4635056, 100240000, 9227564, 9232364, 1000]",
+          " right: [4635056, 100240000, 9227564, 9232364, 3762]",
+          "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+        ],
+        "log_sha256": "d4cd5de88a1121dc84ea5b9a167338239f330bd198f6af357a92183129de1f26"
+      },
+      "after": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::v16_program_retained_stale_penalty_survives_fresh_liquidation_and_catchup",
+        "log": "/workspace/scratch/31e010aaee78/reward-final-01.log",
+        "exit_code": 0,
+        "elapsed_seconds": 1.61,
+        "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.60s",
+        "log_sha256": "35d27d6c376c96dd58990c55dbc4c8d34def00e68f4071e2b878542e8faa1045"
+      }
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_maintenance_catchup::v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchup",
+      "before": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_maintenance_catchup::v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchup",
+        "log": "cu-03.log",
+        "exit_code": 101,
+        "elapsed_seconds": 1.58,
+        "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.57s",
+        "panic": [
+          "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_maintenance_catchup::v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchup' (14) panicked at tests/invariants/cu/inv_045_reward_maintenance_catchup.rs:261:17:",
+          "assertion `left == right` failed: reward preserves the recipient's own fee cursor and liabilities",
+          "  left: PortfolioAccountV16Account { provenance_header: ProvenanceHeaderV16Account { market_group_id: [188, 117, 94, 250, 231, 250, 201, 225, 189, 146, 190, 181, 27, 71, 225, 28, 255, 233, 152, 120, 56, 136, 45, 184, 146, 5, 129, 104, 78, 94, 33, 140], portfolio_account_id: [156, 177, 41, 55, 149, 1, 242, 246, 214, 178, 199, 77, 19, 201, 29, 180, 200, 58, 25, 61, 103, 79, 79, 20, 110, 119, 161, 51, 124, 64, 230, 226], owner: [188, 232, 193, 13, 2 \u2026 [full value in log]",
+          " right: PortfolioAccountV16Account { provenance_header: ProvenanceHeaderV16Account { market_group_id: [188, 117, 94, 250, 231, 250, 201, 225, 189, 146, 190, 181, 27, 71, 225, 28, 255, 233, 152, 120, 56, 136, 45, 184, 146, 5, 129, 104, 78, 94, 33, 140], portfolio_account_id: [156, 177, 41, 55, 149, 1, 242, 246, 214, 178, 199, 77, 19, 201, 29, 180, 200, 58, 25, 61, 103, 79, 79, 20, 110, 119, 161, 51, 124, 64, 230, 226], owner: [188, 232, 193, 13, 2 \u2026 [full value in log]",
+          "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+        ],
+        "left_keeper_capital": 1000,
+        "right_keeper_capital": 2997,
+        "log_sha256": "4cc8f93a57efb8c6a0a0699e0a9decb7e1832e65fe55fb38903635bdbe3d920d"
+      },
+      "after": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_maintenance_catchup::v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchup",
+        "log": "/workspace/scratch/31e010aaee78/reward-final-02.log",
+        "exit_code": 0,
+        "elapsed_seconds": 3.59,
+        "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 3.58s",
+        "log_sha256": "eaa7e39396805e032553847793667482db914f8c27c1485c4874d688b0454445"
+      }
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_policy_catchup::v16_program_reward_policy_succession_preserves_receipts_and_effective_price_catchup",
+      "before": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_policy_catchup::v16_program_reward_policy_succession_preserves_receipts_and_effective_price_catchup",
+        "log": "cu-04.log",
+        "exit_code": 101,
+        "elapsed_seconds": 1.12,
+        "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.11s",
+        "panic": [
+          "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_policy_catchup::v16_program_reward_policy_succession_preserves_receipts_and_effective_price_catchup' (16) panicked at tests/invariants/cu/inv_045_reward_policy_catchup.rs:244:17:",
+          "assertion `left == right` failed",
+          "  left: [4854013, 100000000, 9229964, 9229964, 1000]",
+          " right: [4854013, 100000000, 9229964, 9229964, 2995]",
+          "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+        ],
+        "log_sha256": "c178d5c5e63f95d331a2f446e25fd3c91e2189f5ad77a218cc7f2cf2b34a953e"
+      },
+      "after": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_policy_catchup::v16_program_reward_policy_succession_preserves_receipts_and_effective_price_catchup",
+        "log": "/workspace/scratch/31e010aaee78/reward-final-03.log",
+        "exit_code": 0,
+        "elapsed_seconds": 3.69,
+        "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 3.68s",
+        "log_sha256": "d564a91615ee30c9ad82acca6fbee3c12f14360bfb77b9ebe5d6ec8aafb82b61"
+      }
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_terminal_redemption::v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order",
+      "before": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_terminal_redemption::v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order",
+        "log": "cu-05.log",
+        "exit_code": 101,
+        "elapsed_seconds": 1.76,
+        "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.75s",
+        "panic": [
+          "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_terminal_redemption::v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order' (18) panicked at tests/invariants/cu/inv_045_reward_terminal_redemption.rs:226:21:",
+          "assertion `left == right` failed",
+          "  left: PortfolioAccountV16Account { provenance_header: ProvenanceHeaderV16Account { market_group_id: [245, 116, 231, 55, 237, 153, 148, 105, 97, 73, 153, 23, 77, 105, 102, 70, 176, 254, 8, 91, 254, 188, 254, 96, 123, 255, 182, 150, 65, 96, 17, 106], portfolio_account_id: [33, 55, 206, 1, 246, 244, 58, 254, 242, 217, 34, 16, 95, 188, 248, 118, 193, 136, 1, 87, 92, 35, 100, 169, 218, 143, 243, 108, 56, 53, 83, 213], owner: [107, 68, 83, 21, 179, 2 \u2026 [full value in log]",
+          " right: PortfolioAccountV16Account { provenance_header: ProvenanceHeaderV16Account { market_group_id: [245, 116, 231, 55, 237, 153, 148, 105, 97, 73, 153, 23, 77, 105, 102, 70, 176, 254, 8, 91, 254, 188, 254, 96, 123, 255, 182, 150, 65, 96, 17, 106], portfolio_account_id: [33, 55, 206, 1, 246, 244, 58, 254, 242, 217, 34, 16, 95, 188, 248, 118, 193, 136, 1, 87, 92, 35, 100, 169, 218, 143, 243, 108, 56, 53, 83, 213], owner: [107, 68, 83, 21, 179, 2 \u2026 [full value in log]",
+          "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+        ],
+        "left_keeper_capital": 1000,
+        "right_keeper_capital": 2995,
+        "log_sha256": "b0030827e5f9422bc936993abcf1c7a3346c37aa1a2eaca4b5ba1fc0c6a0d399"
+      },
+      "after": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_terminal_redemption::v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order",
+        "log": "/workspace/scratch/31e010aaee78/reward-final-04.log",
+        "exit_code": 0,
+        "elapsed_seconds": 7.6,
+        "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 7.59s",
+        "log_sha256": "200a605520b69293882ee079103faa788f31b8807061cf16ee4a62b5366bc1b7"
+      }
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::exposed_keeper_provenance::v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybrid_catchup",
+      "before": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::exposed_keeper_provenance::v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybrid_catchup",
+        "log": "cu-08.log",
+        "exit_code": 101,
+        "elapsed_seconds": 1.29,
+        "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.28s",
+        "panic": [
+          "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::exposed_keeper_provenance::v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybrid_catchup' (8) panicked at tests/invariants/cu/inv_045_exposed_keeper_provenance.rs:273:21:",
+          "assertion `left == right` failed",
+          "  left: [4854013, 100000000, 9229964, 9229964, 10000000]",
+          " right: [4854013, 100000000, 9229964, 9229964, 10001995]",
+          "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+        ],
+        "log_sha256": "f6374d986fe615ebc9b56e4faf970c0879f07a2c39021643cc1876f6ab7546b7"
+      },
+      "after": {
+        "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::exposed_keeper_provenance::v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybrid_catchup",
+        "log": "/workspace/scratch/31e010aaee78/reward-final-05.log",
+        "exit_code": 0,
+        "elapsed_seconds": 6.85,
+        "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 6.84s",
+        "log_sha256": "83356b6de340a17b92a4aaa66a0e23a494edc7f37c4eb861682ccde8ada662a6"
+      }
+    }
+  ],
+  "controls": [
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::v16_program_paid_discovery_fresh_handoff_authenticates_liquidation_and_keeper_exit",
+      "log": "/workspace/scratch/31e010aaee78/reward-final-06.log",
+      "exit_code": 0,
+      "elapsed_seconds": 24.85,
+      "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 24.85s",
+      "log_sha256": "487004baff3016ed7dbd94f77b73e20f2f3054ebeaaea21c45f36d0f308e4df1"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::clipped_liquidation_reward::v16_program_fresh_report_rewards_only_collectible_full_close_penalty",
+      "log": "/workspace/scratch/31e010aaee78/reward-final-07.log",
+      "exit_code": 0,
+      "elapsed_seconds": 5.6,
+      "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 5.60s",
+      "log_sha256": "76b74967f70e93ab4e56d4d15a38ac70f8dde1a09145b8756637fcd90170ac62"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::paid_origin_routes::v16_program_paid_origin_routes_preserve_old_penalty_and_block_trade_origin_rewards",
+      "log": "/workspace/scratch/31e010aaee78/reward-final-08.log",
+      "exit_code": 0,
+      "elapsed_seconds": 19.45,
+      "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 19.44s",
+      "log_sha256": "6df3bfdc8c71ed2d28929508ba2fb282822665242960da641863da7dad112628"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::paid_origin_hybrid_recipient::v16_program_paid_origin_penalty_survives_dual_hybrid_recipient_catchup",
+      "log": "/workspace/scratch/31e010aaee78/reward-final-09.log",
+      "exit_code": 0,
+      "elapsed_seconds": 20.25,
+      "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 20.24s",
+      "log_sha256": "9bdf6540e32266a10259c83d0a236f241d776c56aa1b394c69fa72f174768d95"
+    }
+  ],
+  "scope": "Focused six-file test overlay only. No claim of full-suite passage, new production accounting repair, general proof or mainnet readiness."
+}

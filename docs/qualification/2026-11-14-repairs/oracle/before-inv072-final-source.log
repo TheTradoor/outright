@@ -1,0 +1,7 @@
+
+running 1 test
+test inv_072_order_robust_crankability::v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle ... INV-072 current-evidence then no-tail refresh CU: authenticate=32729, refresh=130380
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 211 filtered out; finished in 1.03s
+

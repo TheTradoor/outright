@@ -1,0 +1,1092 @@
+diff --git a/tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs b/tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs
+index 4bf33118..e5ca041f 100644
+--- a/tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs
++++ b/tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs
+@@ -350,8 +350,7 @@ fn assert_resolved_reserve_controls(evidence: &LiquidationToPartialReceiptEviden
+         "the lapsed reserve must pay the claimant its full entitlement: {evidence:?}"
+     );
+     assert!(
+-        terminal.terminal_landing_slot > landing
+-            && terminal.terminal_landing_slot == 111,
++        terminal.terminal_landing_slot > landing && terminal.terminal_landing_slot == 111,
+         "wind-down waits for the last pledged bucket's #224-bounded lapse: {evidence:?}"
+     );
+ }
+@@ -2067,6 +2066,23 @@ fn v16_program_reference_model_dimension_composition_is_source_complete() {
+     ));
+ }
+ 
++// This fixed public sequence has unequal sums of per-leg ceil quantities after
++// ADL while the two aggregate OI ledgers remain exactly equal. Replay both
++// permissionless progress and independent owner exit, including all existing
++// price/PnL/custody and rollback oracles in run_scenario.
++#[test]
++fn v16_program_effective_oi_rounding_replays_both_exit_campaigns() {
++    let scenario: Scenario = serde_json::from_str(include_str!(
++        "../../fixtures/inv_086_ceil_residue_scenario.json"
++    ))
++    .expect("decode retained ceil-residue scenario");
++    let coverage = run_scenario(&scenario).expect("exact ceil-residue public sequence and exits");
++    assert!(coverage.route_success.iter().all(|count| *count != 0));
++    assert!(
++        coverage.token_frame_checks != 0 && coverage.current_certificate_full_refresh_checks != 0
++    );
++}
++
+ proptest! {
+     #![proptest_config(ProptestConfig {
+         cases: env_usize("PERCOLATOR_INV086_FUZZ_CASES", 8) as u32,
+diff --git a/tests/support/fuzz_model.rs b/tests/support/fuzz_model.rs
+index 181cbef9..9dc3f8dc 100644
+--- a/tests/support/fuzz_model.rs
++++ b/tests/support/fuzz_model.rs
+@@ -5,7 +5,7 @@ use super::v16_svm::{
+ use percolator::{
+     active_bitmap_is_empty, v16_domain_pair_for_asset_index, AssetLifecycleV16, AssetStateV16,
+     BackingBucketStatusV16, CloseProgressLedgerV16, HealthCertV16, MarketModeV16, PortfolioLegV16,
+-    ResolvedPayoutLedgerV16, ResolvedPayoutReceiptV16, SideModeV16, SideV16, BOUND_SCALE,
++    ResolvedPayoutLedgerV16, ResolvedPayoutReceiptV16, SideModeV16, SideV16, ADL_ONE, BOUND_SCALE,
+     CREDIT_RATE_SCALE, MAX_MARGIN_BPS, PORTFOLIO_SOURCE_DOMAIN_CAP, POS_SCALE,
+ };
+ use percolator_prog::{
+@@ -3048,6 +3048,291 @@ pub(crate) fn assert_current_certificate_matches_independent(
+     Ok(true)
+ }
+ 
++// This is a transition ledger, not a copy of the deployed A index. Public
++// attachments start at unit A; only a witnessed unilateral close floors the
++// opposite index, and only an exhausted epoch can reset it.
++#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
++struct IndependentAdlIndex {
++    a: u128,
++    epoch: u64,
++    reset_pending: bool,
++    reset_confirmation_due: bool,
++}
++
++impl IndependentAdlIndex {
++    const INITIAL: Self = Self {
++        a: ADL_ONE,
++        epoch: 0,
++        reset_pending: false,
++        reset_confirmation_due: false,
++    };
++
++    fn unilateral_reduction(self, before_oi: u128, reduce_q: u128) -> Result<Self, String> {
++        let after_oi = before_oi
++            .checked_sub(reduce_q)
++            .ok_or("independent A reduction exceeds aggregate OI")?;
++        if reduce_q == 0 {
++            return Ok(self);
++        }
++        if self.reset_pending {
++            return Err("unilateral close cannot reduce a prior-reset side".into());
++        }
++        let a = if after_oi == 0 {
++            ADL_ONE
++        } else {
++            super::reference_math::mul_div_floor(self.a, after_oi, before_oi)?
++        };
++        if a == 0 {
++            return Err("successful independent A transition reached zero".into());
++        }
++        Ok(if after_oi == 0 {
++            Self {
++                a,
++                epoch: self
++                    .epoch
++                    .checked_add(1)
++                    .ok_or("independent reset epoch overflow")?,
++                reset_pending: true,
++                reset_confirmation_due: true,
++            }
++        } else {
++            Self { a, ..self }
++        })
++    }
++
++    fn reconcile(
++        self,
++        asset: &AssetStateV16,
++        side: usize,
++        expected_oi: u128,
++        pending_domain_loss_barrier: u64,
++    ) -> Result<Self, String> {
++        let (a, epoch, oi, pending, stored, stale, mode) = if side == 0 {
++            (
++                asset.a_long,
++                asset.epoch_long,
++                asset.oi_eff_long_q,
++                asset.pending_obligation_count_long,
++                asset.stored_pos_count_long,
++                asset.stale_account_count_long,
++                asset.mode_long,
++            )
++        } else {
++            (
++                asset.a_short,
++                asset.epoch_short,
++                asset.oi_eff_short_q,
++                asset.pending_obligation_count_short,
++                asset.stored_pos_count_short,
++                asset.stale_account_count_short,
++                asset.mode_short,
++            )
++        };
++        if oi != expected_oi {
++            return Err(format!(
++                "deployed aggregate OI {oi} != independent ledger {expected_oi}"
++            ));
++        }
++        if mode == SideModeV16::ResetPending
++            && (oi != 0 || pending != 0 || pending_domain_loss_barrier != 0)
++        {
++            return Err(
++                "reset side retained OI, pending obligation, or domain loss barrier".into(),
++            );
++        }
++        if epoch == self.epoch && a == self.a {
++            if self.reset_confirmation_due && mode != SideModeV16::ResetPending {
++                return Err("unilateral exhaustion did not install its required reset mode".into());
++            }
++            if self.reset_pending != (mode == SideModeV16::ResetPending) {
++                if self.reset_pending
++                    && mode == SideModeV16::Normal
++                    && oi == 0
++                    && pending == 0
++                    && stored == 0
++                    && stale == 0
++                    && pending_domain_loss_barrier == 0
++                {
++                    return Ok(Self {
++                        reset_pending: false,
++                        ..self
++                    });
++                }
++                return Err(
++                    "side reset mode changed without its exact epoch/finalization witness".into(),
++                );
++            }
++            return Ok(Self {
++                reset_confirmation_due: false,
++                ..self
++            });
++        }
++        if !self.reset_pending
++            && self.epoch.checked_add(1) == Some(epoch)
++            && oi == 0
++            && pending == 0
++            && mode == SideModeV16::ResetPending
++            && a == ADL_ONE
++        {
++            return Ok(Self {
++                a: ADL_ONE,
++                epoch,
++                reset_pending: true,
++                reset_confirmation_due: false,
++            });
++        }
++        Err(format!(
++            "deployed A/epoch {a}/{epoch} != independent {}/{} without an exhausted-epoch reset",
++            self.a, self.epoch
++        ))
++    }
++}
++
++// All legs in this public ScenarioRunner are attached/flipped only at unit A;
++// same-side reductions preserve that birth basis. Keep this explicit so a
++// corrupted basis cannot be explained away as rounding.
++fn assert_public_leg_adl_basis(leg: PortfolioLegV16) -> Result<(), String> {
++    if leg.a_basis != ADL_ONE {
++        return Err(format!(
++            "public leg birth A {} != independent unit basis {ADL_ONE}",
++            leg.a_basis
++        ));
++    }
++    Ok(())
++}
++
++fn canonical_resized_raw_basis(
++    old_raw_q: u128,
++    new_effective_q: u128,
++    a_basis: u128,
++    a: u128,
++) -> Result<u128, String> {
++    let old_effective_q = super::reference_math::mul_div_ceil(old_raw_q, a, a_basis)?;
++    let candidate = super::reference_math::mul_div_floor(new_effective_q, a_basis, a)?;
++    Ok(if new_effective_q <= old_effective_q {
++        candidate.min(old_raw_q)
++    } else {
++        candidate
++    })
++}
++
++fn assert_exhausted_reset_quantity(
++    old_effective_q: u128,
++    remaining_before_reset_q: u128,
++    ledger_before_q: u128,
++) -> Result<(), String> {
++    if old_effective_q.checked_sub(remaining_before_reset_q) != Some(ledger_before_q) {
++        return Err(
++            "retained reset residue does not account for the exact exhausted aggregate quantity"
++                .into(),
++        );
++    }
++    Ok(())
++}
++
++#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
++struct EffectiveOiRoundingResidue {
++    // Denominator ADL_ONE. Ceil rounding is nonnegative; repeated index flooring
++    // and capped terminal removals make the index/bookkeeping term signed.
++    leg_ceiling_num: u128,
++    index_bookkeeping_num: i128,
++    census_minus_aggregate_q: i128,
++}
++
++fn reconcile_effective_oi_rounding(
++    a: u128,
++    raw_current_q: u128,
++    current_leg_count: u64,
++    census_q: u128,
++    aggregate_q: u128,
++) -> Result<EffectiveOiRoundingResidue, String> {
++    let exact_num = raw_current_q
++        .checked_mul(a)
++        .ok_or("exact exposure numerator overflow")?;
++    let census_num = census_q
++        .checked_mul(ADL_ONE)
++        .ok_or("census exposure numerator overflow")?;
++    let aggregate_num = aggregate_q
++        .checked_mul(ADL_ONE)
++        .ok_or("aggregate exposure numerator overflow")?;
++    let leg_ceiling_num = census_num
++        .checked_sub(exact_num)
++        .ok_or("leg ceiling residue is negative")?;
++    let ceiling_bound = u128::from(current_leg_count)
++        .checked_mul(ADL_ONE)
++        .ok_or("leg ceiling bound overflow")?;
++    if (current_leg_count == 0 && leg_ceiling_num != 0)
++        || (current_leg_count != 0 && leg_ceiling_num >= ceiling_bound)
++    {
++        return Err("leg ceiling residue violates its exact per-leg bound".into());
++    }
++    let signed = |value| {
++        i128::try_from(value).map_err(|_| "rounding numerator exceeds signed range".to_string())
++    };
++    let index_bookkeeping_num = signed(exact_num)?
++        .checked_sub(signed(aggregate_num)?)
++        .ok_or("index bookkeeping residue overflow")?;
++    let census_minus_aggregate_q = signed(census_q)?
++        .checked_sub(signed(aggregate_q)?)
++        .ok_or("census/aggregate residue overflow")?;
++    if index_bookkeeping_num.checked_add(signed(leg_ceiling_num)?)
++        != census_minus_aggregate_q.checked_mul(signed(ADL_ONE)?)
++    {
++        return Err("effective OI rounding decomposition is not exact".into());
++    }
++    Ok(EffectiveOiRoundingResidue {
++        leg_ceiling_num,
++        index_bookkeeping_num,
++        census_minus_aggregate_q,
++    })
++}
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum DeadLegRemovalWitness {
++    ResolvedExit,
++    RecoveryForfeit,
++    ZeroOiResidue,
++}
++
++impl DeadLegRemovalWitness {
++    fn from_prestate(
++        market_mode: MarketModeV16,
++        state: &AssetStateV16,
++        side: usize,
++    ) -> Result<Self, String> {
++        if market_mode == MarketModeV16::Resolved {
++            Ok(Self::ResolvedExit)
++        } else if state.lifecycle == AssetLifecycleV16::Recovery {
++            Ok(Self::RecoveryForfeit)
++        } else if [state.oi_eff_long_q, state.oi_eff_short_q][side] == 0 {
++            Ok(Self::ZeroOiResidue)
++        } else {
++            Err("dead-leg cap lacks Resolved, Recovery, or zero-OI residue witness".into())
++        }
++    }
++
++    fn removal(self, effective_q: u128, ledger_q: u128) -> Result<u128, String> {
++        if self == Self::ZeroOiResidue && ledger_q != 0 {
++            return Err("zero-OI residue witness retained independent aggregate OI".into());
++        }
++        Ok(effective_q.min(ledger_q))
++    }
++}
++
++fn account_oi_removal(
++    effective_q: u128,
++    ledger_q: u128,
++    dead_leg_witness: Option<DeadLegRemovalWitness>,
++) -> Result<u128, String> {
++    if let Some(witness) = dead_leg_witness {
++        witness.removal(effective_q, ledger_q)
++    } else if effective_q <= ledger_q {
++        Ok(effective_q)
++    } else {
++        Err("ordinary Live leg removal exceeds independent aggregate OI".into())
++    }
++}
++
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+ struct MatchedBookObligationCensus {
+     effective_q: [u128; 2],
+@@ -3062,6 +3347,9 @@ struct MatchedBookObligationCensus {
+     social_loss_remainder_num: [u128; 2],
+     social_loss_dust_num: [u128; 2],
+     explicit_unallocated_loss_num: [u128; 2],
++    current_raw_q: [u128; 2],
++    current_leg_count: [u64; 2],
++    rounding_residue: [EffectiveOiRoundingResidue; 2],
+     terminal_unmatched_effective_q: [u128; 2],
+ }
+ 
+@@ -3069,6 +3357,7 @@ pub struct ScenarioRunner {
+     env: V16Svm,
+     positions: [[i128; ASSET_COUNT]; PRIMARY_ACTOR_COUNT],
+     expected_effective_oi: [[u128; 2]; ASSET_COUNT],
++    expected_adl_indices: Cell<[[IndependentAdlIndex; 2]; ASSET_COUNT]>,
+     liveness_limit: usize,
+     retained: VecDeque<RetainedTrade>,
+     last_trade_rejection: Option<String>,
+@@ -3115,6 +3404,7 @@ impl ScenarioRunner {
+             env,
+             positions: [[0; ASSET_COUNT]; PRIMARY_ACTOR_COUNT],
+             expected_effective_oi: [[0; 2]; ASSET_COUNT],
++            expected_adl_indices: Cell::new([[IndependentAdlIndex::INITIAL; 2]; ASSET_COUNT]),
+             liveness_limit,
+             retained: VecDeque::new(),
+             last_trade_rejection: None,
+@@ -5535,6 +5825,15 @@ impl ScenarioRunner {
+                             .into(),
+                     );
+                 }
++                // Retirement has already been checked against the complete
++                // canonical empty AssetState above. It resets side epochs as
++                // part of retiring the generation, not as an ADL continuation.
++                if self.expected_effective_oi[asset] != [0, 0] {
++                    return Err("asset retirement discarded independent aggregate OI".into());
++                }
++                let mut indices = self.expected_adl_indices.get();
++                indices[asset] = [IndependentAdlIndex::INITIAL; 2];
++                self.expected_adl_indices.set(indices);
+                 self.assert_positions_match()?;
+                 if transitioned {
+                     self.coverage.asset_retirements += 1;
+@@ -6284,7 +6583,18 @@ impl ScenarioRunner {
+                             allow_internal_exhausted_reset,
+                         )?;
+                         let side_index = Self::side_index(old_leg.side);
+-                        if old_effective_q > self.expected_effective_oi[asset][side_index] {
++                        let ledger_q = self.expected_effective_oi[asset][side_index];
++                        let witness = if allow_internal_exhausted_reset {
++                            Some(DeadLegRemovalWitness::from_prestate(
++                                group_before.mode,
++                                &group_before.assets[asset],
++                                side_index,
++                            )?)
++                        } else {
++                            None
++                        };
++                        let removed_q = account_oi_removal(old_effective_q, ledger_q, witness)?;
++                        if removed_q > ledger_q {
+                             return Err(format!(
+                                 "{context} account clear exceeds the independent {:?} OI ledger for asset {asset}: \
+                                  raw={}, effective={old_effective_q}, ledger={}, before_asset={:?}, after_asset={:?}",
+@@ -6295,10 +6605,17 @@ impl ScenarioRunner {
+                                 group_after.assets[asset],
+                             ));
+                         }
+-                        self.replace_expected_oi(asset, old_leg.side, old_effective_q, 0, context)?;
++                        self.replace_expected_oi(asset, old_leg.side, removed_q, 0, context)?;
+                     }
+                 }
+                 (Some(old_leg), Some(new_leg)) if old_leg.side == new_leg.side => {
++                    if old_leg.a_basis != new_leg.a_basis
++                        || old_leg.epoch_snap != new_leg.epoch_snap
++                    {
++                        return Err(format!(
++                            "{context} same-side leg resize changed its A/epoch birth basis"
++                        ));
++                    }
+                     let already_removed = Self::leg_oi_was_removed_by_reset(
+                         group_before,
+                         asset,
+@@ -6312,6 +6629,24 @@ impl ScenarioRunner {
+                         ));
+                     }
+                     if !already_removed && old_leg.basis_pos_q != new_leg.basis_pos_q {
++                        let before_a = match old_leg.side {
++                            SideV16::Long => group_before.assets[asset].a_long,
++                            SideV16::Short => group_before.assets[asset].a_short,
++                        };
++                        let new_effective_before_reset = super::reference_math::mul_div_ceil(
++                            new_leg.basis_pos_q.unsigned_abs(),
++                            before_a,
++                            old_leg.a_basis,
++                        )?;
++                        let canonical_raw = canonical_resized_raw_basis(
++                            old_leg.basis_pos_q.unsigned_abs(),
++                            new_effective_before_reset,
++                            old_leg.a_basis,
++                            before_a,
++                        )?;
++                        if new_leg.basis_pos_q.unsigned_abs() != canonical_raw {
++                            return Err(format!("{context} same-side resized raw basis {} != independent canonical {canonical_raw}", new_leg.basis_pos_q.unsigned_abs()));
++                        }
+                         let old_effective_q = Self::leg_effective_oi(
+                             group_before,
+                             asset,
+@@ -6330,19 +6665,50 @@ impl ScenarioRunner {
+                             SideV16::Long => group_after.assets[asset].oi_eff_long_q,
+                             SideV16::Short => group_after.assets[asset].oi_eff_short_q,
+                         };
+-                        let exhausted_rounding_residue = old_effective_q.checked_sub(ledger_before)
+-                            == Some(1)
+-                            && deployed_before == ledger_before
+-                            && deployed_after == 0
+-                            && new_effective_q == 0
+-                            && new_leg.basis_pos_q != 0
++                        // A unilateral reduction may exhaust the aggregate while
++                        // retaining a rounded leg as prior-epoch residue. The
++                        // witness is the exact reset transition, never an epsilon.
++                        let new_reset_residue = new_leg.basis_pos_q != 0
+                             && Self::leg_oi_was_removed_by_reset(
+                                 &group_after,
+                                 asset,
+                                 new_leg,
+                                 false,
+                             );
+-                        if old_effective_q > ledger_before && !exhausted_rounding_residue {
++                        if new_reset_residue {
++                            if deployed_before != ledger_before || deployed_after != 0 {
++                                return Err("retained reset residue lacks an exact exhausted aggregate ledger".into());
++                            }
++                            assert_exhausted_reset_quantity(
++                                old_effective_q,
++                                new_effective_before_reset,
++                                ledger_before,
++                            )?;
++                        }
++                        let exhausted_rounding_residue = old_effective_q > ledger_before
++                            && deployed_before == ledger_before
++                            && deployed_after == 0
++                            && new_effective_q == 0
++                            && new_reset_residue;
++                        let dead_leg_removed_q = if allow_internal_exhausted_reset
++                            && new_leg.basis_pos_q == 0
++                            && new_effective_q == 0
++                        {
++                            Some(
++                                DeadLegRemovalWitness::from_prestate(
++                                    group_before.mode,
++                                    &group_before.assets[asset],
++                                    side_index,
++                                )?
++                                .removal(old_effective_q, ledger_before)?,
++                            )
++                        } else {
++                            None
++                        };
++                        if old_effective_q > ledger_before
++                            && !exhausted_rounding_residue
++                            && dead_leg_removed_q.is_none()
++                        {
+                             return Err(format!(
+                                 "{context} account resize exceeds the independent {:?} OI ledger for asset {asset}: \
+                                  raw={}->{}, effective={old_effective_q}->{new_effective_q}, ledger={ledger_before}, \
+@@ -6354,7 +6720,9 @@ impl ScenarioRunner {
+                                 group_after.assets[asset],
+                             ));
+                         }
+-                        if exhausted_rounding_residue {
++                        if let Some(removed_q) = dead_leg_removed_q {
++                            self.replace_expected_oi(asset, old_leg.side, removed_q, 0, context)?;
++                        } else if exhausted_rounding_residue {
+                             self.replace_expected_oi(
+                                 asset,
+                                 old_leg.side,
+@@ -6404,6 +6772,11 @@ impl ScenarioRunner {
+         reduce_q: u128,
+         context: &str,
+     ) -> Result<(), String> {
++        let side_index = Self::side_index(Self::opposite_side(closed_side));
++        let mut indices = self.expected_adl_indices.get();
++        indices[asset][side_index] = indices[asset][side_index]
++            .unilateral_reduction(self.expected_effective_oi[asset][side_index], reduce_q)?;
++        self.expected_adl_indices.set(indices);
+         self.replace_expected_oi(
+             asset,
+             Self::opposite_side(closed_side),
+@@ -6472,9 +6845,18 @@ impl ScenarioRunner {
+             }
+             self.positions[actor][asset] = new;
+             if !prior_reset_cleanup {
++                // A full-drain reset makes a retained prior-epoch leg report
++                // zero effective OI. Its residual raw basis still identifies
++                // the exact quantity closed under the pre-reset index; that
++                // quantity, rather than the reset's whole-leg disappearance,
++                // is the matching-side decrement.
++                let remaining_before_reset = new_leg
++                    .map(|leg| Self::leg_effective_oi(group_before, asset, leg, false))
++                    .transpose()?
++                    .unwrap_or(0);
+                 let reduced = old_effective
+                     .unsigned_abs()
+-                    .checked_sub(new_effective.unsigned_abs())
++                    .checked_sub(remaining_before_reset)
+                     .ok_or("liquidation increased effective position")?;
+                 if reduced == 0 {
+                     return Err("liquidation changed raw basis without effective progress".into());
+@@ -7260,6 +7642,7 @@ impl ScenarioRunner {
+         for actor in 0..PRIMARY_ACTOR_COUNT {
+             let account = self.env.primary_portfolio(actor);
+             for leg in decoded_legs(&account).into_iter().filter(|leg| leg.active) {
++                assert_public_leg_adl_basis(leg)?;
+                 let asset = leg.asset_index as usize;
+                 if asset >= ASSET_COUNT {
+                     return Err(format!(
+@@ -7296,6 +7679,14 @@ impl ScenarioRunner {
+                     continue;
+                 }
+                 let effective_q = Self::leg_effective_oi(group, asset, leg, false)?;
++                census[asset].current_raw_q[side] = census[asset].current_raw_q[side]
++                    .checked_add(raw_q)
++                    .ok_or("matched-book current raw quantity overflow")?;
++                if raw_q != 0 {
++                    census[asset].current_leg_count[side] = census[asset].current_leg_count[side]
++                        .checked_add(1)
++                        .ok_or("matched-book current leg count overflow")?;
++                }
+                 let adl_residue_q = raw_q.checked_sub(effective_q).ok_or_else(|| {
+                     format!(
+                         "matched-book actor {actor} asset {asset} effective quantity {effective_q} exceeds raw {raw_q}"
+@@ -7353,13 +7744,23 @@ impl ScenarioRunner {
+                 engine_asset.explicit_unallocated_loss_long,
+                 engine_asset.explicit_unallocated_loss_short,
+             ];
+-            if entry.effective_q[0] >= entry.effective_q[1] {
+-                entry.terminal_unmatched_effective_q[0] = entry.effective_q[0]
+-                    .checked_sub(entry.effective_q[1])
++            let aggregate_q = [engine_asset.oi_eff_long_q, engine_asset.oi_eff_short_q];
++            for side in 0..2 {
++                entry.rounding_residue[side] = reconcile_effective_oi_rounding(
++                    self.expected_adl_indices.get()[asset][side].a,
++                    entry.current_raw_q[side],
++                    entry.current_leg_count[side],
++                    entry.effective_q[side],
++                    self.expected_effective_oi[asset][side],
++                )?;
++            }
++            if aggregate_q[0] >= aggregate_q[1] {
++                entry.terminal_unmatched_effective_q[0] = aggregate_q[0]
++                    .checked_sub(aggregate_q[1])
+                     .ok_or("matched-book long terminal difference underflow")?;
+             } else {
+-                entry.terminal_unmatched_effective_q[1] = entry.effective_q[1]
+-                    .checked_sub(entry.effective_q[0])
++                entry.terminal_unmatched_effective_q[1] = aggregate_q[1]
++                    .checked_sub(aggregate_q[0])
+                     .ok_or("matched-book short terminal difference underflow")?;
+             }
+             let terminal_class = group.mode != MarketModeV16::Live
+@@ -7379,6 +7780,25 @@ impl ScenarioRunner {
+ 
+     fn assert_positions_match(&self) -> Result<(), String> {
+         let (_, group) = self.env.primary_market_state();
++        let mut indices = self.expected_adl_indices.get();
++        for asset in 0..ASSET_COUNT {
++            let (long_domain, short_domain) = v16_domain_pair_for_asset_index(asset)
++                .map_err(|error| format!("asset {asset} reset domain mapping: {error:?}"))?;
++            for side in 0..2 {
++                indices[asset][side] = indices[asset][side]
++                    .reconcile(
++                        &group.assets[asset],
++                        side,
++                        self.expected_effective_oi[asset][side],
++                        *group
++                            .pending_domain_loss_barriers
++                            .get([long_domain, short_domain][side])
++                            .ok_or("independent reset witness missing domain loss barrier")?,
++                    )
++                    .map_err(|error| format!("asset {asset} side {side}: {error}"))?;
++            }
++        }
++        self.expected_adl_indices.set(indices);
+         let obligation_census = self.matched_book_obligation_census(&group)?;
+         let mut observed = [[0i128; ASSET_COUNT]; PRIMARY_ACTOR_COUNT];
+         let mut observed_long_oi = [0u128; ASSET_COUNT];
+@@ -7629,14 +8049,14 @@ impl ScenarioRunner {
+                 ));
+             }
+             let obligations = obligation_census[asset];
+-            if obligations.effective_q != [engine_asset.oi_eff_long_q, engine_asset.oi_eff_short_q]
+-            {
+-                return Err(format!(
+-                    "asset {asset} effective OI is not the sum of independently decoded effective legs: deployed={}/{}, census={:?}",
+-                    engine_asset.oi_eff_long_q,
+-                    engine_asset.oi_eff_short_q,
+-                    obligations.effective_q,
+-                ));
++            for side in 0..2 {
++                let reconstructed_q = i128::try_from(self.expected_effective_oi[asset][side])
++                    .map_err(|_| "independent aggregate OI exceeds signed range")?
++                    .checked_add(obligations.rounding_residue[side].census_minus_aggregate_q)
++                    .ok_or("rounding-adjusted census quantity overflow")?;
++                if u128::try_from(reconstructed_q).ok() != Some(obligations.effective_q[side]) {
++                    return Err(format!("asset {asset} side {side} typed rounding residue does not reconcile aggregate and leg census"));
++                }
+             }
+             if obligations.pending_obligation_count
+                 != [
+@@ -12641,6 +13061,7 @@ struct BoundedReferenceNode {
+     positions: [[i128; ASSET_COUNT]; PRIMARY_ACTOR_COUNT],
+     matched_book_obligations: [MatchedBookObligationCensus; ASSET_COUNT],
+     expected_effective_oi: [[u128; 2]; ASSET_COUNT],
++    expected_adl_indices: [[IndependentAdlIndex; 2]; ASSET_COUNT],
+     capitals: [u128; PRIMARY_ACTOR_COUNT],
+     pnl: [i128; PRIMARY_ACTOR_COUNT],
+     reserved_pnl: [u128; PRIMARY_ACTOR_COUNT],
+@@ -13140,6 +13561,7 @@ impl ScenarioRunner {
+             positions: self.positions,
+             matched_book_obligations,
+             expected_effective_oi: self.expected_effective_oi,
++            expected_adl_indices: self.expected_adl_indices.get(),
+             capitals,
+             pnl,
+             reserved_pnl,
+@@ -13507,10 +13929,15 @@ fn bounded_lien_impairment_actions(
+ 
+ #[derive(Clone, Copy, Debug)]
+ enum BoundedReceiptConflictAction {
+-    Terminal { actor: usize, route: TerminalRoute },
++    Terminal {
++        actor: usize,
++        route: TerminalRoute,
++    },
+     /// Resolved crank naming each asset in turn; the public route that normalizes
+     /// backing lapsed at the seed slot so an open partial receipt can complete.
+-    HintedCrank { actor: usize },
++    HintedCrank {
++        actor: usize,
++    },
+     CloseSlab,
+ }
+ 
+@@ -15191,12 +15618,19 @@ fn finish_close_to_partial_receipt_composition(
+                 .checked_add(fresh)
+                 .ok_or("INV-086 pre-expiry backing sum overflow")?;
+             let reserve = resolved_junior_need
+-                .checked_add(group.source_credit[domain].positive_claim_bound_num.div_ceil(BOUND_SCALE))
++                .checked_add(
++                    group.source_credit[domain]
++                        .positive_claim_bound_num
++                        .div_ceil(BOUND_SCALE),
++                )
+                 .ok_or("INV-086 resolved reserve overflow")?;
+             let surplus = fresh.saturating_sub(reserve);
+             if surplus != 0 {
+-                let destination_before =
+-                    u128::from(runner.env.token_amount(runner.env.provider_destination_token));
++                let destination_before = u128::from(
++                    runner
++                        .env
++                        .token_amount(runner.env.provider_destination_token),
++                );
+                 let withdraw = runner
+                     .env
+                     .withdraw_backing_bucket(domain as u16, surplus)
+@@ -15204,8 +15638,11 @@ fn finish_close_to_partial_receipt_composition(
+                         format!("INV-086 resolved surplus withdrawal domain {domain}: {error}")
+                     })?;
+                 max_compute_units_pre = max_compute_units_pre.max(withdraw.compute_units);
+-                if u128::from(runner.env.token_amount(runner.env.provider_destination_token))
+-                    != destination_before + surplus
++                if u128::from(
++                    runner
++                        .env
++                        .token_amount(runner.env.provider_destination_token),
++                ) != destination_before + surplus
+                 {
+                     return Err(format!(
+                         "INV-086 resolved surplus withdrawal domain {domain} moved the wrong amount"
+@@ -19690,8 +20127,11 @@ fn apply_bounded_receipt_conflict_action(
+                     asset_index,
+                     oracle_accounts: 0,
+                 };
+-                result =
+-                    runner.execute_terminal_route_hinted(actor, TerminalRoute::Crank, vec![hint])?;
++                result = runner.execute_terminal_route_hinted(
++                    actor,
++                    TerminalRoute::Crank,
++                    vec![hint],
++                )?;
+                 if result.landed {
+                     break;
+                 }
+@@ -21235,8 +21675,7 @@ pub fn verify_favorable_funding_claim_bound_route_matrix(seed: [u8; 32]) -> Resu
+     const DEPOSIT: u128 = 1_000_000;
+     const EXPECTED_FUNDING: u128 = Q_LOTS * FUNDING_CAP as u128 * PRICE as u128 / 1_000_000_000;
+     const _: () = assert!(
+-        EXPECTED_FUNDING > 0
+-            && (Q_LOTS * FUNDING_CAP as u128 * PRICE as u128) % 1_000_000_000 == 0
++        EXPECTED_FUNDING > 0 && (Q_LOTS * FUNDING_CAP as u128 * PRICE as u128) % 1_000_000_000 == 0
+     );
+ 
+     let mut world_count = 0u64;
+@@ -36345,3 +36784,204 @@ fn observed_positions(
+     }
+     Ok(out)
+ }
++
++#[cfg(test)]
++mod effective_oi_rounding_regressions {
++    use super::*;
++
++    #[test]
++    fn ceil_leg_sums_reconcile_with_equal_aggregate_oi_without_tolerance() {
++        let index = IndependentAdlIndex::INITIAL
++            .unilateral_reduction(2, 1)
++            .unwrap();
++        assert_eq!(index.a, ADL_ONE / 2);
++        let long = reconcile_effective_oi_rounding(index.a, 2, 2, 2, 1).unwrap();
++        let short = reconcile_effective_oi_rounding(ADL_ONE, 1, 1, 1, 1).unwrap();
++        assert_eq!(long.leg_ceiling_num, ADL_ONE);
++        assert_eq!(long.index_bookkeeping_num, 0);
++        assert_eq!(long.census_minus_aggregate_q, 1);
++        assert_eq!(short, EffectiveOiRoundingResidue::default());
++        assert!(reconcile_effective_oi_rounding(index.a, 2, 2, 3, 1).is_err());
++    }
++
++    #[test]
++    fn repeated_index_flooring_has_signed_residue_larger_than_one_atom_per_leg() {
++        let raw = 70_000_000_000_000u128;
++        let mut aggregate = raw;
++        let mut index = IndependentAdlIndex::INITIAL;
++        for _ in 0..40 {
++            index = index.unilateral_reduction(aggregate, 1).unwrap();
++            aggregate -= 1;
++        }
++        assert_eq!(index.a, 999_999_999_999_400);
++        assert_eq!(aggregate, 69_999_999_999_960);
++        let census = super::super::reference_math::mul_div_ceil(raw, index.a, ADL_ONE).unwrap();
++        assert_eq!(census, 69_999_999_999_958);
++        let residue = reconcile_effective_oi_rounding(index.a, raw, 1, census, aggregate).unwrap();
++        assert_eq!(residue.leg_ceiling_num, 0);
++        assert_eq!(residue.index_bookkeeping_num, -2 * ADL_ONE as i128);
++        assert_eq!(residue.census_minus_aggregate_q, -2);
++    }
++
++    #[test]
++    fn independent_indices_basis_and_aggregate_reject_one_atom_mutations() {
++        let index = IndependentAdlIndex::INITIAL
++            .unilateral_reduction(2, 1)
++            .unwrap();
++        let mut asset = AssetStateV16::default();
++        asset.a_long = index.a;
++        asset.oi_eff_long_q = 1;
++        assert_eq!(index.reconcile(&asset, 0, 1, 0).unwrap(), index);
++        asset.a_long += 1;
++        assert!(
++            index.reconcile(&asset, 0, 1, 0).is_err(),
++            "wrong A must fail independently of census"
++        );
++        asset.a_long = index.a;
++        asset.oi_eff_long_q += 1;
++        assert!(
++            index.reconcile(&asset, 0, 1, 0).is_err(),
++            "wrong aggregate must fail independently of census"
++        );
++        asset.oi_eff_long_q = 1;
++        assert!(
++            index.reconcile(&asset, 0, 2, 0).is_err(),
++            "wrong shadow ledger must fail"
++        );
++        asset.epoch_long = 1;
++        asset.a_long = ADL_ONE;
++        asset.mode_long = SideModeV16::ResetPending;
++        assert!(
++            index.reconcile(&asset, 0, 1, 0).is_err(),
++            "reset with nonzero OI must fail"
++        );
++        asset.oi_eff_long_q = 0;
++        assert_eq!(
++            index.reconcile(&asset, 0, 0, 0).unwrap(),
++            IndependentAdlIndex {
++                a: ADL_ONE,
++                epoch: 1,
++                reset_pending: true,
++                reset_confirmation_due: false,
++            }
++        );
++        asset.pending_obligation_count_long = 1;
++        assert!(
++            index.reconcile(&asset, 0, 0, 0).is_err(),
++            "reset with pending loss must fail"
++        );
++        let mut leg = PortfolioLegV16::EMPTY;
++        leg.a_basis = ADL_ONE;
++        assert_public_leg_adl_basis(leg).unwrap();
++        leg.a_basis -= 1;
++        assert!(
++            assert_public_leg_adl_basis(leg).is_err(),
++            "wrong birth basis must fail"
++        );
++    }
++
++    #[test]
++    fn capped_dead_leg_removal_requires_a_typed_terminal_witness() {
++        assert_eq!(account_oi_removal(2, 3, None).unwrap(), 2);
++        assert!(
++            account_oi_removal(2, 1, None).is_err(),
++            "ordinary Live removals remain strict"
++        );
++        for witness in [
++            DeadLegRemovalWitness::ResolvedExit,
++            DeadLegRemovalWitness::RecoveryForfeit,
++        ] {
++            assert_eq!(account_oi_removal(2, 1, Some(witness)).unwrap(), 1);
++            assert_eq!(account_oi_removal(4, 1, Some(witness)).unwrap(), 1);
++            assert_eq!(account_oi_removal(2, 0, Some(witness)).unwrap(), 0);
++        }
++        assert_eq!(
++            account_oi_removal(2, 0, Some(DeadLegRemovalWitness::ZeroOiResidue)).unwrap(),
++            0
++        );
++        assert!(account_oi_removal(2, 1, Some(DeadLegRemovalWitness::ZeroOiResidue)).is_err());
++        let index = IndependentAdlIndex::INITIAL;
++        assert!(index.unilateral_reduction(1, 2).is_err());
++        let mut asset = AssetStateV16::default();
++        asset.oi_eff_long_q = 1;
++        assert!(DeadLegRemovalWitness::from_prestate(MarketModeV16::Live, &asset, 0).is_err());
++        asset.lifecycle = AssetLifecycleV16::Recovery;
++        assert_eq!(
++            DeadLegRemovalWitness::from_prestate(MarketModeV16::Live, &asset, 0).unwrap(),
++            DeadLegRemovalWitness::RecoveryForfeit
++        );
++    }
++
++    #[test]
++    fn exhausted_unilateral_side_requires_one_reset_and_no_repeated_reset() {
++        let index = IndependentAdlIndex::INITIAL
++            .unilateral_reduction(1, 1)
++            .unwrap();
++        assert_eq!(index.epoch, 1);
++        assert!(index.reset_pending);
++        let mut asset = AssetStateV16::default();
++        assert!(
++            index.reconcile(&asset, 0, 0, 0).is_err(),
++            "missing epoch/reset must fail"
++        );
++        asset.epoch_long = 1;
++        assert!(
++            index.reconcile(&asset, 0, 0, 0).is_err(),
++            "required reset mode must not be skipped"
++        );
++        asset.mode_long = SideModeV16::ResetPending;
++        asset.pending_obligation_count_long = 1;
++        assert!(
++            index.reconcile(&asset, 0, 0, 0).is_err(),
++            "predicted reset must have no pending obligations"
++        );
++        asset.pending_obligation_count_long = 0;
++        assert!(
++            index.reconcile(&asset, 0, 0, 1).is_err(),
++            "predicted reset must have no pending domain loss barrier"
++        );
++        let confirmed = index.reconcile(&asset, 0, 0, 0).unwrap();
++        assert_eq!(
++            confirmed,
++            IndependentAdlIndex {
++                reset_confirmation_due: false,
++                ..index
++            }
++        );
++        asset.epoch_long = 2;
++        assert!(
++            confirmed.reconcile(&asset, 0, 0, 0).is_err(),
++            "already pending side must not reset again"
++        );
++        asset.epoch_long = 1;
++        asset.mode_long = SideModeV16::Normal;
++        assert!(
++            confirmed.reconcile(&asset, 0, 0, 1).is_err(),
++            "reset finalization must have no pending domain loss barrier"
++        );
++    }
++
++    #[test]
++    fn canonical_resize_rejects_a_raw_atom_hidden_by_the_same_ceil_quantity() {
++        let a = ADL_ONE / 2;
++        let effective = |raw| super::super::reference_math::mul_div_ceil(raw, a, ADL_ONE).unwrap();
++        assert_eq!(effective(5), 3);
++        assert_eq!(effective(4), 2);
++        assert_eq!(effective(3), 2);
++        let canonical = canonical_resized_raw_basis(5, 2, ADL_ONE, a).unwrap();
++        assert_eq!(canonical, 4);
++        assert_ne!(
++            canonical, 3,
++            "the same effective delta must not hide noncanonical raw basis"
++        );
++        assert_exhausted_reset_quantity(3, 2, 1).unwrap();
++        assert!(
++            assert_exhausted_reset_quantity(3, 1, 1).is_err(),
++            "reset must not hide an extra quantity closed"
++        );
++        assert!(
++            assert_exhausted_reset_quantity(3, 3, 1).is_err(),
++            "reset must not hide a missing quantity closed"
++        );
++    }
++}
+diff --git a/tests/fixtures/inv_086_ceil_residue_scenario.json b/tests/fixtures/inv_086_ceil_residue_scenario.json
+new file mode 100644
+index 00000000..6d7aace0
+--- /dev/null
++++ b/tests/fixtures/inv_086_ceil_residue_scenario.json
+@@ -0,0 +1,135 @@
++{
++  "seed": [
++    0,
++    0,
++    0,
++    0,
++    0,
++    0,
++    0,
++    0,
++    10,
++    190,
++    101,
++    105,
++    240,
++    2,
++    140,
++    129,
++    247,
++    246,
++    233,
++    219,
++    191,
++    23,
++    40,
++    144,
++    172,
++    253,
++    245,
++    59,
++    69,
++    52,
++    14,
++    70
++  ],
++  "config": {
++    "max_price_move_bps_per_slot": 500,
++    "max_accrual_dt_slots": 2,
++    "max_abs_funding_e9_per_slot": 0,
++    "maintenance_fee_per_slot": 1
++  },
++  "actions": [
++    {
++      "ConvertReleasedPnl": {
++        "actor": 189,
++        "amount": 230
++      }
++    },
++    {
++      "SyncMaintenanceFee": {
++        "actor": 171,
++        "dt": 4
++      }
++    },
++    {
++      "CrossMarketSubstitution": {
++        "actor": 133
++      }
++    },
++    {
++      "ForceCloseAbandoned": {
++        "cranker": 157,
++        "account_a": 188,
++        "account_b": 223,
++        "asset": 236,
++        "dt": 164,
++        "units": 252
++      }
++    },
++    {
++      "Trade": {
++        "route": "Cpi",
++        "taker": 243,
++        "maker": 190,
++        "asset": 166,
++        "units": -1,
++        "fee_bps": 1,
++        "price_move_bps": 532,
++        "prefer_reduce": true
++      }
++    },
++    {
++      "Withdraw": {
++        "actor": 63,
++        "amount": 196
++      }
++    },
++    {
++      "Trade": {
++        "route": "BatchCpi",
++        "taker": 206,
++        "maker": 159,
++        "asset": 123,
++        "units": -3,
++        "fee_bps": 15,
++        "price_move_bps": 647,
++        "prefer_reduce": false
++      }
++    },
++    {
++      "DrainOnlyAsset": {
++        "asset": 227
++      }
++    },
++    {
++      "ClaimResolvedPayoutTopup": {
++        "actor": 170
++      }
++    },
++    {
++      "RetireAsset": {
++        "asset": 228,
++        "dt": 1
++      }
++    },
++    {
++      "TopUpInsurance": {
++        "domain": 63,
++        "amount": 385
++      }
++    },
++    {
++      "RebalanceReduce": {
++        "actor": 155,
++        "asset": 37
++      }
++    },
++    {
++      "Crank": {
++        "actor": 145,
++        "hints": "Reversed"
++      }
++    }
++  ]
++}

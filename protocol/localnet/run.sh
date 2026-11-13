@@ -7,7 +7,8 @@ shift
 node "$native_root/protocol/check-source.mjs"
 test "$(git -C "$upstream_checkout" rev-parse HEAD)" = 357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
 git -C "$upstream_checkout" diff --quiet HEAD
-test -z "$(git -C "$upstream_checkout" ls-files --others --exclude-standard -- src Cargo.toml Cargo.lock .cargo build.rs tests/fixtures/auth_matcher)"
+# Include ignored inputs: local ignore rules must not hide build configuration.
+test -z "$(git -C "$upstream_checkout" ls-files --others -- src Cargo.toml Cargo.lock .cargo build.rs tests/fixtures/auth_matcher ':(exclude,glob)tests/fixtures/auth_matcher/target/**')"
 test -z "${CARGO_TARGET_DIR:-}"
 test -z "${PERCOLATOR_FUZZ_SBF:-}"
 test -z "${SBF_OUT_PATH:-}"

@@ -1,0 +1,2073 @@
+   Compiling percolator-prog v0.1.0 (/workspace/scratch/31e010aaee78/model-repair)
+warning: unused imports: `AssetGenerationConfigPath`, `SubstitutionKind`, `activation_fee_consent_seed_strategy`, `activation_retry_replay_seed_strategy`, `asset_generation_config_replay_strategy`, `asset_generation_replay_strategy`, `backing_fee_generation_replay_seed_strategy`, `backing_top_up_generation_replay_seed_strategy`, `backing_top_up_retry_replay_seed_strategy`, `bilateral_base_fee_consent_strategy`, `bilateral_fee_support_strategy`, `collateral_top_up_generation_replay_seed_strategy`, `composite_rounding_strategy`, `cpi_backing_fee_seed_strategy`, `cpi_base_fee_consent_strategy`, `cpi_caller_fee_strategy`, `forfeit_funding_erasure_seed_strategy`, `fractional_cap_settlement_seed_strategy`, `insurance_top_up_retry_replay_seed_strategy`, `insurance_withdrawal_generation_replay_seed_strategy`, `pending_ewma_inheritance_strategy`, `pending_ewma_target_override_strategy`, `pending_mark_fee_reward_seed_strategy`, `prospective_funding_rewrite_strategy`, `rebalance_funding_erasure_seed_strategy`, `reclaimable_ewma_fee_strategy`, `reproduce_bilateral_fee_support`, `reproduce_composite_oracle_rounding`, `reproduce_forfeit_funding_erasure`, `reproduce_fractional_cap_settlement`, `reproduce_pending_ewma_inheritance`, `reproduce_pending_ewma_target_override`, `reproduce_pending_mark_fee_reward`, `reproduce_prospective_funding_rewrite`, `reproduce_rebalance_funding_erasure`, `reproduce_reclaimable_ewma_fee`, `reproduce_resolve_before_committed_accrual`, `reproduce_rounded_funding_omission`, `reproduce_trade_driven_liquidation_reward`, `reproduce_trade_funding_erasure`, `reproduce_unstaged_mark_target`, `resolve_before_committed_accrual_seed_strategy`, `resolve_generation_replay_seed_strategy`, `rounded_funding_seed_strategy`, `run_abandoned_asset_force_close_oracle`, `run_cure_position_episode_replay_probe`, `run_drain_reduce_retire_route_oracle`, `run_permissionless_stale_resolution_terminal_oracle`, `run_recovery_forfeit_route_oracle`, `run_recovery_restart_trade_route_oracle`, `run_value_withdrawal_route_oracle`, `target_staging_strategy`, `terminal_dust_payout_protection_strategy`, `trade_driven_liquidation_reward_strategy`, `trade_funding_erasure_strategy`, `trade_retry_replay_strategy`, `verify_activation_fee_consent`, `verify_attributed_pnl_roundtrip`, `verify_bilateral_base_fee_consent`, `verify_convert_retry_replay_protection`, `verify_counterparty_encumbrance_route_matrix`, `verify_cpi_backing_fee_consent`, `verify_cpi_base_fee_consent`, `verify_cpi_caller_fee_protection`, `verify_exact_stock_reconciliation_lifecycle`, `verify_multi_episode_entitlement_history`, `verify_positive_claim_bound_attribution_lifecycle`, `verify_resolved_claim_quote_delta`, `verify_resolved_receipt_split_topups`, `verify_source_credit_rate_lifecycle`, `verify_terminal_dust_payout_protection`, and `verify_underfunded_authority_resolve_claim_orders`
+  --> tests/outright_model_checked.rs:5:5
+   |
+ 5 |     activation_fee_consent_seed_strategy, activation_retry_replay_seed_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 6 |     asset_generation_config_replay_strategy, asset_generation_replay_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 7 |     backing_fee_generation_replay_seed_strategy, backing_top_up_generation_replay_seed_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 8 |     backing_top_up_retry_replay_seed_strategy, bilateral_base_fee_consent_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 9 |     bilateral_fee_support_strategy, collateral_top_up_generation_replay_seed_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+10 |     composite_rounding_strategy, cpi_backing_fee_seed_strategy, cpi_base_fee_consent_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |     cpi_caller_fee_strategy, forfeit_funding_erasure_seed_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+12 |     fractional_cap_settlement_seed_strategy, insurance_top_up_retry_replay_seed_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 |     insurance_withdrawal_generation_replay_seed_strategy, pending_ewma_inheritance_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 |     pending_ewma_target_override_strategy, pending_mark_fee_reward_seed_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 |     prospective_funding_rewrite_strategy, rebalance_funding_erasure_seed_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 |     reclaimable_ewma_fee_strategy, reproduce_bilateral_fee_support,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17 |     reproduce_composite_oracle_rounding, reproduce_forfeit_funding_erasure,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+18 |     reproduce_fractional_cap_settlement, reproduce_pending_ewma_inheritance,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 |     reproduce_pending_ewma_target_override, reproduce_pending_mark_fee_reward,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 |     reproduce_prospective_funding_rewrite, reproduce_rebalance_funding_erasure,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+21 |     reproduce_reclaimable_ewma_fee, reproduce_resolve_before_committed_accrual,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+22 |     reproduce_rounded_funding_omission, reproduce_trade_driven_liquidation_reward,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+23 |     reproduce_trade_funding_erasure, reproduce_unstaged_mark_target,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+24 |     resolve_before_committed_accrual_seed_strategy, resolve_generation_replay_seed_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+25 |     rounded_funding_seed_strategy, run_abandoned_asset_force_close_oracle,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+26 |     run_cure_position_episode_replay_probe, run_drain_reduce_retire_route_oracle,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+27 |     run_permissionless_stale_resolution_terminal_oracle, run_recovery_forfeit_route_oracle,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+28 |     run_recovery_restart_trade_route_oracle, run_scenario, run_value_withdrawal_route_oracle,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29 |     scenario_strategy, target_staging_strategy, terminal_dust_payout_protection_strategy,
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+30 |     trade_driven_liquidation_reward_strategy, trade_funding_erasure_strategy,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+31 |     trade_retry_replay_strategy, verify_activation_fee_consent, verify_attributed_pnl_roundtrip,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+32 |     verify_bilateral_base_fee_consent, verify_convert_retry_replay_protection,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+33 |     verify_counterparty_encumbrance_route_matrix, verify_cpi_backing_fee_consent,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+34 |     verify_cpi_base_fee_consent, verify_cpi_caller_fee_protection,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+35 |     verify_exact_stock_reconciliation_lifecycle, verify_multi_episode_entitlement_history,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+36 |     verify_positive_claim_bound_attribution_lifecycle, verify_resolved_claim_quote_delta,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+37 |     verify_resolved_receipt_split_topups, verify_source_credit_rate_lifecycle,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+38 |     verify_terminal_dust_payout_protection, verify_underfunded_authority_resolve_claim_orders,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+39 |     Action, AssetGenerationConfigPath, HintMode, Scenario, SmallMarketConfig, SubstitutionKind,
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^                                         ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `AccrualOrderingKind`, `ActiveLegOrder`, `AssetIntentKind`, `AuthorityIntentKind`, `BackingExpiryCase`, `BackingExpiryLanding`, `BackingProviderConsentOrder`, `CompositeRoundingScale`, `CrossDomainRoundingOrder`, `EqualRiskAssetOrder`, `ExpiredBackingConsumerDiscovery`, `ExpiredBackingConsumerKind`, `ExpiredBackingTradeRouteDiscovery`, `FeeConsentKind`, `FlatSourceLienEscapeRoute`, `FollowupLiquidationSelection`, `FundedRoleKind`, `MarketIntentKind`, `PendingMarkSource`, `PortfolioIntentKind`, `PositionEpisodeKind`, `ProspectiveAccrualRoute`, `RetainedMaturityDiscovery`, `RetainedMaturityKind`, `RetryIntentKind`, `SourceFeeConsentKind`, `SourceFeeConsentRole`, `SourceLienReversalExitRoute`, `StaleCohortRoute`, `SupersededIntentKind`, `SupersessionPayloadOrder`, `TerminalGenerationKind`, `TradeDrivenMarkMode`, `discover_accrual_ordering_violations`, `discover_active_leg_currentness_violation`, `discover_asset_generation_replay`, `discover_asset_generation_replays`, `discover_authority_incarnation_replays`, `discover_backing_expiry_consumer_boundaries`, `discover_backing_expiry_consumer_boundary`, `discover_backing_expiry_trade_route_boundaries`, `discover_backing_expiry_trade_route_boundary`, `discover_backing_expiry_violation`, `discover_backing_provider_consent_violations`, `discover_bidirectional_superseded_intents`, `discover_bilateral_mark_fee_violations`, `discover_composite_rounding_violations`, `discover_cross_domain_b_violation`, `discover_cross_domain_backing_single_use`, `discover_cross_domain_insurance_violation`, `discover_cross_domain_rounding_exit_locks`, `discover_cross_route_insurance_top_up_retry`, `discover_cross_route_trade_intent_retry`, `discover_debited_intent_retry`, `discover_fee_consent_violations`, `discover_fee_redirect_supersession`, `discover_flat_source_lien_bounded_exits`, `discover_funded_role_seizures`, `discover_intent_retries`, `discover_intent_retry`, `discover_liquidation_share_supersession`, `discover_maintenance_share_supersession`, `discover_mark_movement_reserve_violations`, `discover_market_incarnation_replays`, `discover_matcher_revocation_terminal_loss`, `discover_multi_segment_accrual_ordering_violations`, `discover_observation_omission_violation`, `discover_oracle_supersession_terminal_losses`, `discover_pending_mark_admission_violations`, `discover_pending_mark_fee_ordering`, `discover_pending_mark_inheritance_violations`, `discover_pending_target_override_violations`, `discover_pending_zero_move_terminal_ordering`, `discover_portfolio_incarnation_replays`, `discover_position_episode_replays`, `discover_prospective_accrual_violations`, `discover_resolve_policy_bounded_liveness`, `discover_retained_maturity_boundaries`, `discover_retained_maturity_boundary`, `discover_same_transaction_intent_retry`, `discover_shutdown_catchup_liveness`, `discover_shutdown_commit_ordering`, `discover_source_fee_consent_violations`, `discover_source_lien_reversal_exit_locks`, `discover_terminal_commit_ordering`, `discover_terminal_dust_violations`, `discover_terminal_generation_replay`, `discover_trade_driven_liquidation_violations`, `discover_trade_intent_retry_terminal`, `verify_composite_time_coherence`, `verify_fractional_movement_convergence`, `verify_hybrid_terminal_time_coherence`, `verify_matcher_mutation_order_safety`, `verify_multi_asset_adl_liquidation_permutations`, `verify_resolved_adl_close_orders`, `verify_stale_cohort_exact_reversal`, `verify_stale_cohort_novation_guards`, and `verify_three_asset_locked_loss_liquidation_permutations`
+  --> tests/outright_model_checked.rs:43:5
+   |
+43 |     discover_accrual_ordering_violations, discover_active_leg_currentness_violation,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+44 |     discover_asset_generation_replay, discover_asset_generation_replays,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+45 |     discover_authority_incarnation_replays, discover_backing_expiry_consumer_boundaries,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+46 |     discover_backing_expiry_consumer_boundary, discover_backing_expiry_trade_route_boundaries,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+47 |     discover_backing_expiry_trade_route_boundary, discover_backing_expiry_violation,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+48 |     discover_backing_provider_consent_violations, discover_bidirectional_superseded_intents,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+49 |     discover_bilateral_mark_fee_violations, discover_composite_rounding_violations,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+50 |     discover_cross_domain_b_violation, discover_cross_domain_backing_single_use,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+51 |     discover_cross_domain_insurance_violation, discover_cross_domain_rounding_exit_locks,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+52 |     discover_cross_route_insurance_top_up_retry, discover_cross_route_trade_intent_retry,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+53 |     discover_debited_intent_retry, discover_fee_consent_violations,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+54 |     discover_fee_redirect_supersession, discover_flat_source_lien_bounded_exits,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+55 |     discover_funded_role_seizures, discover_intent_retries, discover_intent_retry,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^
+56 |     discover_liquidation_share_supersession, discover_maintenance_share_supersession,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+57 |     discover_mark_movement_reserve_violations, discover_market_incarnation_replays,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+58 |     discover_matcher_revocation_terminal_loss, discover_multi_segment_accrual_ordering_violations,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+59 |     discover_observation_omission_violation, discover_oracle_supersession_terminal_losses,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+60 |     discover_pending_mark_admission_violations, discover_pending_mark_fee_ordering,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+61 |     discover_pending_mark_inheritance_violations, discover_pending_target_override_violations,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+62 |     discover_pending_zero_move_terminal_ordering, discover_portfolio_incarnation_replays,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+63 |     discover_position_episode_replays, discover_prospective_accrual_violations,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+64 |     discover_resolve_policy_bounded_liveness, discover_retained_maturity_boundaries,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+65 |     discover_retained_maturity_boundary, discover_same_transaction_intent_retry,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+66 |     discover_shutdown_catchup_liveness, discover_shutdown_commit_ordering,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+67 |     discover_source_fee_consent_violations, discover_source_lien_reversal_exit_locks,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+68 |     discover_terminal_commit_ordering, discover_terminal_dust_violations,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+69 |     discover_terminal_generation_replay, discover_trade_driven_liquidation_violations,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+70 |     discover_trade_intent_retry_terminal, verify_adl_force_close_clamp_matrix,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+71 |     verify_adl_reduction_clamp_matrix, verify_composite_time_coherence,
+   |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+74 |     verify_fractional_movement_convergence, verify_hybrid_terminal_time_coherence,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+75 |     verify_matcher_mutation_order_safety, verify_multi_asset_adl_liquidation_permutations,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+76 |     verify_resolved_adl_close_orders, verify_stale_cohort_exact_reversal,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+77 |     verify_stale_cohort_novation_guards, verify_three_asset_locked_loss_liquidation_permutations,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+78 |     AccrualOrderingKind, ActiveLegOrder, AdlForceCloseAccountOrder, AdlReductionBoundary,
+   |     ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^
+79 |     AssetIntentKind, AuthorityIntentKind, BackingExpiryCase, BackingExpiryLanding,
+   |     ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^
+80 |     BackingProviderConsentOrder, CompositeRoundingScale, CrossDomainRoundingOrder,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^
+81 |     DiscoveryTradeRoute, EqualRiskAssetOrder, ExpiredBackingConsumerDiscovery,
+   |                          ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+82 |     ExpiredBackingConsumerKind, ExpiredBackingTradeRouteDiscovery, FeeConsentKind,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^
+83 |     FlatSourceLienEscapeRoute, FollowupLiquidationSelection, FundedRoleKind, MarketIntentKind,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^
+84 |     PendingMarkSource, PortfolioIntentKind, PositionEpisodeKind, ProspectiveAccrualRoute,
+   |     ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^
+85 |     RecoveryForfeitBudget, ResolvedAdlCloseOrder, RetainedMaturityDiscovery, RetainedMaturityKind,
+   |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^
+86 |     RetryIntentKind, SourceFeeConsentKind, SourceFeeConsentRole, SourceLienReversalExitRoute,
+   |     ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+87 |     StaleCohortRoute, SupersededIntentKind, SupersessionPayloadOrder, TerminalGenerationKind,
+   |     ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^
+88 |     TradeDrivenMarkMode,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: enum `KnownBlocker` is never used
+  --> tests/support/fuzz_model.rs:75:10
+   |
+75 | pub enum KnownBlocker {
+   |          ^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `PostExpiryBackingReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:154:12
+    |
+154 | pub struct PostExpiryBackingReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `OmittedRescueReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:168:12
+    |
+168 | pub struct OmittedRescueReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TradeRetryReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:181:12
+    |
+181 | pub struct TradeRetryReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `AssetGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:191:12
+    |
+191 | pub struct AssetGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CpiCallerFeeProtection` is never constructed
+   --> tests/support/fuzz_model.rs:202:12
+    |
+202 | pub struct CpiCallerFeeProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CpiBaseFeeConsentProtection` is never constructed
+   --> tests/support/fuzz_model.rs:217:12
+    |
+217 | pub struct CpiBaseFeeConsentProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CpiBackingFeeProtection` is never constructed
+   --> tests/support/fuzz_model.rs:240:12
+    |
+240 | pub struct CpiBackingFeeProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CompositeRoundingReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:309:12
+    |
+309 | pub struct CompositeRoundingReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RoundedFundingOmissionReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:323:12
+    |
+323 | pub struct RoundedFundingOmissionReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PendingEwmaInheritanceReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:336:12
+    |
+336 | pub struct PendingEwmaInheritanceReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ReclaimableEwmaFeeReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:352:12
+    |
+352 | pub struct ReclaimableEwmaFeeReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TradeFundingErasureReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:371:12
+    |
+371 | pub struct TradeFundingErasureReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RebalanceFundingErasureReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:383:12
+    |
+383 | pub struct RebalanceFundingErasureReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ForfeitFundingErasureReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:394:12
+    |
+394 | pub struct ForfeitFundingErasureReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TradeDrivenLiquidationRewardReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:405:12
+    |
+405 | pub struct TradeDrivenLiquidationRewardReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `AssetGenerationMarkReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:423:12
+    |
+423 | pub struct AssetGenerationMarkReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `AssetGenerationConfigReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:435:12
+    |
+435 | pub struct AssetGenerationConfigReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CrossDomainBSettlementReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:448:12
+    |
+448 | pub struct CrossDomainBSettlementReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PendingEwmaTargetOverrideReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:465:12
+    |
+465 | pub struct PendingEwmaTargetOverrideReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TerminalDustPayoutProtection` is never constructed
+   --> tests/support/fuzz_model.rs:481:12
+    |
+481 | pub struct TerminalDustPayoutProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TargetStagingReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:491:12
+    |
+491 | pub struct TargetStagingReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PendingMarkFeeRewardReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:509:12
+    |
+509 | pub struct PendingMarkFeeRewardReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `FractionalCapSettlementReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:522:12
+    |
+522 | pub struct FractionalCapSettlementReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ProspectiveFundingRewriteReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:536:12
+    |
+536 | pub struct ProspectiveFundingRewriteReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `PR380_FUNDING_DUST_BOUND` is never used
+   --> tests/support/fuzz_model.rs:555:11
+    |
+555 | pub const PR380_FUNDING_DUST_BOUND: u128 = 4;
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ResolveBeforeCommittedAccrualReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:558:12
+    |
+558 | pub struct ResolveBeforeCommittedAccrualReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BilateralFeeSupportReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:574:12
+    |
+574 | pub struct BilateralFeeSupportReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CollateralTopUpGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:590:12
+    |
+590 | pub struct CollateralTopUpGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `InsuranceWithdrawalGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:601:12
+    |
+601 | pub struct InsuranceWithdrawalGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `InsuranceTopUpRetryReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:611:12
+    |
+611 | pub struct InsuranceTopUpRetryReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BackingTopUpGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:622:12
+    |
+622 | pub struct BackingTopUpGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ActivationRetryReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:634:12
+    |
+634 | pub struct ActivationRetryReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ActivationFeeConsentProtection` is never constructed
+   --> tests/support/fuzz_model.rs:646:12
+    |
+646 | pub struct ActivationFeeConsentProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BilateralBaseFeeConsentProtection` is never constructed
+   --> tests/support/fuzz_model.rs:664:12
+    |
+664 | pub struct BilateralBaseFeeConsentProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MaintenancePolicyGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:683:12
+    |
+683 | pub struct MaintenancePolicyGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `LiquidationPolicyGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:695:12
+    |
+695 | pub struct LiquidationPolicyGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedMaintenancePolicyReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:708:12
+    |
+708 | pub struct DelayedMaintenancePolicyReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedLiquidationPolicyReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:720:12
+    |
+720 | pub struct DelayedLiquidationPolicyReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedTradeFeePolicyReplayProtection` is never constructed
+   --> tests/support/fuzz_model.rs:732:12
+    |
+732 | pub struct DelayedTradeFeePolicyReplayProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedFeeRedirectPolicyReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:748:12
+    |
+748 | pub struct DelayedFeeRedirectPolicyReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedBackingFeePolicyReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:760:12
+    |
+760 | pub struct DelayedBackingFeePolicyReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedOracleIntentReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:772:12
+    |
+772 | pub struct DelayedOracleIntentReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BackingFeeConsentReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:784:12
+    |
+784 | pub struct BackingFeeConsentReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedResolvePolicyReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:796:12
+    |
+796 | pub struct DelayedResolvePolicyReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PortfolioCloseIncarnationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:811:12
+    |
+811 | pub struct PortfolioCloseIncarnationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MatcherGrantPortfolioIncarnationReplayProtection` is never constructed
+   --> tests/support/fuzz_model.rs:821:12
+    |
+821 | pub struct MatcherGrantPortfolioIncarnationReplayProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MatcherGrantMarketGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:835:12
+    |
+835 | pub struct MatcherGrantMarketGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TradeFeeMarketGenerationReplayProtection` is never constructed
+   --> tests/support/fuzz_model.rs:848:12
+    |
+848 | pub struct TradeFeeMarketGenerationReplayProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ForfeitMarketGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:865:12
+    |
+865 | pub struct ForfeitMarketGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TradePortfolioIncarnationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:878:12
+    |
+878 | pub struct TradePortfolioIncarnationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ConvertPortfolioIncarnationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:893:12
+    |
+893 | pub struct ConvertPortfolioIncarnationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ConvertRetryReplayProtection` is never constructed
+   --> tests/support/fuzz_model.rs:906:12
+    |
+906 | pub struct ConvertRetryReplayProtection {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ForfeitPortfolioIncarnationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:919:12
+    |
+919 | pub struct ForfeitPortfolioIncarnationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `FeeRedirectGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:935:12
+    |
+935 | pub struct FeeRedirectGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BackingFeeGenerationReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:948:12
+    |
+948 | pub struct BackingFeeGenerationReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BackingTopUpRetryReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:961:12
+    |
+961 | pub struct BackingTopUpRetryReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `WithdrawalRetryLiquidationReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:972:12
+    |
+972 | pub struct WithdrawalRetryLiquidationReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DepositRetryReplayReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:984:12
+    |
+984 | pub struct DepositRetryReplayReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PortfolioIncarnationWithdrawalReproduction` is never constructed
+   --> tests/support/fuzz_model.rs:995:12
+    |
+995 | pub struct PortfolioIncarnationWithdrawalReproduction {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PortfolioIncarnationDepositReproduction` is never constructed
+    --> tests/support/fuzz_model.rs:1008:12
+     |
+1008 | pub struct PortfolioIncarnationDepositReproduction {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MarketIncarnationDepositReproduction` is never constructed
+    --> tests/support/fuzz_model.rs:1020:12
+     |
+1020 | pub struct MarketIncarnationDepositReproduction {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ResolveGenerationReplayReproduction` is never constructed
+    --> tests/support/fuzz_model.rs:1032:12
+     |
+1032 | pub struct ResolveGenerationReplayReproduction {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ShutdownGenerationReplayReproduction` is never constructed
+    --> tests/support/fuzz_model.rs:1046:12
+     |
+1046 | pub struct ShutdownGenerationReplayReproduction {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `assert_current_certificate_matches_independent` is never used
+    --> tests/support/fuzz_model.rs:3015:15
+     |
+3015 | pub(crate) fn assert_current_certificate_matches_independent(
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_multileg_loss_stale_progress_regression` is never used
+    --> tests/support/fuzz_model.rs:8478:8
+     |
+8478 | pub fn run_multileg_loss_stale_progress_regression() -> Result<Coverage, String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_value_withdrawal_route_oracle` is never used
+    --> tests/support/fuzz_model.rs:8514:8
+     |
+8514 | pub fn run_value_withdrawal_route_oracle() -> Result<Coverage, String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_abandoned_asset_force_close_oracle` is never used
+    --> tests/support/fuzz_model.rs:8553:8
+     |
+8553 | pub fn run_abandoned_asset_force_close_oracle() -> Result<Coverage, String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_recovery_forfeit_route_oracle` is never used
+    --> tests/support/fuzz_model.rs:8606:8
+     |
+8606 | pub fn run_recovery_forfeit_route_oracle() -> Result<Coverage, String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_recovery_restart_trade_route_oracle` is never used
+    --> tests/support/fuzz_model.rs:8661:8
+     |
+8661 | pub fn run_recovery_restart_trade_route_oracle() -> Result<Coverage, String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_permissionless_stale_resolution_terminal_oracle` is never used
+    --> tests/support/fuzz_model.rs:8738:8
+     |
+8738 | pub fn run_permissionless_stale_resolution_terminal_oracle() -> Result<Coverage, String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_drain_reduce_retire_route_oracle` is never used
+    --> tests/support/fuzz_model.rs:8783:8
+     |
+8783 | pub fn run_drain_reduce_retire_route_oracle() -> Result<Coverage, String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BoundedLivenessGraphEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8845:12
+     |
+8845 | pub struct BoundedLivenessGraphEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PendingCloseRankEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8851:12
+     |
+8851 | pub struct PendingCloseRankEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `SameAssetCloseLocalityEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8858:12
+     |
+8858 | pub struct SameAssetCloseLocalityEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `SameAssetCloseDriftProgressEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8874:12
+     |
+8874 | pub struct SameAssetCloseDriftProgressEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ConcurrentCloseLocalityEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8895:12
+     |
+8895 | pub struct ConcurrentCloseLocalityEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ActiveCloseShutdownEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8904:12
+     |
+8904 | pub struct ActiveCloseShutdownEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ActiveCloseCrossAssetAdmissionEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8916:12
+     |
+8916 | pub struct ActiveCloseCrossAssetAdmissionEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DeferredCloseCrossAssetEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8930:12
+     |
+8930 | pub struct DeferredCloseCrossAssetEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CloseResetOverlapEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8947:12
+     |
+8947 | pub struct CloseResetOverlapEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CurePendingObligationDosEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8963:12
+     |
+8963 | pub struct CurePendingObligationDosEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CloseCancelPartitionEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:8991:12
+     |
+8991 | pub struct CloseCancelPartitionEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PendingBarrierCrossZeroEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:9003:12
+     |
+9003 | pub struct PendingBarrierCrossZeroEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MaterializedPortfolioCensusEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:9016:12
+     |
+9016 | pub struct MaterializedPortfolioCensusEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CurePortfolioIncarnationReplayEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:9025:12
+     |
+9025 | pub struct CurePortfolioIncarnationReplayEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CurePositionEpisodeReplayEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:9039:12
+     |
+9039 | pub struct CurePositionEpisodeReplayEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `create_public_cancellable_close` is never used
+    --> tests/support/fuzz_model.rs:9053:4
+     |
+9053 | fn create_public_cancellable_close(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `create_public_cancellable_close_via_route` is never used
+    --> tests/support/fuzz_model.rs:9070:4
+     |
+9070 | fn create_public_cancellable_close_via_route(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_same_asset_close_locality_world` is never used
+    --> tests/support/fuzz_model.rs:9227:4
+     |
+9227 | fn run_same_asset_close_locality_world(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_same_asset_close_locality_probe` is never used
+    --> tests/support/fuzz_model.rs:9381:8
+     |
+9381 | pub fn run_same_asset_close_locality_probe() -> Result<SameAssetCloseLocalityEvidence, String> {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RecoverySupportPartitionEvidence` is never constructed
+    --> tests/support/fuzz_model.rs:9469:12
+     |
+9469 | pub struct RecoverySupportPartitionEvidence {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_recovery_support_partition_world` is never used
+    --> tests/support/fuzz_model.rs:9478:4
+     |
+9478 | fn run_recovery_support_partition_world(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_recovery_support_partition_probe` is never used
+    --> tests/support/fuzz_model.rs:9641:8
+     |
+9641 | pub fn run_recovery_support_partition_probe(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_same_asset_close_drift_progress_world` is never used
+    --> tests/support/fuzz_model.rs:9677:4
+     |
+9677 | fn run_same_asset_close_drift_progress_world(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_same_asset_close_drift_progress_probe` is never used
+     --> tests/support/fuzz_model.rs:10031:8
+      |
+10031 | pub fn run_same_asset_close_drift_progress_probe(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_concurrent_close_locality_probe` is never used
+     --> tests/support/fuzz_model.rs:10085:8
+      |
+10085 | pub fn run_concurrent_close_locality_probe() -> Result<ConcurrentCloseLocalityEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_active_close_shutdown_world` is never used
+     --> tests/support/fuzz_model.rs:10208:4
+      |
+10208 | fn run_active_close_shutdown_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_active_close_shutdown_liveness_probe` is never used
+     --> tests/support/fuzz_model.rs:10343:8
+      |
+10343 | pub fn run_active_close_shutdown_liveness_probe() -> Result<ActiveCloseShutdownEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ActiveCloseCrossAssetAdmissionWorld` is never constructed
+     --> tests/support/fuzz_model.rs:10372:8
+      |
+10372 | struct ActiveCloseCrossAssetAdmissionWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_active_close_cross_asset_admission_world` is never used
+     --> tests/support/fuzz_model.rs:10380:4
+      |
+10380 | fn run_active_close_cross_asset_admission_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_active_close_cross_asset_admission_probe` is never used
+     --> tests/support/fuzz_model.rs:10564:8
+      |
+10564 | pub fn run_active_close_cross_asset_admission_probe(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DeferredCloseCrossAssetWorld` is never constructed
+     --> tests/support/fuzz_model.rs:10653:8
+      |
+10653 | struct DeferredCloseCrossAssetWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_deferred_close_cross_asset_world` is never used
+     --> tests/support/fuzz_model.rs:10661:4
+      |
+10661 | fn run_deferred_close_cross_asset_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_deferred_close_cross_asset_probe` is never used
+     --> tests/support/fuzz_model.rs:10883:8
+      |
+10883 | pub fn run_deferred_close_cross_asset_probe() -> Result<DeferredCloseCrossAssetEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `CloseResetLandingOrder` is never used
+     --> tests/support/fuzz_model.rs:10979:6
+      |
+10979 | enum CloseResetLandingOrder {
+      |      ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `index` is never used
+     --> tests/support/fuzz_model.rs:10985:8
+      |
+10984 | impl CloseResetLandingOrder {
+      | --------------------------- method in this implementation
+10985 |     fn index(self) -> usize {
+      |        ^^^^^
+
+warning: struct `CloseResetOverlapWorld` is never constructed
+     --> tests/support/fuzz_model.rs:10994:8
+      |
+10994 | struct CloseResetOverlapWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_close_reset_overlap_world` is never used
+     --> tests/support/fuzz_model.rs:11023:4
+      |
+11023 | fn run_close_reset_overlap_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_close_reset_overlap_probe_for_lifecycle` is never used
+     --> tests/support/fuzz_model.rs:11266:4
+      |
+11266 | fn run_close_reset_overlap_probe_for_lifecycle(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_close_reset_overlap_probe` is never used
+     --> tests/support/fuzz_model.rs:11370:8
+      |
+11370 | pub fn run_close_reset_overlap_probe() -> Result<CloseResetOverlapEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_close_recovery_overlap_probe` is never used
+     --> tests/support/fuzz_model.rs:11374:8
+      |
+11374 | pub fn run_close_recovery_overlap_probe() -> Result<CloseResetOverlapEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `cure_primary_close_with_bounded_deposit` is never used
+     --> tests/support/fuzz_model.rs:11808:4
+      |
+11808 | fn cure_primary_close_with_bounded_deposit(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_cure_pending_obligation_dos_world` is never used
+     --> tests/support/fuzz_model.rs:11832:4
+      |
+11832 | fn run_cure_pending_obligation_dos_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_cure_pending_obligation_dos_probe` is never used
+     --> tests/support/fuzz_model.rs:12052:8
+      |
+12052 | pub fn run_cure_pending_obligation_dos_probe() -> Result<CurePendingObligationDosEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_close_cancel_partition_probe` is never used
+     --> tests/support/fuzz_model.rs:12056:8
+      |
+12056 | pub fn run_close_cancel_partition_probe() -> Result<CloseCancelPartitionEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_pending_barrier_cross_zero_world` is never used
+     --> tests/support/fuzz_model.rs:12098:4
+      |
+12098 | fn run_pending_barrier_cross_zero_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_pending_barrier_cross_zero_probe` is never used
+     --> tests/support/fuzz_model.rs:12429:8
+      |
+12429 | pub fn run_pending_barrier_cross_zero_probe() -> Result<PendingBarrierCrossZeroEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_materialized_portfolio_lifecycle_census` is never used
+     --> tests/support/fuzz_model.rs:12463:8
+      |
+12463 | pub fn run_materialized_portfolio_lifecycle_census(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_cure_portfolio_incarnation_replay_probe` is never used
+     --> tests/support/fuzz_model.rs:12502:8
+      |
+12502 | pub fn run_cure_portfolio_incarnation_replay_probe(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_cure_position_episode_replay_probe` is never used
+     --> tests/support/fuzz_model.rs:12657:8
+      |
+12657 | pub fn run_cure_position_episode_replay_probe(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_pending_close_rank_oracle` is never used
+     --> tests/support/fuzz_model.rs:12809:8
+      |
+12809 | pub fn run_pending_close_rank_oracle() -> Result<PendingCloseRankEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_bounded_public_liveness_graph` is never used
+     --> tests/support/fuzz_model.rs:12902:8
+      |
+12902 | pub fn run_bounded_public_liveness_graph() -> Result<BoundedLivenessGraphEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variant `Recovery` is never constructed
+     --> tests/support/fuzz_model.rs:14166:5
+      |
+14164 | enum UnderfundedAuxiliaryExit {
+      |      ------------------------ variant in this enum
+14165 |     BilateralTrade,
+14166 |     Recovery { winner_first: bool },
+      |     ^^^^^^^^
+      |
+      = note: `UnderfundedAuxiliaryExit` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: fields `stale_resolve_rejected`, `stale_policy_rejected`, `terminal_policy_rejected`, `fresh_policy_rejected`, and `claim_payout_atoms` are never read
+     --> tests/support/fuzz_model.rs:14189:5
+      |
+14186 | struct UnderfundedTerminalWorld {
+      |        ------------------------ fields in this struct
+...
+14189 |     stale_resolve_rejected: bool,
+      |     ^^^^^^^^^^^^^^^^^^^^^^
+14190 |     stale_policy_rejected: bool,
+      |     ^^^^^^^^^^^^^^^^^^^^^
+14191 |     terminal_policy_rejected: bool,
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^
+14192 |     fresh_policy_rejected: bool,
+      |     ^^^^^^^^^^^^^^^^^^^^^
+...
+14195 |     claim_payout_atoms: u128,
+      |     ^^^^^^^^^^^^^^^^^^
+
+warning: struct `ResolvedClaimQuoteDeltaEvidence` is never constructed
+     --> tests/support/fuzz_model.rs:14200:12
+      |
+14200 | pub struct ResolvedClaimQuoteDeltaEvidence {
+      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ResolvedReceiptSplitTopupEvidence` is never constructed
+     --> tests/support/fuzz_model.rs:14211:12
+      |
+14211 | pub struct ResolvedReceiptSplitTopupEvidence {
+      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ResolvedReceiptOrderingEvidence` is never constructed
+     --> tests/support/fuzz_model.rs:14234:12
+      |
+14234 | pub struct ResolvedReceiptOrderingEvidence {
+      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ResolvedRecoveryReceiptOrderingEvidence` is never constructed
+     --> tests/support/fuzz_model.rs:14250:12
+      |
+14250 | pub struct ResolvedRecoveryReceiptOrderingEvidence {
+      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `AuthorityResolvedClaimEvidence` is never constructed
+     --> tests/support/fuzz_model.rs:14262:12
+      |
+14262 | pub struct AuthorityResolvedClaimEvidence {
+      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `AuthorityPolicyResolvedClaimEvidence` is never constructed
+     --> tests/support/fuzz_model.rs:14271:12
+      |
+14271 | pub struct AuthorityPolicyResolvedClaimEvidence {
+      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variants `Policy`, `Handoff`, and `Resolve` are never constructed
+     --> tests/support/fuzz_model.rs:14286:5
+      |
+14285 | enum UnderfundedAuthorityOperation {
+      |      ----------------------------- variants in this enum
+14286 |     Policy,
+      |     ^^^^^^
+14287 |     Handoff,
+      |     ^^^^^^^
+14288 |     Resolve,
+      |     ^^^^^^^
+      |
+      = note: `UnderfundedAuthorityOperation` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: variants `TradeFee`, `FeeRedirect`, `MarketInitFee`, `LiquidationFee`, `MaintenanceFee`, and `BackingFeeLong` are never constructed
+     --> tests/support/fuzz_model.rs:14293:5
+      |
+14292 | enum UnderfundedPolicyKind {
+      |      --------------------- variants in this enum
+14293 |     TradeFee,
+      |     ^^^^^^^^
+14294 |     FeeRedirect,
+      |     ^^^^^^^^^^^
+14295 |     MarketInitFee,
+      |     ^^^^^^^^^^^^^
+14296 |     LiquidationFee,
+      |     ^^^^^^^^^^^^^^
+14297 |     MaintenanceFee,
+      |     ^^^^^^^^^^^^^^
+14298 |     Resolve,
+14299 |     BackingFeeLong,
+      |     ^^^^^^^^^^^^^^
+      |
+      = note: `UnderfundedPolicyKind` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: associated constant `ALL` is never used
+     --> tests/support/fuzz_model.rs:14304:11
+      |
+14303 | impl UnderfundedPolicyKind {
+      | -------------------------- associated constant in this implementation
+14304 |     const ALL: [Self; 8] = [
+      |           ^^^
+
+warning: variants `Midpoint` and `Maximum` are never constructed
+     --> tests/support/fuzz_model.rs:14468:5
+      |
+14466 | enum UnderfundedPolicyBoundary {
+      |      ------------------------- variants in this enum
+14467 |     Low,
+14468 |     Midpoint,
+      |     ^^^^^^^^
+14469 |     Maximum,
+      |     ^^^^^^^
+      |
+      = note: `UnderfundedPolicyBoundary` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: associated constant `ALL` is never used
+     --> tests/support/fuzz_model.rs:14473:11
+      |
+14472 | impl UnderfundedPolicyBoundary {
+      | ------------------------------ associated constant in this implementation
+14473 |     const ALL: [Self; 3] = [Self::Low, Self::Midpoint, Self::Maximum];
+      |           ^^^
+
+warning: associated constant `PERMUTATIONS` is never used
+     --> tests/support/fuzz_model.rs:14512:11
+      |
+14511 | impl UnderfundedAuthorityOperation {
+      | ---------------------------------- associated constant in this implementation
+14512 |     const PERMUTATIONS: [[Self; 3]; 6] = [
+      |           ^^^^^^^^^^^^
+
+warning: variants `HandoffResolve` and `PolicyHandoffResolve` are never constructed
+     --> tests/support/fuzz_model.rs:14524:5
+      |
+14523 | enum UnderfundedAuthorityPlan {
+      |      ------------------------ variants in this enum
+14524 |     HandoffResolve(bool),
+      |     ^^^^^^^^^^^^^^
+14525 |     PolicyHandoffResolve {
+      |     ^^^^^^^^^^^^^^^^^^^^
+      |
+      = note: `UnderfundedAuthorityPlan` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: struct `ResolvedClaimAliasEvidence` is never constructed
+     --> tests/support/fuzz_model.rs:14533:12
+      |
+14533 | pub struct ResolvedClaimAliasEvidence {
+      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `UnattributedLossLiquidationEvidence` is never constructed
+     --> tests/support/fuzz_model.rs:14598:12
+      |
+14598 | pub struct UnattributedLossLiquidationEvidence {
+      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_one_unattributed_loss_liquidation` is never used
+     --> tests/support/fuzz_model.rs:16248:4
+      |
+16248 | fn verify_one_unattributed_loss_liquidation(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_unattributed_loss_liquidations` is never used
+     --> tests/support/fuzz_model.rs:16386:8
+      |
+16386 | pub fn verify_unattributed_loss_liquidations(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_resolved_claim_quote_delta` is never used
+     --> tests/support/fuzz_model.rs:16639:8
+      |
+16639 | pub fn verify_resolved_claim_quote_delta() -> Result<ResolvedClaimQuoteDeltaEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `require_resolved_claim_retry_noop` is never used
+     --> tests/support/fuzz_model.rs:16667:4
+      |
+16667 | fn require_resolved_claim_retry_noop(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `require_resolved_claim_identity_substitutions` is never used
+     --> tests/support/fuzz_model.rs:16682:4
+      |
+16682 | fn require_resolved_claim_identity_substitutions(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `require_nonfinal_receipt_blocks_portfolio_close` is never used
+     --> tests/support/fuzz_model.rs:16736:4
+      |
+16736 | fn require_nonfinal_receipt_blocks_portfolio_close(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `require_resolved_receipt_blocks_lifecycle_reentry` is never used
+     --> tests/support/fuzz_model.rs:16761:4
+      |
+16761 | fn require_resolved_receipt_blocks_lifecycle_reentry(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `public_resolved_receipt_seed` is never used
+     --> tests/support/fuzz_model.rs:16791:8
+      |
+16791 | pub fn public_resolved_receipt_seed(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `public_resolved_receipt_seed_with_setup` is never used
+     --> tests/support/fuzz_model.rs:16799:8
+      |
+16799 | pub fn public_resolved_receipt_seed_with_setup(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_resolved_receipt_split_topups` is never used
+     --> tests/support/fuzz_model.rs:16831:8
+      |
+16831 | pub fn verify_resolved_receipt_split_topups() -> Result<ResolvedReceiptSplitTopupEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_resolved_receipt_release_claim_order_matrix` is never used
+     --> tests/support/fuzz_model.rs:17163:8
+      |
+17163 | pub fn verify_resolved_receipt_release_claim_order_matrix(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_recovery_to_resolved_receipt_order_matrix` is never used
+     --> tests/support/fuzz_model.rs:17490:8
+      |
+17490 | pub fn verify_recovery_to_resolved_receipt_order_matrix(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_underfunded_authority_resolve_claim_orders` is never used
+     --> tests/support/fuzz_model.rs:17690:8
+      |
+17690 | pub fn verify_underfunded_authority_resolve_claim_orders(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_underfunded_authority_policy_resolve_claim_orders` is never used
+     --> tests/support/fuzz_model.rs:17725:8
+      |
+17725 | pub fn verify_underfunded_authority_policy_resolve_claim_orders(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `build_value_moving_resolved_claim_runner` is never used
+     --> tests/support/fuzz_model.rs:17793:4
+      |
+17793 | fn build_value_moving_resolved_claim_runner() -> Result<ScenarioRunner, String> {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `resolved_claim_alias_accounts` is never used
+     --> tests/support/fuzz_model.rs:17812:4
+      |
+17812 | fn resolved_claim_alias_accounts(runner: &ScenarioRunner, actor: usize) -> Vec<AccountMeta> {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_resolved_claim_account_alias_matrix` is never used
+     --> tests/support/fuzz_model.rs:17825:8
+      |
+17825 | pub fn verify_resolved_claim_account_alias_matrix() -> Result<ResolvedClaimAliasEvidence, String> {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `public_b_close_seed` is never used
+     --> tests/support/fuzz_model.rs:18643:8
+      |
+18643 | pub fn public_b_close_seed(
+      |        ^^^^^^^^^^^^^^^^^^^
+
+warning: function `tracked_economic_accounts` is never used
+     --> tests/support/fuzz_model.rs:22603:4
+      |
+22603 | fn tracked_economic_accounts(env: &V16Svm) -> Vec<(Pubkey, Option<solana_sdk::account::Account>)> {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_post_expiry_backing_fee` is never used
+     --> tests/support/fuzz_model.rs:22633:8
+      |
+22633 | pub fn reproduce_post_expiry_backing_fee(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_omitted_rescue_liquidation` is never used
+     --> tests/support/fuzz_model.rs:22787:8
+      |
+22787 | pub fn reproduce_omitted_rescue_liquidation(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_trade_retry_replay` is never used
+     --> tests/support/fuzz_model.rs:22897:8
+      |
+22897 | pub fn reproduce_trade_retry_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_asset_generation_trade_replay` is never used
+     --> tests/support/fuzz_model.rs:22934:8
+      |
+22934 | pub fn reproduce_asset_generation_trade_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_asset_generation_mark_replay` is never used
+     --> tests/support/fuzz_model.rs:22979:8
+      |
+22979 | pub fn reproduce_asset_generation_mark_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_asset_generation_config_replay` is never used
+     --> tests/support/fuzz_model.rs:23038:8
+      |
+23038 | pub fn reproduce_asset_generation_config_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_cpi_caller_fee_protection` is never used
+     --> tests/support/fuzz_model.rs:23158:8
+      |
+23158 | pub fn verify_cpi_caller_fee_protection(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_cpi_base_fee_consent` is never used
+     --> tests/support/fuzz_model.rs:23295:8
+      |
+23295 | pub fn verify_cpi_base_fee_consent(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_cpi_backing_fee_consent` is never used
+     --> tests/support/fuzz_model.rs:23494:8
+      |
+23494 | pub fn verify_cpi_backing_fee_consent(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_composite_oracle_rounding` is never used
+     --> tests/support/fuzz_model.rs:23747:8
+      |
+23747 | pub fn reproduce_composite_oracle_rounding(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_unstaged_mark_target` is never used
+     --> tests/support/fuzz_model.rs:23945:8
+      |
+23945 | pub fn reproduce_unstaged_mark_target(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_pending_mark_fee_reward` is never used
+     --> tests/support/fuzz_model.rs:24209:8
+      |
+24209 | pub fn reproduce_pending_mark_fee_reward(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PendingMarkFeeWorld` is never constructed
+     --> tests/support/fuzz_model.rs:24241:8
+      |
+24241 | struct PendingMarkFeeWorld {
+      |        ^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_pending_mark_fee_reward_world` is never used
+     --> tests/support/fuzz_model.rs:24250:4
+      |
+24250 | fn run_pending_mark_fee_reward_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_fractional_cap_settlement` is never used
+     --> tests/support/fuzz_model.rs:24418:8
+      |
+24418 | pub fn reproduce_fractional_cap_settlement(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_prospective_funding_rewrite` is never used
+     --> tests/support/fuzz_model.rs:24582:8
+      |
+24582 | pub fn reproduce_prospective_funding_rewrite(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_resolve_before_committed_accrual` is never used
+     --> tests/support/fuzz_model.rs:24655:8
+      |
+24655 | pub fn reproduce_resolve_before_committed_accrual(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PendingMarkResolveWorld` is never constructed
+     --> tests/support/fuzz_model.rs:24701:8
+      |
+24701 | struct PendingMarkResolveWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_pending_mark_resolve_world` is never used
+     --> tests/support/fuzz_model.rs:24713:4
+      |
+24713 | fn run_pending_mark_resolve_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_bilateral_fee_support` is never used
+     --> tests/support/fuzz_model.rs:24872:8
+      |
+24872 | pub fn reproduce_bilateral_fee_support(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_collateral_top_up_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:25146:8
+      |
+25146 | pub fn reproduce_collateral_top_up_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_backing_top_up_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:25249:8
+      |
+25249 | pub fn reproduce_backing_top_up_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_insurance_withdrawal_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:25446:8
+      |
+25446 | pub fn reproduce_insurance_withdrawal_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_insurance_top_up_retry_replay` is never used
+     --> tests/support/fuzz_model.rs:25557:8
+      |
+25557 | pub fn reproduce_insurance_top_up_retry_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_activation_retry_replay` is never used
+     --> tests/support/fuzz_model.rs:25659:8
+      |
+25659 | pub fn reproduce_activation_retry_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_activation_fee_consent` is never used
+     --> tests/support/fuzz_model.rs:25777:8
+      |
+25777 | pub fn verify_activation_fee_consent(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_bilateral_base_fee_consent` is never used
+     --> tests/support/fuzz_model.rs:25910:8
+      |
+25910 | pub fn verify_bilateral_base_fee_consent(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `publicly_recreate_primary_market` is never used
+     --> tests/support/fuzz_model.rs:26099:4
+      |
+26099 | fn publicly_recreate_primary_market(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_maintenance_policy_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:26126:8
+      |
+26126 | pub fn reproduce_maintenance_policy_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_delayed_maintenance_policy_replay` is never used
+     --> tests/support/fuzz_model.rs:26263:8
+      |
+26263 | pub fn reproduce_delayed_maintenance_policy_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `LiquidationPolicyExtraction` is never constructed
+     --> tests/support/fuzz_model.rs:26390:8
+      |
+26390 | struct LiquidationPolicyExtraction {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `finish_liquidation_policy_extraction` is never used
+     --> tests/support/fuzz_model.rs:26397:4
+      |
+26397 | fn finish_liquidation_policy_extraction(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_liquidation_policy_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:26532:8
+      |
+26532 | pub fn reproduce_liquidation_policy_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_delayed_liquidation_policy_replay` is never used
+     --> tests/support/fuzz_model.rs:26634:8
+      |
+26634 | pub fn reproduce_delayed_liquidation_policy_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedAssetFeeExtraction` is never constructed
+     --> tests/support/fuzz_model.rs:26733:8
+      |
+26733 | struct DelayedAssetFeeExtraction {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `finish_delayed_asset_fee_extraction` is never used
+     --> tests/support/fuzz_model.rs:26741:4
+      |
+26741 | fn finish_delayed_asset_fee_extraction(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_delayed_trade_fee_policy_nonextraction` is never used
+     --> tests/support/fuzz_model.rs:26822:8
+      |
+26822 | pub fn verify_delayed_trade_fee_policy_nonextraction(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_delayed_fee_redirect_policy_replay` is never used
+     --> tests/support/fuzz_model.rs:26992:8
+      |
+26992 | pub fn reproduce_delayed_fee_redirect_policy_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_delayed_backing_fee_policy_replay` is never used
+     --> tests/support/fuzz_model.rs:27098:8
+      |
+27098 | pub fn reproduce_delayed_backing_fee_policy_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedOracleIntentWorld` is never constructed
+     --> tests/support/fuzz_model.rs:27266:8
+      |
+27266 | struct DelayedOracleIntentWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `crank_delayed_oracle_actor` is never used
+     --> tests/support/fuzz_model.rs:27275:4
+      |
+27275 | fn crank_delayed_oracle_actor(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_delayed_oracle_intent_world` is never used
+     --> tests/support/fuzz_model.rs:27304:4
+      |
+27304 | fn run_delayed_oracle_intent_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_delayed_oracle_intent_replay` is never used
+     --> tests/support/fuzz_model.rs:27476:8
+      |
+27476 | pub fn reproduce_delayed_oracle_intent_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BackingFeeConsentWorld` is never constructed
+     --> tests/support/fuzz_model.rs:27518:8
+      |
+27518 | struct BackingFeeConsentWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_backing_fee_consent_world` is never used
+     --> tests/support/fuzz_model.rs:27527:4
+      |
+27527 | fn run_backing_fee_consent_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_backing_fee_consent_replay` is never used
+     --> tests/support/fuzz_model.rs:27757:8
+      |
+27757 | pub fn reproduce_backing_fee_consent_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DelayedResolvePolicyWorld` is never constructed
+     --> tests/support/fuzz_model.rs:27801:8
+      |
+27801 | struct DelayedResolvePolicyWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_delayed_resolve_policy_world` is never used
+     --> tests/support/fuzz_model.rs:27813:4
+      |
+27813 | fn run_delayed_resolve_policy_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_delayed_resolve_policy_replay` is never used
+     --> tests/support/fuzz_model.rs:27981:8
+      |
+27981 | pub fn reproduce_delayed_resolve_policy_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PortfolioCloseIncarnationWorld` is never constructed
+     --> tests/support/fuzz_model.rs:28029:8
+      |
+28029 | struct PortfolioCloseIncarnationWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_portfolio_close_incarnation_world` is never used
+     --> tests/support/fuzz_model.rs:28038:4
+      |
+28038 | fn run_portfolio_close_incarnation_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_portfolio_close_incarnation_replay` is never used
+     --> tests/support/fuzz_model.rs:28105:8
+      |
+28105 | pub fn reproduce_portfolio_close_incarnation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MatcherGrantPortfolioIncarnationWorld` is never constructed
+     --> tests/support/fuzz_model.rs:28140:8
+      |
+28140 | struct MatcherGrantPortfolioIncarnationWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MatcherGrantExploitOutcome` is never constructed
+     --> tests/support/fuzz_model.rs:28153:8
+      |
+28153 | struct MatcherGrantExploitOutcome {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `exercise_matcher_grant_replay` is never used
+     --> tests/support/fuzz_model.rs:28162:4
+      |
+28162 | fn exercise_matcher_grant_replay(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_matcher_grant_portfolio_incarnation_world` is never used
+     --> tests/support/fuzz_model.rs:28305:4
+      |
+28305 | fn run_matcher_grant_portfolio_incarnation_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_matcher_grant_portfolio_incarnation_protection` is never used
+     --> tests/support/fuzz_model.rs:28424:8
+      |
+28424 | pub fn verify_matcher_grant_portfolio_incarnation_protection(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MatcherGrantMarketGenerationWorld` is never constructed
+     --> tests/support/fuzz_model.rs:28455:8
+      |
+28455 | struct MatcherGrantMarketGenerationWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_matcher_grant_market_generation_world` is never used
+     --> tests/support/fuzz_model.rs:28466:4
+      |
+28466 | fn run_matcher_grant_market_generation_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_matcher_grant_market_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:28548:8
+      |
+28548 | pub fn reproduce_matcher_grant_market_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TradeFeeMarketGenerationWorld` is never constructed
+     --> tests/support/fuzz_model.rs:28581:8
+      |
+28581 | struct TradeFeeMarketGenerationWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_trade_fee_market_generation_world` is never used
+     --> tests/support/fuzz_model.rs:28596:4
+      |
+28596 | fn run_trade_fee_market_generation_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_trade_fee_market_generation_nonextraction` is never used
+     --> tests/support/fuzz_model.rs:28784:8
+      |
+28784 | pub fn verify_trade_fee_market_generation_nonextraction(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TradePortfolioIncarnationWorld` is never constructed
+     --> tests/support/fuzz_model.rs:28827:8
+      |
+28827 | struct TradePortfolioIncarnationWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_trade_portfolio_incarnation_world` is never used
+     --> tests/support/fuzz_model.rs:28838:4
+      |
+28838 | fn run_trade_portfolio_incarnation_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_trade_portfolio_incarnation_replay` is never used
+     --> tests/support/fuzz_model.rs:29016:8
+      |
+29016 | pub fn reproduce_trade_portfolio_incarnation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `create_released_pnl_for_incarnation` is never used
+     --> tests/support/fuzz_model.rs:29057:4
+      |
+29057 | fn create_released_pnl_for_incarnation(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ConvertPortfolioIncarnationWorld` is never constructed
+     --> tests/support/fuzz_model.rs:29101:8
+      |
+29101 | struct ConvertPortfolioIncarnationWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_convert_portfolio_incarnation_world` is never used
+     --> tests/support/fuzz_model.rs:29112:4
+      |
+29112 | fn run_convert_portfolio_incarnation_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_convert_portfolio_incarnation_replay` is never used
+     --> tests/support/fuzz_model.rs:29290:8
+      |
+29290 | pub fn reproduce_convert_portfolio_incarnation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ConvertRetryWorld` is never constructed
+     --> tests/support/fuzz_model.rs:29327:8
+      |
+29327 | struct ConvertRetryWorld {
+      |        ^^^^^^^^^^^^^^^^^
+
+warning: function `run_convert_retry_world` is never used
+     --> tests/support/fuzz_model.rs:29338:4
+      |
+29338 | fn run_convert_retry_world(seed: [u8; 32], land_retry: bool) -> Result<ConvertRetryWorld, String> {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_convert_retry_replay_protection` is never used
+     --> tests/support/fuzz_model.rs:29527:8
+      |
+29527 | pub fn verify_convert_retry_replay_protection(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ForfeitPortfolioIncarnationWorld` is never constructed
+     --> tests/support/fuzz_model.rs:29559:8
+      |
+29559 | struct ForfeitPortfolioIncarnationWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ForfeitReplayTerminalOutcome` is never constructed
+     --> tests/support/fuzz_model.rs:29572:8
+      |
+29572 | struct ForfeitReplayTerminalOutcome {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `settle_recovery_forfeit_pair` is never used
+     --> tests/support/fuzz_model.rs:29583:4
+      |
+29583 | fn settle_recovery_forfeit_pair(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `finish_forfeit_replay_terminal` is never used
+     --> tests/support/fuzz_model.rs:29619:4
+      |
+29619 | fn finish_forfeit_replay_terminal(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_forfeit_portfolio_incarnation_world` is never used
+     --> tests/support/fuzz_model.rs:29790:4
+      |
+29790 | fn run_forfeit_portfolio_incarnation_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_forfeit_portfolio_incarnation_replay` is never used
+     --> tests/support/fuzz_model.rs:29881:8
+      |
+29881 | pub fn reproduce_forfeit_portfolio_incarnation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ForfeitMarketGenerationWorld` is never constructed
+     --> tests/support/fuzz_model.rs:29920:8
+      |
+29920 | struct ForfeitMarketGenerationWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_forfeit_market_generation_world` is never used
+     --> tests/support/fuzz_model.rs:29931:4
+      |
+29931 | fn run_forfeit_market_generation_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_forfeit_market_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:30029:8
+      |
+30029 | pub fn reproduce_forfeit_market_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_fee_redirect_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:30069:8
+      |
+30069 | pub fn reproduce_fee_redirect_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_backing_fee_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:30246:8
+      |
+30246 | pub fn reproduce_backing_fee_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BackingTopUpRetryWorld` is never constructed
+     --> tests/support/fuzz_model.rs:30435:8
+      |
+30435 | struct BackingTopUpRetryWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_backing_top_up_retry_world` is never used
+     --> tests/support/fuzz_model.rs:30442:4
+      |
+30442 | fn run_backing_top_up_retry_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_backing_top_up_retry_replay` is never used
+     --> tests/support/fuzz_model.rs:30549:8
+      |
+30549 | pub fn reproduce_backing_top_up_retry_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DepositRetryWorld` is never constructed
+     --> tests/support/fuzz_model.rs:30595:8
+      |
+30595 | struct DepositRetryWorld {
+      |        ^^^^^^^^^^^^^^^^^
+
+warning: function `run_deposit_retry_world` is never used
+     --> tests/support/fuzz_model.rs:30602:4
+      |
+30602 | fn run_deposit_retry_world(seed: [u8; 32], land_retry: bool) -> Result<DepositRetryWorld, String> {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_deposit_retry_replay` is never used
+     --> tests/support/fuzz_model.rs:30698:8
+      |
+30698 | pub fn reproduce_deposit_retry_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PortfolioIncarnationDepositWorld` is never constructed
+     --> tests/support/fuzz_model.rs:30745:8
+      |
+30745 | struct PortfolioIncarnationDepositWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_portfolio_incarnation_deposit_world` is never used
+     --> tests/support/fuzz_model.rs:30754:4
+      |
+30754 | fn run_portfolio_incarnation_deposit_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_portfolio_incarnation_deposit` is never used
+     --> tests/support/fuzz_model.rs:30871:8
+      |
+30871 | pub fn reproduce_portfolio_incarnation_deposit(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `MarketIncarnationDepositWorld` is never constructed
+     --> tests/support/fuzz_model.rs:30913:8
+      |
+30913 | struct MarketIncarnationDepositWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_market_incarnation_deposit_world` is never used
+     --> tests/support/fuzz_model.rs:30922:4
+      |
+30922 | fn run_market_incarnation_deposit_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_market_incarnation_deposit` is never used
+     --> tests/support/fuzz_model.rs:31103:8
+      |
+31103 | pub fn reproduce_market_incarnation_deposit(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ResolveGenerationReplayWorld` is never constructed
+     --> tests/support/fuzz_model.rs:31146:8
+      |
+31146 | struct ResolveGenerationReplayWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_resolve_generation_replay_world` is never used
+     --> tests/support/fuzz_model.rs:31154:4
+      |
+31154 | fn run_resolve_generation_replay_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_resolve_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:31254:8
+      |
+31254 | pub fn reproduce_resolve_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ShutdownGenerationReplayWorld` is never constructed
+     --> tests/support/fuzz_model.rs:31297:8
+      |
+31297 | struct ShutdownGenerationReplayWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_shutdown_generation_replay_world` is never used
+     --> tests/support/fuzz_model.rs:31306:4
+      |
+31306 | fn run_shutdown_generation_replay_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_shutdown_generation_replay` is never used
+     --> tests/support/fuzz_model.rs:31414:8
+      |
+31414 | pub fn reproduce_shutdown_generation_replay(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_withdrawal_retry_liquidation` is never used
+     --> tests/support/fuzz_model.rs:31458:8
+      |
+31458 | pub fn reproduce_withdrawal_retry_liquidation(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_portfolio_incarnation_withdrawal` is never used
+     --> tests/support/fuzz_model.rs:31624:8
+      |
+31624 | pub fn reproduce_portfolio_incarnation_withdrawal(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `portfolio_equity` is never used
+     --> tests/support/fuzz_model.rs:31799:4
+      |
+31799 | fn portfolio_equity(env: &V16Svm, actor: usize) -> Result<i128, String> {
+      |    ^^^^^^^^^^^^^^^^
+
+warning: struct `ProspectiveFundingWorld` is never constructed
+     --> tests/support/fuzz_model.rs:31808:8
+      |
+31808 | struct ProspectiveFundingWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_prospective_funding_world` is never used
+     --> tests/support/fuzz_model.rs:31823:4
+      |
+31823 | fn run_prospective_funding_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_rounded_funding_omission` is never used
+     --> tests/support/fuzz_model.rs:32000:8
+      |
+32000 | pub fn reproduce_rounded_funding_omission(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_trade_funding_erasure` is never used
+     --> tests/support/fuzz_model.rs:32034:8
+      |
+32034 | pub fn reproduce_trade_funding_erasure(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_rebalance_funding_erasure` is never used
+     --> tests/support/fuzz_model.rs:32079:8
+      |
+32079 | pub fn reproduce_rebalance_funding_erasure(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_forfeit_funding_erasure` is never used
+     --> tests/support/fuzz_model.rs:32116:8
+      |
+32116 | pub fn reproduce_forfeit_funding_erasure(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_pending_ewma_inheritance` is never used
+     --> tests/support/fuzz_model.rs:32152:8
+      |
+32152 | pub fn reproduce_pending_ewma_inheritance(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_reclaimable_ewma_fee` is never used
+     --> tests/support/fuzz_model.rs:32281:8
+      |
+32281 | pub fn reproduce_reclaimable_ewma_fee(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_trade_driven_liquidation_reward` is never used
+     --> tests/support/fuzz_model.rs:32524:8
+      |
+32524 | pub fn reproduce_trade_driven_liquidation_reward(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_cross_domain_b_settlement` is never used
+     --> tests/support/fuzz_model.rs:32791:8
+      |
+32791 | pub fn reproduce_cross_domain_b_settlement(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PendingEwmaTargetWorld` is never constructed
+     --> tests/support/fuzz_model.rs:33044:8
+      |
+33044 | struct PendingEwmaTargetWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `reproduce_pending_ewma_target_override` is never used
+     --> tests/support/fuzz_model.rs:33055:8
+      |
+33055 | pub fn reproduce_pending_ewma_target_override(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_pending_ewma_target_world` is never used
+     --> tests/support/fuzz_model.rs:33108:4
+      |
+33108 | fn run_pending_ewma_target_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TerminalDustPayoutWorld` is never constructed
+     --> tests/support/fuzz_model.rs:33270:8
+      |
+33270 | struct TerminalDustPayoutWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `verify_terminal_dust_payout_protection` is never used
+     --> tests/support/fuzz_model.rs:33278:8
+      |
+33278 | pub fn verify_terminal_dust_payout_protection(
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_terminal_dust_payout_world` is never used
+     --> tests/support/fuzz_model.rs:33320:4
+      |
+33320 | fn run_terminal_dust_payout_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `drain_resolved_actor` is never used
+     --> tests/support/fuzz_model.rs:33490:4
+      |
+33490 | fn drain_resolved_actor(env: &mut V16Svm, actor: usize) -> Result<(u128, u16), String> {
+      |    ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `portfolio_has_active_asset` is never used
+     --> tests/support/fuzz_model.rs:33520:4
+      |
+33520 | fn portfolio_has_active_asset(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `zero_move_funding_world` is never used
+     --> tests/support/fuzz_model.rs:34818:4
+      |
+34818 | fn zero_move_funding_world(seed: [u8; 32]) -> Result<V16Svm, String> {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `prime_zero_move_funding` is never used
+     --> tests/support/fuzz_model.rs:34849:4
+      |
+34849 | fn prime_zero_move_funding(env: &mut V16Svm) -> Result<(), String> {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_trade_funding_order_world` is never used
+     --> tests/support/fuzz_model.rs:34878:4
+      |
+34878 | fn run_trade_funding_order_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_rebalance_funding_order_world` is never used
+     --> tests/support/fuzz_model.rs:34925:4
+      |
+34925 | fn run_rebalance_funding_order_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_forfeit_funding_order_world` is never used
+     --> tests/support/fuzz_model.rs:34968:4
+      |
+34968 | fn run_forfeit_funding_order_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RoundedFundingWorld` is never constructed
+     --> tests/support/fuzz_model.rs:35057:8
+      |
+35057 | struct RoundedFundingWorld {
+      |        ^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_rounded_funding_world` is never used
+     --> tests/support/fuzz_model.rs:35066:4
+      |
+35066 | fn run_rounded_funding_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `AssetGenerationMarkWorld` is never constructed
+     --> tests/support/fuzz_model.rs:35283:8
+      |
+35283 | struct AssetGenerationMarkWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_asset_generation_mark_world` is never used
+     --> tests/support/fuzz_model.rs:35292:4
+      |
+35292 | fn run_asset_generation_mark_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `AssetGenerationConfigWorld` is never constructed
+     --> tests/support/fuzz_model.rs:35413:8
+      |
+35413 | struct AssetGenerationConfigWorld {
+      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_asset_generation_hybrid_config_world` is never used
+     --> tests/support/fuzz_model.rs:35423:4
+      |
+35423 | fn run_asset_generation_hybrid_config_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_asset_generation_config_world` is never used
+     --> tests/support/fuzz_model.rs:35584:4
+      |
+35584 | fn run_asset_generation_config_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_asset_generation_trade_world` is never used
+     --> tests/support/fuzz_model.rs:35723:4
+      |
+35723 | fn run_asset_generation_trade_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_trade_retry_world` is never used
+     --> tests/support/fuzz_model.rs:35817:4
+      |
+35817 | fn run_trade_retry_world(
+      |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `build_retained_trade` is never used
+     --> tests/support/fuzz_model.rs:35917:4
+      |
+35917 | fn build_retained_trade(
+      |    ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `build_omitted_rescue_world` is never used
+     --> tests/support/fuzz_model.rs:35943:4
+      |
+35943 | fn build_omitted_rescue_world(seed: [u8; 32]) -> Result<(V16Svm, u128, u128), String> {
+      |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: multiple methods are never used
+    --> tests/support/v16_svm.rs:1374:12
+     |
+ 592 | impl V16Svm {
+     | ----------- methods in this implementation
+...
+1374 |     pub fn build_retained_cure_and_cancel_primary_close(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+1551 |     pub fn resolve_foreign_market(&mut self) -> Result<TxSuccess, String> {
+     |            ^^^^^^^^^^^^^^^^^^^^^^
+...
+1592 |     pub fn close_primary_slab_for_actor(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+1785 |     pub fn claim_resolved_payout_topup_primary_with_accounts(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+2932 |     pub fn canonicalize_spent_backing_history_for_actor(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3046 |     pub fn restart_asset_oracle_for_actor(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3076 |     pub fn build_retained_restart_asset_oracle_for_actor_with_sequence(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3351 |     pub fn withdraw_terminal_insurance_as_admin(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3381 |     pub fn burn_asset_admin(&mut self, asset_index: u16) -> Result<TxSuccess, String> {
+     |            ^^^^^^^^^^^^^^^^
+...
+3467 |     pub fn build_retained_backing_bucket_top_up(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3595 |     pub fn top_up_insurance(&mut self, amount: u128) -> Result<TxSuccess, String> {
+     |            ^^^^^^^^^^^^^^^^
+...
+4671 |     pub fn build_retained_asset_authority_handoff_from_admin(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+4845 |     pub fn build_retained_insurance_top_up_pair_for_actor(
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+5628 |     pub fn update_pyth_price(
+     |            ^^^^^^^^^^^^^^^^^
+
+warning: `percolator-prog` (test "outright_model_checked") generated 301 warnings (run `cargo fix --test "outright_model_checked" -p percolator-prog` to apply 2 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 21.22s
+warning: the following packages contain code that will be rejected by a future version of Rust: solana-client v1.18.26
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
