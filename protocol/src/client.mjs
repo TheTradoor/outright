@@ -34,6 +34,20 @@ const same = (a, b) => keyString(a) === keyString(b);
 const nullableKey = (value) => (value === null ? null : keyString(value));
 const equalBytes = (a, b) =>
   a.length === b.length && a.every((v, i) => v === b[i]);
+const equalInstructions = (a, b) =>
+  a.length === b.length &&
+  a.every(
+    (ix, i) =>
+      ix.programId.equals(b[i].programId) &&
+      equalBytes(ix.data, b[i].data) &&
+      ix.keys.length === b[i].keys.length &&
+      ix.keys.every(
+        (meta, j) =>
+          meta.pubkey.equals(b[i].keys[j].pubkey) &&
+          meta.isSigner === b[i].keys[j].isSigner &&
+          meta.isWritable === b[i].keys[j].isWritable,
+      ),
+  );
 export async function sha256(bytes) {
   return Array.from(
     new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)),
@@ -221,6 +235,31 @@ function tokenAccount(info, address, mint, owner, vault = false) {
   return a;
 }
 
+// Anyone can transfer SOL to the deterministic address before its owner opens
+// a portfolio. Only an empty System account can be allocated with the owner's
+// seed; every other occupied address must pass the strict portfolio reader.
+export function readPortfolioAllocation(account, expected) {
+  if (
+    account &&
+    !account.executable &&
+    same(account.owner, SystemProgram.programId) &&
+    account.data.length === 0
+  )
+    return {
+      portfolio: null,
+      uninitializedPortfolioLamports: boundedNumber(
+        account.lamports,
+        0,
+        Number.MAX_SAFE_INTEGER,
+        "uninitialized portfolio balance",
+      ),
+    };
+  return {
+    portfolio: account ? readPortfolio(account, expected) : null,
+    uninitializedPortfolioLamports: null,
+  };
+}
+
 export async function readSnapshot(
   connection,
   profile,
@@ -325,14 +364,15 @@ export async function readSnapshot(
       walletInfo.data.length !== 0)
   )
     throw new Error("The fee payer must be a system wallet");
-  const portfolio = portfolioInfo
-    ? readPortfolio(portfolioInfo, {
-        programId: profile.program.address,
-        address: identity.address,
-        market: profile.market,
-        owner,
-      })
-    : null;
+  const { portfolio, uninitializedPortfolioLamports } = readPortfolioAllocation(
+    portfolioInfo,
+    {
+      programId: profile.program.address,
+      address: identity.address,
+      market: profile.market,
+      owner,
+    },
+  );
   const positions = portfolio
     ? portfolio.positions.map((leg) => positionForMarket(leg, market))
     : [];
@@ -378,6 +418,7 @@ export async function readSnapshot(
     owner: keyString(owner),
     market,
     portfolio,
+    uninitializedPortfolioLamports,
     portfolioAddress: identity.address.toBase58(),
     seed: identity.seed,
     positions: Object.freeze(positions),
@@ -414,17 +455,51 @@ export function planAction(profile, snapshot, action, rentLamports = 0) {
   if (action.type === "initialize") {
     if (snapshot.portfolio) throw new Error("Portfolio already exists");
     boundedNumber(rentLamports, 1, Number.MAX_SAFE_INTEGER, "portfolio rent");
-    rent = rentLamports;
-    instructions.push(
-      SystemProgram.createAccountWithSeed({
-        fromPubkey: key(snapshot.owner),
+    const prefunded = snapshot.uninitializedPortfolioLamports;
+    if (prefunded !== null && prefunded !== undefined) {
+      boundedNumber(
+        prefunded,
+        0,
+        Number.MAX_SAFE_INTEGER,
+        "uninitialized portfolio balance",
+      );
+      rent = Math.max(0, rentLamports - prefunded);
+      if (rent)
+        instructions.push(
+          SystemProgram.transfer({
+            fromPubkey: key(snapshot.owner),
+            toPubkey: key(snapshot.portfolioAddress),
+            lamports: rent,
+          }),
+        );
+      const allocation = {
+        accountPubkey: key(snapshot.portfolioAddress),
         basePubkey: key(snapshot.owner),
-        newAccountPubkey: key(snapshot.portfolioAddress),
         seed: snapshot.seed,
-        lamports: rent,
-        space: constants.portfolioLength,
         programId: key(profile.program.address),
-      }),
+      };
+      // AllocateWithSeed also assigns the requested program owner atomically.
+      instructions.push(
+        SystemProgram.allocate({
+          ...allocation,
+          space: constants.portfolioLength,
+        }),
+      );
+    } else {
+      rent = rentLamports;
+      instructions.push(
+        SystemProgram.createAccountWithSeed({
+          fromPubkey: key(snapshot.owner),
+          basePubkey: key(snapshot.owner),
+          newAccountPubkey: key(snapshot.portfolioAddress),
+          seed: snapshot.seed,
+          lamports: rent,
+          space: constants.portfolioLength,
+          programId: key(profile.program.address),
+        }),
+      );
+    }
+    instructions.push(
       buildInstruction(profile.program.address, "initPortfolio", {}, common),
     );
     summary = "Create a portfolio";
@@ -586,6 +661,7 @@ export class OutrightClient {
     if (this.#busy) throw new Error("A wallet action is already in progress");
     this.#busy = true;
     const revision = ++this.#revision;
+    action = Object.freeze({ ...action });
     try {
       if (await this.pending(owner))
         throw new Error(
@@ -609,8 +685,18 @@ export class OutrightClient {
         commitment: "confirmed",
         minContextSlot: snapshot.slot,
       });
-      if (recent.context.slot < snapshot.slot)
-        throw new Error("Blockhash predates the account snapshot");
+      boundedNumber(
+        recent.context.slot,
+        snapshot.slot,
+        Number.MAX_SAFE_INTEGER,
+        "blockhash slot",
+      );
+      boundedNumber(
+        recent.value.lastValidBlockHeight,
+        0,
+        Number.MAX_SAFE_INTEGER,
+        "blockhash height",
+      );
       const tx = new VersionedTransaction(
         new TransactionMessage({
           payerKey: key(owner),
@@ -637,14 +723,22 @@ export class OutrightClient {
         error.logs = simulation.value.logs || [];
         throw error;
       }
-      if (simulation.context.slot < recent.context.slot)
-        throw new Error("Simulation came from an older bank");
+      boundedNumber(
+        simulation.context.slot,
+        recent.context.slot,
+        Number.MAX_SAFE_INTEGER,
+        "simulation slot",
+      );
       const fee = await this.connection.getFeeForMessage(
         tx.message,
         "confirmed",
       );
-      if (fee.context.slot < simulation.context.slot)
-        throw new Error("Fee estimate came from an older bank");
+      boundedNumber(
+        fee.context.slot,
+        simulation.context.slot,
+        Number.MAX_SAFE_INTEGER,
+        "fee estimate slot",
+      );
       if (fee.value === null)
         throw new Error("Blockhash expired before the review was ready");
       boundedNumber(fee.value, 0, Number.MAX_SAFE_INTEGER, "network fee");
@@ -653,9 +747,10 @@ export class OutrightClient {
         BigInt(fee.value) + BigInt(plan.rentLamports)
       )
         throw new Error("Insufficient SOL for fees and account rent");
+      this.#minimumSlot = Math.max(this.#minimumSlot, fee.context.slot);
       const prepared = Object.freeze({
         summary: plan.summary,
-        action: Object.freeze({ ...action }),
+        action,
         owner: keyString(owner),
         snapshot,
         networkFeeLamports: fee.value,
@@ -669,6 +764,8 @@ export class OutrightClient {
         bytes: tx.serialize(),
         ...recent.value,
         slot: simulation.context.slot,
+        instructions: plan.instructions,
+        rentQuoteLamports: rent,
       });
       return prepared;
     } finally {
@@ -723,10 +820,32 @@ export class OutrightClient {
         );
       // Recheck the network and deployed code after the wallet prompt. State may
       // move between checks and execution; the program's bindings remain final.
-      await this.snapshot(prepared.owner);
+      const fresh = await this.snapshot(prepared.owner);
+      const plan = planAction(
+        this.profile,
+        fresh,
+        prepared.action,
+        stored.rentQuoteLamports,
+      );
+      if (!equalInstructions(stored.instructions, plan.instructions))
+        throw new Error(
+          "Market or account state changed; review the action again",
+        );
       if (
-        (await this.connection.getBlockHeight("confirmed")) >
-          stored.lastValidBlockHeight ||
+        BigInt(fresh.walletLamports) <
+        BigInt(prepared.networkFeeLamports) + BigInt(plan.rentLamports)
+      )
+        throw new Error(
+          "Insufficient SOL for fees and account rent after signing",
+        );
+      const blockHeight = boundedNumber(
+        await this.connection.getBlockHeight("confirmed"),
+        0,
+        Number.MAX_SAFE_INTEGER,
+        "block height",
+      );
+      if (
+        blockHeight > stored.lastValidBlockHeight ||
         Date.now() > prepared.expiresAt
       )
         throw new Error(
@@ -792,11 +911,20 @@ export class OutrightClient {
     ) {
       record.status = status.err ? "failed" : status.confirmationStatus;
       record.error = status.err || null;
-      record.confirmedSlot = status.slot;
-      this.#minimumSlot = Math.max(this.#minimumSlot, status.slot);
+      record.confirmedSlot = boundedNumber(
+        status.slot,
+        0,
+        Number.MAX_SAFE_INTEGER,
+        "confirmation slot",
+      );
+      this.#minimumSlot = Math.max(this.#minimumSlot, record.confirmedSlot);
     } else if (
-      (await this.connection.getBlockHeight("finalized")) >
-      record.lastValidBlockHeight
+      boundedNumber(
+        await this.connection.getBlockHeight("finalized"),
+        0,
+        Number.MAX_SAFE_INTEGER,
+        "block height",
+      ) > record.lastValidBlockHeight
     ) {
       record.status = "expiredUnresolved";
     } else record.status = "pending";
