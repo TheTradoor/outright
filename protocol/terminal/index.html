@@ -538,6 +538,7 @@
         <button
           type="submit"
           class="close"
+          id="review-cancel"
           aria-label="Cancel transaction review"
         >
           ×
@@ -550,6 +551,13 @@
         if market state changes before execution. This review expires after 30
         seconds.
       </p>
+      <p
+        id="review-progress"
+        class="feedback"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></p>
       <button id="sign" type="button" class="button full">
         Sign with wallet
         <span
