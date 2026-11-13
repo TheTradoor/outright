@@ -16,6 +16,11 @@ const setText = (id, value) => {
 };
 const registry = getWallets(),
   journal = browserJournal();
+const operatorMode =
+  new URL(window.location.href).searchParams.get("operator") === "1";
+let availability = "loading",
+  profileRequest = 0,
+  profileAbort = null;
 let client = null,
   wallet = null,
   account = null,
@@ -72,8 +77,19 @@ function clearSnapshot(message = "Not connected") {
 }
 function controls() {
   const ready = Boolean(client && account && snapshot && !busy && !loading);
-  $("wallet-button").disabled = busy;
-  $("settings-button").disabled = busy;
+  $("wallet-button").disabled = busy || !client;
+  if (!account)
+    setText(
+      "wallet-button",
+      client
+        ? "Connect wallet"
+        : availability === "loading"
+          ? "Loading market…"
+          : "Market not open",
+    );
+  $("settings-button").disabled = busy || !operatorMode;
+  $("profile-file").disabled = busy || !operatorMode;
+  $("market-retry").disabled = busy || availability === "loading";
   $("refresh").disabled = !client || !account || busy || loading;
   const live = snapshot?.market.mode === "live";
   const resolved = snapshot?.market.mode === "resolved";
@@ -138,7 +154,7 @@ function resetWallet() {
   setText("wallet-button", "Connect wallet");
   setText(
     "footer-state",
-    client ? `${client.profile.cluster} profile loaded` : "Awaiting deployment",
+    client ? `${client.profile.cluster} profile loaded` : "Market not open",
   );
   controls();
   renderReceipt(null);
@@ -404,8 +420,14 @@ async function refresh() {
 }
 async function loadProfile(input) {
   const validated = validateProfile(input);
+  // Construct before replacing an active session; invalid input must not
+  // disconnect a wallet or discard its transaction review.
+  const next = new OutrightClient(validated, { journal });
+  profileRequest++;
+  profileAbort?.abort();
+  profileAbort = null;
   resetWallet();
-  client = new OutrightClient(validated, { journal });
+  client = next;
   prices.clear();
   setText("network", validated.cluster);
   setText("collateral-symbol", validated.collateral.symbol);
@@ -428,10 +450,80 @@ async function loadProfile(input) {
   );
   $("profile-detail").style.whiteSpace = "pre-wrap";
   setText("footer-state", `${validated.cluster} profile loaded`);
-  notice(
-    "Deployment profile loaded. Connect a wallet to verify the on-chain accounts.",
-  );
+  setAvailability("ready");
+  notice("");
   controls();
+}
+function setAvailability(state) {
+  availability = state;
+  $("deployment-notice").dataset.state = state;
+  $("market-retry").hidden = state === "loading" || state === "ready";
+  const messages = {
+    loading: [
+      "Checking market availability.",
+      "The official market loads automatically.",
+    ],
+    unavailable: [
+      "Trading is not open yet.",
+      "This page will connect to the official market automatically when it opens.",
+    ],
+    error: [
+      "The market could not be loaded.",
+      "Check your connection and try again. Trading stays unavailable until the market can be verified.",
+    ],
+    ready: [
+      `Test market · ${client?.profile.cluster}`,
+      "Connect your wallet to view balances. This market uses test funds.",
+    ],
+  };
+  const [title, detail] = messages[state];
+  setText("availability-title", title);
+  setText("availability-detail", detail);
+  if (!client) {
+    setText("network", "Offline");
+    setText(
+      "footer-state",
+      state === "loading" ? "Checking market availability" : "Market not open",
+    );
+  }
+  controls();
+}
+async function loadOfficialMarket() {
+  if (client || profileAbort) return;
+  const request = ++profileRequest;
+  const controller = new AbortController();
+  profileAbort = controller;
+  setAvailability("loading");
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  try {
+    const response = await fetch(
+      new URL("./deployment.json", import.meta.url),
+      {
+        cache: "no-store",
+        signal: controller.signal,
+      },
+    );
+    if (!response.ok) throw new Error("Market configuration is unavailable");
+    const body = await response.text();
+    if (controller.signal.aborted) throw new Error("Market request timed out");
+    if (new TextEncoder().encode(body).length > 65536)
+      throw new Error("Deployment profile is too large");
+    if (request !== profileRequest || client) return;
+    const profile = JSON.parse(body);
+    if (profile === null) setAvailability("unavailable");
+    else await loadProfile(profile);
+  } catch (error) {
+    if (request !== profileRequest || client) return;
+    setAvailability("error");
+    if (operatorMode)
+      setText(
+        "profile-error",
+        error.message || "Market configuration could not be loaded",
+      );
+  } finally {
+    clearTimeout(timeout);
+    if (profileAbort === controller) profileAbort = null;
+  }
 }
 function compatible(w) {
   return (
@@ -570,7 +662,7 @@ async function selectAccount(w, a) {
 }
 async function reviewAction(value) {
   if (!client || !account)
-    throw new Error("Connect a deployment and wallet first");
+    throw new Error("Connect your wallet when the market is available");
   const selected = account,
     selectedClient = client,
     current = generation;
@@ -674,11 +766,14 @@ async function reviewAction(value) {
   }
   $("review-dialog").showModal();
 }
-$("settings-button").addEventListener("click", () =>
-  $("settings-dialog").showModal(),
-);
-$("profile-file").addEventListener("change", (event) =>
-  action(async () => {
+$("operator-notice").hidden = !operatorMode;
+$("settings-button").hidden = !operatorMode;
+$("settings-button").addEventListener("click", () => {
+  if (operatorMode && !busy) $("settings-dialog").showModal();
+});
+$("profile-file").addEventListener("change", (event) => {
+  if (!operatorMode) return;
+  void action(async () => {
     const file = event.target.files[0];
     if (!file) return;
     setText("profile-error", "");
@@ -692,16 +787,17 @@ $("profile-file").addEventListener("change", (event) =>
     } finally {
       event.target.value = "";
     }
-  }),
-);
+  });
+});
+$("market-retry").addEventListener("click", () => {
+  if (!busy) void loadOfficialMarket();
+});
 $("wallet-button").addEventListener("click", () => {
   if (account) {
     resetWallet();
     return;
   }
   if (!client) {
-    $("settings-dialog").showModal();
-    notice("Load a deployment profile before connecting your wallet.");
     return;
   }
   walletSelection++;
@@ -912,16 +1008,4 @@ setInterval(() => {
   });
 }, 10_000);
 controls();
-fetch(new URL("./deployment.json", import.meta.url), {
-  cache: "no-store",
-  signal: AbortSignal.timeout(15_000),
-})
-  .then((response) => {
-    if (!response.ok)
-      throw new Error("Deployment configuration could not be loaded");
-    return response.json();
-  })
-  .then((profile) => profile && !client && loadProfile(profile))
-  .catch((error) => {
-    if (!client) notice(error.message, true);
-  });
+void loadOfficialMarket();

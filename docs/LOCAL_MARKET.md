@@ -55,7 +55,7 @@ npm run build --prefix protocol
 python3 -m http.server 8080 --bind 127.0.0.1 --directory protocol/dist
 ```
 
-Open `http://localhost:8080`. In **Deployment settings**, load
+Open `http://localhost:8080/?operator=1`. In **Operator settings**, load
 `protocol/localnet-state/deployment.json`, then connect the test wallet.
 Create a portfolio, deposit 100 TEST, and review a buy or sell of size 1 with
 limit price 1. Confirm the resulting position, use the opposite side and the

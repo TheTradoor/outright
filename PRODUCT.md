@@ -4,6 +4,11 @@ Outright will provide perpetual futures trading on Solana using the Percolator
 risk engine. The application must follow the engine's accounting and risk rules
 and expose the resulting state clearly to traders.
 
+The product target is mainnet. Test networks and local validators are internal
+verification environments. Traders must not configure deployments, upload
+profiles, choose RPC endpoints or operate market services. The application
+loads its official market automatically and explains when trading is unavailable.
+
 The initial market candidate is SOL with USD pricing and USDC collateral.
 Margin requirements, leverage, position limits and open-interest limits will
 be set after liquidity and stress analysis.
@@ -77,11 +82,13 @@ Deliver the wallet terminal, quote and transaction planner, portfolio reads,
 oracle and keeper services, indexer and reconciliation. The application must
 recover from disconnected wallets, restarted services and unavailable RPCs.
 
-### Public devnet validation
+### Release qualification
 
-Publish reproducible deployment instructions, source revisions, program and
-market addresses, and transaction records for the complete trading flow.
-Verify compatibility with the target cluster separately from the local VM.
+Publish reproducible build and deployment instructions, source revisions,
+program and market addresses, and transaction records for the complete trading
+flow. Rehearse loss, outage, expiry and exit cases without public funds. Verify
+target-cluster compatibility separately from local execution. Any internal test
+deployment remains explicitly labeled and outside the normal trader setup.
 
 ### Capped mainnet release
 
@@ -89,6 +96,10 @@ Establish funded liquidity and reviewed market limits. Complete independent
 security review and deployment verification. Document upgrade and administrative
 authorities, monitoring, incident response and position-exit procedures before
 accepting public funds.
+
+The [mainnet release requirements](docs/MAINNET_RELEASE.md) record the evidence
+and operating resources still required for that decision. A passing application
+suite does not override unresolved upstream failures or independent review.
 
 ## Current scope
 
