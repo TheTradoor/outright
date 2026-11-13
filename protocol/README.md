@@ -10,7 +10,7 @@ simulator, exchange client, or launchpad code.
 
 ## Build and verify
 
-Use Node.js 22 or newer and the repository's pinned Rust toolchain:
+Use Node.js 22.12 or newer and the repository's pinned Rust toolchain:
 
 ```sh
 npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
