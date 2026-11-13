@@ -1,0 +1,615 @@
+Engine source matches a712af767eeb217876a3d3c50e3849b60ea54462.
+warning: associated items `MAX`, `overflowing_add`, `overflowing_sub`, and `saturating_add` are never used
+   --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:245:15
+    |
+242 | impl U256 {
+    | --------- associated items in this implementation
+...
+245 |     pub const MAX: Self = Self([u64::MAX, u64::MAX, u64::MAX, u64::MAX]);
+    |               ^^^
+...
+358 |     pub fn overflowing_add(self, rhs: U256) -> (U256, bool) {
+    |            ^^^^^^^^^^^^^^^
+...
+364 |     pub fn overflowing_sub(self, rhs: U256) -> (U256, bool) {
+    |            ^^^^^^^^^^^^^^^
+...
+372 |     pub fn saturating_add(self, rhs: U256) -> U256 {
+    |            ^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: multiple associated items are never used
+   --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:776:15
+    |
+775 | impl I256 {
+    | --------- associated items in this implementation
+776 |     pub const ZERO: Self = Self([0, 0, 0, 0]);
+    |               ^^^^
+777 |     pub const ONE: Self = Self([1, 0, 0, 0]);
+    |               ^^^
+778 |     pub const MINUS_ONE: Self = Self([u64::MAX, u64::MAX, u64::MAX, u64::MAX]);
+    |               ^^^^^^^^^
+779 |     pub const MAX: Self = Self([u64::MAX, u64::MAX, u64::MAX, u64::MAX >> 1]);
+    |               ^^^
+...
+788 |     pub fn from_u128(v: u128) -> Self {
+    |            ^^^^^^^^^
+...
+792 |     pub fn try_into_i128(&self) -> Option<i128> {
+    |            ^^^^^^^^^^^^^
+...
+811 |     pub fn is_positive(&self) -> bool {
+    |            ^^^^^^^^^^^
+...
+815 |     pub fn signum(&self) -> i8 {
+    |            ^^^^^^
+...
+844 |     pub fn checked_mul_i256(self, rhs: I256) -> Option<I256> {
+    |            ^^^^^^^^^^^^^^^^
+...
+950 |     pub fn saturating_add(self, rhs: I256) -> I256 {
+    |            ^^^^^^^^^^^^^^
+...
+980 |     pub fn from_raw_u256(v: U256) -> Self {
+    |            ^^^^^^^^^^^^^
+...
+985 |     pub fn from_u256_or_overflow(v: U256) -> Option<Self> {
+    |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `floor_div_signed_conservative` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1366:8
+     |
+1366 | pub fn floor_div_signed_conservative(n: I256, d: U256) -> I256 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `ceil_div_positive_checked` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1453:8
+     |
+1453 | pub fn ceil_div_positive_checked(n: U256, d: U256) -> U256 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `mul_div_ceil_u256` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1485:8
+     |
+1485 | pub fn mul_div_ceil_u256(a: U256, b: U256, d: U256) -> U256 {
+     |        ^^^^^^^^^^^^^^^^^
+
+warning: function `saturating_mul_u256_u64` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1513:8
+     |
+1513 | pub fn saturating_mul_u256_u64(a: U256, b: u64) -> U256 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `fee_debt_u128_checked` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1521:8
+     |
+1521 | pub fn fee_debt_u128_checked(fee_credits: i128) -> u128 {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `wide_signed_mul_div_floor` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1538:8
+     |
+1538 | pub fn wide_signed_mul_div_floor(abs_basis: U256, k_diff: I256, denominator: U256) -> I256 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `mul_div_floor_u128` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1600:8
+     |
+1600 | pub fn mul_div_floor_u128(a: u128, b: u128, d: u128) -> u128 {
+     |        ^^^^^^^^^^^^^^^^^^
+
+warning: function `mul_div_ceil_u128` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1607:8
+     |
+1607 | pub fn mul_div_ceil_u128(a: u128, b: u128, d: u128) -> u128 {
+     |        ^^^^^^^^^^^^^^^^^
+
+warning: struct `OverI128Magnitude` is never constructed
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1680:12
+     |
+1680 | pub struct OverI128Magnitude;
+     |            ^^^^^^^^^^^^^^^^^
+
+warning: function `wide_mul_div_ceil_u128_or_over_i128max` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1684:8
+     |
+1684 | pub fn wide_mul_div_ceil_u128_or_over_i128max(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `saturating_mul_u128_u64` is never used
+    --> /workspace/scratch/dee0ea254bf8/outright/src/wide_math.rs:1701:8
+     |
+1701 | pub fn saturating_mul_u128_u64(a: u128, b: u64) -> u128 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `percolator` (lib) generated 13 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.13s
+     Running `protocol/conformance/target/debug/export-contract`
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @outright/percolator-client@0.1.0 test
+> node --test tests/*.test.mjs
+
+✔ CPI fee consent compares both parties with the on-chain base fee (366.291304ms)
+✔ a base fee change during signing requires a fresh review even within consent (103.119914ms)
+✔ Rust market fixture exposes collateral, assets and risk configuration (1.949971ms)
+✔ market rejects identity mismatch (0.589387ms)
+✔ market rejects length mismatch (0.416876ms)
+✔ market rejects capacity mismatch (0.329363ms)
+✔ market rejects mode mismatch (0.332379ms)
+✔ market rejects mint mismatch (0.445019ms)
+✔ ADL quantity rounds conservatively and prior-reset obligations have no live exposure (0.490403ms)
+✔ inactive positions must match the upstream empty leg (5.023744ms)
+✔ wallet lifecycle persists the signature before send and confirms only on a confirmed bank (61.90634ms)
+✔ a lost send response survives reload and never produces a second deposit (26.333372ms)
+✔ simulation failure, wallet rejection, changed message and journal failure cannot broadcast (226.116245ms)
+✔ coherent snapshot rejects owner (13.877921ms)
+✔ coherent snapshot rejects mint (28.544761ms)
+✔ coherent snapshot rejects vaultDelegate (18.833317ms)
+✔ coherent snapshot rejects freeze (15.319475ms)
+✔ coherent snapshot rejects program (8.704587ms)
+✔ coherent snapshot rejects stale (12.747086ms)
+✔ creation and ATA withdrawal plans include rent; missing makers never fabricate liquidity (32.232988ms)
+✔ two browser clients cannot sign the same wallet concurrently (29.172589ms)
+✔ confirmed failures are recorded without being reported as a successful fill (14.556594ms)
+✔ devnet pins require the complete genesis hash and localnet cannot alias a remote cluster (7.656687ms)
+✔ reconciliation holds the wallet lock until the receipt update completes (63.833919ms)
+✔ a portfolio funded with 1 lamports can still be initialized (32.035861ms)
+✔ a portfolio funded with 10000000 lamports can still be initialized (22.953039ms)
+✔ a portfolio funded with 10000001 lamports can still be initialized (49.995998ms)
+✔ trade submission rejects changed matcher code after the wallet prompt (53.31338ms)
+✔ trade submission rejects changed maker consent after the wallet prompt (38.761393ms)
+✔ trade submission rejects changed maker expiry after the wallet prompt (23.55007ms)
+✔ trade submission rejects changed maker sequence after the wallet prompt (30.280914ms)
+✔ trade submission rejects changed oracle age after the wallet prompt (45.330215ms)
+✔ trade submission rejects changed market mode after the wallet prompt (39.002358ms)
+✔ trade submission rejects changed SOL balance after the wallet prompt (34.141631ms)
+✔ an unchanged trade still broadcasts after the fresh-state check (53.408116ms)
+✔ a deposit sequence change during signing requires a new review (11.971841ms)
+✔ funding a missing portfolio during the wallet prompt requires a new review (13.548775ms)
+✔ the review captures intent before asynchronous RPC work (8.528208ms)
+✔ allocation rejects a System account with invalid executable (7.966944ms)
+✔ allocation rejects a System account with invalid data (6.191738ms)
+✔ allocation rejects a System account with invalid owner (17.54334ms)
+✔ allocation rejects a System account with invalid negative balance (6.981729ms)
+✔ review rejects malformed RPC blockhash slot (7.63245ms)
+✔ review rejects malformed RPC simulation slot (9.03966ms)
+✔ review rejects malformed RPC fee slot (7.962756ms)
+✔ review rejects malformed RPC blockhash height (7.335217ms)
+✔ an unreadable action releases the wallet action lock (8.187563ms)
+✔ wallet preserves the pending receipt on stale bank (15.679943ms)
+✔ wallet preserves the pending receipt on invalid bank (13.652448ms)
+✔ wallet preserves the pending receipt on future landing slot (27.158594ms)
+✔ wallet preserves the pending receipt on invalid landing slot (14.114337ms)
+✔ wallet preserves the pending receipt on missing error (13.393146ms)
+✔ wallet preserves the pending receipt on unknown commitment (15.606186ms)
+✔ wallet preserves the pending receipt on missing result (13.302928ms)
+✔ wallet preserves the pending receipt on extra result (13.945795ms)
+✔ wallet accepts a landed transaction older than the current response bank (25.985751ms)
+✔ a reloaded wallet snapshot honors the submitted receipt bank (18.166063ms)
+✔ a reloaded wallet snapshot honors the confirmed receipt bank (19.637992ms)
+✔ a reloaded wallet snapshot honors the finalized receipt bank (17.840846ms)
+✔ a reloaded wallet snapshot honors the failed receipt bank (19.559587ms)
+✔ a legacy final receipt restores its landing slot before another review (19.402794ms)
+✔ wallet rejects a final receipt with minimumSlot=-1 (9.717852ms)
+✔ wallet rejects a final receipt with minimumSlot=1.5 (5.845056ms)
+✔ wallet rejects a final receipt with minimumSlot=140 (4.135028ms)
+✔ wallet rejects a final receipt with minimumSlot=null (4.060951ms)
+✔ wallet rejects a final receipt with minimumSlot=NaN (4.658072ms)
+✔ wallet rejects a final receipt with confirmedSlot=-1 (4.926943ms)
+✔ wallet rejects a final receipt with confirmedSlot=1.5 (4.717969ms)
+✔ wallet rejects a final receipt with confirmedSlot=140 (7.447927ms)
+✔ wallet rejects a final receipt with confirmedSlot=null (5.338338ms)
+✔ wallet rejects a final receipt with confirmedSlot=NaN (8.503081ms)
+✔ a late account read cannot return an older bank than a completed read (11.263601ms)
+✔ a pending receipt from another tab invalidates an older in-flight snapshot (11.391259ms)
+✔ a confirmed receipt from another tab invalidates an older in-flight snapshot (24.837393ms)
+✔ a finalized receipt from another tab invalidates an older in-flight snapshot (11.072665ms)
+✔ a failed receipt from another tab invalidates an older in-flight snapshot (12.79906ms)
+✔ receipt persistence cannot lower a newer snapshot's bank (10.067284ms)
+✔ a failed closure cannot reuse its blockhash after reload (304.10921ms)
+✔ a final receipt in another tab prevents closure replay before the wallet prompt (32.295424ms)
+✔ a Rust-generated closed-market tombstone stops wallet actions with a clear message (50.691769ms)
+✔ resolved account closure binds owner and incarnation without allocating a token account (36.869622ms)
+✔ account closure review refuses live market (22.928983ms)
+✔ account closure review refuses Recovery market (23.816376ms)
+✔ account closure review refuses absent account (9.91372ms)
+✔ account closure review refuses capital (6.879539ms)
+✔ account closure review refuses positive PnL (9.298585ms)
+✔ account closure review refuses negative PnL (20.237311ms)
+✔ account closure review refuses position (34.370218ms)
+✔ account closure review refuses unpaid receipt (17.576396ms)
+✔ account closure review refuses reserved_pnl (6.452084ms)
+✔ account closure review refuses fee_credits (34.591088ms)
+✔ account closure review refuses active_bitmap (11.939952ms)
+✔ account closure review refuses stale_state (7.8033ms)
+✔ account closure review refuses b_stale_state (17.989106ms)
+✔ account closure review refuses rebalance_lock (7.803811ms)
+✔ account closure review refuses liquidation_lock (15.976197ms)
+✔ account closure refuses changed market accounting after signing (32.293791ms)
+✔ account closure refuses changed portfolio accounting after signing (52.985596ms)
+✔ engine simulation can refuse closure beyond the preliminary display checks (50.278118ms)
+✔ closure encoders reject ambiguous or out-of-range bindings (0.937896ms)
+✔ market closure binds the authority, writable mint and canonical vault authority (2.072479ms)
+✔ client fixtures and Cargo use the recorded source revisions (6.700686ms)
+✔ initPortfolio matches the pinned Rust encoder (0.362034ms)
+✔ closePortfolio matches the pinned Rust encoder (0.554132ms)
+✔ closeSlab matches the pinned Rust encoder (0.130383ms)
+✔ forfeitRecoveryLeg matches the pinned Rust encoder (0.233575ms)
+✔ closeResolved matches the pinned Rust encoder (0.181698ms)
+✔ claimResolvedPayoutTopup matches the pinned Rust encoder (14.075239ms)
+✔ deposit matches the pinned Rust encoder (0.210803ms)
+✔ withdraw matches the pinned Rust encoder (0.319124ms)
+✔ tradeNoCpi matches the pinned Rust encoder (0.45143ms)
+✔ tradeCpi matches the pinned Rust encoder (0.192468ms)
+✔ permissionlessCrank matches the pinned Rust encoder (0.278449ms)
+✔ resolved crank rejects oracle tails, multiple discovery hints and custody aliases (15.152784ms)
+✔ tradeNoCpi rejects the signed minimum that the program cannot negate (0.550915ms)
+✔ tradeCpi rejects the signed minimum that the program cannot negate (0.211805ms)
+✔ deposit rejects malformed/overflow amount 1 (2.521285ms)
+✔ deposit rejects malformed/overflow amount 1.1 (0.110506ms)
+✔ deposit rejects malformed/overflow amount 9007199254740991 (0.093384ms)
+✔ deposit rejects malformed/overflow amount 1e6 (0.079809ms)
+✔ deposit rejects malformed/overflow amount +1 (0.111898ms)
+✔ deposit rejects malformed/overflow amount 01 (0.085128ms)
+✔ deposit rejects malformed/overflow amount 1.0 (0.084267ms)
+✔ deposit rejects malformed/overflow amount -1 (1.678094ms)
+✔ deposit rejects malformed/overflow amount 18446744073709551616 (0.091661ms)
+✔ deposit rejects malformed/overflow amount 999999999999999999999999999999 (0.081712ms)
+✔ deposit rejects malformed/overflow amount undefined (0.071804ms)
+✔ deposit rejects {"portfolioId":"0"} (1.257792ms)
+✔ deposit rejects {"amount":"0"} (0.167833ms)
+✔ withdraw rejects {"expectedSequence":"-1"} (0.103873ms)
+✔ tradeCpi rejects {"limitPrice":"0"} (4.025355ms)
+✔ tradeCpi rejects {"sizeQ":"0"} (0.157523ms)
+✔ tradeCpi rejects {"marketId":"0"} (0.134401ms)
+✔ tradeCpi rejects {"feeBps":"10001"} (0.134671ms)
+✔ tradeCpi rejects {"backingFeeCapBps":10001} (0.160439ms)
+✔ tradeCpi rejects {"assetIndex":65536} (0.118952ms)
+✔ tradeCpi rejects {"makerPositionEpoch":"562949953421312"} (0.109935ms)
+✔ tradeCpi rejects {"sizeQ":"170141183460469231731687303715884105728"} (0.122879ms)
+✔ a stale CLI deposit cannot be mistaken for the new format (1.025659ms)
+✔ crank rejects duplicate observations and excess legs (0.231471ms)
+✔ decimal amounts retain precision above the floating-point safe integer boundary (0.332499ms)
+✔ strict decimal input rejects 0 (0.154838ms)
+✔ strict decimal input rejects -1 (0.165237ms)
+✔ strict decimal input rejects 1e3 (0.070301ms)
+✔ strict decimal input rejects 1.0000001 (0.07514ms)
+✔ strict decimal input rejects 18446744073709.551616 (0.099075ms)
+✔ strict decimal input rejects  1 (0.126736ms)
+✔ strict decimal input rejects 1,000 (0.080249ms)
+✔ strict decimal input rejects .5 (0.056816ms)
+✔ strict decimal input rejects 1. (0.058218ms)
+✔ withdraw derives the vault signer and never asks the user to sign for it (3.484378ms)
+✔ bilateral trade requires both owners, while CPI derives the LP delegate (1.376342ms)
+✔ reject aliased custody and self-counterparty accounts (0.461519ms)
+✔ read a portfolio initialized by the actual upstream Rust initializer (2.561499ms)
+✔ portfolio rejects owner mismatch (0.376582ms)
+✔ portfolio rejects length mismatch (0.283207ms)
+✔ portfolio rejects magic mismatch (0.392862ms)
+✔ portfolio rejects version mismatch (0.253091ms)
+✔ portfolio rejects kind mismatch (0.367134ms)
+✔ portfolio rejects portfolio mismatch (0.631666ms)
+✔ portfolio rejects market mismatch (0.654749ms)
+✔ portfolio rejects wallet mismatch (0.604996ms)
+✔ portfolio rejects zero-id mismatch (4.724727ms)
+✔ portfolio rejects duplicate-owner mismatch (0.477148ms)
+✔ signed PnL decoding handles a negative 128-bit amount (1.218309ms)
+✔ a portfolio missing before reading does not stop other live targets (380.771349ms)
+✔ a portfolio missing after simulation does not stop other live targets (37.483674ms)
+✔ a portfolio missing before reading does not stop other recovery targets (43.561012ms)
+✔ a portfolio missing after simulation does not stop other recovery targets (24.152662ms)
+✔ a portfolio missing before reading does not stop other resolved targets (32.659603ms)
+✔ a portfolio missing after simulation does not stop other resolved targets (39.871747ms)
+✔ missing portfolios also defer in simulation-only mode without a signer (14.640311ms)
+✔ a missing target is rechecked when it returns with same incarnation (14.316727ms)
+✔ a missing target is rechecked when it returns with new incarnation (9.792975ms)
+✔ a missing target is rechecked when it returns with different owner (13.599433ms)
+✔ a missing target is rechecked when it returns with empty account (7.125888ms)
+✔ missing-target handling does not accept undefined target (9.77961ms)
+✔ missing-target handling does not accept short response (9.089665ms)
+✔ missing-target handling does not accept non-array response (17.771971ms)
+✔ a missing target cannot bypass network verification (10.614555ms)
+✔ a missing target cannot bypass program verification (15.475425ms)
+✔ a missing target cannot bypass market verification (10.853639ms)
+✔ a missing target cannot bypass payer verification (8.944525ms)
+✔ a missing target cannot bypass mint verification (8.823298ms)
+✔ a missing target cannot bypass vault verification (14.741549ms)
+✔ a missing target cannot release a pending receipt or erase duplicate protection (30.735754ms)
+✔ missing-target deferral retains the bank floor across restart (18.492814ms)
+✔ keeper continues a zero-exposure obligation in asset Recovery (30.896432ms)
+✔ keeper continues a zero-exposure obligation in market Recovery (27.888879ms)
+✔ resolved settlement is explicit and the default preserves configuration hashes (27.859124ms)
+✔ resolved keeper binds unsigned owner custody with one backing hint and no oracle accounts (35.55297ms)
+✔ resolved ownerDelay defers without simulation, a signature or fees (15.52164ms)
+✔ resolved payoutAccountMissing defers without simulation, a signature or fees (18.199949ms)
+✔ resolved payoutHalted defers without simulation, a signature or fees (24.803293ms)
+✔ resolved keeper rejects destination owner before signing (17.353452ms)
+✔ resolved keeper rejects destination mint before signing (12.724734ms)
+✔ resolved keeper rejects destination delegate before signing (16.63808ms)
+✔ resolved keeper rejects destination close authority before signing (15.277067ms)
+✔ resolved keeper rejects destination frozen before signing (15.622678ms)
+✔ resolved keeper rejects vault owner before signing (31.146625ms)
+✔ resolved keeper rejects vault shortfall before signing (20.013415ms)
+✔ resolved keeper rejects mint decimals before signing (12.187423ms)
+✔ resolved keeper rejects mint authority before signing (15.202026ms)
+✔ resolved keeper ignores missing live oracle accounts but still checks asset identity (42.235522ms)
+✔ a missing payout account does not starve another resolved target (32.322324ms)
+✔ resolved custody or policy changes after simulation prevent signing (67.26651ms)
+✔ resolved payoutAccountMissing after simulation defers durably and resumes without an extra fee (35.428097ms)
+✔ resolved payoutHalted after simulation defers durably and resumes without an extra fee (27.995077ms)
+✔ a changed force_close_delay_slots after simulation cannot be hidden by owner-delay deferral (11.309308ms)
+✔ a changed resolved_slot after simulation cannot be hidden by owner-delay deferral (26.453267ms)
+✔ keeper retains duplicate protection across restart, dry runs and old journals (48.060047ms)
+✔ a corrupt stored blockhash stops signing without replacing the pending receipt (16.843693ms)
+✔ keeper simulates without a signer and sends only with an explicit flag (8.433323ms)
+✔ keeper persists before send and reconciles before another signature (9.042206ms)
+✔ lost send response and expired unknown receipt remain blocking after restart (29.111956ms)
+✔ confirmed failure consumes reserved fee budget but releases the pending receipt (11.469787ms)
+✔ a journal write failure prevents any broadcast (14.652738ms)
+✔ keeper refuses code changes before signing (15.953495ms)
+✔ keeper refuses network changes before signing (9.728082ms)
+✔ keeper refuses portfolio changes before signing (16.175947ms)
+✔ keeper refuses asset changes before signing (24.831121ms)
+✔ keeper refuses reserve changes before signing (9.398489ms)
+✔ keeper refuses fee changes before signing (10.322548ms)
+✔ keeper refuses old bank changes before signing (9.709998ms)
+✔ keeper refuses resolved changes before signing (14.354776ms)
+✔ total fee budget persists across confirmed transactions (49.799758ms)
+✔ engine non-progress skips a fee; unrelated custom errors are not mislabeled idle (17.899917ms)
+✔ a second cycle cannot race signing or reconciliation (15.899492ms)
+✔ pending receipt cannot be reused with another keeper configuration (18.58389ms)
+✔ crank account plan uses read-only oracle accounts and never signs for the target owner (21.758179ms)
+✔ devnet rejects manual oracle profiles (9.00202ms)
+✔ keeper rejects a changed external oracle owner (26.427122ms)
+✔ keeper rejects a changed external oracle feed (11.718728ms)
+✔ keeper rejects a changed external oracle mode (15.549139ms)
+✔ keeper rechecks code after simulation and before broadcast (12.876575ms)
+✔ keeper rechecks network after simulation and before broadcast (11.829884ms)
+✔ keeper rechecks expiry after simulation and before broadcast (14.567623ms)
+✔ keeper rechecks balance after simulation and before broadcast (28.252244ms)
+✔ disk journal survives reopen, locks other workers and rejects exposed permissions (30.961154ms)
+✔ CLI live signing, restart and duplicate protection use durable state (1866.727012ms)
+✔ CLI live watch with portfolioMissing, restart and duplicate protection use durable state (2652.244072ms)
+✔ CLI resolved signing, restart and duplicate protection use durable state (1378.804349ms)
+✔ CLI resolved watch with portfolioMissing, restart and duplicate protection use durable state (2801.997636ms)
+✔ CLI resolved watch with payoutAccountMissing, restart and duplicate protection use durable state (2697.344191ms)
+✔ CLI resolved watch with payoutHalted, restart and duplicate protection use durable state (2110.659046ms)
+✔ crashed workers leave a lock and the last durable state for inspection (85.199409ms)
+✔ keeper preserves the pending receipt on stale bank (7.995046ms)
+✔ keeper preserves the pending receipt on invalid bank (12.985678ms)
+✔ keeper preserves the pending receipt on future landing slot (6.063859ms)
+✔ keeper preserves the pending receipt on invalid landing slot (5.614764ms)
+✔ keeper preserves the pending receipt on missing error (7.264556ms)
+✔ keeper preserves the pending receipt on unknown commitment (5.560233ms)
+✔ keeper preserves the pending receipt on missing result (6.710935ms)
+✔ keeper preserves the pending receipt on extra result (8.486521ms)
+✔ keeper rejects invalid block height -1 with pending=false (5.109193ms)
+✔ keeper rejects invalid block height -1 with pending=true (6.894687ms)
+✔ keeper rejects invalid block height NaN with pending=false (5.839844ms)
+✔ keeper rejects invalid block height NaN with pending=true (5.377693ms)
+✔ keeper rejects invalid block height Infinity with pending=false (3.773425ms)
+✔ keeper rejects invalid block height Infinity with pending=true (5.802254ms)
+✔ keeper rejects invalid block height 10.5 with pending=false (4.745636ms)
+✔ keeper rejects invalid block height 10.5 with pending=true (5.608873ms)
+✔ keeper rejects invalid block height 10 with pending=false (5.108391ms)
+✔ keeper rejects invalid block height 10 with pending=true (6.269142ms)
+✔ keeper cannot sign against a bank older than its fee estimate (5.108139ms)
+✔ local program pins accept the official loader and enforce code and authority (50.673113ms)
+✔ local validator mint initialization and checked issuance match SPL Rust (2.039908ms)
+✔ local authority price updates match the pinned Rust encoder (0.413009ms)
+✔ local maker consent matches the pinned Rust encoder and does not sign for a trader (7.361758ms)
+✔ local market allocation uses the Rust-exported one-asset layout (0.271676ms)
+✔ local bootstrap rejects public endpoints, credentials and URL suffixes (0.491335ms)
+✔ local state writes are private and exclusive receipts cannot be replaced (46.693268ms)
+✔ local state readers reject symlinks (10.855703ms)
+✔ bootstrap restart reconciles an existing signature without broadcasting (12.867479ms)
+✔ failed and unresolved setup transactions stop continuation (303.61979ms)
+▶ trader onboarding loads the official market without operator setup
+  ✔ startup is automatic and cannot open operator settings (7.678807ms)
+  ✔ an absent market has a clear status and a retry action (8.414516ms)
+  ✔ failed requests can be retried without duplicate fetches (7.514582ms)
+  ✔ network errors do not strand the page in loading (6.730761ms)
+  ✔ invalid JSON and invalid source identities keep trading locked (23.011163ms)
+  ✔ oversized profiles are rejected without wallet actions (11.841827ms)
+  ✔ a timed-out request aborts and permits a fresh attempt (23.722847ms)
+  ✔ a valid official profile opens the wallet chooser directly (31.102368ms)
+✔ trader onboarding loads the official market without operator setup (809.653236ms)
+✔ zero-basis long obligation remains readable in asset Recovery (386.560064ms)
+✔ zero-basis long obligation remains readable in market Recovery (35.744196ms)
+✔ zero-basis long obligation remains readable in DrainOnly (33.811036ms)
+✔ zero-basis long obligation remains readable in active side (23.945366ms)
+✔ zero-basis short obligation remains readable in asset Recovery (30.548581ms)
+✔ zero-basis short obligation remains readable in market Recovery (14.647924ms)
+✔ zero-basis short obligation remains readable in DrainOnly (22.60391ms)
+✔ zero-basis short obligation remains readable in active side (12.556921ms)
+✔ obligation support still rejects zero loss weight (17.713012ms)
+✔ obligation support still rejects excess loss weight (19.739195ms)
+✔ obligation support still rejects excess remainder (11.514891ms)
+✔ obligation support still rejects mismatched B epoch (11.762251ms)
+✔ obligation support still rejects zero A basis (23.74355ms)
+✔ obligation support still rejects oversized A basis (11.441554ms)
+✔ obligation support still rejects insufficient retained weight (20.287878ms)
+✔ obligation support still rejects out-of-range basis (17.01888ms)
+✔ obligation support still rejects minimum K snapshot (9.573846ms)
+✔ obligation support still rejects minimum F snapshot (17.435665ms)
+✔ zero exposure does not bypass asset incarnation or epoch validation (43.610858ms)
+✔ recovery admission handles asset Recovery (12.294512ms)
+✔ recovery admission handles market Recovery (18.128445ms)
+✔ recovery admission handles reset obligation (85.291939ms)
+✔ recovery admission handles active trading position (21.466641ms)
+✔ recovery admission handles live DrainOnly exposure (16.01475ms)
+✔ recovery admission handles resolved market (26.412779ms)
+✔ recovery plan binds the owner, incarnation, epoch and exact shared-loss budget (22.146706ms)
+✔ recovery review rejects missing consent (19.171098ms)
+✔ recovery review rejects false consent (20.251658ms)
+✔ recovery review rejects string consent (28.112716ms)
+✔ recovery review rejects stale asset incarnation (24.954926ms)
+✔ recovery review rejects missing asset incarnation (20.824996ms)
+✔ recovery review rejects unknown asset (21.904717ms)
+✔ recovery review rejects zero budget (18.123345ms)
+✔ recovery review rejects excess precision (28.579855ms)
+✔ recovery review rejects numeric budget (18.924508ms)
+✔ recovery encoder rejects zero budgets, invalid epochs and aliased accounts (3.841914ms)
+✔ full market accounting changes during signing invalidate recovery review (69.090387ms)
+✔ full portfolio accounting changes during signing invalidate recovery review (34.459093ms)
+✔ unchanged recovery review submits one signed transaction and reconciles normally (38.991592ms)
+✔ a failed recovery receipt cannot be replayed as a new attempt after reload (72.918476ms)
+✔ initialize requires a fresh blockhash after a confirmed failure (454.462163ms)
+✔ initialize requires a fresh blockhash after a confirmed failure and lost send response (67.912443ms)
+✔ deposit requires a fresh blockhash after a confirmed failure (74.287412ms)
+✔ deposit requires a fresh blockhash after a confirmed failure and lost send response (89.39868ms)
+✔ withdraw requires a fresh blockhash after a confirmed failure (86.920997ms)
+✔ withdraw requires a fresh blockhash after a confirmed failure and lost send response (65.543381ms)
+✔ trade requires a fresh blockhash after a confirmed failure (134.062926ms)
+✔ trade requires a fresh blockhash after a confirmed failure and lost send response (93.147816ms)
+✔ initialize rejects an old review after another tab records a final failure (59.968801ms)
+✔ deposit rejects an old review after another tab records a final failure (40.45106ms)
+✔ withdraw rejects an old review after another tab records a final failure (31.486708ms)
+✔ trade rejects an old review after another tab records a final failure (55.183782ms)
+✔ a confirmed action also requires a fresh blockhash for a different request (23.807349ms)
+✔ a finalized action also requires a fresh blockhash for a different request (38.440924ms)
+✔ a wallet rejection before receipt persistence does not consume the blockhash (39.432003ms)
+✔ resolved reads keep face value, paid value and additional payout separate (388.988179ms)
+✔ payout floors exactly above Number precision and never exceeds recorded custody (31.725914ms)
+✔ resolved snapshot rejects hidden receipt (31.536421ms)
+✔ resolved snapshot rejects invalid receipt flag (26.450601ms)
+✔ resolved snapshot rejects payment above face (21.101772ms)
+✔ resolved snapshot rejects premature finalization (20.489782ms)
+✔ resolved snapshot rejects insufficient bound (34.433565ms)
+✔ resolved snapshot rejects overflowing face bound (15.385298ms)
+✔ resolved snapshot rejects zero denominator (11.975688ms)
+✔ resolved snapshot rejects rate above one (15.159156ms)
+✔ resolved snapshot rejects rate below prior payment (16.984394ms)
+✔ resolved planner creates a missing ATA and binds both payout instructions to wallet custody (18.808071ms)
+✔ settlement and ordinary custody actions are restricted to their market modes (29.264621ms)
+✔ claim review refuses fully paid (10.666551ms)
+✔ claim review refuses no amount due (10.439873ms)
+✔ claim review refuses halted payout (6.064392ms)
+✔ claim review refuses empty vault (5.959647ms)
+✔ closeResolved requires a new review after a receipt payment change while signing (18.733753ms)
+✔ closeResolved requires a new review after a payout rate change while signing (31.60484ms)
+✔ closeResolved requires a new review after a recorded custody change while signing (13.925959ms)
+✔ closeResolved requires a new review after a resolved slot change while signing (13.897295ms)
+✔ closeResolved requires a new review after a maintenance fee change while signing (16.324185ms)
+✔ claimResolvedPayoutTopup requires a new review after a receipt payment change while signing (18.028037ms)
+✔ claimResolvedPayoutTopup requires a new review after a payout rate change while signing (15.797402ms)
+✔ claimResolvedPayoutTopup requires a new review after a recorded custody change while signing (28.906956ms)
+✔ claimResolvedPayoutTopup requires a new review after a resolved slot change while signing (19.20328ms)
+✔ claimResolvedPayoutTopup requires a new review after a maintenance fee change while signing (17.96061ms)
+✔ closeResolved rejects changes to insurance outside the settlement projection (30.256261ms)
+✔ closeResolved rejects changes to total capital outside the settlement projection (39.716957ms)
+✔ closeResolved rejects changes to cancelDepositEscrow outside the settlement projection (33.987399ms)
+✔ closeResolved rejects changes to closeResidual outside the settlement projection (25.270018ms)
+✔ closeResolved rejects changes to sourceBacking outside the settlement projection (34.343838ms)
+✔ claimResolvedPayoutTopup rejects changes to insurance outside the settlement projection (17.738657ms)
+✔ claimResolvedPayoutTopup rejects changes to total capital outside the settlement projection (17.635544ms)
+✔ claimResolvedPayoutTopup rejects changes to cancelDepositEscrow outside the settlement projection (17.792688ms)
+✔ claimResolvedPayoutTopup rejects changes to closeResidual outside the settlement projection (42.084585ms)
+✔ claimResolvedPayoutTopup rejects changes to sourceBacking outside the settlement projection (37.961652ms)
+✔ closeResolved accepts unchanged accounting at a later RPC bank (17.686669ms)
+✔ claimResolvedPayoutTopup accepts unchanged accounting at a later RPC bank (18.271238ms)
+✔ confirmed settlement cannot reuse its blockhash after a client reload (39.572858ms)
+✔ a final receipt from another tab blocks a same-blockhash settlement review before signing (12.016072ms)
+▶ terminal recovers from unavailable RPC and wallet lifecycle changes
+  ✔ connected wallet renders verified balances and maker status (56.856276ms)
+  ✔ a late startup profile cannot replace a manually selected profile (9.177729ms)
+  ✔ wallet connection rejection is visible in the chooser and retry succeeds (36.869451ms)
+  ✔ closing wallet selection ignores a late approval (7.491659ms)
+  ✔ closing wallet selection ignores a late rejection (7.996019ms)
+  ✔ an unregistered wallet cannot attach after its connection resolves (10.18215ms)
+  ✔ a stale connect result cannot authorize an account the wallet has removed (8.966947ms)
+  ✔ account selection rechecks lost authorization (15.971949ms)
+  ✔ account selection rechecks lost signing support (15.832901ms)
+  ✔ a current authorized replacement account remains selectable (106.988311ms)
+  ✔ trade review separates the market base fee from the taker cap (47.28226ms)
+  ✔ an empty asset list still updates portfolio data and clears the old chart (25.39227ms)
+  ✔ a revoked maker disables trade review (36.841299ms)
+  ✔ an expired maker disables trade review (39.610203ms)
+  ✔ RPC failure clears actionable market data and recovery restores it (19.463441ms)
+  ✔ disconnect clears old maker, network and receipt messages (23.029611ms)
+  ✔ an account losing signing support disconnects immediately (37.800695ms)
+  ✔ a late RPC response cannot repopulate a disconnected wallet (39.346383ms)
+  ✔ a late simulation success preserves the disconnected session (65.7254ms)
+  ✔ a late simulation RPC failure preserves the disconnected session (38.551743ms)
+  ✔ a late reconciliation confirmed preserves the disconnected session (60.941753ms)
+  ✔ a late reconciliation RPC failure preserves the disconnected session (28.255582ms)
+  ✔ reconciliation RPC unavailable disables stale actions and retains the saved signature (40.64896ms)
+  ✔ reconciliation malformed status disables stale actions and retains the saved signature (39.721479ms)
+  ✔ reconciliation receipt write failure disables stale actions and retains the saved signature (36.736584ms)
+  ✔ an obsolete poll cannot clear or reread the refreshed wallet session (34.674584ms)
+  ✔ review cancellation stays unavailable from the wallet prompt through broadcast (38.522559ms)
+  ✔ post-send persistence failure preserves recovery: acknowledged (45.203388ms)
+  ✔ post-send persistence failure preserves recovery: response lost (51.475735ms)
+  ✔ post-send persistence failure preserves recovery: receipt unreadable (45.982423ms)
+  ✔ post-send persistence failure preserves recovery: previous final receipt (51.795642ms)
+  ✔ submission failure recovers a receipt already confirmed by another tab (42.466891ms)
+  ✔ submission failure recovers a receipt already finalized by another tab (36.804239ms)
+  ✔ submission failure recovers a receipt already failed by another tab (35.10215ms)
+  ✔ refresh cannot pair a newer receipt with older account balances (35.385968ms)
+  ✔ a late submission receipt lookup cannot repopulate a disconnected wallet (36.682315ms)
+  ✔ a late submitted result stays with the disconnected account (35.291071ms)
+  ✔ a late unknown result stays with the disconnected account (34.364274ms)
+  ✔ a late receipt write failure result stays with the disconnected account (32.112783ms)
+  ✔ a failed deposit keeps its receipt until a fresh blockhash permits a new review (35.071143ms)
+  ✔ resolved market offers bounded settlement review and clears it on disconnect (25.425674ms)
+  ✔ settlement-close clears a changed review without sending (52.334995ms)
+  ✔ settlement-claim clears a changed review without sending (35.222735ms)
+  ✔ account closure explains the SOL destination and clears controls after removal (31.006554ms)
+  ✔ a closed market clears wallet actions and explains the stopped deployment (13.053323ms)
+  ✔ zero-due settlement disables claims even without enabled assets (13.857332ms)
+  ✔ recovery exit requires consent and explains the budget before signing (21.008408ms)
+  ✔ zero-exposure long obligation renders as pending cleanup (12.976051ms)
+  ✔ zero-exposure short obligation renders as pending cleanup (12.473767ms)
+  ✔ ordinary live positions do not offer a recovery forfeiture (12.168497ms)
+  ✔ unsupported collateral decimals leave the active profile unchanged (14.712127ms)
+  ✔ recovery market cannot expose resolved or live wallet actions (7.81975ms)
+  ✔ unregistering multiple wallets clears the selected wallet (6.645665ms)
+✔ terminal recovers from unavailable RPC and wallet lifecycle changes (2316.634457ms)
+✔ classic SPL mint matches Rust packer fixture 0 (4.606378ms)
+✔ classic SPL mint matches Rust packer fixture 1 (0.82744ms)
+✔ classic SPL mint matches Rust packer fixture 2 (0.450388ms)
+✔ classic SPL mint matches Rust packer fixture 3 (0.824656ms)
+✔ classic SPL mint rejects malformed layout, ownership and flags (3.091155ms)
+✔ absent SPL mint options do not treat unused payload bytes as authorities (1.961181ms)
+✔ classic SPL account matches Rust packer fixture 0 (4.31302ms)
+✔ classic SPL account matches Rust packer fixture 1 (0.424331ms)
+✔ classic SPL account matches Rust packer fixture 2 (0.489331ms)
+✔ classic SPL account matches Rust packer fixture 3 (2.419305ms)
+✔ classic SPL account rejects malformed layout, ownership and flags (2.588941ms)
+✔ absent SPL account options do not treat unused payload bytes as authorities (1.957485ms)
+✔ classic associated token address and instruction match SDK fixture 0 (6.493802ms)
+✔ classic associated token address and instruction match SDK fixture 1 (5.833433ms)
+✔ classic associated token address and instruction match SDK fixture 2 (23.838647ms)
+✔ classic associated token address and instruction match SDK fixture 3 (29.890325ms)
+✔ ATA derivation requires explicit PDA support and the classic token program (0.416626ms)
+✔ ATA creation refuses an address bound to another owner or mint (4.852525ms)
+▶ optional chart and malformed wallet adapters do not block a healthy wallet
+  ✔ a missing canvas context cannot strand valid market startup (7.69645ms)
+  ✔ null registration cannot hide a healthy wallet (6.284893ms)
+  ✔ missing features cannot hide a healthy wallet (1.602343ms)
+  ✔ missing transaction versions cannot hide a healthy wallet (1.294771ms)
+  ✔ non-array transaction versions cannot hide a healthy wallet (1.623493ms)
+  ✔ non-callable connect cannot hide a healthy wallet (1.486297ms)
+  ✔ non-callable signer cannot hide a healthy wallet (2.117062ms)
+  ✔ non-callable event subscription cannot hide a healthy wallet (1.196087ms)
+  ✔ throwing feature getter cannot hide a healthy wallet (1.634343ms)
+  ✔ late malformed registration leaves an open chooser usable (1.845446ms)
+  ✔ malformed returned accounts are skipped while a valid authorized account connects (58.263506ms)
+  ✔ chart recovery renders existing observations without reconnecting (1.855926ms)
+  ✔ malformed wallet account updates clear actionable state (3.912726ms)
+  ✔ an invalid connect response remains recoverable inside the chooser (7.488333ms)
+  ✔ invalid cleanup leaves no authorization or live old callback (35.590069ms)
+  ✔ throwing subscription leaves no authorization or live old callback (50.818784ms)
+  ✔ throwing listener cleanup cannot block disconnect or affect a later session (35.178191ms)
+  ✔ a synchronous disconnect during subscription cannot complete connection (15.239196ms)
+✔ optional chart and malformed wallet adapters do not block a healthy wallet (739.452313ms)
+ℹ tests 471
+ℹ suites 0
+ℹ pass 471
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16438.771235

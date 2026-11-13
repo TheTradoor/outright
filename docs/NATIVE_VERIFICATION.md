@@ -855,3 +855,28 @@ The hosted deployment profile remains `null`. This change removes operator
 setup from the trader flow; it does not create an on-chain market or change the
 networks accepted by the client. DOM tests use deterministic fixtures and do
 not establish physical-phone or wallet-extension compatibility.
+
+
+## Wallet adapter and optional chart failures
+
+The terminal now isolates malformed Wallet Standard registrations so one broken
+adapter cannot prevent choosing a compatible wallet. Missing canvas support
+shows a chart-unavailable message while market and account reads continue.
+Invalid connect results remain recoverable in the chooser.
+
+Event subscription errors roll back local authorization. A failing unsubscribe
+cannot interrupt disconnect, and callbacks from an earlier subscription cannot
+reset a later session, including reconnection to the same wallet. A synchronous
+disconnect during subscription cannot complete wallet selection.
+
+Eighteen additional DOM scenarios cover these cases and chart recovery. The
+complete native command passes **471 tests**, with zero failures or skipped
+tests, source checks and exact Rust conformance. The three affected terminal
+suites pass 82 tests including harness parents; they exercise 79 DOM scenarios.
+This is automated fixture evidence, not a real wallet or physical-device run.
+
+The [repair checklist](REPAIR_CHECKLIST.md) separately records the current
+application corrections, previous passing CI runs, upstream-wide qualification
+results and unfinished production acceptance. No engine arithmetic, oracle
+freshness rule, source pin or supported-network policy is changed by the wallet
+correction.

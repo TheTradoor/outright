@@ -1,0 +1,10 @@
+✔ null canvas does not strand startup (395.948941ms)
+✔ one malformed adapter does not block a healthy wallet (493.436656ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1492.833797

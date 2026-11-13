@@ -1,0 +1,19 @@
+TEST: inv_077_bounded_work_and_maximum_shape_compute::v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape
+
+running 1 test
+test inv_077_bounded_work_and_maximum_shape_compute::v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape ... 
+thread 'inv_077_bounded_work_and_maximum_shape_compute::v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape' (22) panicked at tests/outright_qualification_cu.rs:4841:29:
+crank with oracle tail: FailedTransactionMetadata { err: InstructionError(2, Custom(22)), meta: TransactionMetadata { signature: 5PLooVGoXzazNePniTjRDtmZVfcHZbp4nE19auZkWuSVqCBkQ3iaWLVj3GVMYcydtrCRAocS9PMF7iTrxxtNRexo, logs: ["Program ComputeBudget111111111111111111111111111111 invoke [1]", "Program ComputeBudget111111111111111111111111111111 success", "Program ComputeBudget111111111111111111111111111111 invoke [1]", "Program ComputeBudget111111111111111111111111111111 success", "Program Perco1ator111111111111111111111111111111111 invoke [1]", "Program Perco1ator111111111111111111111111111111111 consumed 107866 of 1399700 compute units", "Program Perco1ator111111111111111111111111111111111 failed: custom program error: 0x16"], compute_units_consumed: 108190, return_data: TransactionReturnData { program_id: Perco1ator111111111111111111111111111111111, data: [] } } }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    inv_077_bounded_work_and_maximum_shape_compute::v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 5.50s
+
+
+EXIT_CODE: 101
+ELAPSED_SECONDS: 5.51
