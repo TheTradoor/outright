@@ -1,0 +1,404 @@
+   Compiling percolator-prog v0.1.0 (/workspace/scratch/dee0ea254bf8/percolator-prog)
+warning: unused imports: `MATCHER_ABI_VERSION` and `PORTFOLIO_ENGINE_ACCOUNT_LEN`
+  --> tests/outright_qualification_cu.rs:9:53
+   |
+ 9 |         ASSET_ORACLE_WRAPPER_LEN, MARKET_GROUP_OFF, MATCHER_ABI_VERSION,
+   |                                                     ^^^^^^^^^^^^^^^^^^^
+10 |         ORACLE_LEG_FLAG_DIVIDE_LEG2, ORACLE_LEG_FLAG_DIVIDE_LEG3, PORTFOLIO_ENGINE_ACCOUNT_LEN,
+   |                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `loss_owner`, `asset1_counterparty_owner`, `asset1_counterparty`, `live_counterparty_owner`, `live_counterparty`, and `live_peer_owner` are never read
+   --> tests/outright_qualification_cu.rs:100:5
+    |
+ 98 | struct PublicActiveCloseFixture {
+    |        ------------------------ fields in this struct
+ 99 |     env: V16CuEnv,
+100 |     loss_owner: Keypair,
+    |     ^^^^^^^^^^
+101 |     loss: Pubkey,
+102 |     asset1_counterparty_owner: Keypair,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+103 |     asset1_counterparty: Pubkey,
+    |     ^^^^^^^^^^^^^^^^^^^
+104 |     live_counterparty_owner: Keypair,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^
+105 |     live_counterparty: Pubkey,
+    |     ^^^^^^^^^^^^^^^^^
+106 |     live_peer_owner: Keypair,
+    |     ^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `PUBLIC_RELEASED_PNL_FIXTURE_AMOUNT` is never used
+   --> tests/outright_qualification_cu.rs:110:7
+    |
+110 | const PUBLIC_RELEASED_PNL_FIXTURE_AMOUNT: u128 = 50_000;
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `PublicReleasedPnlFixture` is never constructed
+   --> tests/outright_qualification_cu.rs:112:8
+    |
+112 | struct PublicReleasedPnlFixture {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `public_released_pnl_fixture` is never used
+   --> tests/outright_qualification_cu.rs:119:4
+    |
+119 | fn public_released_pnl_fixture() -> PublicReleasedPnlFixture {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `public_asset1_bankrupt_close_fixture_before_close_with_b_chunk_atoms` is never used
+   --> tests/outright_qualification_cu.rs:196:4
+    |
+196 | fn public_asset1_bankrupt_close_fixture_before_close_with_b_chunk_atoms(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `public_asset1_bankrupt_close_fixture_with_counterparty_asset0_short` is never used
+   --> tests/outright_qualification_cu.rs:212:4
+    |
+212 | fn public_asset1_bankrupt_close_fixture_with_counterparty_asset0_short() -> PublicActiveCloseFixture
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `active_bitmap_with` is never used
+   --> tests/outright_qualification_cu.rs:371:4
+    |
+371 | fn active_bitmap_with(indices: &[usize]) -> percolator::V16ActiveBitmap {
+    |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `reference_raw_basis_for_current_effective` is never used
+   --> tests/outright_qualification_cu.rs:413:4
+    |
+413 | fn reference_raw_basis_for_current_effective(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `changed_byte_offsets` is never used
+   --> tests/outright_qualification_cu.rs:502:4
+    |
+502 | fn changed_byte_offsets(before: &[u8], after: &[u8]) -> Vec<usize> {
+    |    ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `canonical_active_engine_slot` is never used
+   --> tests/outright_qualification_cu.rs:512:4
+    |
+512 | fn canonical_active_engine_slot(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `canonical_retired_engine_slot` is never used
+   --> tests/outright_qualification_cu.rs:533:4
+    |
+533 | fn canonical_retired_engine_slot(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `make_delegated_token_data` is never used
+   --> tests/outright_qualification_cu.rs:754:4
+    |
+754 | fn make_delegated_token_data(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `make_closable_token_data` is never used
+   --> tests/outright_qualification_cu.rs:779:4
+    |
+779 | fn make_closable_token_data(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `make_switchboard_data` is never used
+   --> tests/outright_qualification_cu.rs:823:4
+    |
+823 | fn make_switchboard_data(
+    |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `make_chainlink_data` is never used
+   --> tests/outright_qualification_cu.rs:848:4
+    |
+848 | fn make_chainlink_data(
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `init_host_market_data_for_serializer_probe` is never used
+   --> tests/outright_qualification_cu.rs:948:4
+    |
+948 | fn init_host_market_data_for_serializer_probe() -> Vec<u8> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: multiple methods are never used
+    --> tests/outright_qualification_cu.rs:1522:8
+     |
+1024 | impl V16CuEnv {
+     | ------------- methods in this implementation
+...
+1522 |     fn try_restart_asset_oracle_with_authority(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+1623 |     fn update_fee_redirect_policy_with_cu(&mut self, redirect_bps: u16) -> u64 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+1644 |     fn update_asset_authority_with_cu(&mut self, new_authority: &Keypair) -> u64 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+1868 |     fn portfolio_matcher_config(&self, portfolio: Pubkey) -> state::PortfolioMatcherConfigV16 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+1883 |     fn portfolio_matcher_expiry(&self, portfolio: Pubkey) -> u64 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+2127 |     fn add_source_positive_pnl(&mut self, portfolio: Pubkey, domain: usize, amount: u128) {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^
+...
+2529 |     fn force_portfolio_loss_for_security_test(&mut self, portfolio_key: Pubkey, loss: u128) {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+2556 |     fn set_residual_reward_counters_for_test(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+2711 |     fn init_matcher_context_with_data_authorized(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3003 |     fn trade_cpi_with_cu(
+     |        ^^^^^^^^^^^^^^^^^
+...
+3309 |     fn set_switchboard_price(&mut self, value: i128, std_dev: i128, publish_time: i64) -> Pubkey {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+...
+3392 |     fn try_configure_hybrid_with_cu(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3419 |     fn try_configure_hybrid_asset_with_cu(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+3930 |     fn top_up_insurance_with_ledger_with_cu(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+4158 |     fn top_up_backing_bucket_with_authority(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+4235 |     fn withdraw_insurance_domain_to_admin_token_with_cu(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+4300 |     fn withdraw_backing_bucket_with_ledger_to_admin_token_with_cu(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+4384 |     fn sync_insurance_ledger_with_cu(&mut self, ledger: Pubkey) -> u64 {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+4400 |     fn try_withdraw_insurance_domain_with_authority(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+4409 |     fn try_withdraw_insurance_asset_with_authority(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+4660 |     fn claim_resolved_payout_topup_with_cu(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+4898 |     fn force_close_abandoned_asset_with_cu(
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `resolved_backing_deadline` is never used
+    --> tests/outright_qualification_cu.rs:5235:4
+     |
+5235 | fn resolved_backing_deadline(group: &MarketGroupV16) -> u64 {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `drain_resolved_cohort` is never used
+    --> tests/outright_qualification_cu.rs:5264:4
+     |
+5264 | fn drain_resolved_cohort(
+     |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `init_independent_market_same_mint` is never used
+    --> tests/outright_qualification_cu.rs:5427:4
+     |
+5427 | fn init_independent_market_same_mint(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `init_portfolio_on_market` is never used
+    --> tests/outright_qualification_cu.rs:5505:4
+     |
+5505 | fn init_portfolio_on_market(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `deposit_to_market` is never used
+    --> tests/outright_qualification_cu.rs:5545:4
+     |
+5545 | fn deposit_to_market(
+     |    ^^^^^^^^^^^^^^^^^
+
+warning: function `top_up_backing_bucket_to_market` is never used
+    --> tests/outright_qualification_cu.rs:5579:4
+     |
+5579 | fn top_up_backing_bucket_to_market(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `add_source_positive_pnl_to_market` is never used
+    --> tests/outright_qualification_cu.rs:5630:4
+     |
+5630 | fn add_source_positive_pnl_to_market(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `crank_portfolio_on_market` is never used
+    --> tests/outright_qualification_cu.rs:5654:4
+     |
+5654 | fn crank_portfolio_on_market(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `AssetGenerationTradePath` is never used
+    --> tests/outright_qualification_cu.rs:5676:6
+     |
+5676 | enum AssetGenerationTradePath {
+     |      ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `assert_signed_trade_cannot_replay_across_asset_slot_reuse` is never used
+    --> tests/outright_qualification_cu.rs:5687:4
+     |
+5687 | fn assert_signed_trade_cannot_replay_across_asset_slot_reuse() {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `SourceCreditWatermarkTradePath` is never used
+    --> tests/outright_qualification_cu.rs:5940:6
+     |
+5940 | enum SourceCreditWatermarkTradePath {
+     |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `SourceCreditWatermarkDirection` is never used
+    --> tests/outright_qualification_cu.rs:5946:6
+     |
+5946 | enum SourceCreditWatermarkDirection {
+     |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `try_source_credit_watermark_trade` is never used
+    --> tests/outright_qualification_cu.rs:5952:4
+     |
+5952 | fn try_source_credit_watermark_trade(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_source_credit_watermark_trade_case` is never used
+    --> tests/outright_qualification_cu.rs:5995:4
+     |
+5995 | fn run_source_credit_watermark_trade_case(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_hybrid_fresh_oracle_trade_case` is never used
+    --> tests/outright_qualification_cu.rs:6283:4
+     |
+6283 | fn run_hybrid_fresh_oracle_trade_case(dt: u64, oracle_leg_count: u8, invert: u8) {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ProductionRiskOraclePrices` is never constructed
+    --> tests/outright_qualification_cu.rs:6459:8
+     |
+6459 | struct ProductionRiskOraclePrices {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated functions `default_inverted_composite` and `sub_one_inverted_composite` are never used
+    --> tests/outright_qualification_cu.rs:6466:8
+     |
+6465 | impl ProductionRiskOraclePrices {
+     | ------------------------------- associated functions in this implementation
+6466 |     fn default_inverted_composite() -> Self {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+6474 |     fn sub_one_inverted_composite() -> Self {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ProductionRiskTradeCase` is never constructed
+    --> tests/outright_qualification_cu.rs:6484:8
+     |
+6484 | struct ProductionRiskTradeCase {
+     |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated functions `baseline`, `fixed_deposit`, `same_owner`, `sub_one_mark`, and `real_conf_filter` are never used
+    --> tests/outright_qualification_cu.rs:6496:8
+     |
+6495 | impl ProductionRiskTradeCase {
+     | ---------------------------- associated functions in this implementation
+6496 |     fn baseline() -> Self {
+     |        ^^^^^^^^
+...
+6509 |     fn fixed_deposit() -> Self {
+     |        ^^^^^^^^^^^^^
+...
+6517 |     fn same_owner() -> Self {
+     |        ^^^^^^^^^^
+...
+6525 |     fn sub_one_mark() -> Self {
+     |        ^^^^^^^^^^^^
+...
+6535 |     fn real_conf_filter() -> Self {
+     |        ^^^^^^^^^^^^^^^^
+
+warning: function `pyth_conf_for_bps` is never used
+    --> tests/outright_qualification_cu.rs:6545:4
+     |
+6545 | fn pyth_conf_for_bps(price: i64, conf_bps: u16) -> u64 {
+     |    ^^^^^^^^^^^^^^^^^
+
+warning: function `set_production_risk_oracles` is never used
+    --> tests/outright_qualification_cu.rs:6555:4
+     |
+6555 | fn set_production_risk_oracles(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_hybrid_fresh_oracle_production_risk_trade_case` is never used
+    --> tests/outright_qualification_cu.rs:6587:4
+     |
+6587 | fn run_hybrid_fresh_oracle_production_risk_trade_case(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `BackingResidualCounterTradePath` is never used
+    --> tests/outright_qualification_cu.rs:6766:6
+     |
+6766 | enum BackingResidualCounterTradePath {
+     |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `execute_account_residual_counter_trade_path` is never used
+    --> tests/outright_qualification_cu.rs:6795:4
+     |
+6795 | fn execute_account_residual_counter_trade_path(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_account_residual_counter_credit_case` is never used
+    --> tests/outright_qualification_cu.rs:6887:4
+     |
+6887 | fn run_account_residual_counter_credit_case(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `auth_matcher_for_lp` is never used
+    --> tests/outright_qualification_cu.rs:6963:4
+     |
+6963 | fn auth_matcher_for_lp(
+     |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `execute_backing_residual_counter_trade_path` is never used
+    --> tests/outright_qualification_cu.rs:6976:4
+     |
+6976 | fn execute_backing_residual_counter_trade_path(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_backing_residual_counter_trade_path_case` is never used
+    --> tests/outright_qualification_cu.rs:7065:4
+     |
+7065 | fn run_backing_residual_counter_trade_path_case(path: BackingResidualCounterTradePath) {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `hostile_matcher_program_path` is never used
+    --> tests/outright_qualification_cu.rs:7784:4
+     |
+7784 | fn hostile_matcher_program_path() -> PathBuf {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `DrainOnlyCpiExitRoute` is never used
+    --> tests/outright_qualification_cu.rs:7833:6
+     |
+7833 | enum DrainOnlyCpiExitRoute {
+     |      ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `assert_drain_only_existing_risk_can_exit_through_cpi` is never used
+    --> tests/outright_qualification_cu.rs:7838:4
+     |
+7838 | fn assert_drain_only_existing_risk_can_exit_through_cpi(route: DrainOnlyCpiExitRoute) {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `percolator-prog` (test "outright_qualification_cu") generated 49 warnings (run `cargo fix --test "outright_qualification_cu" -p percolator-prog` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 33.90s
+warning: the following packages contain code that will be rejected by a future version of Rust: solana-client v1.18.26
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

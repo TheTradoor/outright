@@ -1,0 +1,147 @@
+[2026-11-13T21:22:03.489683289Z WARN  cargo_build_sbf] Package 'hostile-matcher' has two crate types defined: cdylib and lib. This setting precludes link-time optimizations (LTO). Use cdylib for programs to be deployed and rlib for packages to be imported by other programs as libraries.
+   Compiling proc-macro2 v1.0.104
+   Compiling quote v1.0.42
+   Compiling unicode-ident v1.0.22
+   Compiling serde_core v1.0.228
+   Compiling version_check v0.9.5
+   Compiling typenum v1.19.0
+   Compiling serde v1.0.228
+   Compiling hashbrown v0.16.1
+   Compiling equivalent v1.0.2
+   Compiling winnow v0.7.14
+   Compiling toml_datetime v0.7.5+spec-1.1.0
+   Compiling cfg-if v1.0.4
+   Compiling cfg_aliases v0.2.1
+   Compiling borsh v1.6.0
+   Compiling subtle v2.6.1
+   Compiling generic-array v0.14.7
+   Compiling once_cell v1.21.3
+   Compiling autocfg v1.5.0
+   Compiling syn v1.0.109
+   Compiling solana-define-syscall v2.3.0
+   Compiling indexmap v2.12.1
+   Compiling zerocopy v0.8.31
+   Compiling five8_core v0.1.2
+   Compiling ahash v0.8.12
+   Compiling five8 v0.2.1
+   Compiling syn v2.0.113
+   Compiling solana-atomic-u64 v2.2.1
+   Compiling bytemuck v1.24.0
+   Compiling solana-sanitize v2.2.1
+   Compiling num-traits v0.2.19
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling five8_const v0.1.4
+   Compiling zmij v1.0.10
+   Compiling serde_json v1.0.148
+   Compiling sha2 v0.10.9
+   Compiling toml_parser v1.0.6+spec-1.1.0
+   Compiling itoa v1.0.17
+   Compiling memchr v2.7.6
+   Compiling toml_edit v0.23.10+spec-1.0.0
+   Compiling solana-decode-error v2.3.0
+   Compiling bs58 v0.5.1
+   Compiling solana-msg v2.2.1
+   Compiling solana-program-memory v2.3.1
+   Compiling find-msvc-tools v0.1.6
+   Compiling shlex v1.3.0
+   Compiling hashbrown v0.13.2
+   Compiling cc v1.2.51
+   Compiling feature-probe v0.1.1
+   Compiling serde_bytes v0.11.19
+   Compiling bv v0.11.1
+   Compiling toml v0.5.11
+   Compiling thiserror v2.0.17
+   Compiling arrayref v0.3.9
+   Compiling arrayvec v0.7.6
+   Compiling proc-macro-crate v3.4.0
+   Compiling constant_time_eq v0.3.1
+   Compiling log v0.4.29
+   Compiling memoffset v0.9.1
+   Compiling lazy_static v1.5.0
+   Compiling keccak v0.1.5
+   Compiling solana-big-mod-exp v2.2.1
+   Compiling getrandom v0.2.16
+   Compiling solana-native-token v2.3.0
+   Compiling borsh-schema-derive-internal v0.10.4
+   Compiling borsh-derive-internal v0.10.4
+   Compiling sha3 v0.10.8
+   Compiling proc-macro-crate v0.1.5
+   Compiling solana-program-option v2.2.1
+   Compiling blake3 v1.8.2
+   Compiling serde_derive v1.0.228
+   Compiling borsh-derive v1.6.0
+   Compiling bytemuck_derive v1.10.2
+   Compiling solana-sdk-macro v2.2.1
+   Compiling thiserror-impl v2.0.17
+   Compiling num-derive v0.4.2
+   Compiling borsh-derive v0.10.4
+   Compiling borsh v0.10.4
+   Compiling solana-secp256k1-recover v2.2.1
+   Compiling solana-borsh v2.2.1
+   Compiling solana-hash v2.3.0
+   Compiling bincode v1.3.3
+   Compiling solana-short-vec v2.2.1
+   Compiling solana-fee-calculator v2.2.1
+   Compiling solana-serde-varint v2.2.2
+   Compiling solana-sha256-hasher v2.3.0
+   Compiling solana-keccak-hasher v2.2.1
+   Compiling solana-blake3-hasher v2.2.1
+   Compiling solana-pubkey v2.4.0
+   Compiling solana-sdk-ids v2.2.1
+   Compiling solana-nonce v2.2.1
+   Compiling solana-sysvar-id v2.2.1
+   Compiling solana-clock v2.2.2
+   Compiling solana-rent v2.2.1
+   Compiling solana-slot-hashes v2.2.1
+   Compiling solana-epoch-rewards v2.2.1
+   Compiling solana-epoch-schedule v2.2.1
+   Compiling solana-instruction v2.3.3
+   Compiling solana-last-restart-slot v2.2.1
+   Compiling solana-program-error v2.2.2
+   Compiling solana-system-interface v1.0.0
+   Compiling solana-serialize-utils v2.2.1
+   Compiling solana-stable-layout v2.2.1
+   Compiling solana-transaction-error v2.2.1
+   Compiling solana-bincode v2.2.1
+   Compiling solana-loader-v2-interface v2.2.1
+   Compiling solana-slot-history v2.2.1
+   Compiling solana-address-lookup-table-interface v2.2.2
+   Compiling solana-account-info v2.3.0
+   Compiling solana-program-pack v2.2.1
+   Compiling solana-cpi v2.2.1
+   Compiling solana-program-entrypoint v2.3.0
+   Compiling solana-account v2.2.1
+   Compiling solana-instructions-sysvar v2.2.2
+   Compiling solana-stake-interface v1.2.1
+   Compiling solana-feature-gate-interface v2.2.2
+   Compiling solana-vote-interface v2.2.6
+   Compiling solana-loader-v4-interface v2.2.1
+   Compiling solana-loader-v3-interface v5.0.0
+   Compiling solana-message v2.4.0
+   Compiling solana-sysvar v2.3.0
+   Compiling solana-program v2.3.0
+   Compiling hostile-matcher v0.1.0 (/workspace/scratch/dee0ea254bf8/percolator-prog/tests/fixtures/hostile_matcher)
+warning: use of deprecated module `solana_program::system_instruction`: Use `solana_system_interface` crate instead
+  --> src/lib.rs:14:5
+   |
+14 |     system_instruction, system_program,
+   |     ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated module `solana_program::system_program`: Use `solana_sdk_ids::system_program` instead
+  --> src/lib.rs:14:25
+   |
+14 |     system_instruction, system_program,
+   |                         ^^^^^^^^^^^^^^
+
+warning: use of deprecated method `solana_program::solana_account_info::AccountInfo::<'a>::realloc`: Use AccountInfo::resize() instead
+   --> src/lib.rs:102:9
+    |
+102 |     ctx.realloc(0, false)?;
+    |         ^^^^^^^
+
+warning: `hostile-matcher` (lib) generated 3 warnings
+    Finished `release` profile [optimized] target(s) in 35.47s

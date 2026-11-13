@@ -1,0 +1,146 @@
+{
+  "wrapper_pin": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "engine_pin": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "original_harness_sha256": "105a5bf1734ac36ac68fab23f0a429c4f192c9e9ea97567b75d0708378ef5f1a",
+  "focused_harness_sha256": "efdc138f84e61a6b4cd956b3beb00aba7f8bc3d8e79d3d60ca58e8df192b2f37",
+  "sbf_sha256": "51b159ed4e9bb79903c9406029f3ea079089ab5564204a3ce51a88af8d8744c2",
+  "compile_log": "focused-cu-compile.log",
+  "compile_command": "CARGO_BUILD_JOBS=1 cargo +1.95.0 rustc --locked --test outright_qualification_cu -- -C debuginfo=0 -C codegen-units=256",
+  "unchanged_original_sources": true,
+  "results": [
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody",
+      "log": "cu-01.log",
+      "exit_code": 101,
+      "elapsed_seconds": 4.08,
+      "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 4.07s",
+      "panic": [
+        "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody' (12) panicked at tests/invariants/cu/inv_045_report_cadence_rewards.rs:595:17:",
+        "assertion `left == right` failed: renewal/crank cadence changed liquidation economics",
+        "  left: (30090311, 14937, 0, [4365162, 100000000, 9229964, 9229964, 1000], 1555009)",
+        " right: (30093516, 14939, 0, [4364961, 100000000, 9229964, 9229964, 1000], 1555011)",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+      ],
+      "log_sha256": "b69b4b275dcac3c29a8828209a8e90ce9a376e81e8c70466c090a98a989e2168"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::v16_program_retained_stale_penalty_survives_fresh_liquidation_and_catchup",
+      "log": "cu-02.log",
+      "exit_code": 101,
+      "elapsed_seconds": 1.56,
+      "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.55s",
+      "panic": [
+        "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::v16_program_retained_stale_penalty_survives_fresh_liquidation_and_catchup' (11) panicked at tests/invariants/cu/inv_045_retained_penalty_handoff.rs:468:13:",
+        "assertion `left == right` failed",
+        "  left: [4635056, 100240000, 9227564, 9232364, 1000]",
+        " right: [4635056, 100240000, 9227564, 9232364, 3762]",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+      ],
+      "log_sha256": "d4cd5de88a1121dc84ea5b9a167338239f330bd198f6af357a92183129de1f26"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_maintenance_catchup::v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchup",
+      "log": "cu-03.log",
+      "exit_code": 101,
+      "elapsed_seconds": 1.58,
+      "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.57s",
+      "panic": [
+        "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_maintenance_catchup::v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchup' (14) panicked at tests/invariants/cu/inv_045_reward_maintenance_catchup.rs:261:17:",
+        "assertion `left == right` failed: reward preserves the recipient's own fee cursor and liabilities",
+        "  left: PortfolioAccountV16Account { provenance_header: ProvenanceHeaderV16Account { market_group_id: [188, 117, 94, 250, 231, 250, 201, 225, 189, 146, 190, 181, 27, 71, 225, 28, 255, 233, 152, 120, 56, 136, 45, 184, 146, 5, 129, 104, 78, 94, 33, 140], portfolio_account_id: [156, 177, 41, 55, 149, 1, 242, 246, 214, 178, 199, 77, 19, 201, 29, 180, 200, 58, 25, 61, 103, 79, 79, 20, 110, 119, 161, 51, 124, 64, 230, 226], owner: [188, 232, 193, 13, 2 \u2026 [full value in log]",
+        " right: PortfolioAccountV16Account { provenance_header: ProvenanceHeaderV16Account { market_group_id: [188, 117, 94, 250, 231, 250, 201, 225, 189, 146, 190, 181, 27, 71, 225, 28, 255, 233, 152, 120, 56, 136, 45, 184, 146, 5, 129, 104, 78, 94, 33, 140], portfolio_account_id: [156, 177, 41, 55, 149, 1, 242, 246, 214, 178, 199, 77, 19, 201, 29, 180, 200, 58, 25, 61, 103, 79, 79, 20, 110, 119, 161, 51, 124, 64, 230, 226], owner: [188, 232, 193, 13, 2 \u2026 [full value in log]",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+      ],
+      "left_keeper_capital": 1000,
+      "right_keeper_capital": 2997,
+      "log_sha256": "4cc8f93a57efb8c6a0a0699e0a9decb7e1832e65fe55fb38903635bdbe3d920d"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_policy_catchup::v16_program_reward_policy_succession_preserves_receipts_and_effective_price_catchup",
+      "log": "cu-04.log",
+      "exit_code": 101,
+      "elapsed_seconds": 1.12,
+      "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.11s",
+      "panic": [
+        "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_policy_catchup::v16_program_reward_policy_succession_preserves_receipts_and_effective_price_catchup' (16) panicked at tests/invariants/cu/inv_045_reward_policy_catchup.rs:244:17:",
+        "assertion `left == right` failed",
+        "  left: [4854013, 100000000, 9229964, 9229964, 1000]",
+        " right: [4854013, 100000000, 9229964, 9229964, 2995]",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+      ],
+      "log_sha256": "c178d5c5e63f95d331a2f446e25fd3c91e2189f5ad77a218cc7f2cf2b34a953e"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_terminal_redemption::v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order",
+      "log": "cu-05.log",
+      "exit_code": 101,
+      "elapsed_seconds": 1.76,
+      "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.75s",
+      "panic": [
+        "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_terminal_redemption::v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order' (18) panicked at tests/invariants/cu/inv_045_reward_terminal_redemption.rs:226:21:",
+        "assertion `left == right` failed",
+        "  left: PortfolioAccountV16Account { provenance_header: ProvenanceHeaderV16Account { market_group_id: [245, 116, 231, 55, 237, 153, 148, 105, 97, 73, 153, 23, 77, 105, 102, 70, 176, 254, 8, 91, 254, 188, 254, 96, 123, 255, 182, 150, 65, 96, 17, 106], portfolio_account_id: [33, 55, 206, 1, 246, 244, 58, 254, 242, 217, 34, 16, 95, 188, 248, 118, 193, 136, 1, 87, 92, 35, 100, 169, 218, 143, 243, 108, 56, 53, 83, 213], owner: [107, 68, 83, 21, 179, 2 \u2026 [full value in log]",
+        " right: PortfolioAccountV16Account { provenance_header: ProvenanceHeaderV16Account { market_group_id: [245, 116, 231, 55, 237, 153, 148, 105, 97, 73, 153, 23, 77, 105, 102, 70, 176, 254, 8, 91, 254, 188, 254, 96, 123, 255, 182, 150, 65, 96, 17, 106], portfolio_account_id: [33, 55, 206, 1, 246, 244, 58, 254, 242, 217, 34, 16, 95, 188, 248, 118, 193, 136, 1, 87, 92, 35, 100, 169, 218, 143, 243, 108, 56, 53, 83, 213], owner: [107, 68, 83, 21, 179, 2 \u2026 [full value in log]",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+      ],
+      "left_keeper_capital": 1000,
+      "right_keeper_capital": 2995,
+      "log_sha256": "b0030827e5f9422bc936993abcf1c7a3346c37aa1a2eaca4b5ba1fc0c6a0d399"
+    },
+    {
+      "test": "inv_072_order_robust_crankability::v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle",
+      "log": "cu-06.log",
+      "exit_code": 101,
+      "elapsed_seconds": 1.09,
+      "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.07s",
+      "panic": [
+        "thread 'inv_072_order_robust_crankability::v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle' (20) panicked at tests/outright_qualification_cu.rs:4766:29:",
+        "crank: FailedTransactionMetadata { err: InstructionError(2, Custom(22)), meta: TransactionMetadata { signature: 49vTtzjvpzS7SWAF2Qx3MXGv3i9QoVesybsr32DPCbqVtbuv7wKbMNeT3bpb79ebzwiTnPjopW48Bv4Zo2LctGan, logs: [\"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program Perco1ator111111111111111111111111111111111 invoke [1]\", \"Program Perco1ator111111111111111111111111111111111 consumed 44995 of 1399700 compute units\", \"Program Perco1ator111111111111111111111111111111111 failed: custom program error: 0x16\"], compute_units_consumed: 45319, return_data: TransactionReturnData { program_id: Perco1ator111111111111111111111111111111111, data: [] } } }",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+        "FAILED",
+        ""
+      ],
+      "log_sha256": "5921d323f3ac9a116c39736f525d3b74d49bb802f3b40551a3d09988404c7a8a"
+    },
+    {
+      "test": "inv_077_bounded_work_and_maximum_shape_compute::v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape",
+      "log": "cu-07.log",
+      "exit_code": 101,
+      "elapsed_seconds": 5.51,
+      "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 5.50s",
+      "panic": [
+        "thread 'inv_077_bounded_work_and_maximum_shape_compute::v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape' (22) panicked at tests/outright_qualification_cu.rs:4841:29:",
+        "crank with oracle tail: FailedTransactionMetadata { err: InstructionError(2, Custom(22)), meta: TransactionMetadata { signature: 5PLooVGoXzazNePniTjRDtmZVfcHZbp4nE19auZkWuSVqCBkQ3iaWLVj3GVMYcydtrCRAocS9PMF7iTrxxtNRexo, logs: [\"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program Perco1ator111111111111111111111111111111111 invoke [1]\", \"Program Perco1ator111111111111111111111111111111111 consumed 107866 of 1399700 compute units\", \"Program Perco1ator111111111111111111111111111111111 failed: custom program error: 0x16\"], compute_units_consumed: 108190, return_data: TransactionReturnData { program_id: Perco1ator111111111111111111111111111111111, data: [] } } }",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+        "FAILED",
+        ""
+      ],
+      "log_sha256": "9a12b7fc3260d7cd67fe0b0c0e52ce335ca2c27cc8a860d5b22baf08807a2ecb"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::exposed_keeper_provenance::v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybrid_catchup",
+      "log": "cu-08.log",
+      "exit_code": 101,
+      "elapsed_seconds": 1.29,
+      "result": "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.28s",
+      "panic": [
+        "thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::exposed_keeper_provenance::v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybrid_catchup' (8) panicked at tests/invariants/cu/inv_045_exposed_keeper_provenance.rs:273:21:",
+        "assertion `left == right` failed",
+        "  left: [4854013, 100000000, 9229964, 9229964, 10000000]",
+        " right: [4854013, 100000000, 9229964, 9229964, 10001995]",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+      ],
+      "log_sha256": "f6374d986fe615ebc9b56e4faf970c0879f07a2c39021643cc1876f6ab7546b7"
+    }
+  ],
+  "control": {
+    "test": "inv_045_no_free_mark_movement::accepted_price_reward::reward_catchup_order::v16_program_reward_price_tracks_actual_catchup_across_report_and_crank_orders",
+    "log": "authenticated-control.log",
+    "exit_code": 0,
+    "elapsed_seconds": 127.71,
+    "result": "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 127.70s",
+    "log_sha256": "075aca39fd907c2c4ec453ed494543087e25072f32ea63824ed115ff736c66f5"
+  },
+  "reproduction_script": "reproduce-focused-cu-harness.py",
+  "note": "Focused harness imports original unchanged source files. Eight unique expected CU failures reproduced; authenticated-from-start catchup control passed. This is not a full 1566-test v16_cu run."
+}

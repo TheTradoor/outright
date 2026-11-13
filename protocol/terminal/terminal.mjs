@@ -33,6 +33,8 @@ let client = null,
   walletSelection = 0,
   stopWalletEvents = null;
 const prices = new Map();
+const chartEmptyTitle = $("chart-empty").querySelector("h2").textContent,
+  chartEmptyDescription = $("chart-empty").querySelector("p").textContent;
 function units(value, decimals = 6) {
   const n = BigInt(value),
     magnitude = n < 0n ? -n : n;
@@ -143,8 +145,13 @@ async function action(work) {
   }
 }
 function resetWallet() {
-  stopWalletEvents?.();
+  const stop = stopWalletEvents;
   stopWalletEvents = null;
+  // Adapter cleanup must not prevent clearing local authorization. The
+  // subscription wrapper invalidates its callback before calling the adapter.
+  try {
+    stop?.();
+  } catch {}
   generation++;
   loading = false;
   wallet = null;
@@ -337,8 +344,20 @@ function drawChart() {
   canvas.width = Math.max(1, box.width * ratio);
   canvas.height = Math.max(1, box.height * ratio);
   const ctx = canvas.getContext("2d");
+  // Chart rendering is optional. A browser that cannot provide a canvas
+  // context must still load the market and permit verified wallet actions.
+  if (!ctx) {
+    $("chart-empty").hidden = false;
+    $("chart-empty").querySelector("h2").textContent = "Chart unavailable";
+    $("chart-empty").querySelector("p").textContent =
+      "Market and account values remain available without the chart.";
+    return;
+  }
+  $("chart-empty").querySelector("h2").textContent = chartEmptyTitle;
+  $("chart-empty").querySelector("p").textContent = chartEmptyDescription;
   ctx.scale(ratio, ratio);
   const points = prices.get(Number($("asset-select").value)) || [];
+  $("chart-empty").hidden = points.length > 0;
   if (!points.length) return;
   const values = points.map((p) => Number(p.value)),
     min = Math.min(...values),
@@ -526,19 +545,40 @@ async function loadOfficialMarket() {
   }
 }
 function compatible(w) {
-  return (
-    w.features["standard:connect"] &&
-    w.features["solana:signTransaction"]?.supportedTransactionVersions.includes(
-      0,
-    )
-  );
+  // The registry accepts third-party objects without runtime validation.
+  // One broken adapter must not prevent other wallets from being selected.
+  try {
+    const features = w?.features,
+      connect = features?.["standard:connect"],
+      sign = features?.["solana:signTransaction"],
+      events = features?.["standard:events"];
+    return (
+      typeof w?.name === "string" &&
+      w.name.length > 0 &&
+      Array.isArray(w.accounts) &&
+      typeof connect?.connect === "function" &&
+      typeof sign?.signTransaction === "function" &&
+      Array.isArray(sign.supportedTransactionVersions) &&
+      sign.supportedTransactionVersions.includes(0) &&
+      (events === undefined || typeof events?.on === "function")
+    );
+  } catch {
+    return false;
+  }
 }
 function supportsAccount(a) {
-  return (
-    a.features.includes("solana:signTransaction") &&
-    (client.profile.cluster === "localnet" ||
-      a.chains.includes("solana:devnet"))
-  );
+  try {
+    return (
+      typeof a?.address === "string" &&
+      Array.isArray(a.features) &&
+      a.features.includes("solana:signTransaction") &&
+      Array.isArray(a.chains) &&
+      (client?.profile.cluster === "localnet" ||
+        a.chains.includes("solana:devnet"))
+    );
+  } catch {
+    return false;
+  }
 }
 function walletError(message = "") {
   setText("wallet-error", message);
@@ -576,7 +616,7 @@ async function selectAvailableAccount(w, a, active) {
   // Account objects may be replaced while the user is choosing. Use the
   // wallet's currently authorized object, not the earlier connect result.
   const current = w.accounts.find(
-    (next) => next.address === a.address && supportsAccount(next),
+    (next) => supportsAccount(next) && next.address === a.address,
   );
   if (!current)
     throw new Error(
@@ -604,9 +644,15 @@ function showWallets() {
         const connected = await w.features["standard:connect"].connect();
         if (!active()) return;
         requireWallet(w);
-        const offered = new Set(connected.accounts.map((a) => a.address));
+        if (!Array.isArray(connected?.accounts))
+          throw new Error(
+            "The wallet returned an invalid account list. Connect again.",
+          );
+        const offered = new Set(
+          connected.accounts.filter(supportsAccount).map((a) => a.address),
+        );
         const accounts = w.accounts.filter(
-          (a) => offered.has(a.address) && supportsAccount(a),
+          (a) => supportsAccount(a) && offered.has(a.address),
         );
         if (!accounts.length)
           throw new Error(
@@ -637,26 +683,61 @@ async function selectAccount(w, a) {
   wallet = w;
   account = a;
   setText("wallet-button", `${a.address.slice(0, 4)}…${a.address.slice(-4)} ×`);
-  if (w.features["standard:events"])
-    stopWalletEvents = w.features["standard:events"].on("change", (event) => {
-      invalidateReview();
-      if (event.accounts) {
-        const next = event.accounts.find((v) => v.address === account?.address);
-        if (!next || !supportsAccount(next)) {
+  if (w.features["standard:events"]) {
+    let listening = true,
+      unsubscribe;
+    stopWalletEvents = () => {
+      listening = false;
+      if (typeof unsubscribe === "function") unsubscribe();
+    };
+    try {
+      unsubscribe = w.features["standard:events"].on("change", (event) => {
+        if (!listening || wallet !== w) return;
+        invalidateReview();
+        if (
+          !event ||
+          (event.accounts !== undefined && !Array.isArray(event.accounts))
+        ) {
           resetWallet();
           notice(
-            "Wallet account changed. Reconnect the account you want to use.",
+            "The wallet returned an invalid account update. Reconnect your wallet.",
+            true,
           );
-        } else {
-          account = next;
-          generation++;
-          loading = false;
-          clearSnapshot("Refreshing");
-          setText("footer-state", "Refreshing wallet account");
-          void refresh();
+          return;
         }
+        if (event.accounts) {
+          const next = event.accounts.find(
+            (v) => supportsAccount(v) && v.address === account?.address,
+          );
+          if (!next || !supportsAccount(next)) {
+            resetWallet();
+            notice(
+              "Wallet account changed. Reconnect the account you want to use.",
+            );
+          } else {
+            account = next;
+            generation++;
+            loading = false;
+            clearSnapshot("Refreshing");
+            setText("footer-state", "Refreshing wallet account");
+            void refresh();
+          }
+        }
+      });
+      if (typeof unsubscribe !== "function")
+        throw new Error("Invalid wallet event cleanup");
+      // An adapter can synchronously emit a disconnect while subscribing.
+      if (!listening) {
+        unsubscribe();
+        throw new Error("Wallet disconnected while connecting");
       }
-    });
+    } catch {
+      resetWallet();
+      throw new Error(
+        "Wallet account updates are unavailable. Choose another wallet.",
+      );
+    }
+  }
   $("wallet-dialog").close();
   await refresh();
 }

@@ -1,0 +1,264 @@
+
+running 1 test
+test inv_086_reference_model_and_deployed_transition_equivalence::v16_program_reference_model_matches_deployed_public_sequence ... proptest: Aborting shrinking after the PROPTEST_MAX_SHRINK_ITERS environment variable or ProptestConfig.max_shrink_iters iterations (set 64 to a large(r) value to shrink more; current configuration: 64 iterations)
+
+thread 'inv_086_reference_model_and_deployed_transition_equivalence::v16_program_reference_model_matches_deployed_public_sequence' (6) panicked at tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs:2070:1:
+Test failed: reference-model/deployed transition divergence: action 11 RebalanceReduce { actor: 155, asset: 37 }: live asset 1 has unclassified effective exposure imbalance [1, 0]
+{
+  "seed": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    10,
+    190,
+    101,
+    105,
+    240,
+    2,
+    140,
+    129,
+    247,
+    246,
+    233,
+    219,
+    191,
+    23,
+    40,
+    144,
+    172,
+    253,
+    245,
+    59,
+    69,
+    52,
+    14,
+    70
+  ],
+  "config": {
+    "max_price_move_bps_per_slot": 500,
+    "max_accrual_dt_slots": 2,
+    "max_abs_funding_e9_per_slot": 0,
+    "maintenance_fee_per_slot": 1
+  },
+  "actions": [
+    {
+      "ConvertReleasedPnl": {
+        "actor": 189,
+        "amount": 230
+      }
+    },
+    {
+      "SyncMaintenanceFee": {
+        "actor": 171,
+        "dt": 4
+      }
+    },
+    {
+      "CrossMarketSubstitution": {
+        "actor": 133
+      }
+    },
+    {
+      "ForceCloseAbandoned": {
+        "cranker": 157,
+        "account_a": 188,
+        "account_b": 223,
+        "asset": 236,
+        "dt": 164,
+        "units": 252
+      }
+    },
+    {
+      "Trade": {
+        "route": "Cpi",
+        "taker": 243,
+        "maker": 190,
+        "asset": 166,
+        "units": -1,
+        "fee_bps": 1,
+        "price_move_bps": 532,
+        "prefer_reduce": true
+      }
+    },
+    {
+      "Withdraw": {
+        "actor": 63,
+        "amount": 196
+      }
+    },
+    {
+      "Trade": {
+        "route": "BatchCpi",
+        "taker": 206,
+        "maker": 159,
+        "asset": 123,
+        "units": -3,
+        "fee_bps": 15,
+        "price_move_bps": 647,
+        "prefer_reduce": false
+      }
+    },
+    {
+      "DrainOnlyAsset": {
+        "asset": 227
+      }
+    },
+    {
+      "ClaimResolvedPayoutTopup": {
+        "actor": 170
+      }
+    },
+    {
+      "RetireAsset": {
+        "asset": 228,
+        "dt": 1
+      }
+    },
+    {
+      "TopUpInsurance": {
+        "domain": 63,
+        "amount": 385
+      }
+    },
+    {
+      "RebalanceReduce": {
+        "actor": 155,
+        "asset": 37
+      }
+    },
+    {
+      "Crank": {
+        "actor": 145,
+        "hints": "Reversed"
+      }
+    }
+  ]
+}.
+minimal failing input: scenario = Scenario {
+    seed: [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        10,
+        190,
+        101,
+        105,
+        240,
+        2,
+        140,
+        129,
+        247,
+        246,
+        233,
+        219,
+        191,
+        23,
+        40,
+        144,
+        172,
+        253,
+        245,
+        59,
+        69,
+        52,
+        14,
+        70,
+    ],
+    config: SmallMarketConfig {
+        max_price_move_bps_per_slot: 500,
+        max_accrual_dt_slots: 2,
+        max_abs_funding_e9_per_slot: 0,
+        maintenance_fee_per_slot: 1,
+    },
+    actions: [
+        ConvertReleasedPnl {
+            actor: 189,
+            amount: 230,
+        },
+        SyncMaintenanceFee {
+            actor: 171,
+            dt: 4,
+        },
+        CrossMarketSubstitution {
+            actor: 133,
+        },
+        ForceCloseAbandoned {
+            cranker: 157,
+            account_a: 188,
+            account_b: 223,
+            asset: 236,
+            dt: 164,
+            units: 252,
+        },
+        Trade {
+            route: Cpi,
+            taker: 243,
+            maker: 190,
+            asset: 166,
+            units: -1,
+            fee_bps: 1,
+            price_move_bps: 532,
+            prefer_reduce: true,
+        },
+        Withdraw {
+            actor: 63,
+            amount: 196,
+        },
+        Trade {
+            route: BatchCpi,
+            taker: 206,
+            maker: 159,
+            asset: 123,
+            units: -3,
+            fee_bps: 15,
+            price_move_bps: 647,
+            prefer_reduce: false,
+        },
+        DrainOnlyAsset {
+            asset: 227,
+        },
+        ClaimResolvedPayoutTopup {
+            actor: 170,
+        },
+        RetireAsset {
+            asset: 228,
+            dt: 1,
+        },
+        TopUpInsurance {
+            domain: 63,
+            amount: 385,
+        },
+        RebalanceReduce {
+            actor: 155,
+            asset: 37,
+        },
+        Crank {
+            actor: 145,
+            hints: Reversed,
+        },
+    ],
+}
+	successes: 0
+	local rejects: 0
+	global rejects: 0
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    inv_086_reference_model_and_deployed_transition_equivalence::v16_program_reference_model_matches_deployed_public_sequence
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 335 filtered out; finished in 139.91s
+

@@ -1,0 +1,45 @@
+✖ null canvas does not strand startup (1492.322683ms)
+✖ one malformed adapter does not block a healthy wallet (464.976511ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2459.483663
+
+✖ failing tests:
+
+test at tests/canvas.test.mjs:9:1
+✖ null canvas does not strand startup (1492.322683ms)
+  AssertionError [ERR_ASSERTION]: terminal did not reach the expected state
+      at until (file:///workspace/scratch/31e010aaee78/wallet-original-proof-s0od6dq9/tests/canvas.test.mjs:108:12)
+      at async TestContext.<anonymous> (file:///workspace/scratch/31e010aaee78/wallet-original-proof-s0od6dq9/tests/canvas.test.mjs:122:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests/malformed.test.mjs:9:1
+✖ one malformed adapter does not block a healthy wallet (464.976511ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at assertChooser (file:///workspace/scratch/31e010aaee78/wallet-original-proof-s0od6dq9/tests/malformed.test.mjs:111:12)
+      at TestContext.<anonymous> (file:///workspace/scratch/31e010aaee78/wallet-original-proof-s0od6dq9/tests/malformed.test.mjs:134:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,107 @@
+TEST: inv_045_no_free_mark_movement::accepted_price_reward::reward_catchup_order::v16_program_reward_price_tracks_actual_catchup_across_report_and_crank_orders
+COMMAND: /workspace/scratch/dee0ea254bf8/percolator-prog/target/debug/deps/outright_qualification_cu-5e1d0393cfbb82b6 --exact inv_045_no_free_mark_movement::accepted_price_reward::reward_catchup_order::v16_program_reward_price_tracks_actual_catchup_across_report_and_crank_orders --nocapture --test-threads=1
+
+running 1 test
+test inv_045_no_free_mark_movement::accepted_price_reward::reward_catchup_order::v16_program_reward_price_tracks_actual_catchup_across_report_and_crank_orders ... up=false/slots=3/liquidate_at=1/share=3333/target_first=false/renew=false: fees=5598, reward=1865, discriminating=1, crank_max=320978, exit=145441, withdraw=52134
+up=false/slots=3/liquidate_at=1/share=3333/target_first=false/renew=true: fees=5598, reward=1865, discriminating=1, crank_max=320978, exit=145441, withdraw=49134
+up=false/slots=3/liquidate_at=1/share=3333/target_first=true/renew=false: fees=5598, reward=1865, discriminating=1, crank_max=320978, exit=145441, withdraw=58134
+up=false/slots=3/liquidate_at=1/share=3333/target_first=true/renew=true: fees=5598, reward=1865, discriminating=1, crank_max=320978, exit=145441, withdraw=55134
+up=false/slots=3/liquidate_at=1/share=10000/target_first=false/renew=false: fees=5598, reward=5598, discriminating=1, crank_max=314326, exit=145441, withdraw=58134
+up=false/slots=3/liquidate_at=1/share=10000/target_first=false/renew=true: fees=5598, reward=5598, discriminating=1, crank_max=314326, exit=145441, withdraw=47634
+up=false/slots=3/liquidate_at=1/share=10000/target_first=true/renew=false: fees=5598, reward=5598, discriminating=1, crank_max=314326, exit=145441, withdraw=53634
+up=false/slots=3/liquidate_at=1/share=10000/target_first=true/renew=true: fees=5598, reward=5598, discriminating=1, crank_max=314326, exit=145441, withdraw=49134
+up=false/slots=3/liquidate_at=2/share=3333/target_first=false/renew=false: fees=5741, reward=1913, discriminating=1, crank_max=323705, exit=145441, withdraw=47634
+up=false/slots=3/liquidate_at=2/share=3333/target_first=false/renew=true: fees=5741, reward=1913, discriminating=1, crank_max=323705, exit=145441, withdraw=53634
+up=false/slots=3/liquidate_at=2/share=3333/target_first=true/renew=false: fees=5741, reward=1913, discriminating=1, crank_max=323705, exit=145441, withdraw=53634
+up=false/slots=3/liquidate_at=2/share=3333/target_first=true/renew=true: fees=5741, reward=1913, discriminating=1, crank_max=323705, exit=145441, withdraw=49134
+up=false/slots=3/liquidate_at=2/share=10000/target_first=false/renew=false: fees=5741, reward=5741, discriminating=1, crank_max=317053, exit=145441, withdraw=50634
+up=false/slots=3/liquidate_at=2/share=10000/target_first=false/renew=true: fees=5741, reward=5741, discriminating=1, crank_max=317053, exit=145441, withdraw=47634
+up=false/slots=3/liquidate_at=2/share=10000/target_first=true/renew=false: fees=5741, reward=5741, discriminating=1, crank_max=317053, exit=145441, withdraw=50634
+up=false/slots=3/liquidate_at=2/share=10000/target_first=true/renew=true: fees=5741, reward=5741, discriminating=1, crank_max=317053, exit=145441, withdraw=47634
+up=false/slots=3/liquidate_at=3/share=3333/target_first=false/renew=false: fees=5899, reward=1966, discriminating=0, crank_max=320970, exit=145443, withdraw=49134
+up=false/slots=3/liquidate_at=3/share=3333/target_first=false/renew=true: fees=5899, reward=1966, discriminating=0, crank_max=320970, exit=145443, withdraw=47634
+up=false/slots=3/liquidate_at=3/share=3333/target_first=true/renew=false: fees=5899, reward=1966, discriminating=0, crank_max=320970, exit=145443, withdraw=47634
+up=false/slots=3/liquidate_at=3/share=3333/target_first=true/renew=true: fees=5899, reward=1966, discriminating=0, crank_max=320970, exit=145443, withdraw=49134
+up=false/slots=3/liquidate_at=3/share=10000/target_first=false/renew=false: fees=5899, reward=5899, discriminating=0, crank_max=314318, exit=145443, withdraw=50634
+up=false/slots=3/liquidate_at=3/share=10000/target_first=false/renew=true: fees=5899, reward=5899, discriminating=0, crank_max=314318, exit=145443, withdraw=49134
+up=false/slots=3/liquidate_at=3/share=10000/target_first=true/renew=false: fees=5899, reward=5899, discriminating=0, crank_max=314318, exit=145443, withdraw=49134
+up=false/slots=3/liquidate_at=3/share=10000/target_first=true/renew=true: fees=5899, reward=5899, discriminating=0, crank_max=314318, exit=145443, withdraw=49134
+up=false/slots=5/liquidate_at=1/share=3333/target_first=false/renew=false: fees=9202, reward=3067, discriminating=1, crank_max=323727, exit=145438, withdraw=49134
+up=false/slots=5/liquidate_at=1/share=3333/target_first=false/renew=true: fees=9202, reward=3067, discriminating=1, crank_max=323727, exit=145438, withdraw=49134
+up=false/slots=5/liquidate_at=1/share=3333/target_first=true/renew=false: fees=9202, reward=3067, discriminating=1, crank_max=323727, exit=145438, withdraw=53634
+up=false/slots=5/liquidate_at=1/share=3333/target_first=true/renew=true: fees=9202, reward=3067, discriminating=1, crank_max=323727, exit=145438, withdraw=49134
+up=false/slots=5/liquidate_at=1/share=10000/target_first=false/renew=false: fees=9202, reward=9202, discriminating=1, crank_max=317075, exit=145438, withdraw=50634
+up=false/slots=5/liquidate_at=1/share=10000/target_first=false/renew=true: fees=9202, reward=9202, discriminating=1, crank_max=317075, exit=145438, withdraw=58134
+up=false/slots=5/liquidate_at=1/share=10000/target_first=true/renew=false: fees=9202, reward=9202, discriminating=1, crank_max=317075, exit=145438, withdraw=52134
+up=false/slots=5/liquidate_at=1/share=10000/target_first=true/renew=true: fees=9202, reward=9202, discriminating=1, crank_max=317075, exit=145438, withdraw=47634
+up=false/slots=5/liquidate_at=4/share=3333/target_first=false/renew=false: fees=10131, reward=3376, discriminating=1, crank_max=323653, exit=145440, withdraw=52134
+up=false/slots=5/liquidate_at=4/share=3333/target_first=false/renew=true: fees=10131, reward=3376, discriminating=1, crank_max=323653, exit=145440, withdraw=55134
+up=false/slots=5/liquidate_at=4/share=3333/target_first=true/renew=false: fees=10131, reward=3376, discriminating=1, crank_max=323653, exit=145440, withdraw=50634
+up=false/slots=5/liquidate_at=4/share=3333/target_first=true/renew=true: fees=10131, reward=3376, discriminating=1, crank_max=323653, exit=145440, withdraw=52134
+up=false/slots=5/liquidate_at=4/share=10000/target_first=false/renew=false: fees=10131, reward=10131, discriminating=1, crank_max=317001, exit=145440, withdraw=52134
+up=false/slots=5/liquidate_at=4/share=10000/target_first=false/renew=true: fees=10131, reward=10131, discriminating=1, crank_max=317001, exit=145440, withdraw=53634
+up=false/slots=5/liquidate_at=4/share=10000/target_first=true/renew=false: fees=10131, reward=10131, discriminating=1, crank_max=317001, exit=145440, withdraw=52134
+up=false/slots=5/liquidate_at=4/share=10000/target_first=true/renew=true: fees=10131, reward=10131, discriminating=1, crank_max=317001, exit=145440, withdraw=49134
+up=false/slots=5/liquidate_at=5/share=3333/target_first=false/renew=false: fees=10506, reward=3501, discriminating=0, crank_max=323696, exit=145443, withdraw=53634
+up=false/slots=5/liquidate_at=5/share=3333/target_first=false/renew=true: fees=10506, reward=3501, discriminating=0, crank_max=323696, exit=145443, withdraw=47634
+up=false/slots=5/liquidate_at=5/share=3333/target_first=true/renew=false: fees=10506, reward=3501, discriminating=0, crank_max=323696, exit=145443, withdraw=50634
+up=false/slots=5/liquidate_at=5/share=3333/target_first=true/renew=true: fees=10506, reward=3501, discriminating=0, crank_max=323696, exit=145443, withdraw=53634
+up=false/slots=5/liquidate_at=5/share=10000/target_first=false/renew=false: fees=10506, reward=10506, discriminating=0, crank_max=317044, exit=145443, withdraw=49134
+up=false/slots=5/liquidate_at=5/share=10000/target_first=false/renew=true: fees=10506, reward=10506, discriminating=0, crank_max=317044, exit=145443, withdraw=49134
+up=false/slots=5/liquidate_at=5/share=10000/target_first=true/renew=false: fees=10506, reward=10506, discriminating=0, crank_max=317044, exit=145443, withdraw=50634
+up=false/slots=5/liquidate_at=5/share=10000/target_first=true/renew=true: fees=10506, reward=10506, discriminating=0, crank_max=317044, exit=145443, withdraw=47634
+up=true/slots=3/liquidate_at=1/share=3333/target_first=false/renew=false: fees=6031, reward=2009, discriminating=1, crank_max=323891, exit=145410, withdraw=53634
+up=true/slots=3/liquidate_at=1/share=3333/target_first=false/renew=true: fees=6031, reward=2009, discriminating=1, crank_max=323891, exit=145410, withdraw=49134
+up=true/slots=3/liquidate_at=1/share=3333/target_first=true/renew=false: fees=6031, reward=2009, discriminating=1, crank_max=323891, exit=145410, withdraw=52134
+up=true/slots=3/liquidate_at=1/share=3333/target_first=true/renew=true: fees=6031, reward=2009, discriminating=1, crank_max=323891, exit=145410, withdraw=55134
+up=true/slots=3/liquidate_at=1/share=10000/target_first=false/renew=false: fees=6031, reward=6031, discriminating=1, crank_max=317239, exit=145410, withdraw=47634
+up=true/slots=3/liquidate_at=1/share=10000/target_first=false/renew=true: fees=6031, reward=6031, discriminating=1, crank_max=317239, exit=145410, withdraw=52134
+up=true/slots=3/liquidate_at=1/share=10000/target_first=true/renew=false: fees=6031, reward=6031, discriminating=1, crank_max=317239, exit=145410, withdraw=52134
+up=true/slots=3/liquidate_at=1/share=10000/target_first=true/renew=true: fees=6031, reward=6031, discriminating=1, crank_max=317239, exit=145410, withdraw=47634
+up=true/slots=3/liquidate_at=2/share=3333/target_first=false/renew=false: fees=6313, reward=2103, discriminating=1, crank_max=323940, exit=145408, withdraw=47634
+up=true/slots=3/liquidate_at=2/share=3333/target_first=false/renew=true: fees=6313, reward=2103, discriminating=1, crank_max=323940, exit=145408, withdraw=49134
+up=true/slots=3/liquidate_at=2/share=3333/target_first=true/renew=false: fees=6313, reward=2103, discriminating=1, crank_max=323940, exit=145408, withdraw=52134
+up=true/slots=3/liquidate_at=2/share=3333/target_first=true/renew=true: fees=6313, reward=2103, discriminating=1, crank_max=323940, exit=145408, withdraw=47634
+up=true/slots=3/liquidate_at=2/share=10000/target_first=false/renew=false: fees=6313, reward=6313, discriminating=1, crank_max=317288, exit=145408, withdraw=52134
+up=true/slots=3/liquidate_at=2/share=10000/target_first=false/renew=true: fees=6313, reward=6313, discriminating=1, crank_max=317288, exit=145408, withdraw=53634
+up=true/slots=3/liquidate_at=2/share=10000/target_first=true/renew=false: fees=6313, reward=6313, discriminating=1, crank_max=317288, exit=145408, withdraw=49134
+up=true/slots=3/liquidate_at=2/share=10000/target_first=true/renew=true: fees=6313, reward=6313, discriminating=1, crank_max=317288, exit=145408, withdraw=50634
+up=true/slots=3/liquidate_at=3/share=3333/target_first=false/renew=false: fees=6627, reward=2208, discriminating=0, crank_max=323682, exit=145409, withdraw=50634
+up=true/slots=3/liquidate_at=3/share=3333/target_first=false/renew=true: fees=6627, reward=2208, discriminating=0, crank_max=323682, exit=145409, withdraw=47634
+up=true/slots=3/liquidate_at=3/share=3333/target_first=true/renew=false: fees=6627, reward=2208, discriminating=0, crank_max=323682, exit=145409, withdraw=49134
+up=true/slots=3/liquidate_at=3/share=3333/target_first=true/renew=true: fees=6627, reward=2208, discriminating=0, crank_max=323682, exit=145409, withdraw=53634
+up=true/slots=3/liquidate_at=3/share=10000/target_first=false/renew=false: fees=6627, reward=6627, discriminating=0, crank_max=317030, exit=145409, withdraw=52134
+up=true/slots=3/liquidate_at=3/share=10000/target_first=false/renew=true: fees=6627, reward=6627, discriminating=0, crank_max=317030, exit=145409, withdraw=50634
+up=true/slots=3/liquidate_at=3/share=10000/target_first=true/renew=false: fees=6627, reward=6627, discriminating=0, crank_max=317030, exit=145409, withdraw=47634
+up=true/slots=3/liquidate_at=3/share=10000/target_first=true/renew=true: fees=6627, reward=6627, discriminating=0, crank_max=317030, exit=145409, withdraw=49134
+up=true/slots=5/liquidate_at=1/share=3333/target_first=false/renew=false: fees=9781, reward=3257, discriminating=2, crank_max=324044, exit=145410, withdraw=49134
+up=true/slots=5/liquidate_at=1/share=3333/target_first=false/renew=true: fees=9781, reward=3257, discriminating=2, crank_max=324044, exit=145410, withdraw=50634
+up=true/slots=5/liquidate_at=1/share=3333/target_first=true/renew=false: fees=9781, reward=3257, discriminating=2, crank_max=324044, exit=145410, withdraw=50634
+up=true/slots=5/liquidate_at=1/share=3333/target_first=true/renew=true: fees=9781, reward=3257, discriminating=2, crank_max=324044, exit=145410, withdraw=47634
+up=true/slots=5/liquidate_at=1/share=10000/target_first=false/renew=false: fees=9781, reward=9781, discriminating=2, crank_max=317250, exit=145410, withdraw=47634
+up=true/slots=5/liquidate_at=1/share=10000/target_first=false/renew=true: fees=9781, reward=9781, discriminating=2, crank_max=317250, exit=145410, withdraw=64134
+up=true/slots=5/liquidate_at=1/share=10000/target_first=true/renew=false: fees=9781, reward=9781, discriminating=2, crank_max=317250, exit=145410, withdraw=53634
+up=true/slots=5/liquidate_at=1/share=10000/target_first=true/renew=true: fees=9781, reward=9781, discriminating=2, crank_max=317250, exit=145410, withdraw=52134
+up=true/slots=5/liquidate_at=4/share=3333/target_first=false/renew=false: fees=11160, reward=3718, discriminating=1, crank_max=321135, exit=145409, withdraw=61134
+up=true/slots=5/liquidate_at=4/share=3333/target_first=false/renew=true: fees=11160, reward=3718, discriminating=1, crank_max=321135, exit=145409, withdraw=50634
+up=true/slots=5/liquidate_at=4/share=3333/target_first=true/renew=false: fees=11160, reward=3718, discriminating=1, crank_max=321135, exit=145409, withdraw=47634
+up=true/slots=5/liquidate_at=4/share=3333/target_first=true/renew=true: fees=11160, reward=3718, discriminating=1, crank_max=321135, exit=145409, withdraw=47634
+up=true/slots=5/liquidate_at=4/share=10000/target_first=false/renew=false: fees=11160, reward=11160, discriminating=1, crank_max=314483, exit=145409, withdraw=50634
+up=true/slots=5/liquidate_at=4/share=10000/target_first=false/renew=true: fees=11160, reward=11160, discriminating=1, crank_max=314483, exit=145409, withdraw=52134
+up=true/slots=5/liquidate_at=4/share=10000/target_first=true/renew=false: fees=11160, reward=11160, discriminating=1, crank_max=314483, exit=145409, withdraw=50634
+up=true/slots=5/liquidate_at=4/share=10000/target_first=true/renew=true: fees=11160, reward=11160, discriminating=1, crank_max=314483, exit=145409, withdraw=59634
+up=true/slots=5/liquidate_at=5/share=3333/target_first=false/renew=false: fees=11718, reward=3905, discriminating=0, crank_max=323704, exit=145409, withdraw=47634
+up=true/slots=5/liquidate_at=5/share=3333/target_first=false/renew=true: fees=11718, reward=3905, discriminating=0, crank_max=323704, exit=145409, withdraw=52134
+up=true/slots=5/liquidate_at=5/share=3333/target_first=true/renew=false: fees=11718, reward=3905, discriminating=0, crank_max=323704, exit=145409, withdraw=47634
+up=true/slots=5/liquidate_at=5/share=3333/target_first=true/renew=true: fees=11718, reward=3905, discriminating=0, crank_max=323704, exit=145409, withdraw=53634
+up=true/slots=5/liquidate_at=5/share=10000/target_first=false/renew=false: fees=11718, reward=11718, discriminating=0, crank_max=317052, exit=145409, withdraw=47634
+up=true/slots=5/liquidate_at=5/share=10000/target_first=false/renew=true: fees=11718, reward=11718, discriminating=0, crank_max=317052, exit=145409, withdraw=50634
+up=true/slots=5/liquidate_at=5/share=10000/target_first=true/renew=false: fees=11718, reward=11718, discriminating=0, crank_max=317052, exit=145409, withdraw=47634
+up=true/slots=5/liquidate_at=5/share=10000/target_first=true/renew=true: fees=11718, reward=11718, discriminating=0, crank_max=317052, exit=145409, withdraw=47634
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 127.70s
+
+
+EXIT_CODE: 0
+ELAPSED_SECONDS: 127.71

@@ -67,6 +67,7 @@ See [the development guide](docs/DEVELOPMENT.md) for test scope and
 - [Upstream sources and compatibility policy](docs/UPSTREAM.md)
 - [Development and verification](docs/DEVELOPMENT.md)
 - [Native integration verification results](docs/NATIVE_VERIFICATION.md)
+- [Repair checklist and unresolved qualification failures](docs/REPAIR_CHECKLIST.md)
 - [Wallet terminal and deployment profiles](docs/WALLET_TERMINAL.md)
 - [Run a funded local market](docs/LOCAL_MARKET.md)
 - [Market keeper and operator recovery](docs/MARKET_OPERATIONS.md)

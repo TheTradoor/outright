@@ -1,0 +1,22 @@
+TEST: inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody
+
+running 1 test
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody ... funding=1000 endpoint=8 eager=false: price=992800, liquidation=(30093516, 14939, 0, [4364961, 100000000, 9229964, 9229964, 1000], 1555011), payout=1000
+
+thread 'inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody' (12) panicked at tests/invariants/cu/inv_045_report_cadence_rewards.rs:595:17:
+assertion `left == right` failed: renewal/crank cadence changed liquidation economics
+  left: (30090311, 14937, 0, [4365162, 100000000, 9229964, 9229964, 1000], 1555009)
+ right: (30093516, 14939, 0, [4364961, 100000000, 9229964, 9229964, 1000], 1555011)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 4.07s
+
+
+EXIT_CODE: 101
+ELAPSED_SECONDS: 4.08

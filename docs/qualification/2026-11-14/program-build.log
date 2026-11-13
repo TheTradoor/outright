@@ -1,0 +1,4 @@
+[2026-11-13T21:21:55.412360352Z WARN  cargo_build_sbf] Package 'percolator-prog' has two crate types defined: cdylib and lib. This setting precludes link-time optimizations (LTO). Use cdylib for programs to be deployed and rlib for packages to be imported by other programs as libraries.
+   Compiling percolator v0.1.1 (https://github.com/aeyakovenko/percolator?rev=a712af767eeb217876a3d3c50e3849b60ea54462#a712af76)
+   Compiling percolator-prog v0.1.0 (/workspace/scratch/dee0ea254bf8/percolator-prog)
+    Finished `release` profile [optimized] target(s) in 34.61s
