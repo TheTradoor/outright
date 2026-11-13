@@ -48,7 +48,7 @@ pub fn export() -> Value {
             backing_trade_fee_bps_long: "u16", backing_trade_fee_bps_short: "u16"),
         "oracleFeedsOffset": offset_of!(state::AssetOracleProfileV16, oracle_leg_feeds),
         "controlSequencesOffset": c::ASSET_CONTROL_SEQUENCES_OFF,
-        "controlSequences": fields!(state::AssetControlSequencesV16; authority_epoch: "u64"),
+        "controlSequences": fields!(state::AssetControlSequencesV16; oracle_observation: "u64", authority_epoch: "u64"),
         "portfolio": fields!(PortfolioAccountV16Account;
             reserved_pnl: "u128", fee_credits: "i128", last_fee_slot: "u64",
             active_bitmap: "u64", stale_state: "bool", b_stale_state: "bool",
