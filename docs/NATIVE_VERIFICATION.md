@@ -4,7 +4,8 @@ Latest local verification completed on 13 November 2026: the source and Rust
 contract checks passed, along with 212 JavaScript tests, 11 SBF tests and the
 terminal build. A clean dependency install followed by `npm audit` reported
 zero vulnerabilities. These results do not come from a deployed market or an
-independent audit. The latest changes are awaiting GitHub upload and CI.
+independent audit. The synchronized source and GitHub CI results are tracked in
+[pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
@@ -206,7 +207,7 @@ remain unverified. The dependency advisory was still open at this revision.
 Built on local commit `f0dc09f7d5192778080e8aed88b6ee0da90bc9ac`, with the same
 engine and wrapper pins. On 13 November 2026, the Rust contract comparison,
 194 JavaScript tests, nine SBF tests and terminal bundle passed locally.
-GitHub upload and CI for these changes remain incomplete.
+GitHub upload and CI were incomplete when this local run was recorded.
 
 New regressions reproduce older account data after a page reload, even when
 the saved transaction was confirmed, finalized or failed. Account reads and new
@@ -232,8 +233,10 @@ Built on local commit `84bd5488d0a95c91111334dcec5da4720c5957f1`, retaining both
 source pins and the SBF binary hashes recorded above. On 13 November 2026, a
 clean install, the Rust contract comparison, 212 JavaScript tests, 11 SBF tests
 and the terminal build passed locally. The JavaScript count includes 15 DOM
-tests and 18 new token-format regressions. These changes have not run in GitHub
-CI or on a public cluster.
+tests and 18 new token-format regressions. The synchronized GitHub source is
+commit `522bc71e1c0b295a00bbd62233ecebc4abfe6379`; its tree matches the locally
+tested tree exactly. GitHub results are linked in pull request #5. These tests
+do not run on a public cluster.
 
 ### Funding settlement
 
