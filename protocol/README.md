@@ -65,6 +65,10 @@ implementation, independently of the JavaScript reader. Its output is compared
 with the checked-in contract. JavaScript
 regressions cover malformed state, changed deployments, wallet mutation,
 simulation failure, lost RPC responses, pending transaction recovery and expiry.
+Settlement review binds the complete market and portfolio data. Changes to
+accounting outside the display require a new simulation and explicit review
+before this client sends. Terminal tests verify that rejected reviews close and
+leave a new review available.
 Keeper tests also cover missing portfolios before and after simulation. An
 explicit RPC absence defers the target without signing or reserving a fee;
 present accounts retain strict identity checks. CLI watch tests process the next

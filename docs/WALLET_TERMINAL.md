@@ -246,9 +246,16 @@ full repayment. The additional amount is rounded down with integer arithmetic
 and capped by recorded vault custody; execution may observe a different state.
 No receipt, no active positions or zero capital alone establishes completion.
 
-The client simulates before review and rechecks identity, receipt values, payout
-rate, custody, positions and the maintenance fee policy after signing. A changed
-review requires another simulation. Settlement instructions have no sequence
+The client simulates before review and hashes the complete market and portfolio
+data. After signing, it reads and verifies those accounts again. Any change to
+either data buffer requires a new simulation and review, including source
+backing, close-progress records and accounting omitted from the display. This
+can also require another review when a different user's transaction changes the
+shared market. A later RPC bank or a rent top-up alone does not change this hash.
+Identity, deployed code and custody checks still run independently.
+
+A rejected submission closes the consumed review dialog and displays the error.
+It does not automatically sign or send another transaction. Settlement instructions have no sequence
 argument, so the next step must use a blockhash different from the previous
 saved transaction. This prevents an old signature from being mistaken for a
 new continuation, including after a reload or another tab's confirmation.

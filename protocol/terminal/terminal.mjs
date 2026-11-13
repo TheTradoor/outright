@@ -722,6 +722,9 @@ $("sign").addEventListener("click", () =>
       });
     } catch (error) {
       if (current !== generation) return;
+      // Submission consumes its review even when signing or revalidation fails.
+      // Close the unusable dialog so its error and the next review are reachable.
+      invalidateReview();
       throw error;
     }
     // A signed transaction can outlive its wallet session. Keep its durable

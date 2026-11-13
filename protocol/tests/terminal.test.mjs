@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { setTimeout as pause } from "node:timers/promises";
 import { JSDOM } from "jsdom";
 import bs58 from "bs58";
+import contract from "../upstream-contract.json" with { type: "json" };
 import { OutrightClient } from "../src/client.mjs";
 import { fixture, withMaker } from "./support/client-fixture.mjs";
 import { setSettlement } from "./support/settlement-fixture.mjs";
@@ -515,6 +516,64 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
         }
       },
     );
+    for (const id of ["settlement-close", "settlement-claim"])
+      await t.test(
+        `${id} clears a changed review without sending`,
+        async () => {
+          const marketData = Buffer.from(
+            f.accounts.get(f.market.toBase58()).data,
+          );
+          const portfolioData = Buffer.from(
+            f.accounts.get(f.identity.address.toBase58()).data,
+          );
+          const sign = f.sign;
+          const sent = f.rpc.sent.length;
+          try {
+            setSettlement(f);
+            await connect();
+            el(id).click();
+            await until(
+              () => el("review-dialog").open && !el("sign").disabled,
+              "settlement review did not open",
+            );
+            f.sign = async (bytes) => {
+              const offset =
+                contract.constants.headerLength +
+                contract.layouts.reviewAccountingOffsets.closeResidual;
+              f.accounts.get(f.identity.address.toBase58()).data[offset] ^= 1;
+              return sign(bytes);
+            };
+            el("sign").click();
+            await until(
+              () =>
+                el("feedback").textContent ===
+                  "Settlement state changed; review the action again" &&
+                !el("wallet-button").disabled,
+              "changed settlement review did not report the rejection",
+            );
+            assert.equal(el("review-dialog").open, false);
+            assert.equal(f.rpc.sent.length, sent);
+            assert.equal(await f.client.pending(account.address), null);
+            assert.equal(
+              el("receipt-state").textContent,
+              "No transaction submitted",
+            );
+            f.sign = sign;
+            el(id).click();
+            await until(
+              () => el("review-dialog").open && !el("sign").disabled,
+              "a new settlement review could not be opened",
+            );
+            el("review-dialog").close();
+          } finally {
+            f.sign = sign;
+            f.accounts.get(f.market.toBase58()).data = marketData;
+            f.accounts.get(f.identity.address.toBase58()).data = portfolioData;
+            if (el("wallet-button").textContent !== "Connect wallet")
+              changed({ accounts: [] });
+          }
+        },
+      );
     await t.test(
       "zero-due settlement disables claims even without enabled assets",
       async () => {

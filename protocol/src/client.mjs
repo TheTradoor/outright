@@ -12,11 +12,7 @@ import {
   unpackAccount,
   unpackMint,
 } from "./token.mjs";
-import {
-  isSettlementAction,
-  recordedSettlementPayout,
-  settlementReviewState,
-} from "./settlement.mjs";
+import { isSettlementAction, recordedSettlementPayout } from "./settlement.mjs";
 import { isRecoveryAction, recoveryPosition } from "./recovery.mjs";
 import bs58 from "bs58";
 import {
@@ -475,10 +471,11 @@ export async function readSnapshot(
     ),
     vaultBalance: vault.amount,
     recordedSettlementPayout: recordedSettlementPayout(market, portfolio),
-    // Recovery can consume accounting not exposed by the display readers.
-    // Bind its review to the complete market and portfolio data, including K/F
-    // checkpoints, source backing and close-progress records.
-    recoveryStateHash: portfolio
+    // Recovery and settlement can consume accounting outside the UI projection.
+    // Bind review to the complete data, including K/F checkpoints, source
+    // backing and close-progress records. Neither display fields nor unchanged
+    // instruction bytes establish that the reviewed accounting is still current.
+    accountingStateHash: portfolio
       ? await sha256(
           Buffer.concat([
             Buffer.from(marketInfo.data),
@@ -976,17 +973,14 @@ export class OutrightClient {
       // move between checks and execution; the program's bindings remain final.
       const fresh = await this.snapshot(prepared.owner);
       if (
-        isRecoveryAction(prepared.action.type) &&
-        (!prepared.snapshot.recoveryStateHash ||
-          fresh.recoveryStateHash !== prepared.snapshot.recoveryStateHash)
+        (isRecoveryAction(prepared.action.type) ||
+          isSettlementAction(prepared.action.type)) &&
+        (!prepared.snapshot.accountingStateHash ||
+          fresh.accountingStateHash !== prepared.snapshot.accountingStateHash)
       )
-        throw new Error("Recovery accounting changed; review the action again");
-      if (
-        isSettlementAction(prepared.action.type) &&
-        settlementReviewState(fresh) !==
-          settlementReviewState(prepared.snapshot)
-      )
-        throw new Error("Settlement state changed; review the action again");
+        throw new Error(
+          `${isRecoveryAction(prepared.action.type) ? "Recovery accounting" : "Settlement state"} changed; review the action again`,
+        );
       if (
         prepared.action.type === "trade" &&
         (fresh.market.wrapper.trade_fee_base_bps !==
