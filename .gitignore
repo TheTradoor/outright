@@ -55,4 +55,5 @@ scripts/__pycache__/
 /protocol/deployment.local.json
 /protocol/keeper.local.json
 /protocol/operator-state/
+/protocol/localnet-state/
 *.keypair.json

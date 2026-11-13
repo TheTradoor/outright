@@ -12,6 +12,7 @@ use percolator_prog::{
 };
 use serde_json::{json, Value};
 mod layouts;
+mod localnet;
 mod token;
 
 fn fixture(name: &str, args: Value, ix: Instruction) -> Value {
@@ -152,6 +153,7 @@ fn main() {
         "wrapperCommit":"b42fe017c2bc953778f90d0cb85cd1d426b6e783",
         "engineCommit":"b22bef7d6122fd7d82680ce9859e8b77fd8ef656",
         "classicToken": token::export(),
+        "localnet": localnet::export(),
         "closedMarketKind": c::KIND_CLOSED_MARKET,
         "closedMarketFixtureHex": closed_market.iter().map(|b|format!("{b:02x}")).collect::<String>(),
         "keeper": {
