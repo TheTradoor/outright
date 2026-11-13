@@ -8,6 +8,14 @@ const meta = (pubkey, isSigner = false, isWritable = false) => ({
   isSigner,
   isWritable,
 });
+
+export function finalizeProgram(programData, authority) {
+  return new TransactionInstruction({
+    programId: key(contract.localnet.programLoader),
+    keys: [meta(programData, false, true), meta(authority, true)],
+    data: Buffer.from(contract.localnet.finalizeProgramHex, "hex"),
+  });
+}
 function number(value, bytes) {
   if (
     typeof value !== "bigint" ||

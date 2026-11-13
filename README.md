@@ -24,6 +24,7 @@ public market remain unfinished.
 | Solana program integration | [Native client, Rust conformance exporter, and local SBF tests](protocol/README.md) |
 | Wallet terminal | [Localnet/devnet client with simulation and transaction reconciliation](docs/WALLET_TERMINAL.md) |
 | Market keeper | [Test-network worker with oracle account checks, fee caps and durable receipts](docs/MARKET_OPERATIONS.md) |
+| Funded local market | [Validator bootstrap and complete RPC lifecycle check](docs/LOCAL_MARKET.md), with a fixed synthetic TEST/USD price |
 | Hosted services | Provider oracle publishing, keeper hosting and indexing remain open |
 | Public deployment | None |
 
@@ -66,6 +67,7 @@ See [the development guide](docs/DEVELOPMENT.md) for test scope and
 - [Development and verification](docs/DEVELOPMENT.md)
 - [Native integration verification results](docs/NATIVE_VERIFICATION.md)
 - [Wallet terminal and deployment profiles](docs/WALLET_TERMINAL.md)
+- [Run a funded local market](docs/LOCAL_MARKET.md)
 - [Market keeper and operator recovery](docs/MARKET_OPERATIONS.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security reporting](SECURITY.md)

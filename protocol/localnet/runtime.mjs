@@ -21,6 +21,7 @@ import { join, dirname } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 import bs58 from "bs58";
 import { sha256, verifyProgram } from "../src/client.mjs";
+import contract from "../upstream-contract.json" with { type: "json" };
 
 export function localRpcUrl(input) {
   const url = new URL(input);
@@ -194,11 +195,16 @@ export async function reconcileSetup(rpc, root) {
   }
 }
 
-export async function programPin(rpc, address, binaryPath) {
+export async function programPin(
+  rpc,
+  address,
+  binaryPath,
+  authorities = [null],
+) {
   const account = await rpc.getAccountInfo(new PublicKey(address), "confirmed");
   if (
     !account?.executable ||
-    account.owner.toBase58() !== "BPFLoaderUpgradeab1e11111111111111111111" ||
+    account.owner.toBase58() !== contract.localnet.programLoader ||
     account.data.length !== 36 ||
     account.data.readUInt32LE(0) !== 2
   )
@@ -208,16 +214,23 @@ export async function programPin(rpc, address, binaryPath) {
   const binary = await readFile(binaryPath);
   const deployed = data?.data.subarray(45);
   if (
+    !binary.length ||
     !deployed ||
     !deployed.subarray(0, binary.length).equals(binary) ||
     deployed.subarray(binary.length).some((v) => v !== 0)
   )
     throw new Error("Local deployed program differs from the supplied binary");
+  const authority =
+    data.data[12] === 1
+      ? new PublicKey(data.data.subarray(13, 45)).toBase58()
+      : null;
+  if (!authorities.includes(authority))
+    throw new Error("Local program authority does not match the setup policy");
   const pin = {
     address,
     programData: programData.toBase58(),
     sha256: await sha256(deployed),
-    upgradeAuthority: null,
+    upgradeAuthority: authority,
   };
   await verifyProgram(account, data, pin);
   return pin;

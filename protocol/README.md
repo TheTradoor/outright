@@ -25,6 +25,11 @@ market and accepts no public deposits.
 See [wallet terminal setup](../docs/WALLET_TERMINAL.md) for deployment profiles,
 wallet requirements, transaction states, and current limits.
 
+For a complete funded test environment, follow [Run a funded local market](../docs/LOCAL_MARKET.md).
+The runner creates the validator, collateral, vault and maker, then writes the
+terminal profile. Its RPC check exercises deposit, both trade directions and
+withdrawal with a fixed synthetic TEST/USD price.
+
 ## Modules
 
 | Module | Responsibility |
@@ -37,6 +42,7 @@ wallet requirements, transaction states, and current limits.
 | `src/recovery.mjs` | Eligibility for an owner-reviewed Recovery leg exit |
 | `terminal/` | Wallet Standard interface, transaction review and receipts |
 | `profile.mjs` | Read-only enrollment of a deployment against local build artifacts |
+| `localnet/` | Loopback-only validator bootstrap, funded synthetic market and RPC lifecycle check |
 | `src/keeper.mjs`, `operator/` | Bounded oracle/portfolio crank, fee limits and durable receipts |
 | `inspect.mjs` | Low-level read-only portfolio inspection |
 

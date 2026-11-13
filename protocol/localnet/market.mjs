@@ -25,6 +25,7 @@ import {
   initializeMatcher,
   matcherConsent,
   markInstruction,
+  finalizeProgram,
 } from "./instructions.mjs";
 import {
   connection,
@@ -47,6 +48,15 @@ export async function loadMarket(root) {
       "admin,context,maker,market,mint,trader"
   )
     throw new Error("Invalid local market state");
+  for (const bytes of Object.values(raw))
+    if (
+      !Array.isArray(bytes) ||
+      bytes.length !== 64 ||
+      bytes.some(
+        (value) => !Number.isInteger(value) || value < 0 || value > 255,
+      )
+    )
+      throw new Error("Invalid local signing key encoding");
   const keys = Object.fromEntries(
     Object.entries(raw).map(([name, bytes]) => [
       name,
@@ -100,8 +110,14 @@ export async function bootstrap(env, programBinary, matcherBinary) {
   const genesisHash = await rpc.getGenesisHash();
   if (genesisHash !== c.genesisHash)
     throw new Error("Local validator genesis changed");
-  const program = await programPin(rpc, c.program, programBinary);
-  const matcher = await programPin(rpc, c.matcher, matcherBinary);
+  let program = await programPin(rpc, c.program, programBinary, [
+    null,
+    c.admin,
+  ]);
+  let matcher = await programPin(rpc, c.matcher, matcherBinary, [
+    null,
+    c.admin,
+  ]);
   await reconcileSetup(rpc, root);
   try {
     await access(join(root, "deployment.json"));
@@ -145,6 +161,20 @@ export async function bootstrap(env, programBinary, matcherBinary) {
     const signature = await rpc.requestAirdrop(k[name].publicKey, amount * 1e9);
     await confirm(rpc, signature);
   }
+  for (const [name, pin] of [
+    ["program", program],
+    ["matcher", matcher],
+  ])
+    if (pin.upgradeAuthority === c.admin)
+      await send(
+        rpc,
+        root,
+        "finalize-local-" + name,
+        [finalizeProgram(pin.programData, c.admin)],
+        [k.admin],
+      );
+  program = await programPin(rpc, c.program, programBinary);
+  matcher = await programPin(rpc, c.matcher, matcherBinary);
   const allocation = async (signer, owner, space) =>
     SystemProgram.createAccount({
       fromPubkey: k.admin.publicKey,

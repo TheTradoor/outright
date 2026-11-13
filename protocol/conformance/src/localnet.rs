@@ -73,7 +73,14 @@ pub fn export() -> Value {
         trade_fee_cap_bps: 100,
         expiry_slot: 100_000,
     };
+    let finalize = solana_program::bpf_loader_upgradeable::set_upgrade_authority(
+        &Pubkey::new_from_array([9; 32]),
+        &owner,
+        None,
+    );
     json!({
+        "programLoader": solana_program::bpf_loader_upgradeable::id().to_string(),
+        "finalizeProgramHex": hex(&finalize.data),
         "marketAccountLength": state::market_account_len_for_capacity(1).unwrap(),
         "initializeMarketHex": hex(&init.encode()),
         "initialPrice": "1000000",

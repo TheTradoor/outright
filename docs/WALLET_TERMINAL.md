@@ -9,6 +9,9 @@ deploy a market, provide a counterparty, or operate an oracle.
 No public Outright market is configured. The shipped profile is `null`.
 Localnet and devnet are supported; mainnet profiles are rejected by this release.
 
+To obtain a complete local test deployment, use the [funded market runner](LOCAL_MARKET.md).
+It creates the market, maker and deployment profile that this terminal needs.
+
 ## Run it
 
 ```sh

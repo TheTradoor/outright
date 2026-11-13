@@ -158,11 +158,11 @@ async function main() {
         "--upgradeable-program",
         state.program,
         resolve(args["--program-binary"]),
-        "none",
+        state.admin,
         "--upgradeable-program",
         state.matcher,
         resolve(args["--matcher-binary"]),
-        "none",
+        state.admin,
       ],
       { stdio: ["ignore", log.fd, log.fd] },
     );
