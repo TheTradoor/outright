@@ -11,7 +11,7 @@ import {
   createAssociatedTokenAccountIdempotentInstruction,
   unpackAccount,
   unpackMint,
-} from "@solana/spl-token";
+} from "./token.mjs";
 import bs58 from "bs58";
 import {
   buildInstruction,
@@ -58,6 +58,35 @@ function boundedNumber(value, min, max, name) {
   if (!Number.isSafeInteger(value) || value < min || value > max)
     throw new Error(`Invalid ${name}`);
   return value;
+}
+
+// getSignatureStatuses has no minContextSlot option. Check its response bank
+// before allowing either client to release a durable pending receipt.
+export function readTransactionStatus(response, minimumSlot) {
+  const slot = boundedNumber(
+    response?.context?.slot,
+    minimumSlot,
+    Number.MAX_SAFE_INTEGER,
+    "confirmation response slot",
+  );
+  if (!Array.isArray(response.value) || response.value.length !== 1)
+    throw new Error("Invalid signature status response");
+  const status = response.value[0];
+  if (status === null) return null;
+  if (
+    !status ||
+    !["processed", "confirmed", "finalized"].includes(
+      status.confirmationStatus,
+    ) ||
+    !(
+      status.err === null ||
+      typeof status.err === "string" ||
+      (typeof status.err === "object" && !Array.isArray(status.err))
+    )
+  )
+    throw new Error("Invalid transaction status");
+  boundedNumber(status.slot, 0, slot, "confirmation slot");
+  return status;
 }
 function programPin(value) {
   if (!value || !/^[0-9a-f]{64}$/.test(value.sha256))
@@ -553,8 +582,10 @@ export function planAction(profile, snapshot, action, rentLamports = 0) {
         maker.matcherExpirySlot <= BigInt(snapshot.slot)
       )
         throw new Error("No active maker authorization");
+      const baseFee = snapshot.market.wrapper.trade_fee_base_bps;
       if (
-        maker.matcherFeeCapBps < configured.feeBps ||
+        baseFee > BigInt(maker.matcherFeeCapBps) ||
+        baseFee > BigInt(configured.feeBps) ||
         BigInt(configured.feeBps) > snapshot.market.config.max_trading_fee_bps
       )
         throw new Error("Trade fee exceeds the on-chain consent");
@@ -642,27 +673,51 @@ export class OutrightClient {
     return `${this.profile.genesisHash}:${this.profile.program.address}:${this.profile.market}:${keyString(owner)}`;
   }
   async snapshot(owner) {
+    // Final receipts still constrain later reads, including after a reload or
+    // a confirmation observed by another tab. Old receipts may only have a
+    // landing slot, so retain that bound as well.
+    await this.#readReceipt(owner);
     const result = await readSnapshot(
       this.connection,
       this.profile,
       owner,
       this.#minimumSlot,
     );
-    this.#minimumSlot = Math.max(this.#minimumSlot, result.slot);
+    this.#minimumSlot = boundedNumber(
+      result.slot,
+      this.#minimumSlot,
+      Number.MAX_SAFE_INTEGER,
+      "snapshot slot",
+    );
     return result;
   }
-  async pending(owner) {
+  async #readReceipt(owner) {
     const record = await this.journal.read(this.scope(owner));
     if (record && record.scope !== this.scope(owner))
       throw new Error("Transaction journal identity mismatch");
+    for (const field of ["minimumSlot", "confirmedSlot"])
+      if (record?.[field] !== undefined)
+        this.#minimumSlot = Math.max(
+          this.#minimumSlot,
+          boundedNumber(
+            record[field],
+            0,
+            Number.MAX_SAFE_INTEGER,
+            "receipt slot",
+          ),
+        );
+    return record;
+  }
+  async pending(owner) {
+    const record = await this.#readReceipt(owner);
     return record && !FINAL_STATES.has(record.status) ? record : null;
   }
   async prepare(owner, action) {
     if (this.#busy) throw new Error("A wallet action is already in progress");
     this.#busy = true;
     const revision = ++this.#revision;
-    action = Object.freeze({ ...action });
     try {
+      action = Object.freeze({ ...action });
       if (await this.pending(owner))
         throw new Error(
           "Reconcile the previous transaction before creating another",
@@ -821,6 +876,14 @@ export class OutrightClient {
       // Recheck the network and deployed code after the wallet prompt. State may
       // move between checks and execution; the program's bindings remain final.
       const fresh = await this.snapshot(prepared.owner);
+      if (
+        prepared.action.type === "trade" &&
+        (fresh.market.wrapper.trade_fee_base_bps !==
+          prepared.snapshot.market.wrapper.trade_fee_base_bps ||
+          fresh.market.config.max_trading_fee_bps !==
+            prepared.snapshot.market.config.max_trading_fee_bps)
+      )
+        throw new Error("Trading fee policy changed; review the action again");
       const plan = planAction(
         this.profile,
         fresh,
@@ -861,6 +924,7 @@ export class OutrightClient {
         signature: bs58.encode(signed.signatures[0]),
         blockhash: stored.blockhash,
         lastValidBlockHeight: stored.lastValidBlockHeight,
+        minimumSlot: this.#minimumSlot,
         messageHash: prepared.messageHash,
         status: "signed",
         createdAt: Date.now(),
@@ -904,20 +968,30 @@ export class OutrightClient {
       [record.signature],
       { searchTransactionHistory: true },
     );
-    const status = response.value[0];
+    const minimumSlot = Math.max(
+      this.#minimumSlot,
+      boundedNumber(
+        record.minimumSlot ?? 0,
+        0,
+        Number.MAX_SAFE_INTEGER,
+        "receipt slot",
+      ),
+    );
+    boundedNumber(
+      record.lastValidBlockHeight,
+      0,
+      Number.MAX_SAFE_INTEGER,
+      "receipt block height",
+    );
+    const status = readTransactionStatus(response, minimumSlot);
     if (
       status &&
       ["confirmed", "finalized"].includes(status.confirmationStatus)
     ) {
-      record.status = status.err ? "failed" : status.confirmationStatus;
-      record.error = status.err || null;
-      record.confirmedSlot = boundedNumber(
-        status.slot,
-        0,
-        Number.MAX_SAFE_INTEGER,
-        "confirmation slot",
-      );
-      this.#minimumSlot = Math.max(this.#minimumSlot, record.confirmedSlot);
+      record.status =
+        status.err === null ? status.confirmationStatus : "failed";
+      record.error = status.err;
+      record.confirmedSlot = status.slot;
     } else if (
       boundedNumber(
         await this.connection.getBlockHeight("finalized"),
@@ -928,7 +1002,9 @@ export class OutrightClient {
     ) {
       record.status = "expiredUnresolved";
     } else record.status = "pending";
+    record.minimumSlot = response.context.slot;
     await this.journal.write(record.scope, record);
+    this.#minimumSlot = Math.max(this.#minimumSlot, response.context.slot);
     return Object.freeze({ ...record });
   }
 }

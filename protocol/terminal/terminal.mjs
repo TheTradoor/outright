@@ -469,10 +469,22 @@ async function reviewAction(value) {
   ];
   if (value.type === "trade")
     fields.push(
-      ["Trading fee", `${units(BigInt(client.profile.maker.feeBps), 2)}%`],
+      [
+        "Current base fee",
+        `${units(prepared.snapshot.market.wrapper.trade_fee_base_bps, 2)}%`,
+      ],
+      ["Base fee cap", `${units(BigInt(client.profile.maker.feeBps), 2)}%`],
+      [
+        "Engine fee limit",
+        `${units(prepared.snapshot.market.config.max_trading_fee_bps, 2)}%`,
+      ],
       [
         "Backing fee cap",
         `${units(BigInt(client.profile.maker.backingFeeCapBps), 2)}%`,
+      ],
+      [
+        "Fee policy",
+        "Market rules determine fees at execution. Mark-movement fees can exceed the base fee cap, up to the engine fee limit. Backing fees are separate.",
       ],
     );
   $("review-details").replaceChildren();
@@ -572,12 +584,13 @@ $("sign").addEventListener("click", () =>
     const prepared = review,
       selectedWallet = wallet,
       selectedAccount = account,
-      selectedClient = client;
+      selectedClient = client,
+      current = generation;
     if (!prepared || !selectedAccount)
       throw new Error("Review the action again");
-    const record = await selectedClient.submit(
-      prepared,
-      async (transaction) => {
+    let record;
+    try {
+      record = await selectedClient.submit(prepared, async (transaction) => {
         if (wallet !== selectedWallet || account !== selectedAccount)
           throw new Error("Wallet account changed");
         const [result] = await selectedWallet.features[
@@ -592,8 +605,14 @@ $("sign").addEventListener("click", () =>
         if (wallet !== selectedWallet || account !== selectedAccount)
           throw new Error("Wallet account changed before submission");
         return result.signedTransaction;
-      },
-    );
+      });
+    } catch (error) {
+      if (current !== generation) return;
+      throw error;
+    }
+    // A signed transaction can outlive its wallet session. Keep its durable
+    // receipt for that account without restoring the old session's display.
+    if (current !== generation) return;
     $("review-dialog").close();
     renderReceipt(record);
     notice("Signature saved. Waiting for on-chain confirmation.");
@@ -632,11 +651,16 @@ setInterval(() => {
   });
 }, 10_000);
 controls();
-fetch(new URL("./deployment.json", import.meta.url), { cache: "no-store" })
+fetch(new URL("./deployment.json", import.meta.url), {
+  cache: "no-store",
+  signal: AbortSignal.timeout(15_000),
+})
   .then((response) => {
     if (!response.ok)
       throw new Error("Deployment configuration could not be loaded");
     return response.json();
   })
-  .then((profile) => profile && loadProfile(profile))
-  .catch((error) => notice(error.message, true));
+  .then((profile) => profile && !client && loadProfile(profile))
+  .catch((error) => {
+    if (!client) notice(error.message, true);
+  });

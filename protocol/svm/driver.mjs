@@ -10,7 +10,7 @@ import {
 } from "../src/client.mjs";
 import { planCrank } from "../src/keeper.mjs";
 import { PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { getAssociatedTokenAddressSync } from "../src/token.mjs";
 
 const wireInstruction = (ix) => ({
   programId: ix.programId.toBase58(),
@@ -91,6 +91,7 @@ if (input.operation === "readPortfolio") {
       new PublicKey(input.owner),
     ).toBase58();
   const snapshot = {
+    slot: input.slot,
     owner: input.owner,
     market,
     portfolio,
@@ -100,6 +101,14 @@ if (input.operation === "readPortfolio") {
     userToken,
     tokenAccountExists: input.tokenAccountExists,
     tokenBalance: BigInt(input.tokenBalance || "0"),
+    maker: input.makerAccount
+      ? readPortfolio(account(input.makerAccount), {
+          programId: profile.program.address,
+          address: profile.maker.portfolio,
+          owner: profile.maker.owner,
+          market: profile.market,
+        })
+      : null,
   };
   const plan = planAction(profile, snapshot, input.action, input.rentLamports);
   result = {

@@ -1,4 +1,114 @@
 {
+  "classicToken": {
+    "accountLength": 165,
+    "accounts": [
+      {
+        "expected": {
+          "amount": "0",
+          "closeAuthority": null,
+          "delegate": null,
+          "delegatedAmount": "0",
+          "isFrozen": false,
+          "isInitialized": false,
+          "isNative": false,
+          "mint": "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY",
+          "owner": "29d2S7vB453rNYFdR5Ycwt7y9haRT5fwVwL9zTmBhfV2",
+          "rentExemptReserve": null
+        },
+        "hex": "050505050505050505050505050505050505050505050505050505050505050511111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "expected": {
+          "amount": "9007199254740993",
+          "closeAuthority": null,
+          "delegate": null,
+          "delegatedAmount": "9007199254740993",
+          "isFrozen": false,
+          "isInitialized": true,
+          "isNative": false,
+          "mint": "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY",
+          "owner": "29d2S7vB453rNYFdR5Ycwt7y9haRT5fwVwL9zTmBhfV2",
+          "rentExemptReserve": null
+        },
+        "hex": "050505050505050505050505050505050505050505050505050505050505050511111111111111111111111111111111111111111111111111111111111111110100000000002000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000100000000002000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "expected": {
+          "amount": "18446744073709551615",
+          "closeAuthority": "GgBaCs3NCBuZN12kCJgAW63ydqohFkHEdfdEXBPzLHq",
+          "delegate": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+          "delegatedAmount": "18446744073709551615",
+          "isFrozen": true,
+          "isInitialized": true,
+          "isNative": true,
+          "mint": "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY",
+          "owner": "29d2S7vB453rNYFdR5Ycwt7y9haRT5fwVwL9zTmBhfV2",
+          "rentExemptReserve": "18446744073709551615"
+        },
+        "hex": "05050505050505050505050505050505050505050505050505050505050505051111111111111111111111111111111111111111111111111111111111111111ffffffffffffffff0100000003030303030303030303030303030303030303030303030303030303030303030201000000ffffffffffffffffffffffffffffffff010000000404040404040404040404040404040404040404040404040404040404040404"
+      },
+      {
+        "expected": {
+          "amount": "18446744073709551614",
+          "closeAuthority": "GgBaCs3NCBuZN12kCJgAW63ydqohFkHEdfdEXBPzLHq",
+          "delegate": "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8",
+          "delegatedAmount": "18446744073709551614",
+          "isFrozen": false,
+          "isInitialized": true,
+          "isNative": true,
+          "mint": "LbUiWL3xVV8hTFYBVdbTNrpDo41NKS6o3LHHuDzjfcY",
+          "owner": "29d2S7vB453rNYFdR5Ycwt7y9haRT5fwVwL9zTmBhfV2",
+          "rentExemptReserve": "0"
+        },
+        "hex": "05050505050505050505050505050505050505050505050505050505050505051111111111111111111111111111111111111111111111111111111111111111feffffffffffffff01000000030303030303030303030303030303030303030303030303030303030303030301010000000000000000000000feffffffffffffff010000000404040404040404040404040404040404040404040404040404040404040404"
+      }
+    ],
+    "mintLength": 82,
+    "mints": [
+      {
+        "expected": {
+          "decimals": 6,
+          "freezeAuthority": null,
+          "isInitialized": false,
+          "mintAuthority": null,
+          "supply": "0"
+        },
+        "hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "expected": {
+          "decimals": 6,
+          "freezeAuthority": null,
+          "isInitialized": true,
+          "mintAuthority": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+          "supply": "9007199254740993"
+        },
+        "hex": "01000000010101010101010101010101010101010101010101010101010101010101010101000000000020000601000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "expected": {
+          "decimals": 6,
+          "freezeAuthority": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+          "isInitialized": true,
+          "mintAuthority": null,
+          "supply": "18446744073709551615"
+        },
+        "hex": "000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffff0601010000000202020202020202020202020202020202020202020202020202020202020202"
+      },
+      {
+        "expected": {
+          "decimals": 6,
+          "freezeAuthority": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+          "isInitialized": true,
+          "mintAuthority": "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+          "supply": "18446744073709551614"
+        },
+        "hex": "010000000101010101010101010101010101010101010101010101010101010101010101feffffffffffffff0601010000000202020202020202020202020202020202020202020202020202020202020202"
+      }
+    ],
+    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "rustVersion": "4.0.3"
+  },
   "constants": {
     "headerLength": 16,
     "magic": "5045524356313600",

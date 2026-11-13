@@ -10,6 +10,7 @@ use percolator_prog::{
 };
 use serde_json::{json, Value};
 mod layouts;
+mod token;
 
 fn fixture(name: &str, args: Value, ix: Instruction) -> Value {
     let data = ix.encode();
@@ -108,6 +109,7 @@ fn main() {
     println!("{}", serde_json::to_string_pretty(&json!({
         "wrapperCommit":"b42fe017c2bc953778f90d0cb85cd1d426b6e783",
         "engineCommit":"b22bef7d6122fd7d82680ce9859e8b77fd8ef656",
+        "classicToken": token::export(),
         "keeper": {
             "nonProgressError": percolator_prog::error::PercolatorError::EngineNonProgress as u32,
             "oracleOwners": [

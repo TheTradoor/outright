@@ -44,14 +44,16 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
     },
   );
   setGlobal("setInterval", () => 0);
+  let finishStartup;
+  const startup = new Promise((resolve) => {
+    finishStartup = resolve;
+  });
   setGlobal("fetch", async (url) => {
     assert.ok(
       String(url).endsWith("/deployment.json"),
       "terminal fixture must not access a network",
     );
-    return new Response(JSON.stringify(f.profile), {
-      headers: { "content-type": "application/json" },
-    });
+    return startup;
   });
   w.HTMLCanvasElement.prototype.getContext = () => ({
     scale() {},
@@ -77,6 +79,14 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
     noAssets = false,
     makerStatus = "enabled";
   const originalSnapshot = OutrightClient.prototype.snapshot;
+  const originalPrepare = OutrightClient.prototype.prepare;
+  const originalSubmit = OutrightClient.prototype.submit;
+  OutrightClient.prototype.prepare = function (...args) {
+    return originalPrepare.apply(f.client, args);
+  };
+  OutrightClient.prototype.submit = function (...args) {
+    return originalSubmit.apply(f.client, args);
+  };
   OutrightClient.prototype.snapshot = async function (owner) {
     if (holdRpc) await holdRpc;
     if (rejectRpc) throw new Error("RPC unavailable");
@@ -126,9 +136,11 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
       "solana:signTransaction": {
         version: "1.0.0",
         supportedTransactionVersions: [0],
-        signTransaction: async () => {
-          throw new Error("No signatures in DOM tests");
-        },
+        // The deterministic fixture key signs locally. No external wallet or
+        // network is involved; the client still verifies the real signature.
+        signTransaction: async ({ transaction }) => [
+          { signedTransaction: await f.sign(transaction) },
+        ],
       },
     },
   };
@@ -165,6 +177,11 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
   };
   try {
     await import("../terminal/terminal.mjs");
+    Object.defineProperty(el("profile-file"), "files", {
+      configurable: true,
+      value: [{ size: 4096, text: async () => JSON.stringify(f.profile) }],
+    });
+    el("profile-file").dispatchEvent(new w.Event("change"));
     await until(
       () => el("footer-state").textContent === "localnet profile loaded",
       "profile did not load",
@@ -175,6 +192,61 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
         await connect();
         assert.equal(el("wallet-balance").textContent, "1000");
         assert.equal(el("maker-state").textContent, "Authorized");
+      },
+    );
+    await t.test(
+      "a late startup profile cannot replace a manually selected profile",
+      async () => {
+        finishStartup(
+          new Response(
+            JSON.stringify({
+              ...f.profile,
+              collateral: { ...f.profile.collateral, symbol: "OTHER" },
+            }),
+            { headers: { "content-type": "application/json" } },
+          ),
+        );
+        await startup;
+        await pause(0);
+        assert.equal(el("collateral-symbol").textContent, "TEST");
+        assert.equal(el("price").textContent, "150");
+        assert.equal(el("wallet-balance").textContent, "1000");
+        assert.notEqual(el("wallet-button").textContent, "Connect wallet");
+      },
+    );
+    // Restore the intended profile if the startup-race regression fails.
+    if (el("price").textContent !== "150") {
+      el("profile-file").dispatchEvent(new w.Event("change"));
+      await until(
+        () =>
+          el("footer-state").textContent === "localnet profile loaded" &&
+          !el("wallet-button").disabled,
+        "profile did not recover",
+      );
+      await connect();
+    }
+    await t.test(
+      "trade review separates the market base fee from the taker cap",
+      async () => {
+        const form = el("trade-form");
+        form.elements.namedItem("size").value = "0.1";
+        form.elements.namedItem("limitPrice").value = "150";
+        form.dispatchEvent(new w.Event("submit", { cancelable: true }));
+        await until(
+          () => el("review-dialog").open && !el("wallet-button").disabled,
+          "trade review did not open",
+        );
+        const fields = Object.fromEntries(
+          [...el("review-details").children].map((row) => [
+            row.querySelector("dt").textContent,
+            row.querySelector("dd").textContent,
+          ]),
+        );
+        assert.equal(fields["Current base fee"], "0%");
+        assert.equal(fields["Base fee cap"], "0.1%");
+        assert.match(fields["Engine fee limit"], /%$/);
+        assert.match(fields["Fee policy"], /can exceed the base fee cap/);
+        el("review-dialog").close();
       },
     );
     await t.test(
@@ -203,25 +275,28 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
       },
     );
     for (const status of ["revoked", "expired"])
-      await t.test(`a ${status} maker disables trade review`, async () => {
-        makerStatus = status;
-        el("refresh").click();
-        await until(
-          () =>
-            el("maker-state").textContent === "Unavailable" &&
-            !el("wallet-button").disabled,
-          "maker change did not render",
-        );
-        assert.equal(el("trade-review").disabled, true);
-        makerStatus = "enabled";
-        el("refresh").click();
-        await until(
-          () =>
-            el("maker-state").textContent === "Authorized" &&
-            !el("wallet-button").disabled,
-          "maker did not recover",
-        );
-      });
+      await t.test(
+        `${status === "expired" ? "an" : "a"} ${status} maker disables trade review`,
+        async () => {
+          makerStatus = status;
+          el("refresh").click();
+          await until(
+            () =>
+              el("maker-state").textContent === "Unavailable" &&
+              !el("wallet-button").disabled,
+            "maker change did not render",
+          );
+          assert.equal(el("trade-review").disabled, true);
+          makerStatus = "enabled";
+          el("refresh").click();
+          await until(
+            () =>
+              el("maker-state").textContent === "Authorized" &&
+              !el("wallet-button").disabled,
+            "maker did not recover",
+          );
+        },
+      );
     await t.test(
       "RPC failure clears actionable market data and recovery restores it",
       async () => {
@@ -308,6 +383,89 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
         assert.equal(el("wallet-button").textContent, "Connect wallet");
       },
     );
+    for (const outcome of ["submitted", "unknown", "receipt write failure"])
+      await t.test(
+        `a late ${outcome} result stays with the disconnected account`,
+        async () => {
+          await connect();
+          const send = f.rpc.sendRawTransaction;
+          const write = f.journal.write;
+          const entered = Promise.withResolvers();
+          const release = Promise.withResolvers();
+          const before = f.rpc.sent.length;
+          f.journal.write = async (scope, record) => {
+            if (
+              outcome === "receipt write failure" &&
+              record.status !== "signed"
+            )
+              throw new Error("Receipt storage unavailable");
+            await write(scope, record);
+            w.localStorage.setItem(
+              "outright.transaction.v1:" + scope,
+              JSON.stringify(record),
+            );
+          };
+          f.rpc.sendRawTransaction = async (bytes) => {
+            const signature = await send(bytes);
+            entered.resolve();
+            await release.promise;
+            if (outcome === "unknown") throw new Error("Send response lost");
+            return signature;
+          };
+          try {
+            el("trade-form").dispatchEvent(
+              new w.Event("submit", { cancelable: true }),
+            );
+            await until(
+              () => el("review-dialog").open && !el("sign").disabled,
+              "trade review did not open",
+            );
+            el("sign").click();
+            await entered.promise;
+            const saved = await f.client.pending(account.address);
+            assert.equal(saved.status, "signed");
+            changed({ accounts: [] });
+            release.resolve();
+            await until(
+              () => !el("wallet-button").disabled,
+              "send response did not settle",
+            );
+            unavailable();
+            assert.equal(
+              el("receipt-state").textContent,
+              "No transaction submitted",
+            );
+            assert.equal(el("receipt-link").hidden, true);
+            assert.equal(
+              el("feedback").textContent,
+              "Wallet account changed. Reconnect the account you want to use.",
+            );
+            assert.equal(
+              (await f.client.pending(account.address)).signature,
+              saved.signature,
+            );
+            await connect();
+            assert.equal(el("receipt-link").textContent, saved.signature);
+            assert.equal(
+              el("receipt-state").textContent,
+              outcome === "submitted"
+                ? "Sent, awaiting confirmation"
+                : outcome === "unknown"
+                  ? "Confirmation unknown"
+                  : "Signature saved",
+            );
+            assert.equal(f.rpc.sent.length, before + 1);
+          } finally {
+            release.resolve();
+            f.rpc.sendRawTransaction = send;
+            f.journal.write = write;
+            f.records.clear();
+            w.localStorage.clear();
+            if (el("wallet-button").textContent !== "Connect wallet")
+              changed({ accounts: [] });
+          }
+        },
+      );
     await t.test(
       "unregistering multiple wallets clears the selected wallet",
       async () => {
@@ -320,6 +478,8 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
   } finally {
     unregister();
     OutrightClient.prototype.snapshot = originalSnapshot;
+    OutrightClient.prototype.prepare = originalPrepare;
+    OutrightClient.prototype.submit = originalSubmit;
     dom.window.close();
     for (const [name, descriptor] of saved) {
       if (descriptor) Object.defineProperty(globalThis, name, descriptor);

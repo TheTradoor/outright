@@ -1,8 +1,16 @@
 # Native integration verification
 
-Local verification completed on 12 November 2026. These results apply to the
-native integration change and the pinned sources below. They are not results
-from a deployed market or an independent audit.
+Latest local verification completed on 13 November 2026: the source and Rust
+contract checks passed, along with 212 JavaScript tests, 11 SBF tests and the
+terminal build. A clean dependency install followed by `npm audit` reported
+zero vulnerabilities. These results do not come from a deployed market or an
+independent audit. The synchronized source and GitHub CI results are tracked in
+[pull request #5](https://github.com/TheTradoor/outright/pull/5).
+
+The sections below record the initial 12 November baseline and each subsequent
+extension. Earlier test counts describe those revisions. See
+[Funding, liquidation and classic SPL Token](#funding-liquidation-and-classic-spl-token)
+for the latest coverage and dependency changes.
 
 ## Sources and toolchains
 
@@ -68,9 +76,11 @@ not worst-case production limits.
 
 ## Remaining verification
 
-Nonzero fees and funding, liquidation, insolvency, production matcher behavior,
-and full recovery require additional
-transaction coverage. Current-cluster compatibility, funded liquidity, wallet
+Nonzero base fees, fractional funding and bounded partial liquidation now have
+local SBF coverage, described below. Live Hybrid funding, mark-movement and
+backing fees, liquidation stress cases, insolvency, production matcher behavior
+and full recovery still require additional transaction coverage.
+Current-cluster compatibility, funded liquidity, wallet
 extension testing, service recovery, and independent security review
 remain release requirements. Full Kani verification was not run for this change.
 
@@ -148,18 +158,137 @@ an actual local HTTP server, including restart reconciliation. The override
 removes the old `uuid` and `stream-json` dependency paths. The terminal bundle
 also builds with this dependency set.
 
-The remaining `npm audit` result contains three high-severity package entries
+At this revision, `npm audit` reported three high-severity package entries
 for one underlying advisory: [GHSA-3gc7-fjrx-p6mg](https://github.com/advisories/GHSA-3gc7-fjrx-p6mg).
-`bigint-buffer` 1.1.5 has no published official fix. It enters through
-`@solana/spl-token` and `@solana/buffer-layout-utils`. The reported overflow is
-in the native binding. A clean `npm ci --ignore-scripts` installs no native
-binding, and `protocol/.npmrc` makes script suppression the project default.
-The browser bundle uses the package's JavaScript implementation. Account readers
-also validate exact SPL account sizes before decoding fixed-width integers.
+The affected `bigint-buffer` 1.1.5 package entered through `@solana/spl-token`
+and `@solana/buffer-layout-utils`. Disabling install scripts avoided building
+its native binding but did not remove the advisory. The latest extension below
+removes that dependency path. Script suppression remains the project default.
+The audit's suggested downgrade to SPL Token 0.1.8 was not applied.
 
-These measures do not remove the advisory or constitute a patched dependency.
-A previously built native binding can remain after `npm install`; use a clean
-`npm ci --ignore-scripts`, and do not rebuild the optional binding. Resolve or
-independently review this dependency before a public release. The audit's
-suggested downgrade to SPL Token 0.1.8 is not an API-compatible repair and was
-not applied.
+## Fee consent and confirmation integrity
+
+Built on merged commit `b3b0e2ac563315e9bebc82cd074d50c736b08ed5`, retaining the
+same engine and wrapper pins. On 13 November 2026, the Rust contract comparison,
+174 JavaScript tests, nine SBF tests and terminal bundle passed locally.
+
+The new SBF case executes the wallet planner with a 37 bps market base fee, a
+50 bps taker base fee cap and 37 bps maker consent. This distinction matters:
+the pinned single-trade CPI route charges the market base fee, not the caller's
+fee-cap input. The client now compares both parties' consent with that on-chain
+base fee. Review shows the current base fee, taker cap and engine fee limit
+separately. A changed base fee or engine limit during signing requires review
+again. Mark-movement fees can exceed the base cap; backing fees are separate.
+
+At a fixed execution price of 150.000001, a 0.100001-unit fill charges 55,501
+collateral atoms to each counterparty. Partial closes of 0.050000 and 0.050001
+units charge 27,751 atoms each. Separate long and short cases also open and
+close one micro-unit, charging one atom per fill. After each fill, tests compare
+capital, insurance, aggregate capital, positions, vault and SPL token balances.
+Withdrawals return the remaining capital; total observed token supply stays
+unchanged. A taker cap below the base fee, a later failing instruction and a
+withdrawal one atom above remaining capital must return exact errors and leave
+market, portfolios, matcher context and tracked token accounts unchanged.
+
+Wallet and keeper reconciliation reject malformed, stale or inconsistent
+status responses without releasing the pending receipt. The wallet persists
+its observed slot across reloads. Keeper block heights must be nonnegative safe
+integers, and the last pre-signing snapshot cannot precede the fee estimate.
+These tests use RPC fixtures, not a public validator.
+
+Twelve DOM tests now cover the terminal, including a delayed startup profile
+after manual selection and the distinction between base fee and cap in review.
+The startup request is bounded, and a failed action read releases the wallet
+action lock. Browser rendering, mobile behavior and wallet-extension execution
+remain unverified. The dependency advisory was still open at this revision.
+
+## Receipt slot recovery and wallet session changes
+
+Built on local commit `f0dc09f7d5192778080e8aed88b6ee0da90bc9ac`, with the same
+engine and wrapper pins. On 13 November 2026, the Rust contract comparison,
+194 JavaScript tests, nine SBF tests and terminal bundle passed locally.
+GitHub upload and CI were incomplete when this local run was recorded.
+
+New regressions reproduce older account data after a page reload, even when
+the saved transaction was confirmed, finalized or failed. Account reads and new
+reviews now inherit both the receipt's response-bank slot and its landing slot.
+Legacy final receipts retain their landing-slot bound. Invalid slot values are
+rejected. Out-of-order account reads and a receipt write that completes after a
+newer snapshot cannot move the client's slot bound backward.
+
+The 15 DOM tests include actual client submission with deterministic fixture
+signatures. They delay the send response, disconnect the wallet, and check a
+successful response, a lost response and a failed receipt update. The old
+receipt and error must not reappear in the disconnected interface. Reconnecting
+the original account restores its saved signature without another broadcast.
+Disconnecting does not cancel a signed transaction.
+
+These additions covered receipt consistency and session behavior. Funding,
+liquidation, recovery and the dependency advisory were not addressed by this
+revision. The subsequent extension is recorded below.
+
+## Funding, liquidation and classic SPL Token
+
+Built on local commit `84bd5488d0a95c91111334dcec5da4720c5957f1`, retaining both
+source pins and the SBF binary hashes recorded above. On 13 November 2026, a
+clean install, the Rust contract comparison, 212 JavaScript tests, 11 SBF tests
+and the terminal build passed locally. The JavaScript count includes 15 DOM
+tests and 18 new token-format regressions. The synchronized GitHub source is
+commit `522bc71e1c0b295a00bbd62233ecebc4abfe6379`; its tree matches the locally
+tested tree exactly. GitHub results are linked in pull request #5. These tests
+do not run on a public cluster.
+
+### Funding settlement
+
+The new SBF case supplies a controlled AuthMark premium in both directions and
+compares one 24-slot settlement with two 12-slot settlements. A transfer of
+2.962962936 collateral atoms charges the payer three atoms and records two
+atoms of receiver PnL under the engine's rounding rules. Fractional carry avoids
+charging four atoms when settlement is split. Both settlement orders are
+exercised. Index values, capital, PnL, aggregate capital, insurance and SPL
+custody are checked against the resulting program state.
+
+A later failing instruction rolls the funding settlement back. Repeated cranks
+at the same slot may refresh bookkeeping, but cannot collect funding again and
+must reach the exact non-progress error. The receiver's recorded PnL is not a
+tested withdrawal or payout. AuthMark is a local accounting fixture; this test
+does not add AuthMark support to the devnet keeper or prove live Hybrid funding.
+
+### Partial liquidation
+
+The keeper planner is exercised for both a long and a short position with ten
+units of collateral and 150 units of initial notional. Synthetic Pyth prices
+move against each position through two bounded oracle updates. Permissionless
+cranks recognize the loss and partially liquidate the unhealthy position.
+Tests independently calculate the rounded liquidation fee and check remaining
+exposure, capital, insurance, aggregate capital and the health certificate.
+
+The trader's SPL custody and the peer portfolio stay unchanged during this
+maintenance. A stale oracle rejects liquidation. A later failing instruction
+rolls back both the refresh and liquidation attempts. A one-atom withdrawal
+with the remaining active position returns `EngineStale` and changes no tracked
+accounts, consistent with the pinned engine's withdrawal rule.
+
+### Token dependency removal
+
+The client now uses a small classic SPL Token reader and ATA instruction builder
+in `protocol/src/token.mjs`. It uses native JavaScript `BigInt`, requires exact
+82-byte mint and 165-byte account layouts, validates ownership and flags, and
+rejects noncanonical option tags. Token-2022 is not supported.
+
+The Rust conformance exporter packs mint and token-account fixtures with the
+official `spl-token` 4.0.3 implementation. These include maximum u64 values,
+values above JavaScript's safe integer range, optional authorities, native
+reserve values and all account states. Associated-address and instruction
+fixtures were generated with `@solana/spl-token` 0.4.15 before its removal.
+The SBF suite also executes atomic ATA creation and withdrawal through the new
+builder against the real SPL program in the local VM.
+
+A clean `npm ci --prefix protocol --ignore-scripts` no longer installs
+`@solana/spl-token`, `@solana/buffer-layout-utils` or `bigint-buffer`. The locked
+dependency set returned zero npm advisories on 13 November 2026. This result
+describes that audit query, not an independent security assessment.
+
+Browser rendering, mobile behavior, wallet-extension execution, public-cluster
+compatibility, live service operation, insolvency and complete recovery exits
+remain unverified. No engine or wrapper source was changed.

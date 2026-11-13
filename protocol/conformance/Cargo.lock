@@ -1279,6 +1279,8 @@ dependencies = [
  "percolator",
  "percolator-prog",
  "serde_json",
+ "solana-program 1.18.26",
+ "spl-token",
 ]
 
 [[package]]
