@@ -7,7 +7,12 @@ import {
 } from "@solana/web3.js";
 import bs58 from "bs58";
 import contract from "../upstream-contract.json" with { type: "json" };
-import { validateProfile, verifyProgram, sha256 } from "./client.mjs";
+import {
+  validateProfile,
+  verifyProgram,
+  sha256,
+  readTransactionStatus,
+} from "./client.mjs";
 import { readMarket } from "./market.mjs";
 import { readPortfolio } from "./accounts.mjs";
 import { buildInstruction } from "./instructions.mjs";
@@ -271,6 +276,7 @@ function validateState(state, configHash) {
     state.pending &&
     (!/^[1-9A-HJ-NP-Za-km-z]{64,88}$/.test(state.pending.signature) ||
       !Number.isSafeInteger(state.pending.lastValidBlockHeight) ||
+      state.pending.lastValidBlockHeight < 0 ||
       ![
         "signed",
         "submitted",
@@ -308,30 +314,28 @@ export class OutrightKeeper {
         const response = await rpc.getSignatureStatuses([receipt.signature], {
           searchTransactionHistory: true,
         });
-        const status = response.value[0];
+        const status = readTransactionStatus(response, state.minimumSlot);
         if (
           status &&
           ["confirmed", "finalized"].includes(status.confirmationStatus)
         ) {
-          receipt.status = status.err ? "failed" : status.confirmationStatus;
-          receipt.error = status.err ?? null;
-          receipt.confirmedSlot = count(
-            status.slot,
-            0,
-            Number.MAX_SAFE_INTEGER,
-            "confirmation slot",
-          );
-          state.minimumSlot = Math.max(
-            state.minimumSlot,
-            receipt.confirmedSlot,
-          );
+          receipt.status =
+            status.err === null ? status.confirmationStatus : "failed";
+          receipt.error = status.err;
+          receipt.confirmedSlot = status.slot;
           state.lastResult = receipt;
           state.pending = null;
         } else if (
-          (await rpc.getBlockHeight("finalized")) > receipt.lastValidBlockHeight
+          count(
+            await rpc.getBlockHeight("finalized"),
+            0,
+            Number.MAX_SAFE_INTEGER,
+            "block height",
+          ) > receipt.lastValidBlockHeight
         )
           receipt.status = "expiredUnresolved";
         else receipt.status = "pending";
+        state.minimumSlot = response.context.slot;
         await this.journal.write(state);
         return {
           status: receipt.status,
@@ -441,7 +445,7 @@ export class OutrightKeeper {
       if (!send) {
         state.cursor =
           (state.cursor + 1) % (c.targets.length * c.assets.length);
-        state.minimumSlot = simulated.context.slot;
+        state.minimumSlot = fee.context.slot;
         state.lastResult = result;
         await this.journal.write(state);
         return result;
@@ -450,12 +454,7 @@ export class OutrightKeeper {
         throw new Error("Sending requires the configured fee-payer signer");
       // Recheck deployment and account bindings after simulation. The on-chain
       // program remains authoritative when state changes before execution.
-      const fresh = await readKeeperSnapshot(
-        rpc,
-        c,
-        target,
-        simulated.context.slot,
-      );
+      const fresh = await readKeeperSnapshot(rpc, c, target, fee.context.slot);
       const freshInstruction = planCrank(c, fresh, asset.index);
       if (fresh.market.mode !== snapshot.market.mode)
         throw new Error("Market mode changed after simulation");
@@ -470,8 +469,12 @@ export class OutrightKeeper {
       )
         throw new Error("Crank account selection changed after simulation");
       if (
-        (await rpc.getBlockHeight("confirmed")) >
-        recent.value.lastValidBlockHeight
+        count(
+          await rpc.getBlockHeight("confirmed"),
+          0,
+          Number.MAX_SAFE_INTEGER,
+          "block height",
+        ) > recent.value.lastValidBlockHeight
       )
         throw new Error("Crank blockhash expired");
       if (
@@ -495,7 +498,7 @@ export class OutrightKeeper {
       ).toString();
       state.attempts += 1;
       state.cursor = (state.cursor + 1) % (c.targets.length * c.assets.length);
-      state.minimumSlot = Math.max(simulated.context.slot, fresh.slot);
+      state.minimumSlot = fresh.slot;
       await this.journal.write(state); // Must complete durably before broadcast.
       try {
         const signature = await rpc.sendRawTransaction(tx.serialize(), {
