@@ -1,8 +1,8 @@
 # Native integration verification
 
-Latest local verification completed on 13 November 2026: the source and Rust
-contract checks and terminal build passed. The client now has 413 JavaScript
-tests, including 43 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
+Latest local verification completed on 14 November 2026 (UTC+7): the source and Rust
+contract checks and terminal build passed. The client now has 419 JavaScript
+tests, including 49 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
 audit at the preceding revision reported zero vulnerabilities; this change
 does not modify dependencies. These results do not come from a deployed market
 or an independent audit. The preceding funding and liquidation work was merged
@@ -10,7 +10,7 @@ in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
 
 The sections below record the initial 12 November baseline and each subsequent
 extension. Earlier test counts describe those revisions. See
-[Wallet selection lifecycle](#wallet-selection-lifecycle)
+[Submission progress and receipt recovery](#submission-progress-and-receipt-recovery)
 for the latest coverage. Earlier sections record settlement and dependency changes.
 
 ## Sources and toolchains
@@ -679,3 +679,37 @@ JavaScript tests pass, including 43 terminal DOM scenarios. The 17-case SBF suit
 engine, wrapper, account layouts, instruction builders and dependency pins are
 unchanged. These results do not establish compatibility with a real wallet
 extension, a physical mobile device or a public cluster.
+
+
+## Submission progress and receipt recovery
+
+Built on merged commit `e919ff97796b2ce10f8256c25fa528bcbd19fbb7`. The review's
+cancel control remained available while signing, revalidation or sending was
+pending even though closing that dialog did not cancel the operation. A second
+receipt write could also fail after broadcast, leaving the terminal displaying
+no transaction or an earlier transaction instead of the already saved signature.
+
+The review now disables its cancel control, close form and Escape during
+submission, and displays the wallet and verification/submission phases. The
+wallet can reject an unapproved request. Pre-signing cancellation still works.
+The terminal closes a consumed review on failure, then reads the durable
+pending receipt before releasing controls. A recovered signature remains
+visible while stale actionable data is cleared. If receipt reads also fail,
+**Receipt unavailable** replaces the misleading empty receipt state. A later
+refresh can restore the receipt, and reconciliation does not send again.
+Recovery responses remain scoped to their originating wallet session.
+
+Six additional DOM scenarios cover dismissal guards across signing,
+revalidation and send, acknowledged and lost send responses followed by a
+status-write failure, unreadable receipt storage, replacement of an older final
+receipt, and a delayed receipt lookup after wallet disconnect. All six fail
+against the preceding terminal. The recovery cases use the real client,
+deterministic signatures and RPC/storage adapters, preserve one send attempt,
+and recover confirmation without a second send. The dismissal case also checks
+pre-sign cancellation and duplicate-click rejection.
+
+Source checks, Rust contract comparison, the terminal build and all 419
+JavaScript tests pass, including 49 terminal DOM scenarios. The 17-case SBF
+suite, engine, wrapper, account layouts, transaction instructions and dependency
+pins are unchanged. These are not real-wallet, physical-mobile, public-cluster
+or independent-security-audit results.

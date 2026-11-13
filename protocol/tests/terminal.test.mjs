@@ -848,6 +848,339 @@ test("terminal recovers from unavailable RPC and wallet lifecycle changes", asyn
       },
     );
 
+    const prepareTrade = async () => {
+      el("trade-form").dispatchEvent(
+        new w.Event("submit", { cancelable: true }),
+      );
+      await until(
+        () => el("review-dialog").open && !el("sign").disabled,
+        "trade review did not open",
+      );
+    };
+    await t.test(
+      "review cancellation stays unavailable from the wallet prompt through broadcast",
+      { timeout: 15_000 },
+      async () => {
+        await connect();
+        const sign = f.sign,
+          read = f.rpc.getMultipleAccountsInfoAndContext,
+          send = f.rpc.sendRawTransaction,
+          write = f.journal.write;
+        const walletEntered = Promise.withResolvers(),
+          walletRelease = Promise.withResolvers();
+        const verifyEntered = Promise.withResolvers(),
+          verifyRelease = Promise.withResolvers();
+        const sendEntered = Promise.withResolvers(),
+          sendRelease = Promise.withResolvers();
+        let holdVerification = false,
+          prompts = 0;
+        const before = f.rpc.sent.length;
+        f.sign = async (bytes) => {
+          prompts++;
+          const result = await sign(bytes);
+          walletEntered.resolve();
+          await walletRelease.promise;
+          return result;
+        };
+        f.rpc.getMultipleAccountsInfoAndContext = async (...args) => {
+          if (holdVerification) {
+            holdVerification = false;
+            verifyEntered.resolve();
+            await verifyRelease.promise;
+          }
+          return read(...args);
+        };
+        f.rpc.sendRawTransaction = async (bytes) => {
+          const signature = await send(bytes);
+          sendEntered.resolve();
+          await sendRelease.promise;
+          return signature;
+        };
+        f.journal.write = async (scope, record) => {
+          await write(scope, record);
+          w.localStorage.setItem(
+            "outright.transaction.v1:" + scope,
+            JSON.stringify(record),
+          );
+        };
+        const cancel = el("review-dialog").querySelector(
+          '[aria-label="Cancel transaction review"]',
+        );
+        const locked = () => {
+          assert.equal(
+            cancel.disabled,
+            true,
+            "Cancel must not imply it can undo an active submission",
+          );
+          const event = new w.Event("cancel", { cancelable: true });
+          el("review-dialog").dispatchEvent(event);
+          assert.equal(
+            event.defaultPrevented,
+            true,
+            "Escape must not dismiss an active submission",
+          );
+          const closeForm = new w.Event("submit", { cancelable: true });
+          el("review-dialog").querySelector("form").dispatchEvent(closeForm);
+          assert.equal(closeForm.defaultPrevented, true);
+          assert.equal(el("review-dialog").open, true);
+          assert.equal(el("sign").disabled, true);
+          assert.equal(el("review-progress").hidden, false);
+        };
+        try {
+          await prepareTrade();
+          assert.equal(cancel.disabled, false);
+          el("review-dialog").close();
+          assert.equal(prompts, 0);
+          assert.equal(f.rpc.sent.length, before);
+          await prepareTrade();
+          holdVerification = true;
+          el("sign").click();
+          await walletEntered.promise;
+          locked();
+          assert.match(el("review-progress").textContent, /wallet/i);
+          el("sign").click();
+          assert.equal(prompts, 1);
+          walletRelease.resolve();
+          await verifyEntered.promise;
+          locked();
+          assert.match(el("review-progress").textContent, /verifying/i);
+          verifyRelease.resolve();
+          await sendEntered.promise;
+          locked();
+          sendRelease.resolve();
+          await until(
+            () => !el("wallet-button").disabled,
+            "submission did not finish",
+          );
+          assert.equal(el("review-dialog").open, false);
+          assert.equal(cancel.disabled, false);
+          assert.equal(el("review-progress").hidden, true);
+          assert.equal(
+            el("receipt-state").textContent,
+            "Sent, awaiting confirmation",
+          );
+          assert.equal(f.rpc.sent.length, before + 1);
+        } finally {
+          walletRelease.resolve();
+          verifyRelease.resolve();
+          sendRelease.resolve();
+          await until(
+            () => !el("wallet-button").disabled,
+            "submission did not settle during cleanup",
+          );
+          f.sign = sign;
+          f.rpc.getMultipleAccountsInfoAndContext = read;
+          f.rpc.sendRawTransaction = send;
+          f.journal.write = write;
+          f.records.clear();
+          w.localStorage.clear();
+          changed({ accounts: [] });
+        }
+      },
+    );
+    for (const outcome of [
+      "acknowledged",
+      "response lost",
+      "receipt unreadable",
+      "previous final receipt",
+    ])
+      await t.test(
+        `post-send persistence failure preserves recovery: ${outcome}`,
+        { timeout: 15_000 },
+        async () => {
+          const write = f.journal.write,
+            send = f.rpc.sendRawTransaction,
+            getItem = w.Storage.prototype.getItem,
+            latest = f.rpc.getLatestBlockhashAndContext;
+          let unreadable = false,
+            previousSignature;
+          const mirror = async (scope, record) => {
+            await write(scope, record);
+            w.localStorage.setItem(
+              "outright.transaction.v1:" + scope,
+              JSON.stringify(record),
+            );
+          };
+          try {
+            if (outcome === "previous final receipt") {
+              const old = await seedPending();
+              previousSignature = old.signature;
+              f.rpc.status = {
+                slot: 123,
+                confirmationStatus: "confirmed",
+                err: null,
+              };
+              const final = await f.client.reconcile(account.address);
+              w.localStorage.setItem(
+                "outright.transaction.v1:" + final.scope,
+                JSON.stringify(final),
+              );
+              f.rpc.getLatestBlockhashAndContext = async () => ({
+                context: { slot: 123 },
+                value: {
+                  blockhash: pub(24).toBase58(),
+                  lastValidBlockHeight: 201,
+                },
+              });
+            }
+            f.rpc.status = null;
+            await connect();
+            const before = f.rpc.sent.length;
+            f.journal.write = async (scope, record) => {
+              if (record.status !== "signed") {
+                unreadable = outcome === "receipt unreadable";
+                throw new Error("Receipt status could not be saved");
+              }
+              await mirror(scope, record);
+            };
+            w.Storage.prototype.getItem = function (key) {
+              if (unreadable) throw new Error("Receipt reads unavailable");
+              return getItem.call(this, key);
+            };
+            f.rpc.sendRawTransaction = async (bytes) => {
+              const signature = await send(bytes);
+              if (outcome === "response lost")
+                throw new Error("Send response lost");
+              return signature;
+            };
+            await prepareTrade();
+            el("sign").click();
+            await until(
+              () => !el("wallet-button").disabled,
+              "send failure did not settle",
+            );
+            const pending = await f.client.pending(account.address);
+            assert.equal(pending.status, "signed");
+            assert.equal(f.rpc.sent.length, before + 1);
+            assert.equal(el("review-dialog").open, false);
+            assert.match(
+              el("feedback").textContent,
+              /Receipt status could not be saved/,
+            );
+            unavailable();
+            if (unreadable) {
+              assert.equal(
+                el("receipt-state").textContent,
+                "Receipt unavailable",
+              );
+              assert.equal(el("receipt-link").hidden, true);
+              unreadable = false;
+              el("refresh").click();
+              await until(
+                () => !el("wallet-button").disabled,
+                "storage recovery did not refresh",
+              );
+            }
+            assert.equal(el("receipt-state").textContent, "Signature saved");
+            assert.equal(el("receipt-link").hidden, false);
+            assert.equal(el("receipt-link").textContent, pending.signature);
+            if (previousSignature)
+              assert.notEqual(pending.signature, previousSignature);
+            f.journal.write = mirror;
+            f.rpc.status = {
+              slot: 123,
+              confirmationStatus: "confirmed",
+              err: null,
+            };
+            el("reconcile").click();
+            await until(
+              () =>
+                el("receipt-state").textContent === "Confirmed on Solana" &&
+                !el("wallet-button").disabled,
+              "saved signature did not recover",
+            );
+            assert.equal(el("price").textContent, "150");
+            assert.equal(f.rpc.sent.length, before + 1);
+          } finally {
+            unreadable = false;
+            w.Storage.prototype.getItem = getItem;
+            f.journal.write = write;
+            f.rpc.sendRawTransaction = send;
+            f.rpc.getLatestBlockhashAndContext = latest;
+            f.rpc.status = null;
+            f.records.clear();
+            w.localStorage.clear();
+            changed({ accounts: [] });
+          }
+        },
+      );
+    await t.test(
+      "a late submission receipt lookup cannot repopulate a disconnected wallet",
+      { timeout: 15_000 },
+      async () => {
+        await connect();
+        const write = f.journal.write,
+          pending = OutrightClient.prototype.pending;
+        const release = Promise.withResolvers();
+        let lookupStarted = false,
+          holdLookup = false;
+        const before = f.rpc.sent.length;
+        OutrightClient.prototype.pending = async function (owner) {
+          const record = await pending.call(this, owner);
+          if (this !== f.client && holdLookup) {
+            lookupStarted = true;
+            await release.promise;
+          }
+          return record;
+        };
+        f.journal.write = async (scope, record) => {
+          if (record.status !== "signed") {
+            holdLookup = true;
+            throw new Error("Receipt status could not be saved");
+          }
+          await write(scope, record);
+          w.localStorage.setItem(
+            "outright.transaction.v1:" + scope,
+            JSON.stringify(record),
+          );
+        };
+        try {
+          await prepareTrade();
+          el("sign").click();
+          await until(
+            () => lookupStarted || !el("wallet-button").disabled,
+            "receipt recovery did not start",
+          );
+          assert.equal(
+            lookupStarted,
+            true,
+            "submission failure must recover the saved receipt",
+          );
+          changed({ accounts: [] });
+          release.resolve();
+          await until(
+            () => !el("wallet-button").disabled,
+            "late lookup did not settle",
+          );
+          unavailable();
+          assert.equal(el("receipt-link").hidden, true);
+          assert.equal(
+            el("receipt-state").textContent,
+            "No transaction submitted",
+          );
+          assert.equal(
+            el("feedback").textContent,
+            "Wallet account changed. Reconnect the account you want to use.",
+          );
+          assert.equal(
+            (await f.client.pending(account.address)).status,
+            "signed",
+          );
+          assert.equal(f.rpc.sent.length, before + 1);
+        } finally {
+          release.resolve();
+          await until(
+            () => !el("wallet-button").disabled,
+            "lookup cleanup did not settle",
+          );
+          OutrightClient.prototype.pending = pending;
+          f.journal.write = write;
+          f.records.clear();
+          w.localStorage.clear();
+          changed({ accounts: [] });
+        }
+      },
+    );
     for (const outcome of ["submitted", "unknown", "receipt write failure"])
       await t.test(
         `a late ${outcome} result stays with the disconnected account`,

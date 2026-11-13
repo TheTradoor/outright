@@ -130,6 +130,14 @@ so the program remains authoritative.
 A change to the market base fee or engine fee limit during the wallet prompt
 also requires a new review, even when the new fee is within existing consent.
 
+## Signing progress
+
+A review can be canceled before choosing **Sign with wallet**. Once signing
+starts, its close button and Escape are disabled until the request finishes.
+The dialog identifies the wallet prompt and subsequent verification/submission
+phase. Reject an unapproved request in the wallet itself. Dismissing a review
+cannot reverse a transaction that has already been signed or sent.
+
 ## Confirmation and recovery
 
 | State | Meaning |
@@ -172,6 +180,16 @@ Disconnects, unsupported wallet accounts and failed RPC reads clear actionable
 market data. A late response cannot restore a disconnected session. Empty asset
 lists still update balances and positions; expired or revoked maker consent
 disables trade review.
+If updating the receipt fails after submission, the terminal retrieves the
+already saved signature immediately. It closes the consumed review, clears
+stale actionable data and retains the signature for reconciliation. A stored
+**Signature saved** state does not establish whether the send succeeded. If
+browser storage also prevents reading the receipt, the terminal shows
+**Receipt unavailable**, rather than claiming no transaction was submitted.
+Restore storage access and refresh to recover it. Recovery does not sign or
+send the transaction again, and a late receipt lookup cannot repopulate a wallet
+session that has already disconnected.
+
 If signature reconciliation fails because the RPC is unavailable, returns an
 invalid status or the receipt cannot be saved, the terminal clears its old
 market snapshot and disables wallet actions. The saved signature remains

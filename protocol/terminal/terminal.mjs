@@ -22,6 +22,7 @@ let client = null,
   snapshot = null,
   review = null,
   busy = false,
+  submitting = false,
   loading = false,
   generation = 0,
   walletSelection = 0,
@@ -104,6 +105,8 @@ function controls() {
     snapshot.market.mode !== "live";
   $("asset-select").disabled = !client || !snapshot || busy;
   $("sign").disabled = busy || !review;
+  $("review-cancel").disabled = submitting;
+  $("review-progress").hidden = !submitting;
 }
 async function action(work) {
   if (busy) return;
@@ -776,6 +779,13 @@ $("review-dialog").addEventListener("close", () => {
   review = null;
   controls();
 });
+function preventSubmissionDismissal(event) {
+  if (submitting) event.preventDefault();
+}
+$("review-dialog").addEventListener("cancel", preventSubmissionDismissal);
+$("review-dialog")
+  .querySelector("form")
+  .addEventListener("submit", preventSubmissionDismissal);
 $("sign").addEventListener("click", () =>
   action(async () => {
     const prepared = review,
@@ -785,6 +795,12 @@ $("sign").addEventListener("click", () =>
       current = generation;
     if (!prepared || !selectedAccount)
       throw new Error("Review the action again");
+    submitting = true;
+    setText(
+      "review-progress",
+      "Complete or reject the request in your wallet.",
+    );
+    controls();
     let record;
     try {
       record = await selectedClient.submit(prepared, async (transaction) => {
@@ -801,6 +817,10 @@ $("sign").addEventListener("click", () =>
         });
         if (wallet !== selectedWallet || account !== selectedAccount)
           throw new Error("Wallet account changed before submission");
+        setText(
+          "review-progress",
+          "Verifying and submitting the signed transaction.",
+        );
         return result.signedTransaction;
       });
     } catch (error) {
@@ -808,7 +828,32 @@ $("sign").addEventListener("click", () =>
       // Submission consumes its review even when signing or revalidation fails.
       // Close the unusable dialog so its error and the next review are reachable.
       invalidateReview();
+      // The send may have succeeded before its status update failed. Recover
+      // the durable signature instead of leaving an earlier or empty receipt.
+      let pending,
+        receiptUnavailable = false;
+      try {
+        pending = await selectedClient.pending(selectedAccount.address);
+      } catch {
+        receiptUnavailable = true;
+      }
+      if (current !== generation) return;
+      if (pending || receiptUnavailable) {
+        clearSnapshot("Not available");
+        setText("footer-state", "Connection needs attention");
+        renderReceipt(pending || null);
+        if (receiptUnavailable) {
+          setText("receipt-state", "Receipt unavailable");
+          setText(
+            "receipt-description",
+            "The saved receipt could not be read. Restore browser storage and refresh before taking another action.",
+          );
+        }
+      }
       throw error;
+    } finally {
+      submitting = false;
+      controls();
     }
     // A signed transaction can outlive its wallet session. Keep its durable
     // receipt for that account without restoring the old session's display.
