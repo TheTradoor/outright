@@ -20,6 +20,16 @@ it is not a promise that the application has no other bugs.
 Checked boxes mean the scoped row is complete. They do not imply completion of
 other rows or permission to accept public funds.
 
+## Pending mainnet client change
+
+The local client change adds explicit mainnet profile and wallet-chain handling,
+pre-signature RPC genesis validation and production-safe explorer links. Its
+complete native suite passed **495/495**, repaired-candidate SBF integration
+passed **17/17**, and qualification verifier tests passed **51/51**. The source
+check, Rust contract comparison and terminal build passed. See the scoped
+[change and evidence](MAINNET_CLIENT.md); these are local results for the pending
+client bytes, not deployed-mainnet or physical-wallet acceptance.
+
 ## Integrated baseline evidence and current qualification
 
 The earlier integrated baseline is `f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c`, tree
@@ -49,7 +59,7 @@ source-specific evidence.
 | [ ] | Physical-wallet acceptance | Not completed | Desktop extension and iPhone wallet connection/signing/recovery remain open. |
 | [x] | Checked-host exhaustive graph, supplemental | Passed in 540.362 seconds; original 1,800-second limit and all 11,727 action words retained | [Complete local graph evidence](qualification/2026-11-14-repairs/checked-host-graph/README.md). Debug assertions and overflow checks enabled; deployed SBF artifacts unchanged. This one-test result does not close the 37-shard aggregate. |
 | [x] | Complete 37-shard wrapper qualification | 2,120 passed, zero failed; aggregate passed | [Complete checked-host run](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md), source `9191c881…`, tested merge `43ee4808…`. All reports, exact execution coverage and source/artifact identities independently verified. The graph passed in 457.375 seconds with its original 1,800-second limit. The earlier timeout remains historical evidence. |
-| [ ] | Live market and mainnet | Not implemented or enabled | The client accepts only localnet/devnet profiles; mainnet enrollment, wallet-chain/signing, explorer handling and fresh acceptance checks remain open under PROD-06. The hosted deployment profile remains `null`. |
+| [ ] | Live market and mainnet | Client transport implemented in a pending change; market not enabled | [Mainnet client transport](MAINNET_CLIENT.md) adds genesis validation, wallet-chain/signing and explorer handling. Production enrollment and fresh acceptance remain open under PROD-06. The hosted deployment profile remains `null`. |
 | [ ] | Fork publication and runtime-pin adoption | Blocked by GitHub integration write access (`403`) | Installation [156871870](https://github.com/settings/installations/156871870) has selected-repository access that omits `TheTradoor/outright-program`. Add that repository to the installation before publishing the candidate and migrating the pin; see ADOPT-01 below. |
 
 All five final native PR jobs and all four duplicate push workflows passed.
@@ -460,14 +470,14 @@ or weakening an invariant does not count as repairing the underlying behavior.
 | [ ] | PROD-03 | Funded execution and backing | External prerequisite | Committed real collateral, maker authorization, executable liquidity, inventory/capital limits and insurance policy. The 10,000 TEST fixture is not production liquidity. |
 | [ ] | PROD-04 | Reviewed market risk parameters | External prerequisite | Approved collateral/feed identity, margins, leverage, OI and position limits, fees/funding and exit delays supported by stress results. |
 | [ ] | PROD-05 | Operational ownership and incident response | External prerequisite | Responsible operators, alerts, authority rotation, provider/RPC failure procedures and tested permissionless user exit instructions. |
-| [ ] | PROD-06 | Mainnet client support and final release enrollment | Not implemented / not enabled | Implement approved mainnet enrollment with verified genesis, source pins, program bytes, profile, addresses and policy; complete wallet-chain filtering/signing and explorer handling with fresh negative and acceptance tests. Enroll the approved oracle, keeper and services together, then satisfy the [acceptance completion requirements](WALLET_ACCEPTANCE.md#completion-record) before public deposits. Fork access alone does not complete this work. |
+| [ ] | PROD-06 | Mainnet client support and final release enrollment | Transport implemented in a pending change; production not enrolled or enabled | [Mainnet transport](MAINNET_CLIENT.md) implements fixed genesis checks, account-chain filtering, explicit signing, pre-sign network revalidation and explorer handling. Enroll the reviewed source/program/profile/address/policy and approved oracle, keeper and services together, then satisfy the [acceptance completion requirements](WALLET_ACCEPTANCE.md#completion-record) before public deposits. Fork access or synthetic tests alone do not complete this work. |
 
-The current [profile validator](../protocol/src/client.mjs) deliberately permits
-only `localnet` and `devnet`. The [terminal](../protocol/terminal/terminal.mjs)
-requires `solana:devnet` in wallet account chains outside localnet and only sets
-the signing-chain field for devnet. Mainnet support therefore requires reviewed
-client changes and fresh verification; publishing a fork or changing a profile
-cannot enable a complete mainnet flow.
+The pending [profile validator](../protocol/src/client.mjs) permits `mainnet-beta`
+with the fixed mainnet genesis and HTTPS RPC requirements. The
+[terminal](../protocol/terminal/terminal.mjs) requires and requests
+`solana:mainnet` for that profile. Public release still requires the reviewed
+deployment, source adoption, complete affected checks and real-wallet acceptance;
+publishing a fork or changing a profile cannot establish those requirements.
 
 The normal trader interface must continue to load the official market
 automatically and explain unavailable state. None of the open operator or

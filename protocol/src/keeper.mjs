@@ -93,7 +93,7 @@ export function validateKeeperConfig(input) {
       )
     )
       throw new Error(
-        "Devnet keeper assets require an external hybrid oracle; manual prices are localnet-only",
+        "Public-network keeper assets require an external hybrid oracle; manual prices are localnet-only",
       );
     if (
       !Array.isArray(a.feeds) ||

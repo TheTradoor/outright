@@ -1,0 +1,65 @@
+{
+  "baseline": "aa190c9d7c38d1a1d2e3bc0ce284602d2ed2e6f1",
+  "scope": "Local mainnet client transport; no production enrollment or real-wallet acceptance",
+  "native_client": {
+    "passed": 495,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "log": "native-client.log"
+  },
+  "network_terminal": {
+    "passed": 18,
+    "failed": 0,
+    "included_in_native_total": true,
+    "log": "network-terminal.log"
+  },
+  "terminal_build": {
+    "passed": true,
+    "log": "terminal-build.log"
+  },
+  "engine_source_check": {
+    "passed": true,
+    "revision": "a712af767eeb217876a3d3c50e3849b60ea54462"
+  },
+  "rust_contract": {
+    "exact_comparison_passed": true,
+    "sha256": "40e4da001c696e11959a2b4e8f93e1c2615f98959e4ed3e969cbdc12b5fe9365"
+  },
+  "hosted_profile": null,
+  "changed_protocol_sha256": {
+    "protocol/README.md": "e4e6fca45c83272986ca7684cfa42df803bd3d893f31c7f6d5fa655d71a18e02",
+    "protocol/profile.mjs": "459d956e43e71b0611241452168090d86ba3d7b191bfc8dbf8ab2e302aa75eab",
+    "protocol/src/client.mjs": "ee0295dab76e298c7befd14845b318003ac6da97d3a2d6af7faedf7f41a36e63",
+    "protocol/src/keeper.mjs": "b090d6d48e0b19ccfeead99a614bd0dff5f822f0ed3c03a36d51dd6100767629",
+    "protocol/src/network.mjs": "2973b409ab3eeee2628ffbd3339d8346591d5449b8a61eae726df29f05f40736",
+    "protocol/terminal/index.html": "df9c63d27d63ae64fce621a9f22489b781801a963973f309d62eb6cf5cc6a11c",
+    "protocol/terminal/terminal.mjs": "0f3abb4413cfd649f53ce2eabd4b7eb976ffb885b6e75bed2c4fd9eebc1815b4",
+    "protocol/tests/client.test.mjs": "7abef213f1e8bdd8c9ecc20f9800917dff567fb6a539d6e6a57bc4841a793f81",
+    "protocol/tests/network.test.mjs": "7caea1a67c09471ac394385782ccedd53dfa4659af7fbeb2b13b8ca00d553f72",
+    "protocol/tests/terminal-networks.test.mjs": "96658cb5560ba7964abaea369c2bba4ec650cee9adead0bc8e5eeaec706b8253"
+  },
+  "limits": [
+    "No mainnet RPC or public transaction was used",
+    "DOM wallet fixtures are not physical wallets",
+    "Full affected release qualification remains required before deployment"
+  ],
+  "candidate_sbf": {
+    "passed": 17,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 0,
+    "seconds": 69.06,
+    "result": "candidate-sbf-result.json",
+    "log": "candidate-sbf-tests.log",
+    "compilation": "candidate-sbf-compile.log",
+    "source_revision": "99a3330d4245b8f2102175cabea5b7c5c331144c",
+    "protocol_source_sha256": "2ab42bb0b40a1c63a7902a42cc1849db94df11f2272cb350e08f6a93fcd20662",
+    "scope": "Pending mainnet client against repaired-candidate SBF in LiteSVM; synthetic localnet execution"
+  },
+  "qualification_verifier": {
+    "passed": 51,
+    "failed": 0,
+    "log": "qualification-verifier.log"
+  }
+}

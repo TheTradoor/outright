@@ -1,0 +1,10 @@
+{
+  "candidate-sbf-compile.log": "d22c9ce43232a37c32e6d6ddf33dce6f9f8042473370c877452f4059ebff82ff",
+  "candidate-sbf-result.json": "3ebde8c6ab595ea98f80c1993bf022ce3f07e8a90c0aedaed0d578d19e1b18bc",
+  "candidate-sbf-tests.log": "05e538bc0febc5177866c41e3c2126cc6922f29298c2736ec23e24044268f92a",
+  "native-client.log": "faed04d312c5712129cf0052feec630bd87dedf98a0486fab4e442286bcc4320",
+  "network-terminal.log": "425f93ef01bb22e8359427c4f7c5982eb35d88457bcfcf50a0014205efd375cb",
+  "qualification-verifier.log": "8a782b522ff618c6005facc1a1c920ec6479dede9901dad1c4187dc614e3a6fb",
+  "terminal-build.log": "d965997f70ca6bb2d64e62a101b710e12e0daf452a52aa1e76aa2fede4a5aa60",
+  "validation.json": "b63aeec112aa43eb1a883e28c6cab74ef6a9be277cade68e25a9e23227a79093"
+}

@@ -11,6 +11,10 @@ funded market, reviewed risk policy or production operating service has been
 enrolled. Passing the local lifecycle is evidence for that flow, not a release
 authorization or an audit.
 
+The pending [mainnet client transport](MAINNET_CLIENT.md) implements network
+validation, wallet-chain selection/signing and explorer handling. It does not
+close production enrollment, security review, liquidity or wallet acceptance.
+
 ## Relationship to Percolator
 
 The implementation uses the actual Percolator risk engine and its Solana

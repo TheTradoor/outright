@@ -5,6 +5,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync, unpackMint } from "./src/token.mjs";
 import { readMarket } from "./src/market.mjs";
 import { validateProfile, readSnapshot, sha256 } from "./src/client.mjs";
+import { validateNetwork, validateRpcUrl } from "./src/network.mjs";
 import {
   ENGINE_COMMIT,
   WRAPPER_COMMIT,
@@ -32,7 +33,7 @@ const allowed = new Set([
 const argv = process.argv.slice(2),
   args = {};
 if (!argv.length || argv.includes("--help")) {
-  console.log(`Usage: node profile.mjs --rpc URL --cluster devnet|localnet --program ADDRESS
+  console.log(`Usage: node profile.mjs --rpc URL --cluster mainnet-beta|devnet|localnet --program ADDRESS
   --program-binary PATH --market ADDRESS --wallet ADDRESS --symbol SYMBOL
   --max-oracle-age-slots COUNT
 
@@ -41,7 +42,8 @@ Optional maker: --maker-portfolio ADDRESS --maker-owner ADDRESS
   --fee-bps NUMBER --backing-fee-cap-bps NUMBER
 
 Writes a public deployment profile to stdout after verification. Use a binary
-built from the pinned source. No private keys or real funds are needed.`);
+built from the pinned source. This read-only check does not approve or launch
+a production market. No private keys or transaction signatures are needed.`);
   process.exit(0);
 }
 for (let i = 0; i < argv.length; i += 2) {
@@ -66,11 +68,16 @@ for (const required of [
   "max-oracle-age-slots",
 ])
   if (!args[required]) throw new Error(`Missing --${required}`);
-const rpc = new Connection(args.rpc, {
+const rpc = new Connection(validateRpcUrl(args.cluster, args.rpc), {
   commitment: "confirmed",
   disableRetryOnRateLimit: true,
   fetch: (input, init) =>
     fetch(input, { ...init, signal: AbortSignal.timeout(15_000) }),
+});
+const network = validateNetwork({
+  cluster: args.cluster,
+  rpcUrl: args.rpc,
+  genesisHash: await rpc.getGenesisHash(),
 });
 const key = (v) => new PublicKey(v);
 async function pin(address, binaryPath) {
@@ -142,9 +149,7 @@ if (makerKeys.some((k) => args[k])) {
 }
 const profile = validateProfile({
   version: 1,
-  cluster: args.cluster,
-  rpcUrl: args.rpc,
-  genesisHash: await rpc.getGenesisHash(),
+  ...network,
   engineCommit: ENGINE_COMMIT,
   wrapperCommit: WRAPPER_COMMIT,
   program,
