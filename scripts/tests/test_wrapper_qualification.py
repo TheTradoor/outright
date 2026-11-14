@@ -65,6 +65,7 @@ class QualificationTests(unittest.TestCase):
         pin = self.config["engine_ref"]
         (wrapper / "Cargo.lock").write_text(f'git+https://github.com/aeyakovenko/percolator?rev={pin}#{pin}\n')
         self.config["wrapper"]["ref"] = self.commit(wrapper)
+        self.config["wrapper"]["tree"] = q.output(["git", "rev-parse", "HEAD^{tree}"], wrapper)
         (matcher / "README.md").write_text("matcher fixture\n")
         self.config["matcher"]["ref"] = self.commit(matcher)
         self.metadata = {"packages": [{"name": "percolator-prog", "version": "0.1.0",
@@ -120,6 +121,18 @@ class QualificationTests(unittest.TestCase):
 
     def verify(self, reports=None):
         return q.verify_reports(self.reports if reports is None else reports, self.config, self.workspace)
+
+    def test_wrong_published_source_tree_rejected(self):
+        self.config["wrapper"]["tree"] = "0" * 40
+        with self.assertRaisesRegex(AssertionError, "Unexpected published percolator-prog tree"):
+            q.check_source(self.workspace, self.config)
+
+    def test_published_commit_does_not_allow_staged_source_changes(self):
+        wrapper = self.workspace / "percolator-prog"
+        (wrapper / "src/v16_program.rs").write_text("fn changed_program() {}\n")
+        subprocess.run(["git", "add", "src/v16_program.rs"], cwd=wrapper, check=True)
+        with self.assertRaisesRegex(AssertionError, "Unexpected percolator-prog source tree"):
+            q.check_source(self.workspace, self.config)
 
     def test_missing_host_executable_digest_rejected(self):
         del self.reports[0]["host_executable_sha256"]

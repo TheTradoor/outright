@@ -10,13 +10,15 @@ are discovered and executed automatically. Known failures remain failures.
 Some integration binaries include the same shared controls. These counts measure
 test executions in each Cargo target, not distinct production scenarios.
 
-The manifest pins the original wrapper upstream, engine, matcher, and toolchain
-versions. The current candidate applies the checked-in `program-repair.patch` to the
-immutable wrapper base with `git apply --index`. Its SHA256 and expected indexed Git
-tree are verified; every job checks that tree and an unchanged working copy before
-and after execution. This explicitly records an overlay, not a published fork commit.
-Change the wrapper repository/ref and optional overlay in the manifest to qualify a
-reviewed candidate. Use a full commit SHA. No repository credentials,
+The manifest pins the published `TheTradoor/outright-program` commit
+`72dd8948b116e9e16a85c830e1e2a7915f12d542` and source tree
+`8b54b827082b2b838beacd88d4d99bd12878d2ca`, alongside the unchanged upstream engine,
+matcher and toolchains. Runtime, conformance and qualification use that same
+published source. Every job checks the commit, tree and unchanged working copy
+before and after execution. The original upstream revision and repair patch remain
+recorded as provenance; the current build does not apply an overlay.
+The runner still supports an explicitly identified overlay for historical evidence
+or a future review candidate. Use full commit and tree SHAs. No repository credentials,
 wallet keys, deployed accounts, mainnet transactions, or additional token permissions
 are needed. The workflow has only `contents: read`; every Action is pinned to a full
 commit. Existing licenses remain in the fetched repositories and accompany artifacts.
@@ -159,8 +161,9 @@ Repeat for every ID emitted by `matrix`, preserving failed jobs' results. Then:
 python3 scripts/wrapper_qualification.py aggregate --workspace /tmp/wrapper-sources --reports /tmp/results --output /tmp/wrapper-qualification.json
 ```
 
-Aggregation requires the exact wrapper and matcher checkout, including the reviewed
-overlay, even when all test reports already exist. SBF binaries are not required for
+Aggregation requires the exact wrapper and matcher checkout and recorded source
+tree, even when all test reports already exist. Historical overlay reports require
+their original patched tree. SBF binaries are not required for
 this independent source/harness comparison; their recorded hashes must agree across
 all reports. Do not edit protocol files between attestation, shard execution, and
 aggregation. Results from the previous identity format must be regenerated.

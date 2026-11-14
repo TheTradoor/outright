@@ -68,7 +68,7 @@ async function bootstrap(env) {
   }
   await refreshMark(env, true);
   // In-memory instruction/snapshot settings, deliberately not a deployment
-  // profile. Candidate identity is base + patch + tree in the attestation.
+  // profile. The attestation binds the exact source and deployed binary bytes.
   const settings = {
     genesisHash: c.genesisHash, program: pins.program, market: c.market,
     collateral: { mint: c.mint, decimals: 6, symbol: "TEST", mintAuthority: c.admin, freezeAuthority: null },

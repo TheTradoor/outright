@@ -37,6 +37,8 @@ def load_manifest():
     for source in (config["wrapper"], config["matcher"]):
         assert re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", source["repository"])
         assert re.fullmatch(r"[0-9a-f]{40}", source["ref"]), "Use immutable source commits"
+        if "tree" in source:
+            assert re.fullmatch(r"[0-9a-f]{40}", source["tree"]), "Use immutable source trees"
     assert re.fullmatch(r"[0-9a-f]{40}", config["engine_ref"])
     assert config["host_profile"] == {
         "opt_level": 1, "debug": 0, "debug_assertions": True,
@@ -62,7 +64,10 @@ def check_source(workspace, config):
         assert output(["git", "rev-parse", "HEAD"], path) == config[key]["ref"]
         subprocess.run(["git", "diff", "--exit-code", "--quiet"], cwd=path, check=True)
         overlay = config.get("overlay") if key == "wrapper" else None
-        expected_tree = overlay["tree"] if overlay else output(["git", "rev-parse", "HEAD^{tree}"], path)
+        head_tree = output(["git", "rev-parse", "HEAD^{tree}"], path)
+        if "tree" in config[key]:
+            assert head_tree == config[key]["tree"], f"Unexpected published {folder} tree"
+        expected_tree = overlay["tree"] if overlay else head_tree
         assert output(["git", "write-tree"], path) == expected_tree, f"Unexpected {folder} source tree"
         check_extra_files(path, key, config)
     lock = (workspace / "percolator-prog/Cargo.lock").read_text()

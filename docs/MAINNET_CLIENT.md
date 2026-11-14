@@ -1,7 +1,8 @@
-# Mainnet client transport
+# Mainnet client and published program source
 
 This pending change implements mainnet network validation, wallet account
-selection, explicit signing-chain requests and transaction links. It does not
+selection, explicit signing-chain requests and transaction links, and adopts the
+published repaired program fork. It does not
 enroll a production market or enable the hosted terminal. The bundled
 `protocol/terminal/deployment.json` remains `null`.
 
@@ -25,6 +26,18 @@ pre-signature check stops that unnecessary request. A failed or stale review
 remains single-use and must be prepared again.
 
 ## Verification scope
+
+The runtime source lock, Rust conformance dependency, generated contract and both
+SBF/validator build paths now use published program commit
+`72dd8948b116e9e16a85c830e1e2a7915f12d542`, tree
+`8b54b827082b2b838beacd88d4d99bd12878d2ca`. The engine remains exactly
+`a712af767eeb217876a3d3c50e3849b60ea54462`. Rust regeneration changed only the
+wrapper commit metadata: all instruction encodings, account layouts and other
+exported contract values were identical. The qualification manifest uses the same
+published revision without an overlay; its source guard rejects mismatched runtime
+and qualification pins, missing tree identity and staged program modifications.
+This revision needs fresh CI evidence. The results below describe the earlier
+mainnet-client snapshot and are retained with their original scope.
 
 The complete native client suite passed **495/495**, with zero failures, skips or
 cancellations. The focused network/terminal suite passed **18/18** (included in
@@ -65,8 +78,8 @@ release checks before adoption.
 
 PROD-06 remains open for the exact reviewed production deployment, public
 profile, real oracle and operational services, funded execution and fresh
-desktop/mobile acceptance. Fork publication, affected requalification of the new
-client, independent security review and the other requirements in
+desktop/mobile acceptance. Fork publication is complete. Affected requalification
+of the client and adopted source, independent security review and the other requirements in
 [MAINNET_RELEASE.md](MAINNET_RELEASE.md) remain separate requirements.
 
 Network constants follow the published
