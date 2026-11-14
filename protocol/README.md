@@ -44,6 +44,7 @@ withdrawal with a fixed synthetic TEST/USD price.
 | `profile.mjs` | Read-only enrollment of a deployment against local build artifacts |
 | `localnet/` | Loopback-only validator bootstrap, funded synthetic market and RPC lifecycle check |
 | `src/keeper.mjs`, `operator/` | Bounded oracle/portfolio crank, fee limits and durable receipts |
+| `src/discovery.mjs` | Optional market-scoped portfolio enumeration, strict account verification and bounded reads |
 | `inspect.mjs` | Low-level read-only portfolio inspection |
 
 ## Supported actions
@@ -59,7 +60,7 @@ withdrawal with a fixed synthetic TEST/USD price.
 | Recovery exit | Owner-signed forfeiture of unbooked leg gains with explicit consent and a bounded shared-loss step budget; no token transfer |
 | Matcher trade | Immediate bounded-price CPI trade against a configured, funded maker |
 | Bilateral trade | Low-level instruction builder; both owners must sign |
-| Permissionless crank | Bounded localnet/devnet worker; resolved backing discovery and payouts require `settleResolved: true` and an existing owner ATA |
+| Permissionless crank | Bounded worker for an enrolled deployment, with explicit or discovered targets; resolved backing discovery and payouts require `settleResolved: true` and an existing owner ATA |
 
 Amounts remain integer values. `parseUnits` rejects excess precision, scientific
 notation, zero amounts, and SPL Token overflow. Displayed capital and recorded
@@ -113,7 +114,7 @@ is an upstream test fixture. These are local execution tests, not public-cluster
 validation. See the [verification record](../docs/NATIVE_VERIFICATION.md) for
 exact coverage and remaining requirements.
 
-The pending client transport also supports `mainnet-beta` with a pinned genesis,
+The client transport also supports `mainnet-beta` with a pinned genesis,
 explicit wallet chain and HTTPS RPC. The hosted deployment remains absent;
 mainnet transport support does not enroll or launch a production market. See
 [mainnet client transport](../docs/MAINNET_CLIENT.md) for verification and limits. The

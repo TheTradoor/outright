@@ -5,6 +5,7 @@ import { setTimeout } from "node:timers/promises";
 import { Connection, Keypair } from "@solana/web3.js";
 import { OutrightKeeper, validateKeeperConfig } from "../src/keeper.mjs";
 import { openKeeperJournal } from "./journal.mjs";
+import { keeperFetch } from "./rpc.mjs";
 
 async function main() {
   const argv = process.argv.slice(2),
@@ -14,7 +15,8 @@ async function main() {
   [--send --keypair PATH] [--watch]
 
 Default: simulate one bounded crank without signing. --watch polls the configured
-targets. --send requires a dedicated localnet/devnet fee payer. Never use a trader,
+targets or discovers portfolios within the configured market. --send requires
+the dedicated fee payer for an enrolled deployment. Never use a trader,
 maker, oracle-authority or upgrade-authority wallet. JSON lines go to stdout.
 The state directory must be private, durable and used by exactly one worker.`);
     return;
@@ -67,8 +69,7 @@ The state directory must be private, durable and used by exactly one worker.`);
   const rpc = new Connection(config.deployment.rpcUrl, {
     commitment: "confirmed",
     disableRetryOnRateLimit: true,
-    fetch: (input, init) =>
-      fetch(input, { ...init, signal: AbortSignal.timeout(15_000) }),
+    fetch: keeperFetch(),
   });
   const journal = await openKeeperJournal(args["--state-dir"]);
   const stopped = new AbortController();

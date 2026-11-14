@@ -26,6 +26,8 @@ import {
 } from "../src/keeper.mjs";
 import { openKeeperJournal } from "../operator/journal.mjs";
 import { setRecovery } from "./support/recovery-fixture.mjs";
+import { discoverPortfolios } from "../src/discovery.mjs";
+import { keeperFetch } from "../operator/rpc.mjs";
 
 const pub = (n) => new PublicKey(Buffer.alloc(32, n));
 const info = (owner, data, executable = false) => ({
@@ -247,6 +249,275 @@ function addSecondTarget(f, owner = f.raw.targets[0].owner) {
   f.raw.targets.push(target);
   return target;
 }
+
+function enableDiscovery(f, maxTargets = 256) {
+  f.raw.discovery = { mode: "programAccounts", maxTargets };
+  f.raw.targets = [];
+  f.scans = 0;
+  f.rpc.getProgramAccounts = async (program, options) => {
+    f.scans++;
+    assert.equal(program.toBase58(), f.raw.deployment.program.address);
+    assert.equal(options.withContext, true);
+    assert.equal(options.commitment, "confirmed");
+    assert.deepEqual(options.dataSlice, { offset: 0, length: 0 });
+    assert(options.minContextSlot <= f.rpc.slot);
+    assert.equal(options.filters[0].dataSize, contract.constants.portfolioLength);
+    assert.equal(options.filters[2].memcmp.bytes, f.raw.deployment.market);
+    return {
+      context: { slot: f.rpc.slot },
+      value: [...f.accounts.entries()]
+        .filter(([, a]) => a.data.length === contract.constants.portfolioLength)
+        .map(([pubkey, account]) => ({ pubkey: new PublicKey(pubkey), account }))
+        .reverse(), // Enumeration order must not affect sweep fairness.
+    };
+  };
+  f.keeper = new OutrightKeeper(f.raw, {
+    connection: f.rpc, journal: f.journal, signer: f.signer,
+  });
+  return f;
+}
+
+test("discovery admits new portfolios after a complete durable sweep", async () => {
+  const f = await fixture();
+  const second = addSecondTarget(f);
+  enableDiscovery(f);
+  const firstResult = await f.keeper.tick();
+  assert.equal(firstResult.target, f.portfolio.toBase58());
+  assert.equal(f.scans, 1);
+  assert.equal(f.state().cursor, 1);
+  assert.equal(f.state().discovery.targets.length, 2);
+
+  const thirdAddress = pub(7).toBase58();
+  const data = Buffer.from(f.accounts.get(second.address).data);
+  pub(7).toBuffer().copy(data, contract.constants.portfolioAddressOffset);
+  data.writeBigUInt64LE(19n, contract.constants.portfolioIdOffset);
+  f.accounts.set(thirdAddress, info(pub(9), data));
+  // Restart does not rescan or jump back to the first portfolio.
+  const restarted = new OutrightKeeper(f.raw, {
+    connection: f.rpc, journal: f.journal, signer: f.signer,
+  });
+  assert.equal((await restarted.tick()).target, second.address);
+  assert.equal(f.scans, 1);
+  assert.equal(f.state().discovery, null);
+  assert.equal((await restarted.tick()).target, f.portfolio.toBase58());
+  assert.equal(f.scans, 2);
+  assert.equal((await restarted.tick()).target, second.address);
+  assert.equal((await restarted.tick()).target, thirdAddress);
+  assert.equal(f.scans, 2);
+  assert.equal(f.state().reservedFees, "0");
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("discovery reconciles pending receipts before scanning and preserves fee and blockhash guards", async () => {
+  const f = enableDiscovery(await fixture());
+  assert.equal((await f.keeper.tick({ send: true })).status, "submitted");
+  const signature = f.state().pending.signature;
+  f.rpc.getProgramAccounts = async () => { throw new Error("scan unavailable"); };
+  const restarted = new OutrightKeeper(f.raw, {
+    connection: f.rpc, journal: f.journal, signer: f.signer,
+  });
+  assert.equal((await restarted.tick({ send: true })).status, "pending");
+  assert.equal(f.state().pending.signature, signature);
+  f.rpc.status = { slot: 124, confirmationStatus: "confirmed", err: null };
+  assert.equal((await restarted.tick({ send: true })).status, "confirmed");
+  await assert.rejects(restarted.tick({ send: true }), /scan unavailable/);
+  assert.equal(f.state().reservedFees, "5000");
+  assert.equal(f.rpc.sent.length, 1);
+  enableDiscovery(f);
+  assert.equal((await f.keeper.tick({ send: true })).status, "waitingForBlockhash");
+  assert.equal(f.state().reservedFees, "5000");
+  assert.equal(f.rpc.sent.length, 1);
+  f.rpc.getLatestBlockhashAndContext = async () => ({
+    context: { slot: 124 },
+    value: { blockhash: pub(24).toBase58(), lastValidBlockHeight: 100 },
+  });
+  assert.equal((await f.keeper.tick({ send: true })).status, "submitted");
+  assert.equal(f.state().reservedFees, "10000");
+  await f.keeper.tick();
+  f.rpc.getLatestBlockhashAndContext = async () => ({
+    context: { slot: 124 },
+    value: { blockhash: pub(25).toBase58(), lastValidBlockHeight: 100 },
+  });
+  await assert.rejects(f.keeper.tick({ send: true }), /budget exceeded/);
+  assert.equal(f.rpc.sent.length, 2);
+});
+
+test("discovery skips closed candidates without claiming payout and rechecks an empty scan", async () => {
+  const f = enableDiscovery(await fixture());
+  const scan = f.rpc.getProgramAccounts;
+  f.rpc.getProgramAccounts = async (...args) => {
+    const result = await scan(...args);
+    f.accounts.delete(f.portfolio.toBase58());
+    return result;
+  };
+  assert.equal((await f.keeper.tick({ send: true })).status, "noTargets");
+  assert.equal(f.state().minimumSlot, 124);
+  assert.equal(f.state().reservedFees, "0");
+  assert.equal(f.rpc.sent.length, 0);
+  f.rpc.getProgramAccounts = async () => {
+    f.accounts.get(f.programData.toBase58()).data[45] ^= 1;
+    return { context: { slot: 124 }, value: [] };
+  };
+  await assert.rejects(f.keeper.tick({ send: true }), /code or upgrade authority changed/);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("a discovered target disappearing mid-sweep defers and preserves the next target", async () => {
+  const f = await fixture();
+  const second = addSecondTarget(f);
+  enableDiscovery(f);
+  await f.keeper.tick();
+  f.accounts.delete(second.address);
+  const result = await f.keeper.tick({ send: true });
+  assert.equal(result.reason, "portfolioMissing");
+  assert.equal(result.target, second.address);
+  assert.equal(f.state().discovery, null);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("a discovered portfolio cannot change incarnation during its sweep", async () => {
+  const f = await fixture();
+  const second = addSecondTarget(f);
+  enableDiscovery(f);
+  await f.keeper.tick();
+  f.accounts.get(second.address).data.writeBigUInt64LE(99n, contract.constants.portfolioIdOffset);
+  await assert.rejects(f.keeper.tick({ send: true }), /incarnation changed/);
+  assert.equal(f.state().cursor, 1);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+for (const [name, corrupt, expected] of [
+  ["missing context", r => { delete r.context; }, /invalid or stale bank/],
+  ["old scan", r => { r.context.slot = 123; }, /invalid or stale bank/],
+  ["duplicate address", r => { r.value.push(r.value[0]); }, /duplicate addresses/],
+  ["wrong owner", r => { r.value[0].account = { ...r.value[0].account, owner: pub(45) }; }, /invalid program account/],
+  ["executable portfolio", r => { r.value[0].account = { ...r.value[0].account, executable: true }; }, /invalid program account/],
+  ["missing account list", r => { delete r.value; }, /account list/],
+]) test(`discovery rejects ${name} without enrolling partial results`, async () => {
+  const f = enableDiscovery(await fixture());
+  const original = f.rpc.getProgramAccounts;
+  f.rpc.getProgramAccounts = async (...args) => {
+    const response = await original(...args);
+    corrupt(response);
+    return response;
+  };
+  await assert.rejects(f.keeper.tick({ send: true }), expected);
+  assert.equal(f.state(), null);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("discovery fails on overflow instead of silently omitting portfolios", async () => {
+  const f = await fixture();
+  addSecondTarget(f);
+  enableDiscovery(f, 1);
+  await assert.rejects(f.keeper.tick({ send: true }), /target limit exceeded/);
+  assert.equal(f.state(), null);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+for (const [name, mutate, expected] of [
+  ["other market", data => pub(40).toBuffer().copy(data, contract.constants.portfolioMarketOffset), /identity/],
+  ["other address", data => pub(40).toBuffer().copy(data, contract.constants.portfolioAddressOffset), /identity/],
+  ["owner provenance", data => pub(40).toBuffer().copy(data, contract.constants.portfolioProvenanceOwnerOffset), /identity/],
+  ["zero identity", data => data.writeBigUInt64LE(0n, contract.constants.portfolioIdOffset), /Uninitialized/],
+  ["bad header", data => { data[0] ^= 1; }, /header/],
+]) test(`discovery verifies full bytes for ${name} even when RPC filters claim a match`, async () => {
+  const f = enableDiscovery(await fixture());
+  mutate(f.accounts.get(f.portfolio.toBase58()).data);
+  await assert.rejects(f.keeper.tick({ send: true }), expected);
+  assert.equal(f.state(), null);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("discovery bounds batch reads and advances the minimum bank across them", async () => {
+  const f = enableDiscovery(await fixture());
+  const template = f.accounts.get(f.portfolio.toBase58());
+  f.accounts.delete(f.portfolio.toBase58());
+  for (let n = 40; n < 170; n++) {
+    const data = Buffer.from(template.data);
+    pub(n).toBuffer().copy(data, contract.constants.portfolioAddressOffset);
+    data.writeBigUInt64LE(BigInt(n), contract.constants.portfolioIdOffset);
+    f.accounts.set(pub(n).toBase58(), info(pub(9), data));
+  }
+  const batches = [];
+  const original = f.rpc.getMultipleAccountsInfoAndContext;
+  f.rpc.getMultipleAccountsInfoAndContext = async (keys, options) => {
+    assert(options.minContextSlot >= 124);
+    assert(keys.length <= 67);
+    batches.push(keys.length);
+    f.rpc.slot++;
+    return original(keys, options);
+  };
+  const result = await discoverPortfolios(f.rpc, f.raw.deployment, {
+    maxTargets: 256, minimumSlot: 124,
+  });
+  assert.deepEqual(batches, [3, 67, 67, 5]);
+  assert.equal(result.targets.length, 130);
+  assert.equal(result.slot, 128);
+  assert.equal(result.scanSlot, 125);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("discovery rejects duplicate portfolio IDs across different accounts", async () => {
+  const f = await fixture();
+  const second = addSecondTarget(f);
+  f.accounts.get(second.address).data.writeBigUInt64LE(17n, contract.constants.portfolioIdOffset);
+  enableDiscovery(f);
+  await assert.rejects(f.keeper.tick(), /duplicate portfolio identities/);
+});
+
+test("discovery journal failure prevents signing or broadcast", async () => {
+  const f = enableDiscovery(await fixture());
+  f.journal.write = async () => { throw new Error("disk full"); };
+  let signs = 0;
+  f.keeper.signer = { get publicKey() { signs++; return f.signer.publicKey; } };
+  await assert.rejects(f.keeper.tick({ send: true }), /disk full/);
+  assert.equal(signs, 0);
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+for (const [name, mutate] of [
+  ["missing sweep", s => { s.discovery = null; }],
+  ["bad cursor", s => { s.cursor = 900; }],
+  ["future scan", s => { s.discovery.slot = 900; }],
+  ["empty sweep", s => { s.discovery.targets = []; }],
+  ["duplicate identity", s => { s.discovery.targets[1].portfolioId = s.discovery.targets[0].portfolioId; }],
+]) test(`discovery refuses a corrupted journal with ${name}`, async () => {
+  const f = await fixture();
+  addSecondTarget(f);
+  enableDiscovery(f);
+  await f.keeper.tick();
+  const state = f.state();
+  mutate(state);
+  await f.journal.write(state);
+  await assert.rejects(f.keeper.tick({ send: true }));
+  assert.equal(f.rpc.sent.length, 0);
+});
+
+test("discovery configuration is explicit and cannot reset an existing journal", async () => {
+  const f = await fixture();
+  await f.keeper.tick();
+  assert.throws(() => validateKeeperConfig({ ...f.raw, discovery: { mode: "programAccounts", maxTargets: 10 } }), /empty targets/);
+  for (const discovery of [null, {}, { mode: "programAccounts", maxTargets: 0 }, { mode: "programAccounts", maxTargets: 257 }])
+    assert.throws(() => validateKeeperConfig({ ...f.raw, targets: [], discovery }));
+  enableDiscovery(f);
+  await assert.rejects(f.keeper.tick({ send: true }), /journal does not match/);
+  assert.equal(f.scans, 0);
+});
+
+test("keeper RPC transport bounds streamed data and does not disclose error bodies", async () => {
+  const fetcher = keeperFetch(async () => new Response('{"ok":true}'), 11);
+  assert.deepEqual(await (await fetcher("http://unused")).json(), { ok: true });
+  let cancelled = false;
+  const oversized = keeperFetch(async () => new Response(new ReadableStream({
+    start(controller) { controller.enqueue(new Uint8Array(8)); controller.enqueue(new Uint8Array(8)); },
+    cancel() { cancelled = true; },
+  })), 12);
+  await assert.rejects(oversized("http://unused"), /byte limit/);
+  assert.equal(cancelled, true);
+  const failed = keeperFetch(async () => new Response("private RPC error body", { status: 403 }));
+  await assert.rejects(failed("http://unused"), error => error.message === "Keeper RPC request failed");
+});
 
 for (const mode of ["live", "recovery", "resolved"])
   for (const timing of ["before reading", "after simulation"])
@@ -1172,15 +1443,17 @@ function watchUntilSubmitted(args) {
   });
 }
 
-for (const [resolved, deferredReason] of [
+for (const [resolved, deferredReason, discovery = false] of [
   [false, null],
   [false, "portfolioMissing"],
   [true, null],
   [true, "portfolioMissing"],
   [true, "payoutAccountMissing"],
   [true, "payoutHalted"],
+  [false, null, true],
+  [true, null, true],
 ])
-  test(`CLI ${resolved ? "resolved" : "live"} ${deferredReason ? `watch with ${deferredReason}` : "signing"}, restart and duplicate protection use durable state`, async () => {
+  test(`CLI ${resolved ? "resolved" : "live"} ${discovery ? "discovery" : deferredReason ? `watch with ${deferredReason}` : "signing"}, restart and duplicate protection use durable state`, async () => {
     const f = resolved ? await resolvedFixture() : await fixture(),
       directory = await mkdtemp(join(tmpdir(), "outright-keeper-cli-"));
     let expectedTarget = f.raw.targets[0].address;
@@ -1207,9 +1480,11 @@ for (const [resolved, deferredReason] of [
       }
       f.raw.intervalMs = 1000;
     }
+    if (discovery) enableDiscovery(f);
     const stateDir = join(directory, "state");
     let sends = 0,
       estimates = 0,
+      scans = 0,
       observedSignature;
     const haltOffset =
       contract.constants.marketGroupOffset +
@@ -1224,6 +1499,21 @@ for (const [resolved, deferredReason] of [
         switch (method) {
           case "getGenesisHash":
             result = f.raw.deployment.genesisHash;
+            break;
+          case "getProgramAccounts":
+            assert(discovery);
+            assert.equal(params[0], f.raw.deployment.program.address);
+            assert.equal(params[1].withContext, true);
+            assert.deepEqual(params[1].dataSlice, { offset: 0, length: 0 });
+            scans++;
+            result = {
+              context: { slot: f.rpc.slot },
+              value: [...f.accounts.entries()]
+                .filter(([, a]) => a.data.length === contract.constants.portfolioLength)
+                .map(([pubkey, a]) => ({ pubkey, account: {
+                  ...a, owner: a.owner.toBase58(), data: ["", "base64"], rentEpoch: 0,
+                } })),
+            };
             break;
           case "getMultipleAccounts":
             assert.equal(params[1].commitment, "confirmed");
@@ -1356,6 +1646,7 @@ for (const [resolved, deferredReason] of [
       }
       const second = await run();
       assert.equal(JSON.parse(second.stdout).status, "confirmed");
+      if (discovery) assert.equal(scans, 1, "restart must reconcile before discovery");
       if (
         ["portfolioMissing", "payoutAccountMissing"].includes(deferredReason)
       ) {
@@ -1365,6 +1656,7 @@ for (const [resolved, deferredReason] of [
       const third = await run();
       assert.equal(JSON.parse(third.stdout).status, "waitingForBlockhash");
       assert.equal(sends, 1);
+      if (discovery) assert.equal(scans, 2);
       const state = JSON.parse(
         await readFile(join(stateDir, "state.json"), "utf8"),
       );

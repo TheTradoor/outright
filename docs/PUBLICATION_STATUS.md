@@ -13,6 +13,7 @@ source publication and the program PR merge succeeded after that change.
 | Repaired program fork | [Program PR #1](https://github.com/TheTradoor/outright-program/pull/1), merged as `dab351b19cd463a76b29178cbe1e9c2c485163d1` | Candidate `72dd8948b116e9e16a85c830e1e2a7915f12d542` and merge have the exact qualified tree `8b54b827082b2b838beacd88d4d99bd12878d2ca`. Upstream history, license and engine dependency are retained. |
 | Mainnet transport and program adoption | [PR #28](https://github.com/TheTradoor/outright/pull/28), merged as `3bfbe078c1493764bcb56bffc384dea99f5db55b` | All 51 checks passed before merge. The merge has tested tree `537c60abf1b371bce2e9b79cedcff1a22f53cefa`. Complete qualification passed 37 shards and 2,120 executions; the independent aggregate matches CI. |
 | Website client update | [Outright](https://outright.bollish-eth.chatgpt.site), version 30 | Source `3813d630edcfc49948128d7c8cecb4cf0744e7a2`; all 65 protocol files match PR #28. Build, route, mechanics and 496 client checks passed. Existing access is preserved; mainnet is not open. |
+| Published release evidence | [PR #30](https://github.com/TheTradoor/outright/pull/30), merged as `33f6af7b0fa7632a5c679aa456e676dd7213cd87` | All four engine checks passed. Every file in the retained packet's checksum manifest was rechecked before merge. |
 
 The current client uses the published program directly in its runtime source
 lock, Rust dependency, generated contract and both SBF build paths. Qualification

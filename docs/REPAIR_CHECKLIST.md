@@ -47,6 +47,22 @@ A checked item is complete within its stated scope. Automated adapters and a
 website deployment do not establish real-wallet acceptance, production liquidity
 or independent security review.
 
+## Keeper discovery follow-up
+
+The operator now supports opt-in discovery within its enrolled market. Full
+account/program verification precedes admission, and complete sweeps survive
+restart without resetting fees or bypassing pending receipts. The CLI bounds
+HTTP response bytes and cancels oversized responses. The engine and wrapper
+pins are unchanged.
+
+Local client checks pass **525/525**, including 29 new discovery/transport
+scenarios; source equivalence and terminal build pass, and the verifier suite
+passes **53/53**. The current-validator lifecycle now additionally checks real
+RPC discovery before and after trader creation and rejects target overflow.
+Those added validator assertions require the follow-up CI result; they are not
+included in the older validator evidence above. See
+[automatic discovery](MARKET_OPERATIONS.md#automatic-portfolio-discovery).
+
 ## Remaining release and acceptance work
 
 | Done | ID | Requirement | What closes it |
@@ -55,7 +71,7 @@ or independent security review.
 | [ ] | WAL-02 | Real desktop wallet acceptance | Actual wallet/version/browser through connect, approve/reject, account/network changes, signing, interruption and receipt recovery. Use [WALLET_ACCEPTANCE.md](WALLET_ACCEPTANCE.md). |
 | [ ] | WAL-03 | Physical iPhone/mobile acceptance | Actual supported wallet browser, complete transaction flow, backgrounding, lock/unlock, layout and recovery. DOM tests cannot close this item. |
 | [ ] | OPS-01 | Live oracle integration | Selected authenticated feed and publisher, freshness/confidence rejection, outage and resumed operation under the production configuration. |
-| [ ] | OPS-02 | Hosted keeper and portfolio discovery | Operating host, bounded discovery, durable receipts, restart/outage tests, budgets, monitoring and RPC recovery. The current worker requires explicit targets. |
+| [ ] | OPS-02 | Hosted keeper and portfolio discovery | Discovery is implemented and locally tested. Completion still requires the operating host, production feeds and funded fee payer, capacity/latency and completeness monitoring, and production restart/outage/RPC acceptance. |
 | [ ] | PROD-01 | Independent security review | Review the exact engine, wrapper, matcher, oracle, client and operations; resolve findings and record the reviewed release. |
 | [ ] | PROD-02 | Production deployment and authority custody | Operator-controlled signer, fee budget, program/market addresses, verifiable build and program bytes, reviewed upgrade/admin policy. Local test keypairs are excluded. |
 | [ ] | PROD-03 | Funded execution and backing | Real committed collateral, maker authorization and executable liquidity, inventory/capital limits and insurance policy. Test collateral is not liquidity. |
