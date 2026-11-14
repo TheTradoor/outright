@@ -1,0 +1,469 @@
+{
+  "observed_at": "2026-11-14T14:13:28.695Z",
+  "head": "58a4e0781648fd5a4711b227d272a84e299ec3a7",
+  "tested_merge": "450f51442a3bfc953b09b51f62c9c3607c2f5d92",
+  "published_merge": "1161b54094498ce23a287d2d2340e52d8cae68a3",
+  "tree": "6414a9f1f80faed6f06f261e81b6867070d4c928",
+  "total_count": 51,
+  "checks": [
+    {
+      "id": 132473176256,
+      "name": "Complete wrapper qualification",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132473176256",
+      "started_at": "2026-11-14T14:11:13Z",
+      "completed_at": "2026-11-14T14:11:33Z"
+    },
+    {
+      "id": 132466955289,
+      "name": "qualify (open_issue_regressions-00, open_issue_regressions, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466955289",
+      "started_at": "2026-11-14T13:59:18Z",
+      "completed_at": "2026-11-14T13:59:59Z"
+    },
+    {
+      "id": 132466955269,
+      "name": "qualify (listing_oracle_scope-00, listing_oracle_scope, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466955269",
+      "started_at": "2026-11-14T13:59:03Z",
+      "completed_at": "2026-11-14T13:59:45Z"
+    },
+    {
+      "id": 132466955253,
+      "name": "qualify (percolator_prog_lib-00, percolator_prog_lib, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466955253",
+      "started_at": "2026-11-14T13:59:35Z",
+      "completed_at": "2026-11-14T14:00:12Z"
+    },
+    {
+      "id": 132466955223,
+      "name": "qualify (anchor_v2_realloc_probe-00, anchor_v2_realloc_probe, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466955223",
+      "started_at": "2026-11-14T13:58:49Z",
+      "completed_at": "2026-11-14T13:59:33Z"
+    },
+    {
+      "id": 132466955150,
+      "name": "qualify (outright_native_lifecycle-00, outright_native_lifecycle, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466955150",
+      "started_at": "2026-11-14T13:58:48Z",
+      "completed_at": "2026-11-14T14:00:19Z"
+    },
+    {
+      "id": 132466954340,
+      "name": "qualify (v16_program_fuzz_regressions-00, v16_program_fuzz_regressions, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954340",
+      "started_at": "2026-11-14T13:56:52Z",
+      "completed_at": "2026-11-14T13:58:39Z"
+    },
+    {
+      "id": 132466954308,
+      "name": "qualify (v16_program_fuzz_regressions-03, v16_program_fuzz_regressions, 3)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954308",
+      "started_at": "2026-11-14T13:58:42Z",
+      "completed_at": "2026-11-14T14:00:53Z"
+    },
+    {
+      "id": 132466954282,
+      "name": "qualify (v16_program_fuzz_regressions-02, v16_program_fuzz_regressions, 2)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954282",
+      "started_at": "2026-11-14T13:57:21Z",
+      "completed_at": "2026-11-14T13:58:47Z"
+    },
+    {
+      "id": 132466954281,
+      "name": "qualify (v16_program_stateful_fuzz-08, v16_program_stateful_fuzz, 8)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954281",
+      "started_at": "2026-11-14T13:54:42Z",
+      "completed_at": "2026-11-14T14:11:11Z"
+    },
+    {
+      "id": 132466954267,
+      "name": "qualify (v16_program_stateful_fuzz-11, v16_program_stateful_fuzz, 11)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954267",
+      "started_at": "2026-11-14T13:56:24Z",
+      "completed_at": "2026-11-14T14:03:25Z"
+    },
+    {
+      "id": 132466954261,
+      "name": "qualify (v16_program_fuzz_regressions-01, v16_program_fuzz_regressions, 1)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954261",
+      "started_at": "2026-11-14T13:57:16Z",
+      "completed_at": "2026-11-14T13:58:46Z"
+    },
+    {
+      "id": 132466954244,
+      "name": "qualify (v16_program_stateful_fuzz-09, v16_program_stateful_fuzz, 9)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954244",
+      "started_at": "2026-11-14T13:55:21Z",
+      "completed_at": "2026-11-14T14:01:43Z"
+    },
+    {
+      "id": 132466954228,
+      "name": "qualify (v16_program_stateful_fuzz-10, v16_program_stateful_fuzz, 10)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954228",
+      "started_at": "2026-11-14T13:55:23Z",
+      "completed_at": "2026-11-14T14:03:50Z"
+    },
+    {
+      "id": 132466954209,
+      "name": "qualify (v16_program_stateful_fuzz-06, v16_program_stateful_fuzz, 6)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954209",
+      "started_at": "2026-11-14T13:52:28Z",
+      "completed_at": "2026-11-14T13:59:59Z"
+    },
+    {
+      "id": 132466954184,
+      "name": "qualify (v16_program_stateful_fuzz-07, v16_program_stateful_fuzz, 7)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466954184",
+      "started_at": "2026-11-14T13:54:17Z",
+      "completed_at": "2026-11-14T13:59:01Z"
+    },
+    {
+      "id": 132466953202,
+      "name": "qualify (v16_cu-06, v16_cu, 6)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953202",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:48:32Z"
+    },
+    {
+      "id": 132466953181,
+      "name": "qualify (v16_program_stateful_fuzz-03, v16_program_stateful_fuzz, 3)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953181",
+      "started_at": "2026-11-14T13:51:18Z",
+      "completed_at": "2026-11-14T13:59:15Z"
+    },
+    {
+      "id": 132466953166,
+      "name": "qualify (v16_program_stateful_fuzz-02, v16_program_stateful_fuzz, 2)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953166",
+      "started_at": "2026-11-14T13:50:59Z",
+      "completed_at": "2026-11-14T13:55:21Z"
+    },
+    {
+      "id": 132466953157,
+      "name": "qualify (v16_cu-14, v16_cu, 14)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953157",
+      "started_at": "2026-11-14T13:49:58Z",
+      "completed_at": "2026-11-14T13:57:19Z"
+    },
+    {
+      "id": 132466953152,
+      "name": "qualify (v16_program_stateful_fuzz-01, v16_program_stateful_fuzz, 1)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953152",
+      "started_at": "2026-11-14T13:50:43Z",
+      "completed_at": "2026-11-14T14:00:58Z"
+    },
+    {
+      "id": 132466953151,
+      "name": "qualify (v16_cu-09, v16_cu, 9)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953151",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:51:45Z"
+    },
+    {
+      "id": 132466953149,
+      "name": "qualify (v16_program_stateful_fuzz-04, v16_program_stateful_fuzz, 4)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953149",
+      "started_at": "2026-11-14T13:51:48Z",
+      "completed_at": "2026-11-14T13:56:22Z"
+    },
+    {
+      "id": 132466953146,
+      "name": "qualify (v16_cu-08, v16_cu, 8)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953146",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:50:57Z"
+    },
+    {
+      "id": 132466953145,
+      "name": "qualify (v16_cu-02, v16_cu, 2)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953145",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T14:02:30Z"
+    },
+    {
+      "id": 132466953144,
+      "name": "qualify (v16_program_stateful_fuzz-00, v16_program_stateful_fuzz, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953144",
+      "started_at": "2026-11-14T13:50:31Z",
+      "completed_at": "2026-11-14T13:54:15Z"
+    },
+    {
+      "id": 132466953143,
+      "name": "qualify (v16_cu-13, v16_cu, 13)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953143",
+      "started_at": "2026-11-14T13:49:12Z",
+      "completed_at": "2026-11-14T13:51:49Z"
+    },
+    {
+      "id": 132466953139,
+      "name": "qualify (v16_cu-11, v16_cu, 11)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953139",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:50:12Z"
+    },
+    {
+      "id": 132466953137,
+      "name": "qualify (v16_cu-07, v16_cu, 7)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953137",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:50:29Z"
+    },
+    {
+      "id": 132466953136,
+      "name": "qualify (v16_program_stateful_fuzz-05, v16_program_stateful_fuzz, 5)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953136",
+      "started_at": "2026-11-14T13:51:51Z",
+      "completed_at": "2026-11-14T13:56:50Z"
+    },
+    {
+      "id": 132466953125,
+      "name": "qualify (v16_cu-05, v16_cu, 5)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953125",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:51:16Z"
+    },
+    {
+      "id": 132466953122,
+      "name": "qualify (v16_cu-12, v16_cu, 12)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953122",
+      "started_at": "2026-11-14T13:48:34Z",
+      "completed_at": "2026-11-14T13:55:19Z"
+    },
+    {
+      "id": 132466953110,
+      "name": "qualify (v16_cu-15, v16_cu, 15)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953110",
+      "started_at": "2026-11-14T13:50:14Z",
+      "completed_at": "2026-11-14T13:52:25Z"
+    },
+    {
+      "id": 132466953097,
+      "name": "qualify (v16_cu-03, v16_cu, 3)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953097",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:50:41Z"
+    },
+    {
+      "id": 132466953091,
+      "name": "qualify (v16_cu-04, v16_cu, 4)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953091",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:49:55Z"
+    },
+    {
+      "id": 132466953087,
+      "name": "qualify (v16_cu-00, v16_cu, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953087",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:49:09Z"
+    },
+    {
+      "id": 132466953068,
+      "name": "qualify (v16_cu-10, v16_cu, 10)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953068",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:57:14Z"
+    },
+    {
+      "id": 132466953063,
+      "name": "qualify (v16_cu-01, v16_cu, 1)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132466953063",
+      "started_at": "2026-11-14T13:46:59Z",
+      "completed_at": "2026-11-14T13:54:40Z"
+    },
+    {
+      "id": 132464744733,
+      "name": "programs",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132464744733",
+      "started_at": "2026-11-14T13:38:05Z",
+      "completed_at": "2026-11-14T13:46:56Z"
+    },
+    {
+      "id": 132464679538,
+      "name": "plan",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724725/job/132464679538",
+      "started_at": "2026-11-14T13:37:50Z",
+      "completed_at": "2026-11-14T13:38:03Z"
+    },
+    {
+      "id": 132464679507,
+      "name": "lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724678/job/132464679507",
+      "started_at": "2026-11-14T13:37:50Z",
+      "completed_at": "2026-11-14T13:43:55Z"
+    },
+    {
+      "id": 132464679474,
+      "name": "Engine (fuzz)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724658/job/132464679474",
+      "started_at": "2026-11-14T13:37:50Z",
+      "completed_at": "2026-11-14T13:38:31Z"
+    },
+    {
+      "id": 132464679459,
+      "name": "lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724703/job/132464679459",
+      "started_at": "2026-11-14T13:37:50Z",
+      "completed_at": "2026-11-14T13:42:05Z"
+    },
+    {
+      "id": 132464679411,
+      "name": "contract",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724705/job/132464679411",
+      "started_at": "2026-11-14T13:37:50Z",
+      "completed_at": "2026-11-14T13:39:34Z"
+    },
+    {
+      "id": 132464679259,
+      "name": "Engine (default)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724658/job/132464679259",
+      "started_at": "2026-11-14T13:37:50Z",
+      "completed_at": "2026-11-14T13:38:25Z"
+    },
+    {
+      "id": 132464679098,
+      "name": "Candidate current-validator lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600724665/job/132464679098",
+      "started_at": "2026-11-14T13:37:50Z",
+      "completed_at": "2026-11-14T13:45:41Z"
+    },
+    {
+      "id": 132464667032,
+      "name": "contract",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600720912/job/132464667032",
+      "started_at": "2026-11-14T13:37:47Z",
+      "completed_at": "2026-11-14T13:39:01Z"
+    },
+    {
+      "id": 132464666979,
+      "name": "lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600720901/job/132464666979",
+      "started_at": "2026-11-14T13:37:47Z",
+      "completed_at": "2026-11-14T13:44:58Z"
+    },
+    {
+      "id": 132464666919,
+      "name": "Engine (fuzz)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600720878/job/132464666919",
+      "started_at": "2026-11-14T13:37:47Z",
+      "completed_at": "2026-11-14T13:38:32Z"
+    },
+    {
+      "id": 132464666897,
+      "name": "lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600720874/job/132464666897",
+      "started_at": "2026-11-14T13:37:47Z",
+      "completed_at": "2026-11-14T13:42:07Z"
+    },
+    {
+      "id": 132464666751,
+      "name": "Engine (default)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43600720878/job/132464666751",
+      "started_at": "2026-11-14T13:37:47Z",
+      "completed_at": "2026-11-14T13:38:16Z"
+    }
+  ]
+}

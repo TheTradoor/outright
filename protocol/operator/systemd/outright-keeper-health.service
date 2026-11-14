@@ -1,0 +1,29 @@
+[Unit]
+Description=Check Outright keeper progress
+
+[Service]
+Type=oneshot
+User=outright-keeper
+Group=outright-keeper
+WorkingDirectory=/opt/outright
+ExecStart=/usr/bin/node /opt/outright/protocol/operator/health.mjs --config /etc/outright/keeper.json --state-dir /var/lib/outright-keeper --max-age-ms 15000 --max-pending-ms 60000 --max-sweep-ms 300000 --max-slot-stall-ms 30000 --max-cycle-ms 15000 --min-targets 1
+TimeoutStartSec=10
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateNetwork=yes
+InaccessiblePaths=/etc/outright/keeper.keypair.json
+ReadOnlyPaths=/var/lib/outright-keeper
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+StandardOutput=journal
+StandardError=journal

@@ -1402,7 +1402,7 @@ test("disk journal survives reopen, locks other workers and rejects exposed perm
   }
 });
 
-function watchUntilSubmitted(args) {
+function watchUntilSubmitted(args, onSubmitted = async () => {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [...args, "--watch"]);
     const results = [];
@@ -1421,7 +1421,10 @@ function watchUntilSubmitted(args) {
         try {
           const result = JSON.parse(line);
           results.push(result);
-          if (result.status === "submitted") child.kill("SIGTERM");
+          if (result.status === "submitted") onSubmitted().then(
+            () => child.kill("SIGTERM"),
+            (error) => { child.kill("SIGKILL"); reject(error); },
+          );
         } catch (error) {
           child.kill("SIGKILL");
           reject(error);
@@ -1485,7 +1488,8 @@ for (const [resolved, deferredReason, discovery = false] of [
     let sends = 0,
       estimates = 0,
       scans = 0,
-      observedSignature;
+      observedSignature,
+      failRpc = false;
     const haltOffset =
       contract.constants.marketGroupOffset +
       contract.layouts.payoutLedgerOffset +
@@ -1495,6 +1499,7 @@ for (const [resolved, deferredReason, discovery = false] of [
         let text = "";
         for await (const chunk of request) text += chunk;
         const { id, method, params } = JSON.parse(text);
+        if (failRpc) throw new Error("provider failure with PRIVATE_TOKEN_DO_NOT_ECHO");
         let result;
         switch (method) {
           case "getGenesisHash":
@@ -1633,7 +1638,14 @@ for (const [resolved, deferredReason, discovery = false] of [
       const run = () =>
         promisify(execFile)(process.execPath, args, { timeout: 20000 });
       if (deferredReason) {
-        const results = await watchUntilSubmitted(args);
+        const results = await watchUntilSubmitted(args, async () => {
+          const health = JSON.parse(await readFile(join(stateDir, "health.json"), "utf8"));
+          assert.equal(health.phase, "running");
+          assert.equal(health.result, "submitted");
+          assert.equal(health.pendingStatus, "submitted");
+          assert.equal(health.targetCount, 2);
+          assert.equal(health.lastSweepFailures, 1, "another successful target must not hide the deferred visit");
+        });
         assert.deepEqual(
           results.map((r) => r.status),
           ["deferred", "submitted"],
@@ -1663,6 +1675,20 @@ for (const [resolved, deferredReason, discovery = false] of [
       assert.equal(state.pending, null);
       assert.equal(state.reservedFees, "5000");
       assert.equal(state.lastSubmittedBlockhash, pub(23).toBase58());
+      const health = JSON.parse(await readFile(join(stateDir, "health.json"), "utf8"));
+      assert.equal(health.phase, "stopped");
+      assert.equal(health.result, "waitingForBlockhash");
+      assert.equal(health.reservedFees, "5000");
+      assert.equal(health.targetCount, deferredReason ? 2 : 1);
+      assert.equal(health.pendingStatus, null);
+      assert.equal(health.stateHash, await sha256(new TextEncoder().encode(JSON.stringify(state))));
+      if (!resolved && !deferredReason && !discovery) {
+        failRpc = true;
+        await assert.rejects(run(), (error) => error.code === 1 && !error.stderr.includes("PRIVATE_TOKEN"));
+        assert.equal(JSON.parse(await readFile(join(stateDir, "health.json"), "utf8")).phase, "failed");
+        assert.deepEqual(JSON.parse(await readFile(join(stateDir, "state.json"), "utf8")), state);
+        assert.equal(sends, 1, "RPC failure cannot sign or repeat a transaction");
+      }
     } finally {
       await new Promise((resolve) => server.close(resolve));
       await rm(directory, { recursive: true, force: true });

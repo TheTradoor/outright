@@ -22,10 +22,10 @@ public market remain unfinished.
 | Engine specification | [v16.9.1](spec.md) |
 | Runtime tests | Default and `fuzz` suites; run locally or through GitHub Actions |
 | Solana program integration | [Native client, Rust conformance exporter, and local SBF tests](protocol/README.md) |
-| Wallet terminal | [Localnet/devnet client with simulation and transaction reconciliation](docs/WALLET_TERMINAL.md) |
-| Market keeper | [Test-network worker with oracle account checks, fee caps and durable receipts](docs/MARKET_OPERATIONS.md) |
+| Wallet terminal | [Mainnet-capable client with simulation and transaction reconciliation; no enrolled public market](docs/WALLET_TERMINAL.md) |
+| Market keeper | [Worker with oracle checks, portfolio discovery, fee caps and durable receipts](docs/MARKET_OPERATIONS.md) |
 | Funded local market | [Validator bootstrap and complete RPC lifecycle check](docs/LOCAL_MARKET.md), with a fixed synthetic TEST/USD price |
-| Hosted services | Provider oracle publishing, keeper hosting and indexing remain open |
+| Hosted services | Provider oracle publishing, keeper hosting and completeness monitoring remain open |
 | Public deployment | None |
 
 The intended user flow is wallet connection, collateral deposit, an executable
@@ -64,10 +64,11 @@ See [the development guide](docs/DEVELOPMENT.md) for test scope and
 
 - [Product requirements and delivery milestones](PRODUCT.md)
 - [Mainnet release requirements and user experience](docs/MAINNET_RELEASE.md)
+- [Production inputs, funding observations and release sequence](docs/PRODUCTION_INPUTS.md)
 - [Upstream sources and compatibility policy](docs/UPSTREAM.md)
 - [Development and verification](docs/DEVELOPMENT.md)
 - [Native integration verification results](docs/NATIVE_VERIFICATION.md)
-- [Repair checklist and unresolved qualification failures](docs/REPAIR_CHECKLIST.md)
+- [Repair checklist and remaining release requirements](docs/REPAIR_CHECKLIST.md)
 - [Wallet terminal and deployment profiles](docs/WALLET_TERMINAL.md)
 - [Run a funded local market](docs/LOCAL_MARKET.md)
 - [Market keeper and operator recovery](docs/MARKET_OPERATIONS.md)

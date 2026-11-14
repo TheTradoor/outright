@@ -57,10 +57,10 @@ executes the JavaScript instructions against SBF. Host tests and SVM tests run
 in separate GitHub Actions workflows.
 
 Build the [wallet terminal](WALLET_TERMINAL.md) with
-`npm run build --prefix protocol`. It verifies a configured localnet or devnet
+`npm run build --prefix protocol`. It verifies an enrolled mainnet, devnet or localnet
 deployment and supports reviewed wallet transactions. The
 [keeper](MARKET_OPERATIONS.md) simulates by default; sending requires an explicit
-flag and a dedicated test-network fee payer. The account inspection and profile
+flag and a dedicated fee payer for the enrolled deployment. The account inspection and profile
 enrollment commands remain read-only. There is no hosted quote service, public
 market or deployment command in this checkout.
 

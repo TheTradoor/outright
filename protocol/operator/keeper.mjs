@@ -6,6 +6,7 @@ import { Connection, Keypair } from "@solana/web3.js";
 import { OutrightKeeper, validateKeeperConfig } from "../src/keeper.mjs";
 import { openKeeperJournal } from "./journal.mjs";
 import { keeperFetch } from "./rpc.mjs";
+import { openKeeperMonitor } from "./monitor.mjs";
 
 async function main() {
   const argv = process.argv.slice(2),
@@ -18,7 +19,8 @@ Default: simulate one bounded crank without signing. --watch polls the configure
 targets or discovers portfolios within the configured market. --send requires
 the dedicated fee payer for an enrolled deployment. Never use a trader,
 maker, oracle-authority or upgrade-authority wallet. JSON lines go to stdout.
-The state directory must be private, durable and used by exactly one worker.`);
+The state directory must be private, durable and used by exactly one worker.
+health.json records local operational status for operator/health.mjs.`);
     return;
   }
   for (let i = 0; i < argv.length; i++) {
@@ -76,14 +78,28 @@ The state directory must be private, durable and used by exactly one worker.`);
   const stop = () => stopped.abort();
   process.once("SIGINT", stop);
   process.once("SIGTERM", stop);
+  let monitor, failed = false, discoveredTargets;
   try {
+    monitor = await openKeeperMonitor(args["--state-dir"], config, await journal.read(), {
+      send: !!args["--send"],
+    });
     const keeper = new OutrightKeeper(config, {
       connection: rpc,
-      journal,
+      journal: {
+        ...journal,
+        async write(state) {
+          await journal.write(state);
+          // Capture the verified scan before a single-step sweep clears it.
+          if (state.discovery) discoveredTargets = state.discovery.targets.length;
+        },
+      },
       signer,
     });
     do {
+      const before = await journal.read(), startedAtMs = Date.now();
+      discoveredTargets = before?.discovery?.targets.length;
       const result = await keeper.tick({ send: !!args["--send"] });
+      await monitor.record(result, before, await journal.read(), startedAtMs, discoveredTargets);
       console.log(JSON.stringify({ at: new Date().toISOString(), ...result }));
       if (result.status === "expiredUnresolved")
         throw new Error(
@@ -96,10 +112,20 @@ The state directory must be private, durable and used by exactly one worker.`);
         if (e.name !== "AbortError") throw e;
       });
     } while (!stopped.signal.aborted);
+  } catch (error) {
+    failed = true;
+    throw error;
   } finally {
     process.removeListener("SIGINT", stop);
     process.removeListener("SIGTERM", stop);
-    await journal.close();
+    try {
+      await journal.close();
+    } catch (error) {
+      failed = true;
+      throw error;
+    } finally {
+      if (monitor) await monitor.stop(failed);
+    }
   }
 }
 

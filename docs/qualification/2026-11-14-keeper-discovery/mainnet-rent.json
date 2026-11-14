@@ -1,0 +1,38 @@
+{
+  "scope": "read-only-mainnet-account-rent",
+  "startedAt": "2026-11-14T13:39:47.675Z",
+  "completedAt": "2026-11-14T13:39:55.011Z",
+  "rpc": "https://api.mainnet-beta.solana.com",
+  "genesisHash": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+  "binary": {
+    "bytes": 1270936,
+    "sha256": "1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e"
+  },
+  "allocation": "Exact binary length; excludes extra upgrade capacity",
+  "rows": [
+    {
+      "name": "program",
+      "bytes": 36,
+      "rentLamports": 833120
+    },
+    {
+      "name": "programData",
+      "bytes": 1270981,
+      "rentLamports": 6457233720
+    },
+    {
+      "name": "uploadBuffer",
+      "bytes": 1270973,
+      "rentLamports": 6457193080
+    }
+  ],
+  "transactionFees": null,
+  "matcherProgramCost": null,
+  "marketAccountCost": null,
+  "keeperOperatingBudget": null,
+  "makerCollateral": null,
+  "insuranceCollateral": null,
+  "payer": null,
+  "signingPerformed": false,
+  "transactionsSubmitted": 0
+}

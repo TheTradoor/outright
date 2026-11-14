@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Outright keeper every 15 seconds
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=15s
+AccuracySec=1s
+Unit=outright-keeper-health.service
+
+[Install]
+WantedBy=timers.target
