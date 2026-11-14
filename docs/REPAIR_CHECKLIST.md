@@ -50,7 +50,8 @@ source-specific evidence.
 | [x] | Checked-host exhaustive graph, supplemental | Passed in 540.362 seconds; original 1,800-second limit and all 11,727 action words retained | [Complete local graph evidence](qualification/2026-11-14-repairs/checked-host-graph/README.md). Debug assertions and overflow checks enabled; deployed SBF artifacts unchanged. This one-test result does not close the 37-shard aggregate. |
 | [x] | Complete 37-shard wrapper qualification | 2,120 passed, zero failed; aggregate passed | [Complete checked-host run](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md), source `9191c881…`, tested merge `43ee4808…`. All reports, exact execution coverage and source/artifact identities independently verified. The graph passed in 457.375 seconds with its original 1,800-second limit. The earlier timeout remains historical evidence. |
 | [ ] | Live market and mainnet | Not implemented or enabled | The client accepts only localnet/devnet profiles; mainnet enrollment, wallet-chain/signing, explorer handling and fresh acceptance checks remain open under PROD-06. The hosted deployment profile remains `null`. |
-| [ ] | Fork publication and runtime-pin adoption | Blocked by GitHub integration write access (`403`) | Installation [156871870](https://github.com/settings/installations/156871870) has selected-repository access that omits `TheTradoor/outright-program`. Add that repository to the installation before publishing the candidate and migrating the pin; see ADOPT-01 below. |
+| [x] | Fork write access and candidate publication | Fixed and verified | Selected-repository access now includes `TheTradoor/outright-program`. Branch creation, source publication and [program PR #1](https://github.com/TheTradoor/outright-program/pull/1) succeeded. The merged tree exactly matches the qualified candidate; see [publication status](PUBLICATION_STATUS.md). |
+| [ ] | Runtime-pin adoption | Pending | The candidate is published, but the application's runtime source pin remains on the earlier upstream revision. Adoption and its affected checks remain ADOPT-01. |
 
 All five final native PR jobs and all four duplicate push workflows passed.
 [Complete native CI logs and hashes](qualification/2026-11-14-repairs/final-native-ci/README.md)
@@ -69,7 +70,8 @@ Website version 28 uses source `aee5ba3fc4fb55aabaab415c758ef0201c653830` and
 successfully deployed at `2026-11-13T23:33:01.912572Z`. The released archive hash is
 `0679f999fce51181f7ce0efc7d1f1384c29cd240b081b42acdd37a835fa85910`. This publishes
 the client and documentation while keeping mainnet deposits disabled. Fork
-write access and runtime source-pin migration remain open under ADOPT-01.
+write access was subsequently restored and the candidate published; runtime
+source-pin migration remains open under ADOPT-01.
 
 The sections below preserve earlier snapshots and the original failures. Their
 counts and source identities are historical evidence, not replacements for the
@@ -237,13 +239,14 @@ Only eight added lines change production program behavior: Recovery assets may u
 | [x] | CASE-10 | The first broad run exposed an INV048 source-contract assertion still expecting the old exact-sum diagnostic. Retain the 13 existing ownership entries, add the typed rounding-residue lifecycle witness and require all six behavioral controls. | Full INV048 changed from 2 passed / 1 failed to **3/3 passed**; the six unchanged arithmetic/mutation controls also passed. No model arithmetic or production source changed. [Final evidence](qualification/2026-11-14-repairs/source-contract/final/manifest.json); [original CI failure](qualification/2026-11-14-repairs/source-contract/before-ci-failure.log). |
 | [x] | PROV-02 | The first gate omitted three default integration targets/library and did not bind exported native results to client bytes. | Expanded to 37 shards with Cargo target inventory, protocol content identity, canonical harness/driver checks and host-executable hashes. **49** combined verifier checks passed locally; final workflow execution remains QUAL-01. [Local checks](qualification/2026-11-14-repairs/qualification-followup/integrated-local-checks.json). |
 | [ ] | QUAL-01 | Complete repaired-wrapper qualification across every configured default unit/integration target and native lifecycle. | [Final run 43526782149](https://github.com/TheTradoor/outright/actions/runs/43526782149) requires 37 complete shard reports and a passing exact-coverage aggregate. Its [final-result placeholder](qualification/2026-11-14-repairs/final-qualification-status.json) remains pending. The earlier 33-shard run exposed CASE-10 and is not a passing final gate. |
-| [ ] | ADOPT-01 | Publish the candidate program revision and migrate the application's source pin. | Fork created at [TheTradoor/outright-program](https://github.com/TheTradoor/outright-program), but GitHub integration writes return `403: Resource not accessible by integration`. The patch is retained in the existing Outright repository. Runtime pin remains the previously verified upstream revision. |
+| [ ] | ADOPT-01 | Adopt the published candidate program revision in the application's runtime source pin. | Publication is complete in [program PR #1](https://github.com/TheTradoor/outright-program/pull/1). Candidate `72dd8948b116e9e16a85c830e1e2a7915f12d542` and merge `dab351b19cd463a76b29178cbe1e9c2c485163d1` share the qualified tree `8b54b827082b2b838beacd88d4d99bd12878d2ca`. Runtime pin migration and affected release checks remain open. |
 
-The GitHub installation uses **selected repositories**. Its accessible repository
-inventory includes `TheTradoor/outright` but not the newly created
-`TheTradoor/outright-program`. The account owner can add that exact repository in
-[the existing installation settings](https://github.com/settings/installations/156871870).
-Repository creation and public read access do not grant the integration write access.
+The GitHub installation retains **selected repositories** access. On 14 November
+2026, `TheTradoor/outright-program` was added to the existing installation and
+GitHub confirmed the saved change. Successful branch creation and publication
+verified write access directly. The earlier `403: Resource not accessible by
+integration` block is resolved. [Publication status](PUBLICATION_STATUS.md)
+records the exact published revisions and separates publication from release.
 
 A separate target inventory review identified three default integration targets
 and library tests outside the initial 33-shard manifest. Their unchanged tests
