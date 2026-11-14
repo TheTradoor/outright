@@ -1,0 +1,422 @@
+{
+  "wrapperCommit": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+  "engineCommit": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "liveSnapshot": {
+    "scope": "read-only-pyth-mainnet-candidate",
+    "observedAt": "2026-11-14T19:57:55.539Z",
+    "rpc": "https://api.mainnet-beta.solana.com",
+    "genesisHash": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+    "context": {
+      "apiVersion": "4.4.0",
+      "slot": 469453276
+    },
+    "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+    "shard": 0,
+    "address": "7UVimffxr9ow1uXYxsr4LHAcV58mLzhmwaeKvJ1pjLiE",
+    "accounts": [
+      {
+        "data": "3En7GwAAAAAswPdqAAAAAD4EAAAAAAAAPwQAAAAAAABDvfhqAAAAAA==",
+        "executable": false,
+        "lamports": 1169280,
+        "owner": "Sysvar1111111111111111111111111111111111111",
+        "rentEpoch": 18446744073709552000,
+        "space": 40
+      },
+      {
+        "data": "IvEjY51+9M1gMUcENA3t3zcf1CRyFI8kjp0abRpesqw6zYt/1dayQwHvDYtv2izrpB2hXUCV0do5Kg0vjtDGx7wPTPrIwoC1bd5n2q0BAAAA8JkeAAAAAAD4////K734agAAAAAqvfhqAAAAABAF+a4BAAAAyqweAAAAAAB0SfsbAAAAAAA=",
+        "executable": false,
+        "lamports": 1825031,
+        "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+        "rentEpoch": 18446744073709552000,
+        "space": 134
+      }
+    ],
+    "transactionsSubmitted": 0
+  },
+  "cases": [
+    {
+      "name": "fresh boundary",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "150000000",
+        "publishTime": "1700000000"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "one second stale",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000031",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleStale"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "future publication",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1699999999",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleStale"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "zero age current",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000000",
+      "maxAgeSeconds": "0",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "150000000",
+        "publishTime": "1700000000"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "zero age previous second",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000001",
+      "maxAgeSeconds": "0",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleStale"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "wrong receiver",
+      "owner": "11111111111111111111111111111111",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleWrongOwner"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "Core Compatible receiver",
+      "owner": "rec2HHDDnjLfj4kE7VyEtFA1HPGQLK33259532cRyHp",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleWrongOwner"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "truncated allocation",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleInvalidData"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e803000000000000"
+    },
+    {
+      "name": "wrong discriminator",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleInvalidData"
+      },
+      "dataHex": "23f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "verification tag 0",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleVerificationIncomplete"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000000ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "verification tag 2",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleVerificationIncomplete"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000002ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "wrong feed",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "0101010101010101010101010101010101010101010101010101010101010101",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleFeedMismatch"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "nonpositive price -1",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oraclePriceInvalid"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56dffffffffffffffff60e3160000000000f8ffffff00f1536500000000fff0536500000000ffffffffffffffff60e3160000000000e80300000000000000"
+    },
+    {
+      "name": "nonpositive price 0",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oraclePriceInvalid"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d000000000000000060e3160000000000f8ffffff00f1536500000000fff0536500000000000000000000000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "exponent outside domain -19",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oraclePriceInvalid"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000edffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "exponent outside domain 19",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oraclePriceInvalid"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e31600000000001300000000f1536500000000fff053650000000000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "rounds down to zero",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleScaleInvalid"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d01000000000000000000000000000000eeffffff00f1536500000000fff053650000000001000000000000000000000000000000e80300000000000000"
+    },
+    {
+      "name": "positive exponent exceeds maximum",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleScaleInvalid"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d010000000000000000000000000000001200000000f1536500000000fff053650000000001000000000000000000000000000000e80300000000000000"
+    },
+    {
+      "name": "maximum price",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "1000000000000",
+        "publishTime": "1700000000"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d0010a5d4e800000060e3160000000000faffffff00f1536500000000fff05365000000000010a5d4e800000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "above maximum price",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleScaleInvalid"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d0110a5d4e800000060e3160000000000faffffff00f1536500000000fff05365000000000110a5d4e800000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "exact confidence boundary",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "1000000",
+        "publishTime": "1700000000"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00e1f5050000000040420f0000000000f8ffffff00f1536500000000fff053650000000000e1f5050000000040420f0000000000e80300000000000000"
+    },
+    {
+      "name": "confidence just above boundary",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleConfidenceWide"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00e1f5050000000041420f0000000000f8ffffff00f1536500000000fff053650000000000e1f5050000000041420f0000000000e80300000000000000"
+    },
+    {
+      "name": "large integer mantissa",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "9007199254",
+        "publishTime": "1700000000"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d010000000000200060e3160000000000f4ffffff00f1536500000000fff0536500000000010000000000200060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "u64 confidence",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "code": "oracleConfidenceWide"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e03000000fffffffffffffffff8ffffff00f1536500000000fff053650000000000d6117e03000000ffffffffffffffffe80300000000000000"
+    },
+    {
+      "name": "wrapper confidence disable semantics",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 0,
+      "expected": {
+        "priceE6": "150000000",
+        "publishTime": "1700000000"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e03000000fffffffffffffffff8ffffff00f1536500000000fff053650000000000d6117e03000000ffffffffffffffffe80300000000000000"
+    },
+    {
+      "name": "positive decimal scale",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "1200000000",
+        "publishTime": "1700000000"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d0c0000000000000000000000000000000200000000f1536500000000fff05365000000000c000000000000000000000000000000e80300000000000000"
+    },
+    {
+      "name": "negative decimal truncation",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "1234567",
+        "publishTime": "1700000000"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d15cd5b07000000000000000000000000f8ffffff00f1536500000000fff053650000000015cd5b07000000000000000000000000e80300000000000000"
+    },
+    {
+      "name": "full timestamp domain",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "9223372036854775807",
+      "maxAgeSeconds": "18446744073709551615",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "150000000",
+        "publishTime": "-9223372036854775808"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff0000000000000080000000000000008000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "timestamp above JS safe integer",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "9007199254740993",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "150000000",
+        "publishTime": "9007199254740990"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8fffffffeffffffffff1f00fdffffffffff1f0000d6117e0300000060e3160000000000e80300000000000000"
+    },
+    {
+      "name": "trailing bytes accepted by wrapper",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1700000030",
+      "maxAgeSeconds": "30",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "150000000",
+        "publishTime": "1700000000"
+      },
+      "dataHex": "22f123639d7ef4cd000000000000000000000000000000000000000000000000000000000000000001ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d00d6117e0300000060e3160000000000f8ffffff00f1536500000000fff053650000000000d6117e0300000060e3160000000000e803000000000000000000000000000000"
+    },
+    {
+      "name": "captured mainnet SOL USD",
+      "owner": "rec5EKMGg6MxZYaMdyBfgwp4d5rB9T1VQH5pJv5LtFJ",
+      "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+      "nowUnixSeconds": "1794686275",
+      "maxAgeSeconds": "60",
+      "maxConfidenceBps": 100,
+      "expected": {
+        "priceE6": "72117391",
+        "publishTime": "1794686251"
+      },
+      "dataHex": "22f123639d7ef4cd60314704340deddf371fd42472148f248e9d1a6d1a5eb2ac3acd8b7fd5d6b24301ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56dde67daad01000000f0991e0000000000f8ffffff2bbdf86a000000002abdf86a000000001005f9ae01000000caac1e00000000007449fb1b0000000000"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "baseline": "f680dce333ad0cad094efed20bcae9a27fa0f841",
+  "engine": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "program": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+  "client_tests": 594,
+  "oracle_tests": 54,
+  "shared_rust_js_vectors": 31,
+  "rust_conformance_tests": 1,
+  "mainnet_transactions_submitted": 0,
+  "mainnet_signing_performed": false,
+  "node": "v24.22.1",
+  "source_sha256": {
+    "protocol/operator/pyth.mjs": "a25d07b3dfcb5c0db0421c6692d617d27eddc88d57346ab1095947e92da23076",
+    "protocol/operator/oracle.mjs": "a7b3d75ec2c0f61a6ce9abd3a41b985ee45f4aaa52089478893c33a4b06aa210",
+    "protocol/operator/examples/pyth-sol-usd.json": "d0322d09782824c8ccd4c76d22c8b1e668bf7bd45bbfc1e952e02a9e941dd42e",
+    "protocol/tests/oracle.test.mjs": "722e979f97cee8032017f925f55590d96488e8f03f70eea98d77eb7b146089b8",
+    "protocol/tests/fixtures/pyth-oracle.json": "b693bbf141506022a488e0da9bdabd570b39ab00acc59d268626e08ddc1d75a7",
+    "protocol/conformance/tests/oracle.rs": "0be53f35f3f009cd58e86089c9ddb811deb15bed1df04e6505822af02cb76d28",
+    "protocol/check.sh": "495a1a36cc57f351caefb764db06f5b808780f633ccdf1e9acdf4bd8a39cdde6",
+    "protocol/source-lock.json": "576c05e88fe964b95c84731fafd5e1f8e637c9223fc03252ef934cdb9295215e",
+    "protocol/package-lock.json": "11fbf96d369afe55a86f245710270a0e05ddcf9d576a62f9e7217a4dc3601152",
+    "protocol/upstream-contract.json": "f61efde51ee8ddb5983c896a231a28c367e227a96787859f06473dcc5cd9e311"
+  }
+}
