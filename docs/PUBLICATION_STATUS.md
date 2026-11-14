@@ -1,6 +1,6 @@
 # Publication status
 
-Updated: **14 November 2026 (Asia/Jakarta, UTC+7)**.
+Updated: **15 November 2026 (Asia/Jakarta, UTC+7)**.
 
 The GitHub 403 is resolved. The existing installation retains selected-repository
 access and now includes `TheTradoor/outright-program`. Authenticated branch creation,
@@ -34,6 +34,21 @@ Those records retain their original identities. The current source uses fresh
 CI and artifact verification; it does not relabel earlier results.
 
 ## Remaining release work
+
+The keeper health follow-up is published on `feat/keeper-health`. The publication
+preserves the complete tested trees, including the binary evidence archives:
+
+| Work | Published commit | Local source and matching tree |
+| --- | --- | --- |
+| PR #31 evidence | `e0f66e404cd6210650f4fd448c94b3f8fdbac823` | Local `4f1655b2a5a2040f958efe0a18b30cab61162ad8`; tree `bf20715ee0178e11e1e94ef5cb76593109cfa936` |
+| Keeper health implementation | `ea8ccad84ea51945f720ea196a1904e0ad049188` | Local `3cdcfe325d863da0da2a21f2fd47f0ebd0082945`; tree `5f62ee9d1f61c6ba2034aa9043eb6e2e907168b7` |
+
+The [validation record](qualification/2026-11-14-keeper-health/README.md)
+records 540 passing local client tests. The [host guide](KEEPER_HOSTING.md)
+defines the operational scope. Remote checks belong to the branch's PR and
+must identify its exact source before merge. The local test record does not
+replace those checks. Engine and program pins are unchanged. The published
+website remains version 31.
 
 The checked PR #31 tree is merged. The remaining production requirements are
 listed in [REPAIR_CHECKLIST.md](REPAIR_CHECKLIST.md): approved market

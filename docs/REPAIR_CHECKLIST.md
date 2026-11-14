@@ -1,6 +1,6 @@
 # Repair and release checklist
 
-Updated: **14 November 2026 (Asia/Jakarta, UTC+7)**.
+Updated: **15 November 2026 (Asia/Jakarta, UTC+7)**.
 
 **Mainnet trading is not open.** The official deployment profile is `null`.
 Earlier reproductions, failures, corrections and source-specific test counts
@@ -43,6 +43,7 @@ staged program edits stop verification.
 | [x] | QUAL-03 | Complete qualification of the current client | [Run 43600724725](https://github.com/TheTradoor/outright/actions/runs/43600724725): 37 shards, 2,120 executions and the aggregate passed. All 39 downloaded artifact digests, 2,120 raw test-log digests, source/binary identities and aggregate records were checked. [Retained evidence and verifier](qualification/2026-11-14-keeper-discovery/README.md). This artifact verification did not rerun Rust tests locally. |
 | [x] | SITE-01 | Current website publication | [Version 31](qualification/2026-11-14-keeper-discovery/site-publication.json) deployed successfully from source `1517db4e58f0fb51ceedb3e7d8ffed5577e6e32f`. All 67 canonical protocol files match the PR #31 client. Checks pass for 17 routes, 754 links/assets, four mechanics tests and 525 client tests. This publication did not repeat the earlier browser visual check or establish physical-wallet acceptance. Existing owner-only access and the `null` deployment profile are preserved. |
 | [x] | KPR-02 | Durable portfolio discovery and bounded RPC transport | PR #31 passed 525 client tests, including 29 new cases, and real RPC discovery before/after account creation with overflow rejection. Static-target behavior, pending-receipt precedence, fee limits and duplicate protection are retained. |
+| [x] | KPR-03 | Local keeper health and host templates | 540 client tests pass, including 15 new monitor cases and real CLI restart/failure assertions against controlled RPC fixtures. Source equivalence, terminal build and service syntax checks pass. [Evidence](qualification/2026-11-14-keeper-health/README.md). Published implementation `ea8ccad84ea51945f720ea196a1904e0ad049188` has the exact locally tested source tree. Remote checks are tracked with the branch's PR; local results do not replace them. Production host and alert acceptance remain open. |
 
 A checked item is complete within its stated scope. Automated adapters and a
 website deployment do not establish real-wallet acceptance, production liquidity
