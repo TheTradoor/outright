@@ -8,6 +8,11 @@ with owner-only access and no runtime environment variables configured. The
 qualified program binary exists; production authorities, market parameters,
 maker funding and operating services are not established by that artifact.
 
+On 15 November 2026, [Pyth Core inspection](ORACLE_OPERATIONS.md) was added and
+verified against a real mainnet SOL/USD observation and the published wrapper.
+This supplies feed and policy diagnostics before enrollment. No price publisher,
+production fee payer or hosting service was configured by that work.
+
 ## Required inputs and resulting work
 
 | Input | Current state | Work it enables |

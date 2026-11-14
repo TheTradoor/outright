@@ -1,0 +1,1633 @@
+﻿2026-11-14T20:05:53.7580243Z Current runner version: '2.338.2'
+2026-11-14T20:05:53.7596448Z ##[group]Runner Image Provisioner
+2026-11-14T20:05:53.7597129Z Hosted Compute Agent
+2026-11-14T20:05:53.7597568Z Version: 20261103.629
+2026-11-14T20:05:53.7598044Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-14T20:05:53.7598574Z Build Date: 2026-11-03T17:26:59Z
+2026-11-14T20:05:53.7599063Z Worker ID: {dff8cbba-42ef-482c-a589-a51d5d968c9f}
+2026-11-14T20:05:53.7599591Z Region: us-west-2
+2026-11-14T20:05:53.7599981Z Cloud: AWS
+2026-11-14T20:05:53.7600357Z ##[endgroup]
+2026-11-14T20:05:53.7601324Z ##[group]Operating System
+2026-11-14T20:05:53.7601754Z Ubuntu
+2026-11-14T20:05:53.7602118Z 24.04.5
+2026-11-14T20:05:53.7602516Z LTS
+2026-11-14T20:05:53.7602882Z ##[endgroup]
+2026-11-14T20:05:53.7603283Z ##[group]Runner Image
+2026-11-14T20:05:53.7603705Z Image: ubuntu-24.04
+2026-11-14T20:05:53.7604103Z Version: 20261111.127.1
+2026-11-14T20:05:53.7605248Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.127/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-14T20:05:53.7606386Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.127
+2026-11-14T20:05:53.7607072Z ##[endgroup]
+2026-11-14T20:05:53.7607882Z ##[group]GITHUB_TOKEN Permissions
+2026-11-14T20:05:53.7609405Z Contents: read
+2026-11-14T20:05:53.7609813Z Metadata: read
+2026-11-14T20:05:53.7610212Z ##[endgroup]
+2026-11-14T20:05:53.7611811Z Secret source: Actions
+2026-11-14T20:05:53.7612533Z Cache mode: write
+2026-11-14T20:05:53.7613039Z Prepare workflow directory
+2026-11-14T20:05:53.7875872Z Prepare all required actions
+2026-11-14T20:05:53.7911070Z Getting action download info
+2026-11-14T20:05:54.1615759Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-14T20:05:56.0111147Z Download action repository 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38' (SHA:249970729cb0ef3589644e2896645e5dc5ba9c38)
+2026-11-14T20:05:56.2777352Z Complete job name: lifecycle
+2026-11-14T20:05:56.3399159Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-14T20:05:56.3399981Z with:
+2026-11-14T20:05:56.3400465Z   fetch-depth: 0
+2026-11-14T20:05:56.3400908Z   persist-credentials: false
+2026-11-14T20:05:56.3401432Z   repository: TheTradoor/outright
+2026-11-14T20:05:56.3405103Z   token: ***
+2026-11-14T20:05:56.3405584Z   ssh-strict: true
+2026-11-14T20:05:56.3406027Z   ssh-user: git
+2026-11-14T20:05:56.3406430Z   clean: true
+2026-11-14T20:05:56.3406877Z   sparse-checkout-cone-mode: true
+2026-11-14T20:05:56.3407375Z   fetch-tags: false
+2026-11-14T20:05:56.3407794Z   show-progress: true
+2026-11-14T20:05:56.3408235Z   lfs: false
+2026-11-14T20:05:56.3408633Z   submodules: false
+2026-11-14T20:05:56.3409152Z   set-safe-directory: true
+2026-11-14T20:05:56.3409642Z   allow-unsafe-pr-checkout: false
+2026-11-14T20:05:56.3410304Z env:
+2026-11-14T20:05:56.3410722Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-14T20:05:56.3411214Z ##[endgroup]
+2026-11-14T20:05:59.5606532Z Syncing repository: TheTradoor/outright
+2026-11-14T20:05:59.5607846Z ##[group]Getting Git version info
+2026-11-14T20:05:59.5608236Z Working directory is '/home/runner/work/outright/outright'
+2026-11-14T20:05:59.5608871Z [command]/usr/bin/git version
+2026-11-14T20:05:59.7575892Z git version 2.56.1
+2026-11-14T20:05:59.7591300Z ##[endgroup]
+2026-11-14T20:05:59.7600384Z Temporarily overriding HOME='/home/runner/work/_temp/e345c436-d57c-4cde-b233-217f0750448b' before making global git config changes
+2026-11-14T20:05:59.7601100Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T20:05:59.7603977Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/outright/outright
+2026-11-14T20:05:59.7645767Z Deleting the contents of '/home/runner/work/outright/outright'
+2026-11-14T20:05:59.7649904Z ##[group]Determining repository object format
+2026-11-14T20:05:59.7650887Z ##[endgroup]
+2026-11-14T20:05:59.7651570Z ##[group]Initializing the repository
+2026-11-14T20:05:59.7654127Z [command]/usr/bin/git init /home/runner/work/outright/outright
+2026-11-14T20:05:59.8135302Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-14T20:05:59.8135929Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-14T20:05:59.8136494Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-14T20:05:59.8136868Z hint: call:
+2026-11-14T20:05:59.8137100Z hint:
+2026-11-14T20:05:59.8137472Z hint: 	git config --global init.defaultBranch <name>
+2026-11-14T20:05:59.8137826Z hint:
+2026-11-14T20:05:59.8138196Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-14T20:05:59.8138648Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-14T20:05:59.8139022Z hint:
+2026-11-14T20:05:59.8139296Z hint: 	git branch -m <name>
+2026-11-14T20:05:59.8139582Z hint:
+2026-11-14T20:05:59.8139960Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-14T20:05:59.8143959Z Initialized empty Git repository in /home/runner/work/outright/outright/.git/
+2026-11-14T20:05:59.8150582Z [command]/usr/bin/git remote add origin https://github.com/TheTradoor/outright
+2026-11-14T20:05:59.8196526Z ##[endgroup]
+2026-11-14T20:05:59.8197218Z ##[group]Disabling automatic garbage collection
+2026-11-14T20:05:59.8199457Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-14T20:05:59.8220913Z ##[endgroup]
+2026-11-14T20:05:59.8221603Z ##[group]Setting up auth
+2026-11-14T20:05:59.8222018Z Removing SSH command configuration
+2026-11-14T20:05:59.8226194Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T20:05:59.8251660Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T20:06:00.1329607Z Removing HTTP extra header
+2026-11-14T20:06:00.1335316Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T20:06:00.1361630Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T20:06:00.1505930Z Removing includeIf entries pointing to credentials config files
+2026-11-14T20:06:00.1509997Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T20:06:00.1531927Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T20:06:00.1687498Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-14T20:06:00.1712202Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/outright/outright/.git.path /home/runner/work/_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:00.1732918Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:00.1759989Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:00.1782174Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:00.1800828Z ##[endgroup]
+2026-11-14T20:06:00.1801447Z ##[group]Fetching the repository
+2026-11-14T20:06:00.1807512Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +73f1a7aebea9c537779ef2a35c0192f5a01b8195:refs/remotes/pull/34/merge
+2026-11-14T20:06:07.6896495Z From https://github.com/TheTradoor/outright
+2026-11-14T20:06:07.6897402Z  * [new branch]      docs/complete-qualification-evidence     -> origin/docs/complete-qualification-evidence
+2026-11-14T20:06:07.6898430Z  * [new branch]      docs/keeper-health-qualification         -> origin/docs/keeper-health-qualification
+2026-11-14T20:06:07.6899222Z  * [new branch]      docs/program-publication-status          -> origin/docs/program-publication-status
+2026-11-14T20:06:07.6900123Z  * [new branch]      docs/published-program-release           -> origin/docs/published-program-release
+2026-11-14T20:06:07.6900931Z  * [new branch]      docs/qualification-error-label           -> origin/docs/qualification-error-label
+2026-11-14T20:06:07.6901792Z  * [new branch]      docs/repair-verification-results         -> origin/docs/repair-verification-results
+2026-11-14T20:06:07.6902678Z  * [new branch]      docs/verification-resume                 -> origin/docs/verification-resume
+2026-11-14T20:06:07.6903594Z  * [new branch]      feat/keeper-health                       -> origin/feat/keeper-health
+2026-11-14T20:06:07.6904448Z  * [new branch]      feat/keeper-portfolio-discovery          -> origin/feat/keeper-portfolio-discovery
+2026-11-14T20:06:07.6905567Z  * [new branch]      feat/local-validator-market              -> origin/feat/local-validator-market
+2026-11-14T20:06:07.6906445Z  * [new branch]      feat/market-operations                   -> origin/feat/market-operations
+2026-11-14T20:06:07.6907273Z  * [new branch]      feat/native-solana-integration           -> origin/feat/native-solana-integration
+2026-11-14T20:06:07.6908067Z  * [new branch]      feat/operational-client                  -> origin/feat/operational-client
+2026-11-14T20:06:07.6908903Z  * [new branch]      feat/pyth-oracle-inspection              -> origin/feat/pyth-oracle-inspection
+2026-11-14T20:06:07.6909991Z  * [new branch]      feat/recovery-exit                       -> origin/feat/recovery-exit
+2026-11-14T20:06:07.6910966Z  * [new branch]      feat/recovery-settlement                 -> origin/feat/recovery-settlement
+2026-11-14T20:06:07.6911791Z  * [new branch]      feat/resolved-account-closure            -> origin/feat/resolved-account-closure
+2026-11-14T20:06:07.6912575Z  * [new branch]      feat/resolved-keeper                     -> origin/feat/resolved-keeper
+2026-11-14T20:06:07.6913431Z  * [new branch]      feat/trader-onboarding                   -> origin/feat/trader-onboarding
+2026-11-14T20:06:07.6914174Z  * [new branch]      feat/upstream-risk-update                -> origin/feat/upstream-risk-update
+2026-11-14T20:06:07.6915366Z  * [new branch]      fix/cross-tab-receipt-consistency        -> origin/fix/cross-tab-receipt-consistency
+2026-11-14T20:06:07.6916275Z  * [new branch]      fix/fee-accounting-and-confirmation      -> origin/fix/fee-accounting-and-confirmation
+2026-11-14T20:06:07.6917070Z  * [new branch]      fix/keeper-missing-targets               -> origin/fix/keeper-missing-targets
+2026-11-14T20:06:07.6917955Z  * [new branch]      fix/keeper-post-simulation-deferral      -> origin/fix/keeper-post-simulation-deferral
+2026-11-14T20:06:07.6918760Z  * [new branch]      fix/mainnet-client-transport             -> origin/fix/mainnet-client-transport
+2026-11-14T20:06:07.6919703Z  * [new branch]      fix/portfolio-allocation-and-recovery    -> origin/fix/portfolio-allocation-and-recovery
+2026-11-14T20:06:07.6922561Z  * [new branch]      fix/program-qualification                -> origin/fix/program-qualification
+2026-11-14T20:06:07.6923518Z  * [new branch]      fix/recovery-obligations                 -> origin/fix/recovery-obligations
+2026-11-14T20:06:07.6924503Z  * [new branch]      fix/settlement-accounting-review         -> origin/fix/settlement-accounting-review
+2026-11-14T20:06:07.6925665Z  * [new branch]      fix/submission-progress-receipts         -> origin/fix/submission-progress-receipts
+2026-11-14T20:06:07.6926658Z  * [new branch]      fix/terminal-freshness                   -> origin/fix/terminal-freshness
+2026-11-14T20:06:07.6927710Z  * [new branch]      fix/terminal-session-recovery            -> origin/fix/terminal-session-recovery
+2026-11-14T20:06:07.6928543Z  * [new branch]      fix/wallet-adapter-recovery              -> origin/fix/wallet-adapter-recovery
+2026-11-14T20:06:07.6929455Z  * [new branch]      fix/wallet-blockhash-retries             -> origin/fix/wallet-blockhash-retries
+2026-11-14T20:06:07.6930405Z  * [new branch]      fix/wallet-selection-lifecycle           -> origin/fix/wallet-selection-lifecycle
+2026-11-14T20:06:07.6931185Z  * [new branch]      master                                   -> origin/master
+2026-11-14T20:06:07.6931945Z  * [new branch]      test/candidate-validator                 -> origin/test/candidate-validator
+2026-11-14T20:06:07.6932926Z  * [new ref]         73f1a7aebea9c537779ef2a35c0192f5a01b8195 -> pull/34/merge
+2026-11-14T20:06:07.6935069Z ##[endgroup]
+2026-11-14T20:06:07.6935793Z ##[group]Determining the checkout info
+2026-11-14T20:06:07.6936480Z ##[endgroup]
+2026-11-14T20:06:07.6936956Z [command]/usr/bin/git sparse-checkout disable
+2026-11-14T20:06:07.6970552Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-14T20:06:07.6995426Z ##[group]Checking out the ref
+2026-11-14T20:06:07.6998967Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/34/merge
+2026-11-14T20:06:07.7774948Z Note: switching to 'refs/remotes/pull/34/merge'.
+2026-11-14T20:06:07.7775239Z 
+2026-11-14T20:06:07.7775411Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-14T20:06:07.7775936Z changes and commit them, and you can discard any commits you make in this
+2026-11-14T20:06:07.7776419Z state without impacting any branches by switching back to a branch.
+2026-11-14T20:06:07.7776662Z 
+2026-11-14T20:06:07.7776826Z If you want to create a new branch to retain commits you create, you may
+2026-11-14T20:06:07.7777239Z do so (now or later) by using -c with the switch command. Example:
+2026-11-14T20:06:07.7777579Z 
+2026-11-14T20:06:07.7777707Z   git switch -c <new-branch-name>
+2026-11-14T20:06:07.7777884Z 
+2026-11-14T20:06:07.7777994Z Or undo this operation with:
+2026-11-14T20:06:07.7778159Z 
+2026-11-14T20:06:07.7778242Z   git switch -
+2026-11-14T20:06:07.7778376Z 
+2026-11-14T20:06:07.7778549Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-14T20:06:07.7778805Z 
+2026-11-14T20:06:07.7779093Z HEAD is now at 73f1a7a Merge c101229d38b495011b610d0a2f44f0725b4f7281 into f680dce333ad0cad094efed20bcae9a27fa0f841
+2026-11-14T20:06:07.7788600Z ##[endgroup]
+2026-11-14T20:06:07.7821023Z [command]/usr/bin/git log -1 --format=%H
+2026-11-14T20:06:07.7838764Z 73f1a7aebea9c537779ef2a35c0192f5a01b8195
+2026-11-14T20:06:07.7847429Z ##[group]Removing auth
+2026-11-14T20:06:07.7847688Z Removing SSH command configuration
+2026-11-14T20:06:07.7853151Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T20:06:07.7869658Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T20:06:07.8016008Z Removing HTTP extra header
+2026-11-14T20:06:07.8018762Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T20:06:07.8039796Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T20:06:07.8180846Z Removing includeIf entries pointing to credentials config files
+2026-11-14T20:06:07.8183643Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T20:06:07.8204765Z includeif.gitdir:/home/runner/work/outright/outright/.git.path
+2026-11-14T20:06:07.8205625Z includeif.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path
+2026-11-14T20:06:07.8206326Z includeif.gitdir:/github/workspace/.git.path
+2026-11-14T20:06:07.8206737Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-14T20:06:07.8211030Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/outright/outright/.git.path
+2026-11-14T20:06:07.8228102Z /home/runner/work/_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:07.8235998Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/outright/outright/.git.path /home/runner/work/_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:07.8259945Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path
+2026-11-14T20:06:07.8276448Z /home/runner/work/_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:07.8282434Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:07.8306051Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-14T20:06:07.8321583Z /github/runner_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:07.8332739Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:07.8357132Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-14T20:06:07.8374688Z /github/runner_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:07.8380330Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config
+2026-11-14T20:06:07.8402211Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T20:06:07.8541385Z Removing credentials config '/home/runner/work/_temp/git-credentials-4b782383-e214-4cfb-99fd-410f89a415b5.config'
+2026-11-14T20:06:07.8546287Z ##[endgroup]
+2026-11-14T20:06:07.8733047Z ##[group]Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+2026-11-14T20:06:07.8733394Z with:
+2026-11-14T20:06:07.8733619Z   node-version: 22
+2026-11-14T20:06:07.8733858Z   check-latest: false
+2026-11-14T20:06:07.8736064Z   token: ***
+2026-11-14T20:06:07.8736366Z   package-manager-cache: true
+2026-11-14T20:06:07.8736609Z env:
+2026-11-14T20:06:07.8736824Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-14T20:06:07.8737087Z ##[endgroup]
+2026-11-14T20:06:08.1551536Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+2026-11-14T20:06:08.1554006Z ##[group]Environment details
+2026-11-14T20:06:12.6088205Z node: v22.23.4
+2026-11-14T20:06:12.6088621Z npm: 10.9.9
+2026-11-14T20:06:12.6088853Z yarn: 1.22.22
+2026-11-14T20:06:12.6089370Z ##[endgroup]
+2026-11-14T20:06:12.6186647Z ##[group]Run rustup show active-toolchain
+2026-11-14T20:06:12.6187070Z [36;1mrustup show active-toolchain[0m
+2026-11-14T20:06:12.6187418Z [36;1mrustup toolchain install 1.95.0 --profile minimal[0m
+2026-11-14T20:06:12.6187837Z [36;1mcargo install cargo-build-sbf --version 4.6.0 --locked[0m
+2026-11-14T20:06:12.8642512Z shell: /usr/bin/bash -e {0}
+2026-11-14T20:06:12.8642810Z env:
+2026-11-14T20:06:12.8643154Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-14T20:06:12.8643433Z ##[endgroup]
+2026-11-14T20:06:14.0260582Z info: syncing channel updates for 1.100.0-x86_64-unknown-linux-gnu
+2026-11-14T20:06:14.3306915Z info: latest update on 2026-11-12 for version 1.100.0 (0ef1bc386 2026-11-09)
+2026-11-14T20:06:14.3308526Z info: downloading 3 components
+2026-11-14T20:06:21.1983944Z warn: the missing active toolchain `1.100.0-x86_64-unknown-linux-gnu` has been auto-installed
+2026-11-14T20:06:21.1984903Z warn: auto-installation is deprecated for most `rustup` commands
+2026-11-14T20:06:21.1986067Z 1.100.0-x86_64-unknown-linux-gnu (overridden by '/home/runner/work/outright/outright/rust-toolchain.toml')
+2026-11-14T20:06:21.1986808Z warn: scripts relying on this behavior in `rustup` may stop working in the future
+2026-11-14T20:06:21.1987421Z warn: to install the active toolchain, use `rustup install` instead
+2026-11-14T20:06:21.1987979Z warn: see <https://github.com/rust-lang/rustup/issues/4836> for more info
+2026-11-14T20:06:21.2072037Z info: syncing channel updates for 1.95.0-x86_64-unknown-linux-gnu
+2026-11-14T20:06:21.3220004Z info: latest update on 2026-04-16 for version 1.95.0 (59807616e 2026-04-14)
+2026-11-14T20:06:21.3220582Z info: downloading 3 components
+2026-11-14T20:06:27.9111309Z 
+2026-11-14T20:06:27.9167885Z   1.95.0-x86_64-unknown-linux-gnu installed - rustc 1.95.0 (59807616e 2026-04-14)
+2026-11-14T20:06:27.9168471Z 
+2026-11-14T20:06:27.9423981Z     Updating crates.io index
+2026-11-14T20:06:28.0052706Z  Downloading crates ...
+2026-11-14T20:06:28.0679274Z   Downloaded cargo-build-sbf v4.6.0
+2026-11-14T20:06:28.0939173Z   Installing cargo-build-sbf v4.6.0
+2026-11-14T20:06:28.0939851Z warning: default toolchain implicitly overridden with `1.100.0-x86_64-unknown-linux-gnu` by rustup toolchain file
+2026-11-14T20:06:28.0940288Z   |
+2026-11-14T20:06:28.0940619Z   = help: use `cargo +stable install` if you meant to use the stable toolchain
+2026-11-14T20:06:28.0941224Z   = note: rustup selects the toolchain based on the parent environment and not the environment of the package being installed
+2026-11-14T20:06:28.0968142Z     Updating crates.io index
+2026-11-14T20:06:28.5944132Z     Updating crates.io index
+2026-11-14T20:06:28.7713677Z  Downloading crates ...
+2026-11-14T20:06:28.8014272Z   Downloaded solana-instruction-error v3.0.0
+2026-11-14T20:06:28.8052883Z   Downloaded solana-pubkey v4.3.0
+2026-11-14T20:06:28.8059249Z   Downloaded adler2 v2.0.1
+2026-11-14T20:06:28.8073162Z   Downloaded solana-transaction-error v4.0.0
+2026-11-14T20:06:28.8177396Z   Downloaded crypto-common v0.1.7
+2026-11-14T20:06:28.8229280Z   Downloaded strsim v0.11.1
+2026-11-14T20:06:28.8236633Z   Downloaded try-lock v0.2.5
+2026-11-14T20:06:28.8240652Z   Downloaded version_check v0.9.5
+2026-11-14T20:06:28.8245593Z   Downloaded zerofrom v0.1.6
+2026-11-14T20:06:28.8249271Z   Downloaded atomic-waker v1.1.2
+2026-11-14T20:06:28.8253727Z   Downloaded five8 v1.0.0
+2026-11-14T20:06:28.8259145Z   Downloaded digest v0.10.7
+2026-11-14T20:06:28.8265879Z   Downloaded getrandom v0.2.17
+2026-11-14T20:06:28.8281566Z   Downloaded tinyvec_macros v0.1.1
+2026-11-14T20:06:28.8286162Z   Downloaded hyper-tls v0.6.0
+2026-11-14T20:06:28.8292374Z   Downloaded solana-seed-phrase v3.0.0
+2026-11-14T20:06:28.8295031Z   Downloaded stable_deref_trait v1.2.1
+2026-11-14T20:06:28.8298909Z   Downloaded solana-sanitize v3.0.1
+2026-11-14T20:06:28.8300777Z   Downloaded unreachable v1.0.0
+2026-11-14T20:06:28.8304014Z   Downloaded utf8_iter v1.0.4
+2026-11-14T20:06:28.8308260Z   Downloaded want v0.3.1
+2026-11-14T20:06:28.8311820Z   Downloaded clap_lex v0.2.4
+2026-11-14T20:06:28.8316167Z   Downloaded potential_utf v0.1.4
+2026-11-14T20:06:28.8320411Z   Downloaded tower-service v0.3.3
+2026-11-14T20:06:28.8323497Z   Downloaded solana-keypair v4.0.0
+2026-11-14T20:06:28.8328078Z   Downloaded strsim v0.10.0
+2026-11-14T20:06:28.8341011Z   Downloaded agave-logger v4.2.2
+2026-11-14T20:06:28.8344996Z   Downloaded block-buffer v0.12.1
+2026-11-14T20:06:28.8351742Z   Downloaded cfg_aliases v0.2.1
+2026-11-14T20:06:28.8356611Z   Downloaded anstyle-query v1.1.5
+2026-11-14T20:06:28.8363257Z   Downloaded alloc-stdlib v0.2.2
+2026-11-14T20:06:28.8369905Z   Downloaded anstyle v1.0.13
+2026-11-14T20:06:28.8377457Z   Downloaded solana-file-download v3.1.4
+2026-11-14T20:06:28.8381376Z   Downloaded solana-signature v3.5.2
+2026-11-14T20:06:28.8387675Z   Downloaded writeable v0.6.2
+2026-11-14T20:06:28.8395537Z   Downloaded zmij v1.0.21
+2026-11-14T20:06:28.8404147Z   Downloaded solana-signer v4.0.0
+2026-11-14T20:06:28.8413074Z   Downloaded yoke v0.8.1
+2026-11-14T20:06:28.8425006Z   Downloaded byteorder v1.5.0
+2026-11-14T20:06:28.8425662Z   Downloaded sync_wrapper v1.0.2
+2026-11-14T20:06:28.8428015Z   Downloaded bitflags v1.3.2
+2026-11-14T20:06:28.8440201Z   Downloaded thiserror-impl v2.0.18
+2026-11-14T20:06:28.8446816Z   Downloaded tokio-rustls v0.26.4
+2026-11-14T20:06:28.8455404Z   Downloaded camino v1.2.2
+2026-11-14T20:06:28.8463861Z   Downloaded anstyle-parse v1.0.0
+2026-11-14T20:06:28.8471536Z   Downloaded zerotrie v0.2.3
+2026-11-14T20:06:28.8487695Z   Downloaded tar v0.4.46
+2026-11-14T20:06:28.8501479Z   Downloaded textwrap v0.16.2
+2026-11-14T20:06:28.8512786Z   Downloaded zerofrom-derive v0.1.6
+2026-11-14T20:06:28.8516512Z   Downloaded subtle v2.6.1
+2026-11-14T20:06:28.8521605Z   Downloaded bytes v1.11.1
+2026-11-14T20:06:28.8545730Z   Downloaded cc v1.2.56
+2026-11-14T20:06:28.8560922Z   Downloaded unit-prefix v0.5.2
+2026-11-14T20:06:28.8565243Z   Downloaded http-body-util v0.1.3
+2026-11-14T20:06:28.8572193Z   Downloaded tower v0.5.3
+2026-11-14T20:06:28.8612027Z   Downloaded openssl v0.10.76
+2026-11-14T20:06:28.8660309Z   Downloaded rustc-hash v2.1.1
+2026-11-14T20:06:28.8666463Z   Downloaded serde_urlencoded v0.7.1
+2026-11-14T20:06:28.8672003Z   Downloaded tokio-native-tls v0.3.1
+2026-11-14T20:06:28.8679544Z   Downloaded cargo_metadata v0.15.4
+2026-11-14T20:06:28.8686507Z   Downloaded aho-corasick v1.1.4
+2026-11-14T20:06:28.8715246Z   Downloaded solana-program-error v3.0.1
+2026-11-14T20:06:28.8718559Z   Downloaded thiserror v1.0.69
+2026-11-14T20:06:28.8740030Z   Downloaded tinystr v0.8.2
+2026-11-14T20:06:28.8748806Z   Downloaded quote v1.0.45
+2026-11-14T20:06:28.8759811Z   Downloaded cfg-if v1.0.4
+2026-11-14T20:06:28.8765065Z   Downloaded synstructure v0.13.2
+2026-11-14T20:06:28.8769562Z   Downloaded five8_core v1.0.0
+2026-11-14T20:06:28.8773775Z   Downloaded foreign-types v0.3.2
+2026-11-14T20:06:28.8777692Z   Downloaded block-buffer v0.10.4
+2026-11-14T20:06:28.8781490Z   Downloaded foreign-types-shared v0.1.1
+2026-11-14T20:06:28.8784112Z   Downloaded slab v0.4.12
+2026-11-14T20:06:28.8791495Z   Downloaded find-msvc-tools v0.1.9
+2026-11-14T20:06:28.8802191Z   Downloaded libc v0.2.189
+2026-11-14T20:06:28.8985073Z   Downloaded sha2 v0.11.0
+2026-11-14T20:06:28.8999339Z   Downloaded solana-sbpf v0.26.0
+2026-11-14T20:06:28.9037077Z   Downloaded unicode-ident v1.0.23
+2026-11-14T20:06:28.9050233Z   Downloaded bitflags v2.10.0
+2026-11-14T20:06:28.9068212Z   Downloaded errno v0.3.14
+2026-11-14T20:06:28.9075983Z   Downloaded flate2 v1.1.9
+2026-11-14T20:06:28.9099741Z   Downloaded getrandom v0.3.4
+2026-11-14T20:06:28.9116948Z   Downloaded equivalent v1.0.2
+2026-11-14T20:06:28.9145878Z   Downloaded filetime v0.2.27
+2026-11-14T20:06:28.9160204Z   Downloaded five8_const v1.0.0
+2026-11-14T20:06:28.9185543Z   Downloaded native-tls v0.2.18
+2026-11-14T20:06:28.9210735Z   Downloaded thiserror v2.0.18
+2026-11-14T20:06:28.9211108Z   Downloaded typenum v1.19.0
+2026-11-14T20:06:28.9211401Z   Downloaded cargo-platform v0.1.9
+2026-11-14T20:06:28.9211672Z   Downloaded rand_core v0.6.4
+2026-11-14T20:06:28.9212158Z   Downloaded colorchoice v1.0.4
+2026-11-14T20:06:28.9217261Z   Downloaded zerovec-derive v0.11.2
+2026-11-14T20:06:28.9225093Z   Downloaded rand v0.9.2
+2026-11-14T20:06:28.9244002Z   Downloaded async-compression v0.4.39
+2026-11-14T20:06:28.9270749Z   Downloaded signature v2.2.0
+2026-11-14T20:06:28.9276616Z   Downloaded utf8parse v0.2.2
+2026-11-14T20:06:28.9280948Z   Downloaded allocator-api2 v0.2.21
+2026-11-14T20:06:28.9292376Z   Downloaded pin-utils v0.1.0
+2026-11-14T20:06:28.9296928Z   Downloaded unicode-width v0.2.2
+2026-11-14T20:06:28.9331258Z   Downloaded untrusted v0.9.0
+2026-11-14T20:06:28.9337899Z   Downloaded void v1.0.2
+2026-11-14T20:06:28.9338518Z   Downloaded tower-http v0.6.8
+2026-11-14T20:06:28.9372259Z   Downloaded url v2.5.8
+2026-11-14T20:06:28.9386196Z   Downloaded wincode v0.6.1
+2026-11-14T20:06:28.9408059Z   Downloaded zeroize v1.8.2
+2026-11-14T20:06:28.9413650Z   Downloaded autocfg v1.5.0
+2026-11-14T20:06:28.9420601Z   Downloaded console v0.15.11
+2026-11-14T20:06:28.9432281Z   Downloaded brotli-decompressor v5.0.0
+2026-11-14T20:06:28.9462463Z   Downloaded console v0.16.3
+2026-11-14T20:06:28.9468714Z   Downloaded solana-ed25519 v0.2.4
+2026-11-14T20:06:28.9515629Z   Downloaded vcpkg v0.2.15
+2026-11-14T20:06:28.9686467Z   Downloaded foldhash v0.1.5
+2026-11-14T20:06:28.9690847Z   Downloaded ident_case v1.0.1
+2026-11-14T20:06:28.9694268Z   Downloaded tower-layer v0.3.3
+2026-11-14T20:06:28.9698072Z   Downloaded syn v3.0.3
+2026-11-14T20:06:28.9750278Z   Downloaded thiserror-impl v1.0.69
+2026-11-14T20:06:28.9754141Z   Downloaded wincode-derive v0.5.1
+2026-11-14T20:06:28.9760495Z   Downloaded syn v2.0.117
+2026-11-14T20:06:28.9809881Z   Downloaded zerocopy v0.8.39
+2026-11-14T20:06:28.9895173Z   Downloaded yoke-derive v0.8.1
+2026-11-14T20:06:28.9898999Z   Downloaded alloc-no-stdlib v2.0.4
+2026-11-14T20:06:28.9905038Z   Downloaded bzip2 v0.6.1
+2026-11-14T20:06:28.9912292Z   Downloaded os_str_bytes v6.6.1
+2026-11-14T20:06:28.9920621Z   Downloaded env_logger v0.11.11
+2026-11-14T20:06:28.9930826Z   Downloaded webpki-roots v1.0.11
+2026-11-14T20:06:28.9950301Z   Downloaded regex-syntax v0.8.11
+2026-11-14T20:06:28.9989901Z   Downloaded rustls-pki-types v1.14.0
+2026-11-14T20:06:29.0002239Z   Downloaded curve25519-dalek-derive v0.1.1
+2026-11-14T20:06:29.0006765Z   Downloaded once_cell v1.21.3
+2026-11-14T20:06:29.0017277Z   Downloaded pastey v0.2.3
+2026-11-14T20:06:29.0022668Z   Downloaded tokio v1.51.0
+2026-11-14T20:06:29.0204290Z   Downloaded indicatif v0.18.4
+2026-11-14T20:06:29.0220535Z   Downloaded rand_core v0.10.1
+2026-11-14T20:06:29.0226054Z   Downloaded tokio-util v0.7.18
+2026-11-14T20:06:29.0259641Z   Downloaded http v1.4.0
+2026-11-14T20:06:29.0275729Z   Downloaded reqwest v0.12.28
+2026-11-14T20:06:29.0301560Z   Downloaded ascii v0.9.3
+2026-11-14T20:06:29.0308924Z   Downloaded hash32 v0.3.1
+2026-11-14T20:06:29.0314102Z   Downloaded pin-project-lite v0.2.16
+2026-11-14T20:06:29.0334037Z   Downloaded rand v0.10.2
+2026-11-14T20:06:29.0351713Z   Downloaded cpufeatures v0.2.17
+2026-11-14T20:06:29.0357488Z   Downloaded generic-array v0.14.7
+2026-11-14T20:06:29.0362924Z   Downloaded idna v1.1.0
+2026-11-14T20:06:29.0382381Z   Downloaded rustls-native-certs v0.8.3
+2026-11-14T20:06:29.0392049Z   Downloaded base64 v0.22.1
+2026-11-14T20:06:29.0408328Z   Downloaded tracing v0.1.44
+2026-11-14T20:06:29.0487635Z   Downloaded rustc_version v0.4.1
+2026-11-14T20:06:29.0492330Z   Downloaded rand_chacha v0.9.0
+2026-11-14T20:06:29.0496888Z   Downloaded semver v1.0.28
+2026-11-14T20:06:29.0506297Z   Downloaded sha2 v0.10.9
+2026-11-14T20:06:29.0516174Z   Downloaded zerovec v0.11.5
+2026-11-14T20:06:29.0541189Z   Downloaded futures-task v0.3.31
+2026-11-14T20:06:29.0543837Z   Downloaded futures-util v0.3.31
+2026-11-14T20:06:29.0592531Z   Downloaded rustls-webpki v0.103.16
+2026-11-14T20:06:29.0608579Z   Downloaded tracing-core v0.1.36
+2026-11-14T20:06:29.0621010Z   Downloaded compression-core v0.4.31
+2026-11-14T20:06:29.0625042Z   Downloaded displaydoc v0.2.5
+2026-11-14T20:06:29.0636157Z   Downloaded crypto-common v0.2.2
+2026-11-14T20:06:29.0641300Z   Downloaded icu_properties v2.1.2
+2026-11-14T20:06:29.0652198Z   Downloaded quinn-udp v0.5.14
+2026-11-14T20:06:29.0660582Z   Downloaded xattr v1.6.1
+2026-11-14T20:06:29.0667886Z   Downloaded httparse v1.10.1
+2026-11-14T20:06:29.0678529Z   Downloaded hyper-util v0.1.20
+2026-11-14T20:06:29.0703876Z   Downloaded pkg-config v0.3.32
+2026-11-14T20:06:29.0710220Z   Downloaded lru-slab v0.1.2
+2026-11-14T20:06:29.0713342Z   Downloaded openssl-macros v0.1.1
+2026-11-14T20:06:29.0716479Z   Downloaded icu_properties_data v2.1.2
+2026-11-14T20:06:29.0757699Z   Downloaded percent-encoding v2.3.2
+2026-11-14T20:06:29.0761054Z   Downloaded indexmap v1.9.3
+2026-11-14T20:06:29.0774928Z   Downloaded tinyvec v1.10.0
+2026-11-14T20:06:29.0786399Z   Downloaded hashbrown v0.12.3
+2026-11-14T20:06:29.0804329Z   Downloaded serde_json v1.0.149
+2026-11-14T20:06:29.0835344Z   Downloaded ed25519 v2.2.3
+2026-11-14T20:06:29.0842500Z   Downloaded icu_provider v2.1.1
+2026-11-14T20:06:29.0854152Z   Downloaded clap v3.2.25
+2026-11-14T20:06:29.0906503Z   Downloaded anstream v1.0.0
+2026-11-14T20:06:29.0916170Z   Downloaded socket2 v0.6.3
+2026-11-14T20:06:29.0925669Z   Downloaded ryu v1.0.23
+2026-11-14T20:06:29.0939120Z   Downloaded smallvec v1.15.1
+2026-11-14T20:06:29.0948255Z   Downloaded either v1.15.0
+2026-11-14T20:06:29.0954044Z   Downloaded getrandom v0.4.3
+2026-11-14T20:06:29.0969677Z   Downloaded hybrid-array v0.4.10
+2026-11-14T20:06:29.0979491Z   Downloaded serde v1.0.229
+2026-11-14T20:06:29.0995384Z   Downloaded hyper-rustls v0.27.7
+2026-11-14T20:06:29.1005614Z   Downloaded hmac v0.12.1
+2026-11-14T20:06:29.1013238Z   Downloaded litemap v0.8.1
+2026-11-14T20:06:29.1022953Z   Downloaded http-body v1.0.1
+2026-11-14T20:06:29.1026859Z   Downloaded rand_chacha v0.3.1
+2026-11-14T20:06:29.1031585Z   Downloaded futures-channel v0.3.31
+2026-11-14T20:06:29.1039562Z   Downloaded simd-adler32 v0.3.8
+2026-11-14T20:06:29.1046452Z   Downloaded quinn v0.11.9
+2026-11-14T20:06:29.1062168Z   Downloaded compression-codecs v0.4.36
+2026-11-14T20:06:29.1075874Z   Downloaded serde_core v1.0.229
+2026-11-14T20:06:29.1088243Z   Downloaded icu_normalizer v2.1.1
+2026-11-14T20:06:29.1103715Z   Downloaded digest v0.11.3
+2026-11-14T20:06:29.1113527Z   Downloaded env_filter v2.0.0
+2026-11-14T20:06:29.1120185Z   Downloaded futures-sink v0.3.31
+2026-11-14T20:06:29.1123517Z   Downloaded is_terminal_polyfill v1.70.2
+2026-11-14T20:06:29.1128525Z   Downloaded itoa v1.0.17
+2026-11-14T20:06:29.1133980Z   Downloaded memchr v2.8.0
+2026-11-14T20:06:29.1156188Z   Downloaded ppv-lite86 v0.2.21
+2026-11-14T20:06:29.1161688Z   Downloaded darling_core v0.23.0
+2026-11-14T20:06:29.1182299Z   Downloaded mio v1.2.0
+2026-11-14T20:06:29.1206629Z   Downloaded futures-io v0.3.31
+2026-11-14T20:06:29.1210209Z   Downloaded idna_adapter v1.2.1
+2026-11-14T20:06:29.1214000Z   Downloaded solana-define-syscall v5.4.0
+2026-11-14T20:06:29.1217359Z   Downloaded futures-core v0.3.31
+2026-11-14T20:06:29.1222488Z   Downloaded pbkdf2 v0.11.0
+2026-11-14T20:06:29.1231363Z   Downloaded openssl-probe v0.2.1
+2026-11-14T20:06:29.1235734Z   Downloaded miniz_oxide v0.8.9
+2026-11-14T20:06:29.1247667Z   Downloaded proc-macro2 v1.0.106
+2026-11-14T20:06:29.1260542Z   Downloaded crc32fast v1.5.0
+2026-11-14T20:06:29.1268807Z   Downloaded icu_normalizer_data v2.1.1
+2026-11-14T20:06:29.1279371Z   Downloaded openssl-sys v0.9.112
+2026-11-14T20:06:29.1300543Z   Downloaded signal-hook v0.4.4
+2026-11-14T20:06:29.1310951Z   Downloaded iri-string v0.7.10
+2026-11-14T20:06:29.1341854Z   Downloaded darling v0.23.0
+2026-11-14T20:06:29.1363827Z   Downloaded hyper v1.8.1
+2026-11-14T20:06:29.1392852Z   Downloaded itertools v0.15.0
+2026-11-14T20:06:29.1422755Z   Downloaded darling_macro v0.23.0
+2026-11-14T20:06:29.1425603Z   Downloaded form_urlencoded v1.2.2
+2026-11-14T20:06:29.1428721Z   Downloaded ipnet v2.11.0
+2026-11-14T20:06:29.1435874Z   Downloaded cpufeatures v0.3.1
+2026-11-14T20:06:29.1441879Z   Downloaded libbz2-rs-sys v0.2.2
+2026-11-14T20:06:29.1450618Z   Downloaded regex-automata v0.4.16
+2026-11-14T20:06:29.1527267Z   Downloaded log v0.4.34
+2026-11-14T20:06:29.1539429Z   Downloaded icu_locale_core v2.1.1
+2026-11-14T20:06:29.1564777Z   Downloaded portable-atomic v1.13.1
+2026-11-14T20:06:29.1597699Z   Downloaded icu_collections v2.1.1
+2026-11-14T20:06:29.1621904Z   Downloaded serde_derive v1.0.229
+2026-11-14T20:06:29.1636028Z   Downloaded hashbrown v0.15.5
+2026-11-14T20:06:29.1659483Z   Downloaded solana-address v2.7.0
+2026-11-14T20:06:29.1666128Z   Downloaded jiff v0.2.23
+2026-11-14T20:06:29.1758200Z   Downloaded rustc-demangle v0.1.28
+2026-11-14T20:06:29.1765087Z   Downloaded shlex v1.3.0
+2026-11-14T20:06:29.1769964Z   Downloaded signal-hook-registry v1.4.8
+2026-11-14T20:06:29.1774909Z   Downloaded rand_core v0.9.5
+2026-11-14T20:06:29.1780564Z   Downloaded combine v3.8.1
+2026-11-14T20:06:29.1799765Z   Downloaded rand v0.8.8
+2026-11-14T20:06:29.1814890Z   Downloaded regex v1.13.1
+2026-11-14T20:06:29.1839925Z   Downloaded reqwest v0.13.2
+2026-11-14T20:06:29.1867627Z   Downloaded rustix v1.1.3
+2026-11-14T20:06:29.1969944Z   Downloaded brotli v8.0.2
+2026-11-14T20:06:29.2057719Z   Downloaded quinn-proto v0.11.14
+2026-11-14T20:06:29.2090800Z   Downloaded rustls v0.23.37
+2026-11-14T20:06:29.2146761Z   Downloaded ring v0.17.14
+2026-11-14T20:06:29.2353243Z   Downloaded linux-raw-sys v0.11.0
+2026-11-14T20:06:29.3048084Z    Compiling libc v0.2.189
+2026-11-14T20:06:29.3048600Z    Compiling proc-macro2 v1.0.106
+2026-11-14T20:06:29.3048959Z    Compiling quote v1.0.45
+2026-11-14T20:06:29.3049963Z    Compiling unicode-ident v1.0.23
+2026-11-14T20:06:29.3538345Z    Compiling cfg-if v1.0.4
+2026-11-14T20:06:29.3693537Z    Compiling memchr v2.8.0
+2026-11-14T20:06:29.6683313Z    Compiling shlex v1.3.0
+2026-11-14T20:06:29.7369215Z    Compiling find-msvc-tools v0.1.9
+2026-11-14T20:06:29.8359034Z    Compiling cc v1.2.56
+2026-11-14T20:06:30.1426392Z    Compiling typenum v1.19.0
+2026-11-14T20:06:30.2117847Z    Compiling syn v2.0.117
+2026-11-14T20:06:30.3176124Z    Compiling pin-project-lite v0.2.16
+2026-11-14T20:06:30.3486026Z    Compiling bytes v1.11.1
+2026-11-14T20:06:30.6746182Z    Compiling stable_deref_trait v1.2.1
+2026-11-14T20:06:30.6955957Z    Compiling once_cell v1.21.3
+2026-11-14T20:06:30.7706056Z    Compiling mio v1.2.0
+2026-11-14T20:06:30.8264974Z    Compiling socket2 v0.6.3
+2026-11-14T20:06:30.9965720Z    Compiling zeroize v1.8.2
+2026-11-14T20:06:31.0786431Z    Compiling futures-core v0.3.31
+2026-11-14T20:06:31.1364168Z    Compiling itoa v1.0.17
+2026-11-14T20:06:31.2245550Z    Compiling tokio v1.51.0
+2026-11-14T20:06:31.2726626Z    Compiling subtle v2.6.1
+2026-11-14T20:06:31.3335078Z    Compiling serde_core v1.0.229
+2026-11-14T20:06:31.4275648Z    Compiling futures-sink v0.3.31
+2026-11-14T20:06:31.4705901Z    Compiling version_check v0.9.5
+2026-11-14T20:06:31.5275664Z    Compiling smallvec v1.15.1
+2026-11-14T20:06:31.6006182Z    Compiling pkg-config v0.3.32
+2026-11-14T20:06:31.6784466Z    Compiling bitflags v2.10.0
+2026-11-14T20:06:31.8820711Z    Compiling vcpkg v0.2.15
+2026-11-14T20:06:31.9106085Z    Compiling generic-array v0.14.7
+2026-11-14T20:06:32.2653737Z    Compiling openssl-sys v0.9.112
+2026-11-14T20:06:32.4866323Z    Compiling synstructure v0.13.2
+2026-11-14T20:06:32.8005710Z    Compiling http v1.4.0
+2026-11-14T20:06:33.5424772Z    Compiling zerofrom-derive v0.1.6
+2026-11-14T20:06:33.5925830Z    Compiling yoke-derive v0.8.1
+2026-11-14T20:06:34.1326326Z    Compiling zerovec-derive v0.11.2
+2026-11-14T20:06:34.2248876Z    Compiling zerofrom v0.1.6
+2026-11-14T20:06:34.2791474Z    Compiling yoke v0.8.1
+2026-11-14T20:06:34.2955847Z    Compiling displaydoc v0.2.5
+2026-11-14T20:06:34.3847277Z    Compiling getrandom v0.2.17
+2026-11-14T20:06:34.5078757Z    Compiling litemap v0.8.1
+2026-11-14T20:06:34.6161763Z    Compiling writeable v0.6.2
+2026-11-14T20:06:34.6525723Z    Compiling log v0.4.34
+2026-11-14T20:06:34.7324929Z    Compiling pin-utils v0.1.0
+2026-11-14T20:06:34.7479755Z    Compiling zerotrie v0.2.3
+2026-11-14T20:06:34.7911414Z    Compiling http-body v1.0.1
+2026-11-14T20:06:34.7939721Z    Compiling zerovec v0.11.5
+2026-11-14T20:06:35.0474781Z    Compiling rustls-pki-types v1.14.0
+2026-11-14T20:06:35.1416389Z    Compiling tinystr v0.8.2
+2026-11-14T20:06:35.2327252Z    Compiling icu_locale_core v2.1.1
+2026-11-14T20:06:35.4596212Z    Compiling potential_utf v0.1.4
+2026-11-14T20:06:35.5325480Z    Compiling crc32fast v1.5.0
+2026-11-14T20:06:35.6095740Z    Compiling icu_normalizer_data v2.1.1
+2026-11-14T20:06:35.6545098Z    Compiling futures-io v0.3.31
+2026-11-14T20:06:35.6637506Z    Compiling percent-encoding v2.3.2
+2026-11-14T20:06:35.7405783Z    Compiling alloc-no-stdlib v2.0.4
+2026-11-14T20:06:35.7845635Z    Compiling icu_properties_data v2.1.2
+2026-11-14T20:06:35.8015554Z    Compiling slab v0.4.12
+2026-11-14T20:06:35.8326802Z    Compiling futures-task v0.3.31
+2026-11-14T20:06:35.8968111Z    Compiling httparse v1.10.1
+2026-11-14T20:06:35.9071318Z    Compiling zerocopy v0.8.39
+2026-11-14T20:06:36.0113645Z    Compiling futures-util v0.3.31
+2026-11-14T20:06:36.0608815Z    Compiling icu_provider v2.1.1
+2026-11-14T20:06:36.2952407Z    Compiling alloc-stdlib v0.2.2
+2026-11-14T20:06:36.3525792Z    Compiling icu_collections v2.1.1
+2026-11-14T20:06:37.0835956Z    Compiling hybrid-array v0.4.10
+2026-11-14T20:06:37.2497415Z    Compiling ring v0.17.14
+2026-11-14T20:06:37.4245993Z    Compiling syn v3.0.3
+2026-11-14T20:06:37.4575613Z    Compiling serde v1.0.229
+2026-11-14T20:06:37.5425941Z    Compiling openssl-probe v0.2.1
+2026-11-14T20:06:37.6730421Z    Compiling try-lock v0.2.5
+2026-11-14T20:06:37.6902903Z    Compiling simd-adler32 v0.3.8
+2026-11-14T20:06:37.7088368Z    Compiling adler2 v2.0.1
+2026-11-14T20:06:37.7786369Z    Compiling tower-service v0.3.3
+2026-11-14T20:06:37.8005653Z    Compiling miniz_oxide v0.8.9
+2026-11-14T20:06:38.0836158Z    Compiling want v0.3.1
+2026-11-14T20:06:38.4461327Z    Compiling brotli-decompressor v5.0.0
+2026-11-14T20:06:38.8628033Z    Compiling serde_derive v1.0.229
+2026-11-14T20:06:41.0196060Z    Compiling futures-channel v0.3.31
+2026-11-14T20:06:41.2785717Z    Compiling tracing-core v0.1.36
+2026-11-14T20:06:41.5752224Z    Compiling semver v1.0.28
+2026-11-14T20:06:41.7474288Z    Compiling foreign-types-shared v0.1.1
+2026-11-14T20:06:41.7869043Z    Compiling getrandom v0.4.3
+2026-11-14T20:06:41.8985550Z    Compiling five8_core v1.0.0
+2026-11-14T20:06:41.9505701Z    Compiling zmij v1.0.21
+2026-11-14T20:06:42.0837591Z    Compiling atomic-waker v1.1.2
+2026-11-14T20:06:42.1202297Z    Compiling openssl v0.10.76
+2026-11-14T20:06:42.1352026Z    Compiling hyper v1.8.1
+2026-11-14T20:06:42.2081609Z    Compiling foreign-types v0.3.2
+2026-11-14T20:06:42.2335312Z    Compiling rustc_version v0.4.1
+2026-11-14T20:06:42.2804375Z    Compiling tracing v0.1.44
+2026-11-14T20:06:42.3755755Z    Compiling ppv-lite86 v0.2.21
+2026-11-14T20:06:42.5846024Z    Compiling icu_properties v2.1.2
+2026-11-14T20:06:42.9434967Z    Compiling brotli v8.0.2
+2026-11-14T20:06:43.7356134Z    Compiling icu_normalizer v2.1.1
+2026-11-14T20:06:44.5093338Z    Compiling flate2 v1.1.9
+2026-11-14T20:06:44.6051618Z    Compiling crypto-common v0.2.2
+2026-11-14T20:06:44.8620954Z    Compiling block-buffer v0.12.1
+2026-11-14T20:06:44.9386180Z    Compiling crypto-common v0.1.7
+2026-11-14T20:06:44.9730059Z    Compiling block-buffer v0.10.4
+2026-11-14T20:06:45.3594865Z    Compiling openssl-macros v0.1.1
+2026-11-14T20:06:45.4568923Z    Compiling getrandom v0.3.4
+2026-11-14T20:06:45.5489436Z    Compiling compression-core v0.4.31
+2026-11-14T20:06:45.5927634Z    Compiling native-tls v0.2.18
+2026-11-14T20:06:45.6406066Z    Compiling solana-program-error v3.0.1
+2026-11-14T20:06:45.6707812Z    Compiling solana-sanitize v3.0.1
+2026-11-14T20:06:45.6915833Z    Compiling rand_core v0.10.1
+2026-11-14T20:06:45.7586036Z    Compiling untrusted v0.9.0
+2026-11-14T20:06:45.7948194Z    Compiling serde_json v1.0.149
+2026-11-14T20:06:45.8077240Z    Compiling base64 v0.22.1
+2026-11-14T20:06:45.8412792Z    Compiling ipnet v2.11.0
+2026-11-14T20:06:46.0400879Z    Compiling hyper-util v0.1.20
+2026-11-14T20:06:46.5779720Z    Compiling compression-codecs v0.4.36
+2026-11-14T20:06:47.8219011Z    Compiling digest v0.10.7
+2026-11-14T20:06:47.9416535Z    Compiling digest v0.11.3
+2026-11-14T20:06:48.0112551Z    Compiling idna_adapter v1.2.1
+2026-11-14T20:06:48.0547525Z    Compiling solana-ed25519 v0.2.4
+2026-11-14T20:06:48.2649982Z    Compiling five8 v1.0.0
+2026-11-14T20:06:48.3249026Z    Compiling form_urlencoded v1.2.2
+2026-11-14T20:06:48.4355738Z    Compiling http-body-util v0.1.3
+2026-11-14T20:06:48.5573644Z    Compiling sync_wrapper v1.0.2
+2026-11-14T20:06:48.5876218Z    Compiling aho-corasick v1.1.4
+2026-11-14T20:06:50.4489646Z    Compiling utf8_iter v1.0.4
+2026-11-14T20:06:50.5092581Z    Compiling cpufeatures v0.3.1
+2026-11-14T20:06:50.5289961Z    Compiling regex-syntax v0.8.11
+2026-11-14T20:06:51.5975398Z    Compiling rustls v0.23.37
+2026-11-14T20:06:51.6396578Z    Compiling tower-layer v0.3.3
+2026-11-14T20:06:51.7419720Z    Compiling allocator-api2 v0.2.21
+2026-11-14T20:06:51.9522698Z    Compiling signature v2.2.0
+2026-11-14T20:06:51.9772832Z    Compiling equivalent v1.0.2
+2026-11-14T20:06:51.9928762Z    Compiling foldhash v0.1.5
+2026-11-14T20:06:52.0846864Z    Compiling hashbrown v0.15.5
+2026-11-14T20:06:52.5228572Z    Compiling ed25519 v2.2.3
+2026-11-14T20:06:52.5931776Z    Compiling tower v0.5.3
+2026-11-14T20:06:52.7518334Z    Compiling regex-automata v0.4.16
+2026-11-14T20:06:52.9436805Z    Compiling sha2 v0.11.0
+2026-11-14T20:06:54.0974414Z    Compiling idna v1.1.0
+2026-11-14T20:06:56.1650898Z    Compiling async-compression v0.4.39
+2026-11-14T20:06:56.4951233Z    Compiling rand v0.10.2
+2026-11-14T20:06:56.7730263Z    Compiling five8_const v1.0.0
+2026-11-14T20:06:56.8791024Z    Compiling tokio-util v0.7.18
+2026-11-14T20:06:57.3339265Z    Compiling curve25519-dalek-derive v0.1.1
+2026-11-14T20:06:57.4631519Z    Compiling unicode-width v0.2.2
+2026-11-14T20:06:57.5421319Z    Compiling autocfg v1.5.0
+2026-11-14T20:06:57.6108273Z    Compiling utf8parse v0.2.2
+2026-11-14T20:06:57.6416274Z    Compiling iri-string v0.7.10
+2026-11-14T20:06:57.6985614Z    Compiling portable-atomic v1.13.1
+2026-11-14T20:06:57.8761141Z    Compiling rustix v1.1.3
+2026-11-14T20:06:58.0431857Z    Compiling indexmap v1.9.3
+2026-11-14T20:06:58.0859363Z    Compiling anstyle-parse v1.0.0
+2026-11-14T20:06:59.5133242Z    Compiling tower-http v0.6.8
+2026-11-14T20:07:00.3296235Z    Compiling rustls-webpki v0.103.16
+2026-11-14T20:07:01.7116233Z    Compiling solana-address v2.7.0
+2026-11-14T20:07:01.8984528Z    Compiling rand_core v0.9.5
+2026-11-14T20:07:02.0124910Z    Compiling tokio-native-tls v0.3.1
+2026-11-14T20:07:02.0806153Z    Compiling regex v1.13.1
+2026-11-14T20:07:02.3706252Z    Compiling url v2.5.8
+2026-11-14T20:07:02.8536572Z    Compiling solana-instruction-error v3.0.0
+2026-11-14T20:07:02.9026016Z    Compiling rand_core v0.6.4
+2026-11-14T20:07:03.0246152Z    Compiling errno v0.3.14
+2026-11-14T20:07:03.0909305Z    Compiling thiserror v1.0.69
+2026-11-14T20:07:03.1395686Z    Compiling byteorder v1.5.0
+2026-11-14T20:07:03.1916030Z    Compiling void v1.0.2
+2026-11-14T20:07:03.2165720Z    Compiling anstyle v1.0.13
+2026-11-14T20:07:03.2946644Z    Compiling thiserror v2.0.18
+2026-11-14T20:07:03.3510305Z    Compiling anstyle-query v1.1.5
+2026-11-14T20:07:03.3875728Z    Compiling colorchoice v1.0.4
+2026-11-14T20:07:03.4116821Z    Compiling signal-hook v0.4.4
+2026-11-14T20:07:03.4233297Z    Compiling either v1.15.0
+2026-11-14T20:07:03.4519131Z    Compiling linux-raw-sys v0.11.0
+2026-11-14T20:07:03.5403527Z    Compiling cpufeatures v0.2.17
+2026-11-14T20:07:03.5595520Z    Compiling is_terminal_polyfill v1.70.2
+2026-11-14T20:07:03.5840844Z    Compiling camino v1.2.2
+2026-11-14T20:07:03.6911953Z    Compiling anstream v1.0.0
+2026-11-14T20:07:04.0086019Z    Compiling tokio-rustls v0.26.4
+2026-11-14T20:07:04.1726724Z    Compiling sha2 v0.10.9
+2026-11-14T20:07:04.3818029Z    Compiling unreachable v1.0.0
+2026-11-14T20:07:04.4337321Z    Compiling signal-hook-registry v1.4.8
+2026-11-14T20:07:04.6956809Z    Compiling rand_chacha v0.3.1
+2026-11-14T20:07:05.0558620Z    Compiling solana-transaction-error v4.0.0
+2026-11-14T20:07:05.1406041Z    Compiling env_filter v2.0.0
+2026-11-14T20:07:05.5286142Z    Compiling hyper-tls v0.6.0
+2026-11-14T20:07:05.6726444Z    Compiling rand_chacha v0.9.0
+2026-11-14T20:07:05.7236324Z    Compiling solana-pubkey v4.3.0
+2026-11-14T20:07:05.7419780Z    Compiling solana-signature v3.5.2
+2026-11-14T20:07:05.9446221Z    Compiling console v0.16.3
+2026-11-14T20:07:05.9898492Z    Compiling pbkdf2 v0.11.0
+2026-11-14T20:07:06.0341693Z    Compiling hmac v0.12.1
+2026-11-14T20:07:06.0885989Z    Compiling rustls-native-certs v0.8.3
+2026-11-14T20:07:06.5109411Z    Compiling webpki-roots v1.0.11
+2026-11-14T20:07:06.5723282Z    Compiling thiserror-impl v1.0.69
+2026-11-14T20:07:06.6400064Z    Compiling thiserror-impl v2.0.18
+2026-11-14T20:07:07.0286435Z    Compiling hashbrown v0.12.3
+2026-11-14T20:07:07.2520323Z    Compiling jiff v0.2.23
+2026-11-14T20:07:07.3477426Z    Compiling ascii v0.9.3
+2026-11-14T20:07:07.4756153Z    Compiling unit-prefix v0.5.2
+2026-11-14T20:07:07.5290771Z    Compiling os_str_bytes v6.6.1
+2026-11-14T20:07:07.6139498Z    Compiling ryu v1.0.23
+2026-11-14T20:07:07.6996377Z    Compiling serde_urlencoded v0.7.1
+2026-11-14T20:07:07.8186404Z    Compiling clap_lex v0.2.4
+2026-11-14T20:07:07.8492807Z    Compiling indicatif v0.18.4
+2026-11-14T20:07:08.0943647Z    Compiling combine v3.8.1
+2026-11-14T20:07:10.2686262Z    Compiling env_logger v0.11.11
+2026-11-14T20:07:10.9760588Z    Compiling hyper-rustls v0.27.7
+2026-11-14T20:07:10.9824015Z    Compiling solana-seed-phrase v3.0.0
+2026-11-14T20:07:11.1266658Z    Compiling solana-signer v4.0.0
+2026-11-14T20:07:11.3486963Z    Compiling rand v0.9.2
+2026-11-14T20:07:11.4659906Z    Compiling reqwest v0.13.2
+2026-11-14T20:07:11.8596254Z    Compiling rand v0.8.8
+2026-11-14T20:07:12.4516265Z    Compiling xattr v1.6.1
+2026-11-14T20:07:13.5266047Z    Compiling hash32 v0.3.1
+2026-11-14T20:07:13.5769173Z    Compiling console v0.15.11
+2026-11-14T20:07:14.5896304Z    Compiling cargo-platform v0.1.9
+2026-11-14T20:07:15.2806360Z    Compiling filetime v0.2.27
+2026-11-14T20:07:15.3985920Z    Compiling bitflags v1.3.2
+2026-11-14T20:07:15.4111249Z    Compiling cargo-build-sbf v4.6.0
+2026-11-14T20:07:15.4195987Z    Compiling strsim v0.10.0
+2026-11-14T20:07:15.4765999Z    Compiling libbz2-rs-sys v0.2.2
+2026-11-14T20:07:16.0316232Z    Compiling textwrap v0.16.2
+2026-11-14T20:07:16.8386595Z    Compiling rustc-demangle v0.1.28
+2026-11-14T20:07:16.8636111Z    Compiling clap v3.2.25
+2026-11-14T20:07:17.4416107Z    Compiling solana-sbpf v0.26.0
+2026-11-14T20:07:17.6686256Z    Compiling bzip2 v0.6.1
+2026-11-14T20:07:17.7886374Z    Compiling tar v0.4.46
+2026-11-14T20:07:20.0316617Z    Compiling cargo_metadata v0.15.4
+2026-11-14T20:07:23.2906248Z    Compiling solana-file-download v3.1.4
+2026-11-14T20:07:23.7186101Z    Compiling agave-logger v4.2.2
+2026-11-14T20:07:23.7406161Z    Compiling solana-keypair v4.0.0
+2026-11-14T20:07:23.9386427Z    Compiling reqwest v0.12.28
+2026-11-14T20:07:24.0286085Z    Compiling itertools v0.15.0
+2026-11-14T20:07:25.3626471Z    Compiling solana-define-syscall v5.4.0
+2026-11-14T20:07:31.2512870Z     Finished `release` profile [optimized] target(s) in 1m 03s
+2026-11-14T20:07:31.2686650Z   Installing /home/runner/.cargo/bin/cargo-build-sbf
+2026-11-14T20:07:31.2687294Z   Installing /home/runner/.cargo/bin/cargo-test-sbf
+2026-11-14T20:07:31.2695246Z    Installed package `cargo-build-sbf v4.6.0` (executables `cargo-build-sbf`, `cargo-test-sbf`)
+2026-11-14T20:07:31.3384444Z ##[group]Run npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
+2026-11-14T20:07:31.3385159Z [36;1mnpm ci --prefix protocol --ignore-scripts --no-audit --no-fund[0m
+2026-11-14T20:07:31.3410631Z shell: /usr/bin/bash -e {0}
+2026-11-14T20:07:31.3410941Z env:
+2026-11-14T20:07:31.3411174Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-14T20:07:31.3411451Z ##[endgroup]
+2026-11-14T20:07:33.2933318Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+2026-11-14T20:07:34.1479480Z 
+2026-11-14T20:07:34.1480179Z added 108 packages in 3s
+2026-11-14T20:07:34.1740419Z ##[group]Run git init "$RUNNER_TEMP/percolator-prog"
+2026-11-14T20:07:34.1740856Z [36;1mgit init "$RUNNER_TEMP/percolator-prog"[0m
+2026-11-14T20:07:34.1741360Z [36;1mgit -C "$RUNNER_TEMP/percolator-prog" remote add origin https://github.com/TheTradoor/outright-program.git[0m
+2026-11-14T20:07:34.1741982Z [36;1mgit -C "$RUNNER_TEMP/percolator-prog" fetch --depth 1 origin 72dd8948b116e9e16a85c830e1e2a7915f12d542[0m
+2026-11-14T20:07:34.1742464Z [36;1mgit -C "$RUNNER_TEMP/percolator-prog" checkout --detach FETCH_HEAD[0m
+2026-11-14T20:07:34.1769316Z shell: /usr/bin/bash -e {0}
+2026-11-14T20:07:34.1769689Z env:
+2026-11-14T20:07:34.1769962Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-14T20:07:34.1770227Z ##[endgroup]
+2026-11-14T20:07:34.1833945Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-14T20:07:34.1835087Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-14T20:07:34.1835914Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-14T20:07:34.1836532Z hint: call:
+2026-11-14T20:07:34.1836828Z hint:
+2026-11-14T20:07:34.1837191Z hint: 	git config --global init.defaultBranch <name>
+2026-11-14T20:07:34.1837524Z hint:
+2026-11-14T20:07:34.1837931Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-14T20:07:34.1838398Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-14T20:07:34.1838734Z hint:
+2026-11-14T20:07:34.1838972Z hint: 	git branch -m <name>
+2026-11-14T20:07:34.1839232Z hint:
+2026-11-14T20:07:34.1839619Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-14T20:07:34.1840418Z Initialized empty Git repository in /home/runner/work/_temp/percolator-prog/.git/
+2026-11-14T20:07:36.0162462Z From https://github.com/TheTradoor/outright-program
+2026-11-14T20:07:36.0163025Z  * branch            72dd8948b116e9e16a85c830e1e2a7915f12d542 -> FETCH_HEAD
+2026-11-14T20:07:36.1170150Z HEAD is now at 72dd894 Fix Recovery observation gating and reconcile qualification fixtures
+2026-11-14T20:07:36.1205442Z ##[group]Run bash protocol/svm/run.sh "$RUNNER_TEMP/percolator-prog"
+2026-11-14T20:07:36.1205917Z [36;1mbash protocol/svm/run.sh "$RUNNER_TEMP/percolator-prog"[0m
+2026-11-14T20:07:36.1232098Z shell: /usr/bin/bash -e {0}
+2026-11-14T20:07:36.1232400Z env:
+2026-11-14T20:07:36.1232628Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-14T20:07:36.1232928Z ##[endgroup]
+2026-11-14T20:07:36.1644981Z Engine source matches a712af767eeb217876a3d3c50e3849b60ea54462.
+2026-11-14T20:07:51.1719033Z [2026-11-14T20:07:51.171602844Z WARN  cargo_build_sbf] Package 'percolator-prog' has two crate types defined: cdylib and lib. This setting precludes link-time optimizations (LTO). Use cdylib for programs to be deployed and rlib for packages to be imported by other programs as libraries.
+2026-11-14T20:07:51.5327260Z Downloading platform-tools v1.52
+2026-11-14T20:08:40.2928811Z Installed platform-tools v1.52 at /home/runner/.cache/solana/v1.52/platform-tools
+2026-11-14T20:08:40.5675585Z    Compiling proc-macro2 v1.0.106
+2026-11-14T20:08:40.5687982Z    Compiling unicode-ident v1.0.22
+2026-11-14T20:08:40.5691133Z    Compiling quote v1.0.45
+2026-11-14T20:08:40.5691532Z    Compiling version_check v0.9.5
+2026-11-14T20:08:40.6278231Z    Compiling autocfg v1.5.0
+2026-11-14T20:08:40.7021014Z    Compiling typenum v1.19.0
+2026-11-14T20:08:40.8076906Z    Compiling equivalent v1.0.2
+2026-11-14T20:08:40.8440747Z    Compiling hashbrown v0.16.1
+2026-11-14T20:08:40.8962350Z    Compiling generic-array v0.14.9
+2026-11-14T20:08:40.9566113Z    Compiling semver v1.0.27
+2026-11-14T20:08:40.9691413Z    Compiling once_cell v1.21.3
+2026-11-14T20:08:41.1257139Z    Compiling winnow v0.7.14
+2026-11-14T20:08:41.4341722Z    Compiling syn v2.0.117
+2026-11-14T20:08:41.4526268Z    Compiling rustc_version v0.4.1
+2026-11-14T20:08:41.4916758Z    Compiling indexmap v2.12.1
+2026-11-14T20:08:41.6816439Z    Compiling serde_core v1.0.228
+2026-11-14T20:08:41.8626196Z    Compiling toml_datetime v0.7.5+spec-1.1.0
+2026-11-14T20:08:42.0566362Z    Compiling num-traits v0.2.19
+2026-11-14T20:08:42.1375802Z    Compiling syn v1.0.109
+2026-11-14T20:08:42.2275921Z    Compiling cfg_aliases v0.2.1
+2026-11-14T20:08:42.2555932Z    Compiling borsh v1.6.0
+2026-11-14T20:08:43.0036266Z    Compiling toml_parser v1.0.6+spec-1.1.0
+2026-11-14T20:08:43.4996255Z    Compiling toml_edit v0.23.10+spec-1.0.0
+2026-11-14T20:08:44.6456250Z    Compiling proc-macro-crate v3.4.0
+2026-11-14T20:08:45.1487463Z    Compiling serde v1.0.228
+2026-11-14T20:08:45.9148896Z    Compiling strsim v0.11.1
+2026-11-14T20:08:46.1816576Z    Compiling ident_case v1.0.1
+2026-11-14T20:08:46.2359464Z    Compiling libc v0.2.178
+2026-11-14T20:08:46.6686274Z    Compiling cfg-if v1.0.4
+2026-11-14T20:08:46.6981334Z    Compiling zmij v1.0.5
+2026-11-14T20:08:46.8396223Z    Compiling fnv v1.0.7
+2026-11-14T20:08:46.8766035Z    Compiling darling_core v0.21.3
+2026-11-14T20:08:47.4442192Z    Compiling bytemuck_derive v1.10.2
+2026-11-14T20:08:47.5556388Z    Compiling borsh-derive v1.6.0
+2026-11-14T20:08:48.1175227Z    Compiling serde_derive v1.0.228
+2026-11-14T20:08:48.5666207Z    Compiling bytemuck v1.24.0
+2026-11-14T20:08:50.0256412Z    Compiling toml v0.5.11
+2026-11-14T20:08:50.0285865Z    Compiling darling_macro v0.21.3
+2026-11-14T20:08:50.7947912Z    Compiling thiserror v2.0.18
+2026-11-14T20:08:51.0071624Z    Compiling serde_json v1.0.148
+2026-11-14T20:08:51.1017636Z    Compiling zerocopy v0.8.31
+2026-11-14T20:08:51.3151396Z    Compiling jobserver v0.1.34
+2026-11-14T20:08:51.3696088Z    Compiling proc-macro-crate v0.1.5
+2026-11-14T20:08:51.3865807Z    Compiling darling v0.21.3
+2026-11-14T20:08:51.4105791Z    Compiling crypto-common v0.1.6
+2026-11-14T20:08:51.4694501Z    Compiling block-buffer v0.10.4
+2026-11-14T20:08:51.5526102Z    Compiling thiserror-impl v2.0.18
+2026-11-14T20:08:51.6095617Z    Compiling wincode v0.5.3
+2026-11-14T20:08:51.6185574Z    Compiling ahash v0.8.12
+2026-11-14T20:08:51.6965599Z    Compiling find-msvc-tools v0.1.6
+2026-11-14T20:08:51.8686485Z    Compiling shlex v1.3.0
+2026-11-14T20:08:51.9116467Z    Compiling subtle v2.4.1
+2026-11-14T20:08:51.9906066Z    Compiling five8_core v1.0.0
+2026-11-14T20:08:51.9998464Z    Compiling digest v0.10.7
+2026-11-14T20:08:52.0075652Z    Compiling cc v1.2.51
+2026-11-14T20:08:52.0889174Z    Compiling wincode-derive v0.4.4
+2026-11-14T20:08:52.7826242Z    Compiling solana-program-error v3.0.1
+2026-11-14T20:08:52.8683211Z    Compiling pastey v0.2.2
+2026-11-14T20:08:53.2428623Z    Compiling solana-define-syscall v5.1.0
+2026-11-14T20:08:53.2702887Z    Compiling solana-hash v4.3.0
+2026-11-14T20:08:53.3206139Z    Compiling solana-define-syscall v4.0.1
+2026-11-14T20:08:53.3546028Z    Compiling solana-sha256-hasher v3.1.0
+2026-11-14T20:08:53.3835605Z    Compiling five8 v1.0.0
+2026-11-14T20:08:53.4736704Z    Compiling five8_const v1.0.0
+2026-11-14T20:08:53.6088541Z    Compiling borsh-schema-derive-internal v0.10.4
+2026-11-14T20:08:53.6976143Z    Compiling borsh-derive-internal v0.10.4
+2026-11-14T20:08:53.8190802Z    Compiling feature-probe v0.1.1
+2026-11-14T20:08:53.9155908Z    Compiling rustversion v1.0.22
+2026-11-14T20:08:53.9535810Z    Compiling thiserror v1.0.69
+2026-11-14T20:08:54.1008419Z    Compiling solana-sanitize v3.0.1
+2026-11-14T20:08:54.1025648Z    Compiling sha2-const-stable v0.1.0
+2026-11-14T20:08:54.2396210Z    Compiling borsh-derive v0.10.4
+2026-11-14T20:08:54.2755811Z    Compiling bv v0.11.1
+2026-11-14T20:08:54.3329276Z    Compiling hashbrown v0.13.2
+2026-11-14T20:08:54.4106043Z    Compiling thiserror-impl v1.0.69
+2026-11-14T20:08:54.9626544Z    Compiling borsh v0.10.4
+2026-11-14T20:08:55.4976396Z    Compiling solana-address v2.6.0
+2026-11-14T20:08:55.7496113Z    Compiling blake3 v1.8.2
+2026-11-14T20:08:55.8325893Z    Compiling num-integer v0.1.46
+2026-11-14T20:08:55.9296360Z    Compiling num-bigint v0.2.6
+2026-11-14T20:08:55.9957930Z    Compiling memoffset v0.9.1
+2026-11-14T20:08:56.0155889Z    Compiling ahash v0.7.8
+2026-11-14T20:08:56.0606110Z    Compiling itoa v1.0.17
+2026-11-14T20:08:56.1025618Z    Compiling keccak v0.1.5
+2026-11-14T20:08:56.2015778Z    Compiling memchr v2.7.6
+2026-11-14T20:08:56.2508958Z    Compiling sha3 v0.10.8
+2026-11-14T20:08:56.4045691Z    Compiling sha2 v0.10.9
+2026-11-14T20:08:56.7735818Z    Compiling bincode v1.3.3
+2026-11-14T20:08:57.2216093Z    Compiling serde_bytes v0.11.19
+2026-11-14T20:08:57.3456124Z    Compiling getrandom v0.2.16
+2026-11-14T20:08:57.4176554Z    Compiling solana-frozen-abi-macro v1.18.26
+2026-11-14T20:08:57.4286096Z    Compiling num-rational v0.2.4
+2026-11-14T20:08:57.4966197Z    Compiling num-complex v0.2.4
+2026-11-14T20:08:57.5106053Z    Compiling constant_time_eq v0.3.1
+2026-11-14T20:08:57.5609254Z    Compiling bs58 v0.5.1
+2026-11-14T20:08:57.5651504Z    Compiling arrayvec v0.7.6
+2026-11-14T20:08:57.5735637Z    Compiling log v0.4.29
+2026-11-14T20:08:57.7146124Z    Compiling lazy_static v1.5.0
+2026-11-14T20:08:57.7547537Z    Compiling winnow v0.5.40
+2026-11-14T20:08:57.7568737Z    Compiling arrayref v0.3.9
+2026-11-14T20:08:57.7603543Z    Compiling toml_datetime v0.6.11
+2026-11-14T20:08:58.7419812Z    Compiling solana-account-view v2.0.0
+2026-11-14T20:08:58.9563804Z    Compiling num-derive v0.4.2
+2026-11-14T20:08:58.9789522Z    Compiling borsh-schema-derive-internal v0.9.3
+2026-11-14T20:08:59.1715998Z    Compiling borsh-derive-internal v0.9.3
+2026-11-14T20:08:59.4266060Z    Compiling serde_derive_internals v0.29.1
+2026-11-14T20:08:59.5326234Z    Compiling toml_edit v0.19.15
+2026-11-14T20:08:59.7255925Z    Compiling solana-frozen-abi v1.18.26
+2026-11-14T20:08:59.8066005Z    Compiling curve25519-dalek v4.1.3
+2026-11-14T20:08:59.9306767Z    Compiling schemars v0.8.22
+2026-11-14T20:09:00.0287574Z    Compiling cpufeatures v0.2.17
+2026-11-14T20:09:00.0909680Z    Compiling borsh-derive v0.9.3
+2026-11-14T20:09:00.3856195Z    Compiling schemars_derive v0.8.22
+2026-11-14T20:09:00.7969888Z    Compiling solana-instruction-view v2.1.0
+2026-11-14T20:09:00.8950389Z    Compiling hashbrown v0.11.2
+2026-11-14T20:09:01.4229137Z    Compiling proc-macro-crate v1.3.1
+2026-11-14T20:09:01.7500370Z    Compiling num-iter v0.1.45
+2026-11-14T20:09:01.7789622Z    Compiling solana-program v1.18.26
+2026-11-14T20:09:01.8128282Z    Compiling hex v0.4.3
+2026-11-14T20:09:01.8628440Z    Compiling curve25519-dalek-derive v0.1.1
+2026-11-14T20:09:02.0525909Z    Compiling solana-program v2.0.25
+2026-11-14T20:09:02.1736129Z    Compiling dyn-clone v1.0.20
+2026-11-14T20:09:02.2596026Z    Compiling bs58 v0.4.0
+2026-11-14T20:09:02.3125555Z    Compiling either v1.15.0
+2026-11-14T20:09:02.4324311Z    Compiling num_enum_derive v0.6.1
+2026-11-14T20:09:02.4945775Z    Compiling itertools v0.10.5
+2026-11-14T20:09:02.5320522Z    Compiling solana-sdk-macro v1.18.26
+2026-11-14T20:09:04.0716746Z    Compiling num v0.2.1
+2026-11-14T20:09:04.1020650Z    Compiling borsh v0.9.3
+2026-11-14T20:09:04.1070164Z    Compiling pinocchio v0.11.1
+2026-11-14T20:09:04.2916614Z    Compiling solana-sdk-macro v2.0.25
+2026-11-14T20:09:04.4455846Z    Compiling solana-pubkey v4.2.0
+2026-11-14T20:09:04.4739669Z    Compiling solana-instruction-error v2.3.0
+2026-11-14T20:09:04.5515839Z    Compiling num-derive v0.3.3
+2026-11-14T20:09:04.9776220Z    Compiling ieee754 v0.2.6
+2026-11-14T20:09:05.0556179Z    Compiling fast-math v0.1.1
+2026-11-14T20:09:05.2858906Z    Compiling solana-instruction v3.4.0
+2026-11-14T20:09:05.3546570Z    Compiling anchor-derive-accounts-v2 v2.0.0 (https://github.com/solana-foundation/anchor?rev=e3cf760826fa0a60f247635ea0572e59861ec9b5#e3cf7608)
+2026-11-14T20:09:06.9331528Z    Compiling pyth-sdk v0.8.0
+2026-11-14T20:09:07.9692170Z    Compiling pinocchio-system v0.6.1
+2026-11-14T20:09:08.1195919Z    Compiling slow_primes v0.1.14
+2026-11-14T20:09:08.6075850Z    Compiling num_enum v0.6.1
+2026-11-14T20:09:08.6486043Z    Compiling solana-msg v3.1.0
+2026-11-14T20:09:08.6511245Z    Compiling byteorder v1.5.0
+2026-11-14T20:09:08.6704200Z    Compiling anchor-lang-v2 v2.0.0 (https://github.com/solana-foundation/anchor?rev=e3cf760826fa0a60f247635ea0572e59861ec9b5#e3cf7608)
+2026-11-14T20:09:08.8876309Z    Compiling pythnet-sdk v2.3.1
+2026-11-14T20:09:09.3447655Z    Compiling percolator v0.1.1 (https://github.com/aeyakovenko/percolator?rev=a712af767eeb217876a3d3c50e3849b60ea54462#a712af76)
+2026-11-14T20:09:10.6519396Z    Compiling pinocchio v0.6.0
+2026-11-14T20:09:14.3324817Z    Compiling pyth-sdk-solana v0.10.6
+2026-11-14T20:09:14.7852615Z    Compiling spl-token v4.0.0
+2026-11-14T20:09:15.6703751Z    Compiling percolator-prog v0.1.0 (/home/runner/work/_temp/percolator-prog)
+2026-11-14T20:09:22.5740460Z     Finished `release` profile [optimized] target(s) in 42.25s
+2026-11-14T20:09:22.9467068Z [2026-11-14T20:09:22.946418310Z WARN  cargo_build_sbf] Package 'auth-matcher' has two crate types defined: cdylib and lib. This setting precludes link-time optimizations (LTO). Use cdylib for programs to be deployed and rlib for packages to be imported by other programs as libraries.
+2026-11-14T20:09:23.1041983Z    Compiling proc-macro2 v1.0.104
+2026-11-14T20:09:23.1042753Z    Compiling unicode-ident v1.0.22
+2026-11-14T20:09:23.1043264Z    Compiling quote v1.0.42
+2026-11-14T20:09:23.1044012Z    Compiling serde_core v1.0.228
+2026-11-14T20:09:23.1649044Z    Compiling version_check v0.9.5
+2026-11-14T20:09:23.2364483Z    Compiling typenum v1.19.0
+2026-11-14T20:09:23.4098017Z    Compiling generic-array v0.14.7
+2026-11-14T20:09:23.4285116Z    Compiling serde v1.0.228
+2026-11-14T20:09:23.6011856Z    Compiling winnow v0.7.14
+2026-11-14T20:09:24.0517468Z    Compiling hashbrown v0.16.1
+2026-11-14T20:09:24.1176134Z    Compiling syn v2.0.113
+2026-11-14T20:09:24.6586152Z    Compiling equivalent v1.0.2
+2026-11-14T20:09:24.6885708Z    Compiling indexmap v2.12.1
+2026-11-14T20:09:25.4182343Z    Compiling toml_parser v1.0.6+spec-1.1.0
+2026-11-14T20:09:25.9396452Z    Compiling cfg-if v1.0.4
+2026-11-14T20:09:25.9666341Z    Compiling toml_datetime v0.7.5+spec-1.1.0
+2026-11-14T20:09:26.0776938Z    Compiling cfg_aliases v0.2.1
+2026-11-14T20:09:26.1016795Z    Compiling toml_edit v0.23.10+spec-1.0.0
+2026-11-14T20:09:26.1416396Z    Compiling borsh v1.6.0
+2026-11-14T20:09:26.2185668Z    Compiling crypto-common v0.1.7
+2026-11-14T20:09:26.2595855Z    Compiling block-buffer v0.10.4
+2026-11-14T20:09:26.3005800Z    Compiling subtle v2.6.1
+2026-11-14T20:09:26.3417965Z    Compiling once_cell v1.21.3
+2026-11-14T20:09:26.4997685Z    Compiling solana-define-syscall v2.3.0
+2026-11-14T20:09:26.5232549Z    Compiling syn v1.0.109
+2026-11-14T20:09:26.5646263Z    Compiling autocfg v1.5.0
+2026-11-14T20:09:26.7026750Z    Compiling digest v0.10.7
+2026-11-14T20:09:26.8796002Z    Compiling proc-macro-crate v3.4.0
+2026-11-14T20:09:27.2276811Z    Compiling zerocopy v0.8.31
+2026-11-14T20:09:27.3113417Z    Compiling five8_core v0.1.2
+2026-11-14T20:09:27.4896287Z    Compiling ahash v0.8.12
+2026-11-14T20:09:28.5483995Z    Compiling serde_derive v1.0.228
+2026-11-14T20:09:29.4176168Z    Compiling borsh-derive v1.6.0
+2026-11-14T20:09:30.1691132Z    Compiling toml v0.5.11
+2026-11-14T20:09:31.5266242Z    Compiling bytemuck_derive v1.10.2
+2026-11-14T20:09:31.7095737Z    Compiling five8 v0.2.1
+2026-11-14T20:09:31.8065948Z    Compiling bytemuck v1.24.0
+2026-11-14T20:09:31.9736119Z    Compiling solana-sanitize v2.2.1
+2026-11-14T20:09:32.0198309Z    Compiling solana-atomic-u64 v2.2.1
+2026-11-14T20:09:32.2946040Z    Compiling proc-macro-crate v0.1.5
+2026-11-14T20:09:32.4095901Z    Compiling borsh-schema-derive-internal v0.10.4
+2026-11-14T20:09:32.5095909Z    Compiling borsh-derive-internal v0.10.4
+2026-11-14T20:09:32.5987712Z    Compiling num-traits v0.2.19
+2026-11-14T20:09:32.6099054Z    Compiling hashbrown v0.13.2
+2026-11-14T20:09:32.6267991Z    Compiling solana-hash v2.3.0
+2026-11-14T20:09:32.7326172Z    Compiling borsh-derive v0.10.4
+2026-11-14T20:09:32.8885905Z    Compiling sha2 v0.10.9
+2026-11-14T20:09:32.9075840Z    Compiling five8_const v0.1.4
+2026-11-14T20:09:33.0405963Z    Compiling solana-sha256-hasher v2.3.0
+2026-11-14T20:09:33.1685720Z    Compiling zmij v1.0.10
+2026-11-14T20:09:33.2455903Z    Compiling borsh v0.10.4
+2026-11-14T20:09:33.2939593Z    Compiling serde_json v1.0.148
+2026-11-14T20:09:33.5816214Z    Compiling solana-decode-error v2.3.0
+2026-11-14T20:09:33.5827794Z    Compiling memchr v2.7.6
+2026-11-14T20:09:33.6141729Z    Compiling itoa v1.0.17
+2026-11-14T20:09:33.8034501Z    Compiling bincode v1.3.3
+2026-11-14T20:09:34.0516255Z    Compiling solana-pubkey v2.4.0
+2026-11-14T20:09:34.2856140Z    Compiling solana-sdk-ids v2.2.1
+2026-11-14T20:09:34.4082130Z    Compiling solana-sysvar-id v2.2.1
+2026-11-14T20:09:34.4395908Z    Compiling bs58 v0.5.1
+2026-11-14T20:09:34.4636551Z    Compiling solana-msg v2.2.1
+2026-11-14T20:09:34.4875699Z    Compiling solana-program-memory v2.3.1
+2026-11-14T20:09:34.4965474Z    Compiling find-msvc-tools v0.1.6
+2026-11-14T20:09:34.5178520Z    Compiling shlex v1.3.0
+2026-11-14T20:09:34.5715531Z    Compiling solana-sdk-macro v2.2.1
+2026-11-14T20:09:34.6425354Z    Compiling cc v1.2.51
+2026-11-14T20:09:34.6633782Z    Compiling feature-probe v0.1.1
+2026-11-14T20:09:34.7732178Z    Compiling bv v0.11.1
+2026-11-14T20:09:34.8746130Z    Compiling solana-clock v2.2.2
+2026-11-14T20:09:34.8996389Z    Compiling solana-rent v2.2.1
+2026-11-14T20:09:34.9629233Z    Compiling serde_bytes v0.11.19
+2026-11-14T20:09:34.9825562Z    Compiling constant_time_eq v0.3.1
+2026-11-14T20:09:35.0256357Z    Compiling thiserror v2.0.17
+2026-11-14T20:09:35.1445687Z    Compiling log v0.4.29
+2026-11-14T20:09:35.2116839Z    Compiling arrayvec v0.7.6
+2026-11-14T20:09:35.3015515Z    Compiling solana-instruction v2.3.3
+2026-11-14T20:09:35.4110346Z    Compiling arrayref v0.3.9
+2026-11-14T20:09:35.4386683Z    Compiling solana-fee-calculator v2.2.1
+2026-11-14T20:09:35.5609891Z    Compiling solana-program-error v2.2.2
+2026-11-14T20:09:35.5936457Z    Compiling solana-system-interface v1.0.0
+2026-11-14T20:09:35.7192946Z    Compiling solana-account-info v2.3.0
+2026-11-14T20:09:35.8496423Z    Compiling solana-serialize-utils v2.2.1
+2026-11-14T20:09:35.9705628Z    Compiling solana-stable-layout v2.2.1
+2026-11-14T20:09:36.0395878Z    Compiling solana-cpi v2.2.1
+2026-11-14T20:09:36.0865822Z    Compiling blake3 v1.8.2
+2026-11-14T20:09:36.1807402Z    Compiling solana-slot-hashes v2.2.1
+2026-11-14T20:09:36.4406548Z    Compiling solana-short-vec v2.2.1
+2026-11-14T20:09:36.4869728Z    Compiling thiserror-impl v2.0.17
+2026-11-14T20:09:36.5375739Z    Compiling memoffset v0.9.1
+2026-11-14T20:09:36.6006123Z    Compiling lazy_static v1.5.0
+2026-11-14T20:09:36.6305893Z    Compiling keccak v0.1.5
+2026-11-14T20:09:36.8726217Z    Compiling sha3 v0.10.8
+2026-11-14T20:09:37.0206263Z    Compiling solana-slot-history v2.2.1
+2026-11-14T20:09:37.1458688Z    Compiling solana-stake-interface v1.2.1
+2026-11-14T20:09:37.1785938Z    Compiling solana-instructions-sysvar v2.2.2
+2026-11-14T20:09:37.2204453Z    Compiling solana-account v2.2.1
+2026-11-14T20:09:37.2975833Z    Compiling solana-program-entrypoint v2.3.0
+2026-11-14T20:09:37.4049755Z    Compiling solana-transaction-error v2.2.1
+2026-11-14T20:09:37.4550106Z    Compiling solana-bincode v2.2.1
+2026-11-14T20:09:37.4697767Z    Compiling solana-epoch-schedule v2.2.1
+2026-11-14T20:09:37.4926556Z    Compiling solana-epoch-rewards v2.2.1
+2026-11-14T20:09:37.5875952Z    Compiling solana-last-restart-slot v2.2.1
+2026-11-14T20:09:37.5918071Z    Compiling solana-serde-varint v2.2.2
+2026-11-14T20:09:37.6437693Z    Compiling num-derive v0.4.2
+2026-11-14T20:09:37.6675687Z    Compiling solana-message v2.4.0
+2026-11-14T20:09:37.6987281Z    Compiling solana-secp256k1-recover v2.2.1
+2026-11-14T20:09:37.7587712Z    Compiling solana-feature-gate-interface v2.2.2
+2026-11-14T20:09:37.9420563Z    Compiling solana-sysvar v2.3.0
+2026-11-14T20:09:38.3196350Z    Compiling solana-keccak-hasher v2.2.1
+2026-11-14T20:09:38.4176578Z    Compiling solana-vote-interface v2.2.6
+2026-11-14T20:09:38.4510068Z    Compiling solana-blake3-hasher v2.2.1
+2026-11-14T20:09:38.5446405Z    Compiling solana-address-lookup-table-interface v2.2.2
+2026-11-14T20:09:38.6352604Z    Compiling solana-loader-v3-interface v5.0.0
+2026-11-14T20:09:39.0418625Z    Compiling solana-loader-v4-interface v2.2.1
+2026-11-14T20:09:39.1545990Z    Compiling solana-program-pack v2.2.1
+2026-11-14T20:09:39.1882907Z    Compiling solana-nonce v2.2.1
+2026-11-14T20:09:39.3326227Z    Compiling solana-loader-v2-interface v2.2.1
+2026-11-14T20:09:39.3707178Z    Compiling solana-borsh v2.2.1
+2026-11-14T20:09:39.3916517Z    Compiling solana-big-mod-exp v2.2.1
+2026-11-14T20:09:39.4278142Z    Compiling getrandom v0.2.16
+2026-11-14T20:09:39.5039205Z    Compiling solana-native-token v2.3.0
+2026-11-14T20:09:39.5275787Z    Compiling solana-program-option v2.2.1
+2026-11-14T20:09:41.0008464Z    Compiling solana-program v2.3.0
+2026-11-14T20:09:41.1975832Z    Compiling auth-matcher v0.1.0 (/home/runner/work/_temp/percolator-prog/tests/fixtures/auth_matcher)
+2026-11-14T20:09:41.3746650Z     Finished `release` profile [optimized] target(s) in 18.40s
+2026-11-14T20:09:41.6748027Z    Compiling unicode-ident v1.0.22
+2026-11-14T20:09:41.6749286Z    Compiling proc-macro2 v1.0.106
+2026-11-14T20:09:41.6749726Z    Compiling quote v1.0.45
+2026-11-14T20:09:41.6750088Z    Compiling libc v0.2.178
+2026-11-14T20:09:41.7296010Z    Compiling cfg-if v1.0.4
+2026-11-14T20:09:41.7488468Z    Compiling version_check v0.9.5
+2026-11-14T20:09:41.7876430Z    Compiling serde_core v1.0.228
+2026-11-14T20:09:41.9186307Z    Compiling typenum v1.19.0
+2026-11-14T20:09:42.4206228Z    Compiling syn v2.0.117
+2026-11-14T20:09:42.4481820Z    Compiling serde v1.0.228
+2026-11-14T20:09:42.5846342Z    Compiling generic-array v0.14.9
+2026-11-14T20:09:42.6458619Z    Compiling autocfg v1.5.0
+2026-11-14T20:09:42.8496458Z    Compiling once_cell v1.21.3
+2026-11-14T20:09:42.8635701Z    Compiling getrandom v0.2.16
+2026-11-14T20:09:42.9498172Z    Compiling subtle v2.4.1
+2026-11-14T20:09:42.9578848Z    Compiling semver v1.0.27
+2026-11-14T20:09:43.1607619Z    Compiling rustc_version v0.4.1
+2026-11-14T20:09:43.3276325Z    Compiling find-msvc-tools v0.1.6
+2026-11-14T20:09:43.4586257Z    Compiling shlex v1.3.0
+2026-11-14T20:09:43.5040995Z    Compiling zerocopy v0.8.31
+2026-11-14T20:09:43.5546145Z    Compiling syn v1.0.109
+2026-11-14T20:09:43.6836258Z    Compiling cpufeatures v0.2.17
+2026-11-14T20:09:43.7696361Z    Compiling jobserver v0.1.34
+2026-11-14T20:09:43.9666465Z    Compiling cc v1.2.51
+2026-11-14T20:09:44.7761386Z    Compiling rand_core v0.6.4
+2026-11-14T20:09:44.8942456Z    Compiling num-traits v0.2.19
+2026-11-14T20:09:44.9675489Z    Compiling memchr v2.7.6
+2026-11-14T20:09:45.0562579Z    Compiling equivalent v1.0.2
+2026-11-14T20:09:45.4806126Z    Compiling hashbrown v0.16.1
+2026-11-14T20:09:45.4935874Z    Compiling ppv-lite86 v0.2.21
+2026-11-14T20:09:45.6996029Z    Compiling itoa v1.0.17
+2026-11-14T20:09:45.7906010Z    Compiling fnv v1.0.7
+2026-11-14T20:09:45.8175846Z    Compiling log v0.4.29
+2026-11-14T20:09:45.8765874Z    Compiling indexmap v2.12.1
+2026-11-14T20:09:45.9236518Z    Compiling getrandom v0.3.4
+2026-11-14T20:09:46.0125954Z    Compiling serde_derive v1.0.228
+2026-11-14T20:09:46.0476111Z    Compiling zeroize_derive v1.4.3
+2026-11-14T20:09:46.3307968Z    Compiling zeroize v1.3.0
+2026-11-14T20:09:46.4286176Z    Compiling winnow v0.7.14
+2026-11-14T20:09:46.5106330Z    Compiling thiserror v1.0.69
+2026-11-14T20:09:47.0306459Z    Compiling thiserror-impl v1.0.69
+2026-11-14T20:09:47.1615765Z    Compiling num-integer v0.1.46
+2026-11-14T20:09:47.3806195Z    Compiling toml_datetime v0.7.5+spec-1.1.0
+2026-11-14T20:09:47.6254173Z    Compiling toml_parser v1.0.6+spec-1.1.0
+2026-11-14T20:09:47.6436467Z    Compiling rand_chacha v0.3.1
+2026-11-14T20:09:47.8021763Z    Compiling cfg_aliases v0.2.1
+2026-11-14T20:09:47.8215790Z    Compiling borsh v1.6.0
+2026-11-14T20:09:47.9206142Z    Compiling toml_edit v0.23.10+spec-1.0.0
+2026-11-14T20:09:47.9406122Z    Compiling rand v0.8.5
+2026-11-14T20:09:48.4268800Z    Compiling proc-macro-crate v3.4.0
+2026-11-14T20:09:48.6796254Z    Compiling either v1.15.0
+2026-11-14T20:09:48.7506672Z    Compiling borsh-derive v1.6.0
+2026-11-14T20:09:48.8041108Z    Compiling bytemuck_derive v1.10.2
+2026-11-14T20:09:48.8995945Z    Compiling block-buffer v0.10.4
+2026-11-14T20:09:48.9726348Z    Compiling crypto-common v0.1.6
+2026-11-14T20:09:49.0206480Z    Compiling digest v0.10.7
+2026-11-14T20:09:49.1346420Z    Compiling sha2 v0.10.9
+2026-11-14T20:09:49.3846245Z    Compiling ident_case v1.0.1
+2026-11-14T20:09:49.4284305Z    Compiling strsim v0.11.1
+2026-11-14T20:09:49.5466354Z    Compiling bytemuck v1.24.0
+2026-11-14T20:09:49.5596751Z    Compiling digest v0.9.0
+2026-11-14T20:09:49.6175923Z    Compiling ahash v0.8.12
+2026-11-14T20:09:49.6445968Z    Compiling byteorder v1.5.0
+2026-11-14T20:09:49.6605678Z    Compiling getrandom v0.1.16
+2026-11-14T20:09:49.7772002Z    Compiling opaque-debug v0.3.1
+2026-11-14T20:09:49.7947628Z    Compiling crunchy v0.2.4
+2026-11-14T20:09:49.8119646Z    Compiling zmij v1.0.5
+2026-11-14T20:09:49.8727036Z    Compiling crossbeam-utils v0.8.21
+2026-11-14T20:09:50.2126072Z    Compiling num-bigint v0.4.6
+2026-11-14T20:09:50.2704924Z    Compiling serde_json v1.0.148
+2026-11-14T20:09:50.2837662Z    Compiling rustversion v1.0.22
+2026-11-14T20:09:50.3465861Z    Compiling toml v0.5.11
+2026-11-14T20:09:50.4535788Z    Compiling rand_core v0.5.1
+2026-11-14T20:09:50.5586317Z    Compiling hashbrown v0.13.2
+2026-11-14T20:09:50.9465402Z    Compiling block-padding v0.2.1
+2026-11-14T20:09:50.9906670Z    Compiling paste v1.0.15
+2026-11-14T20:09:50.9995483Z    Compiling block-buffer v0.9.0
+2026-11-14T20:09:51.0482273Z    Compiling proc-macro-crate v0.1.5
+2026-11-14T20:09:51.2106163Z    Compiling ark-std v0.4.0
+2026-11-14T20:09:51.2686252Z    Compiling ark-serialize-derive v0.4.2
+2026-11-14T20:09:51.3529189Z    Compiling lazy_static v1.5.0
+2026-11-14T20:09:51.3835867Z    Compiling libsecp256k1-core v0.2.2
+2026-11-14T20:09:51.4697865Z    Compiling ark-serialize v0.4.2
+2026-11-14T20:09:51.6083614Z    Compiling rand_chacha v0.2.2
+2026-11-14T20:09:51.7597552Z    Compiling crypto-mac v0.8.0
+2026-11-14T20:09:51.8102084Z    Compiling itertools v0.10.5
+2026-11-14T20:09:51.8866619Z    Compiling derivative v2.2.0
+2026-11-14T20:09:51.9211349Z    Compiling ark-ff-asm v0.4.2
+2026-11-14T20:09:51.9973013Z    Compiling ark-ff-macros v0.4.2
+2026-11-14T20:09:52.1825817Z    Compiling bitflags v2.10.0
+2026-11-14T20:09:52.3226746Z    Compiling rand v0.7.3
+2026-11-14T20:09:52.4868544Z    Compiling sha2 v0.9.9
+2026-11-14T20:09:52.6766669Z    Compiling borsh-schema-derive-internal v0.10.4
+2026-11-14T20:09:52.7921807Z    Compiling borsh-derive-internal v0.10.4
+2026-11-14T20:09:52.8175931Z    Compiling feature-probe v0.1.1
+2026-11-14T20:09:52.8665990Z    Compiling wasm-bindgen-shared v0.2.106
+2026-11-14T20:09:52.8853244Z    Compiling keccak v0.1.5
+2026-11-14T20:09:52.9634010Z    Compiling borsh-derive v0.10.4
+2026-11-14T20:09:52.9689761Z    Compiling ark-ff v0.4.2
+2026-11-14T20:09:52.9690527Z    Compiling bv v0.11.1
+2026-11-14T20:09:53.0276333Z    Compiling hmac v0.8.1
+2026-11-14T20:09:53.0363449Z    Compiling libsecp256k1-gen-ecmult v0.2.1
+2026-11-14T20:09:53.0678526Z    Compiling libsecp256k1-gen-genmult v0.2.1
+2026-11-14T20:09:53.0986521Z    Compiling crossbeam-epoch v0.9.18
+2026-11-14T20:09:53.1206608Z    Compiling tinyvec_macros v0.1.1
+2026-11-14T20:09:53.1433304Z    Compiling rayon-core v1.13.0
+2026-11-14T20:09:53.2086022Z    Compiling base64 v0.21.7
+2026-11-14T20:09:53.3206125Z    Compiling crossbeam-deque v0.8.6
+2026-11-14T20:09:53.4128092Z    Compiling tinyvec v1.10.0
+2026-11-14T20:09:53.4150528Z    Compiling libsecp256k1 v0.6.0
+2026-11-14T20:09:53.4975799Z    Compiling borsh v0.10.4
+2026-11-14T20:09:53.7114147Z    Compiling curve25519-dalek v3.2.1
+2026-11-14T20:09:53.9872744Z    Compiling blake3 v1.8.2
+2026-11-14T20:09:54.0496756Z    Compiling memoffset v0.9.1
+2026-11-14T20:09:54.1164497Z    Compiling ahash v0.7.8
+2026-11-14T20:09:54.1325897Z    Compiling arrayref v0.3.9
+2026-11-14T20:09:54.7376022Z    Compiling hmac-drbg v0.3.0
+2026-11-14T20:09:54.7800757Z    Compiling sha3 v0.10.8
+2026-11-14T20:09:54.9856096Z    Compiling bincode v1.3.3
+2026-11-14T20:09:55.2369592Z    Compiling serde_bytes v0.11.19
+2026-11-14T20:09:55.2425981Z    Compiling solana-frozen-abi-macro v1.18.26
+2026-11-14T20:09:55.3376376Z    Compiling bitmaps v2.1.0
+2026-11-14T20:09:55.3505951Z    Compiling im v15.1.0
+2026-11-14T20:09:55.4216029Z    Compiling base64 v0.12.3
+2026-11-14T20:09:55.5786244Z    Compiling arrayvec v0.7.6
+2026-11-14T20:09:55.5812628Z    Compiling anyhow v1.0.100
+2026-11-14T20:09:55.6917341Z    Compiling rustc-hash v1.1.0
+2026-11-14T20:09:55.7156280Z    Compiling bumpalo v3.19.1
+2026-11-14T20:09:55.7325468Z    Compiling constant_time_eq v0.3.1
+2026-11-14T20:09:55.7773833Z    Compiling sized-chunks v0.6.5
+2026-11-14T20:09:55.8466265Z    Compiling wasm-bindgen-macro-support v0.2.106
+2026-11-14T20:09:56.0266245Z    Compiling ark-poly v0.4.2
+2026-11-14T20:09:56.1216362Z    Compiling rayon v1.11.0
+2026-11-14T20:09:56.6248271Z    Compiling ark-ec v0.4.2
+2026-11-14T20:09:57.6576273Z    Compiling wasm-bindgen v0.2.106
+2026-11-14T20:09:57.7036182Z    Compiling ark-bn254 v0.4.0
+2026-11-14T20:09:57.7444839Z    Compiling borsh-derive-internal v0.9.3
+2026-11-14T20:09:57.7495745Z    Compiling borsh-schema-derive-internal v0.9.3
+2026-11-14T20:09:57.8803498Z    Compiling num-derive v0.4.2
+2026-11-14T20:09:57.8952886Z    Compiling rand_xoshiro v0.6.0
+2026-11-14T20:09:57.9243181Z    Compiling solana-frozen-abi v1.18.26
+2026-11-14T20:09:57.9946207Z    Compiling smallvec v1.15.1
+2026-11-14T20:09:58.0996356Z    Compiling bs58 v0.4.0
+2026-11-14T20:09:58.1596168Z    Compiling borsh-derive v0.9.3
+2026-11-14T20:09:58.2196170Z    Compiling hashbrown v0.11.2
+2026-11-14T20:09:58.3016467Z    Compiling wasm-bindgen-macro v0.2.106
+2026-11-14T20:09:58.5026055Z    Compiling unicode-normalization v0.1.25
+2026-11-14T20:09:58.5146000Z    Compiling pbkdf2 v0.4.0
+2026-11-14T20:09:58.5470131Z    Compiling solana-program v1.18.26
+2026-11-14T20:09:58.6275819Z    Compiling memmap2 v0.5.10
+2026-11-14T20:09:58.6861931Z    Compiling percent-encoding v2.3.2
+2026-11-14T20:09:58.7360771Z    Compiling borsh v0.9.3
+2026-11-14T20:09:58.7866192Z    Compiling tiny-bip39 v0.8.2
+2026-11-14T20:09:59.0855892Z    Compiling solana-sdk-macro v1.18.26
+2026-11-14T20:09:59.2116147Z    Compiling light-poseidon v0.2.0
+2026-11-14T20:09:59.3979868Z    Compiling synstructure v0.13.2
+2026-11-14T20:09:59.4082030Z    Compiling pin-project-lite v0.2.16
+2026-11-14T20:09:59.4169920Z    Compiling regex-syntax v0.8.8
+2026-11-14T20:09:59.4347709Z    Compiling aho-corasick v1.1.4
+2026-11-14T20:09:59.7816436Z    Compiling zerofrom-derive v0.1.6
+2026-11-14T20:10:00.5776901Z    Compiling darling_core v0.20.11
+2026-11-14T20:10:01.2476376Z    Compiling regex-automata v0.4.13
+2026-11-14T20:10:01.5923414Z    Compiling displaydoc v0.2.5
+2026-11-14T20:10:01.9896819Z    Compiling atty v0.2.14
+2026-11-14T20:10:02.0270696Z    Compiling parking_lot_core v0.9.12
+2026-11-14T20:10:02.1259350Z    Compiling zerofrom v0.1.6
+2026-11-14T20:10:02.1746293Z    Compiling yoke-derive v0.8.1
+2026-11-14T20:10:02.3597383Z    Compiling darling_macro v0.20.11
+2026-11-14T20:10:02.5202383Z    Compiling stable_deref_trait v1.2.1
+2026-11-14T20:10:02.5562470Z    Compiling termcolor v1.4.1
+2026-11-14T20:10:02.8086383Z    Compiling regex v1.12.2
+2026-11-14T20:10:02.8118020Z    Compiling signature v1.6.4
+2026-11-14T20:10:02.8656210Z    Compiling scopeguard v1.2.0
+2026-11-14T20:10:02.9016022Z    Compiling lock_api v0.4.14
+2026-11-14T20:10:03.0436053Z    Compiling ed25519 v1.5.3
+2026-11-14T20:10:03.1226723Z    Compiling yoke v0.8.1
+2026-11-14T20:10:03.1286952Z    Compiling darling v0.20.11
+2026-11-14T20:10:03.2185833Z    Compiling bytes v1.11.0
+2026-11-14T20:10:03.3085857Z    Compiling humantime v2.3.0
+2026-11-14T20:10:03.4696568Z    Compiling env_logger v0.9.3
+2026-11-14T20:10:03.6855928Z    Compiling serde_with_macros v2.3.3
+2026-11-14T20:10:03.9199655Z    Compiling ed25519-dalek v1.0.1
+2026-11-14T20:10:04.0566291Z    Compiling hmac v0.12.1
+2026-11-14T20:10:04.1196405Z    Compiling num_enum_derive v0.7.5
+2026-11-14T20:10:04.2127776Z    Compiling zerovec-derive v0.11.2
+2026-11-14T20:10:04.2302824Z    Compiling solana-sdk v1.18.26
+2026-11-14T20:10:04.3126179Z    Compiling derivation-path v0.2.0
+2026-11-14T20:10:04.4541060Z    Compiling iana-time-zone v0.1.65
+2026-11-14T20:10:04.6268970Z    Compiling chrono v0.4.42
+2026-11-14T20:10:04.7205994Z    Compiling num_enum v0.7.5
+2026-11-14T20:10:04.7666375Z    Compiling ed25519-dalek-bip32 v0.2.0
+2026-11-14T20:10:04.8906221Z    Compiling serde_with v2.3.3
+2026-11-14T20:10:04.9146129Z    Compiling zerovec v0.11.5
+2026-11-14T20:10:05.2772846Z    Compiling solana-logger v1.18.26
+2026-11-14T20:10:05.3196602Z    Compiling parking_lot v0.12.5
+2026-11-14T20:10:05.3865978Z    Compiling qstring v0.7.2
+2026-11-14T20:10:05.5279856Z    Compiling uriparse v0.6.4
+2026-11-14T20:10:05.5996171Z    Compiling pbkdf2 v0.11.0
+2026-11-14T20:10:05.6375933Z    Compiling qualifier_attr v0.2.2
+2026-11-14T20:10:05.8954845Z    Compiling siphasher v0.3.11
+2026-11-14T20:10:05.9486020Z    Compiling futures-core v0.3.31
+2026-11-14T20:10:06.0051409Z    Compiling assert_matches v1.5.0
+2026-11-14T20:10:06.0102437Z    Compiling ring v0.17.14
+2026-11-14T20:10:06.0325999Z    Compiling errno v0.3.14
+2026-11-14T20:10:06.0996162Z    Compiling signal-hook-registry v1.4.8
+2026-11-14T20:10:06.2676194Z    Compiling tinystr v0.8.2
+2026-11-14T20:10:06.3866100Z    Compiling tokio-macros v2.6.0
+2026-11-14T20:10:06.4349117Z    Compiling mio v1.1.1
+2026-11-14T20:10:06.7485132Z    Compiling socket2 v0.6.1
+2026-11-14T20:10:06.7533329Z    Compiling futures-sink v0.3.31
+2026-11-14T20:10:06.7870140Z    Compiling pin-utils v0.1.0
+2026-11-14T20:10:06.8067015Z    Compiling writeable v0.6.2
+2026-11-14T20:10:06.9031245Z    Compiling slab v0.4.11
+2026-11-14T20:10:06.9932694Z    Compiling litemap v0.8.1
+2026-11-14T20:10:07.0415620Z    Compiling untrusted v0.9.0
+2026-11-14T20:10:07.0829843Z    Compiling icu_locale_core v2.1.1
+2026-11-14T20:10:07.0852610Z    Compiling tokio v1.48.0
+2026-11-14T20:10:07.7275372Z    Compiling potential_utf v0.1.4
+2026-11-14T20:10:07.7946217Z    Compiling zerotrie v0.2.3
+2026-11-14T20:10:07.9916261Z    Compiling icu_normalizer_data v2.1.1
+2026-11-14T20:10:08.0655988Z    Compiling icu_properties_data v2.1.2
+2026-11-14T20:10:08.1460390Z    Compiling icu_provider v2.1.1
+2026-11-14T20:10:08.2874382Z    Compiling icu_collections v2.1.1
+2026-11-14T20:10:08.5464961Z    Compiling futures-channel v0.3.31
+2026-11-14T20:10:08.6353963Z    Compiling futures-macro v0.3.31
+2026-11-14T20:10:08.9886583Z    Compiling futures-io v0.3.31
+2026-11-14T20:10:09.0429638Z    Compiling futures-task v0.3.31
+2026-11-14T20:10:09.0990793Z    Compiling futures-util v0.3.31
+2026-11-14T20:10:10.8066170Z    Compiling rustls v0.21.12
+2026-11-14T20:10:10.8806702Z    Compiling icu_properties v2.1.2
+2026-11-14T20:10:10.9456651Z    Compiling icu_normalizer v2.1.1
+2026-11-14T20:10:11.3796242Z    Compiling tracing-attributes v0.1.31
+2026-11-14T20:10:11.7916075Z    Compiling rustls-webpki v0.101.7
+2026-11-14T20:10:12.1406668Z    Compiling sct v0.7.1
+2026-11-14T20:10:12.1655794Z    Compiling tracing-core v0.1.36
+2026-11-14T20:10:12.2286453Z    Compiling idna_adapter v1.2.1
+2026-11-14T20:10:12.2741733Z    Compiling http v0.2.12
+2026-11-14T20:10:12.4155912Z    Compiling tracing v0.1.44
+2026-11-14T20:10:12.5756339Z    Compiling form_urlencoded v1.2.2
+2026-11-14T20:10:12.5967386Z    Compiling utf8_iter v1.0.4
+2026-11-14T20:10:12.6576297Z    Compiling httparse v1.10.1
+2026-11-14T20:10:12.6684502Z    Compiling idna v1.1.0
+2026-11-14T20:10:12.8286079Z    Compiling num-bigint v0.2.6
+2026-11-14T20:10:12.8906182Z    Compiling socket2 v0.5.10
+2026-11-14T20:10:13.0601735Z    Compiling crc32fast v1.5.0
+2026-11-14T20:10:13.1700313Z    Compiling alloc-no-stdlib v2.0.4
+2026-11-14T20:10:13.2206327Z    Compiling alloc-stdlib v0.2.2
+2026-11-14T20:10:13.2646154Z    Compiling url v2.5.7
+2026-11-14T20:10:13.2795804Z    Compiling num-complex v0.2.4
+2026-11-14T20:10:13.3486175Z    Compiling num-rational v0.2.4
+2026-11-14T20:10:13.4110355Z    Compiling simd-adler32 v0.3.8
+2026-11-14T20:10:13.4546756Z    Compiling adler2 v2.0.1
+2026-11-14T20:10:13.5076164Z    Compiling miniz_oxide v0.8.9
+2026-11-14T20:10:13.9496295Z    Compiling brotli-decompressor v5.0.0
+2026-11-14T20:10:14.1136240Z    Compiling tokio-util v0.7.17
+2026-11-14T20:10:14.3565685Z    Compiling rustls-pemfile v1.0.4
+2026-11-14T20:10:14.5355981Z    Compiling try-lock v0.2.5
+2026-11-14T20:10:14.5726295Z    Compiling want v0.3.1
+2026-11-14T20:10:14.6456269Z    Compiling brotli v8.0.2
+2026-11-14T20:10:14.6626012Z    Compiling h2 v0.3.27
+2026-11-14T20:10:15.1646619Z    Compiling flate2 v1.1.5
+2026-11-14T20:10:15.4425304Z    Compiling tokio-rustls v0.24.1
+2026-11-14T20:10:15.5676149Z    Compiling http-body v0.4.6
+2026-11-14T20:10:15.6976001Z    Compiling num-iter v0.1.45
+2026-11-14T20:10:15.7145713Z    Compiling httpdate v1.0.3
+2026-11-14T20:10:15.7448874Z    Compiling tower-service v0.3.3
+2026-11-14T20:10:15.7725672Z    Compiling compression-core v0.4.31
+2026-11-14T20:10:15.8446682Z    Compiling num v0.2.1
+2026-11-14T20:10:15.8784857Z    Compiling ryu v1.0.22
+2026-11-14T20:10:15.9756363Z    Compiling webpki-roots v0.25.4
+2026-11-14T20:10:16.0196143Z    Compiling serde_urlencoded v0.7.1
+2026-11-14T20:10:16.1276388Z    Compiling crossbeam-channel v0.5.15
+2026-11-14T20:10:16.1536075Z    Compiling scroll_derive v0.11.1
+2026-11-14T20:10:16.4626510Z    Compiling encoding_rs v0.8.35
+2026-11-14T20:10:16.4675866Z    Compiling mime v0.3.17
+2026-11-14T20:10:16.6286381Z    Compiling void v1.0.2
+2026-11-14T20:10:16.6616218Z    Compiling sync_wrapper v0.1.2
+2026-11-14T20:10:16.6867163Z    Compiling compression-codecs v0.4.35
+2026-11-14T20:10:16.9625728Z    Compiling async-compression v0.4.36
+2026-11-14T20:10:17.2126027Z    Compiling hyper v0.14.32
+2026-11-14T20:10:17.7506298Z    Compiling ipnet v2.11.0
+2026-11-14T20:10:17.8012070Z    Compiling unreachable v1.0.0
+2026-11-14T20:10:17.8250439Z    Compiling scroll v0.11.0
+2026-11-14T20:10:17.9866571Z    Compiling cipher v0.3.0
+2026-11-14T20:10:18.0726097Z    Compiling gethostname v0.2.3
+2026-11-14T20:10:18.1296569Z    Compiling ascii v0.9.3
+2026-11-14T20:10:18.1345973Z    Compiling plain v0.2.3
+2026-11-14T20:10:18.1735718Z    Compiling goblin v0.5.4
+2026-11-14T20:10:18.2663189Z    Compiling combine v3.8.1
+2026-11-14T20:10:18.3346157Z    Compiling solana-measure v1.18.26
+2026-11-14T20:10:18.3976147Z    Compiling hash32 v0.2.1
+2026-11-14T20:10:18.4976054Z    Compiling universal-hash v0.4.1
+2026-11-14T20:10:18.5476539Z    Compiling enum-iterator-derive v1.5.0
+2026-11-14T20:10:19.0916321Z    Compiling solana-program-runtime v1.18.26
+2026-11-14T20:10:19.1738881Z    Compiling hyper-rustls v0.24.2
+2026-11-14T20:10:19.2726216Z    Compiling reqwest v0.11.27
+2026-11-14T20:10:20.0106240Z    Compiling rustc-demangle v0.1.26
+2026-11-14T20:10:20.3500877Z    Compiling enum-iterator v1.5.0
+2026-11-14T20:10:20.5593392Z    Compiling solana-metrics v1.18.26
+2026-11-14T20:10:21.1986381Z    Compiling solana_rbpf v0.8.3
+2026-11-14T20:10:21.2636159Z    Compiling polyval v0.5.3
+2026-11-14T20:10:21.2938701Z    Compiling aes v0.7.5
+2026-11-14T20:10:21.3758759Z    Compiling ctr v0.8.0
+2026-11-14T20:10:21.4736045Z    Compiling percentage v0.1.0
+2026-11-14T20:10:21.5018286Z    Compiling aead v0.4.3
+2026-11-14T20:10:21.5707289Z    Compiling eager v0.1.0
+2026-11-14T20:10:21.5757086Z    Compiling aes-gcm-siv v0.10.3
+2026-11-14T20:10:21.6025699Z    Compiling sha3 v0.9.1
+2026-11-14T20:10:21.6525812Z    Compiling merlin v3.0.0
+2026-11-14T20:10:21.7232411Z    Compiling spl-program-error-derive v0.3.2
+2026-11-14T20:10:21.7869433Z    Compiling solana-zk-token-sdk v1.18.26
+2026-11-14T20:10:21.9560790Z    Compiling spl-discriminator-syn v0.1.2
+2026-11-14T20:10:22.0655961Z    Compiling spl-discriminator-derive v0.1.2
+2026-11-14T20:10:22.1955683Z    Compiling spl-program-error v0.3.0
+2026-11-14T20:10:22.2816311Z    Compiling winnow v0.5.40
+2026-11-14T20:10:24.1875950Z    Compiling toml_datetime v0.6.11
+2026-11-14T20:10:24.3116259Z    Compiling toml_edit v0.19.15
+2026-11-14T20:10:24.4166286Z    Compiling spl-pod v0.1.0
+2026-11-14T20:10:24.4655737Z    Compiling spl-discriminator v0.1.0
+2026-11-14T20:10:24.6776147Z    Compiling pkg-config v0.3.32
+2026-11-14T20:10:24.7175999Z    Compiling spl-type-length-value v0.3.0
+2026-11-14T20:10:24.9265825Z    Compiling num-derive v0.3.3
+2026-11-14T20:10:24.9785888Z    Compiling num-conv v0.2.0
+2026-11-14T20:10:25.0256138Z    Compiling zstd-sys v2.0.16+zstd.1.5.7
+2026-11-14T20:10:25.0356139Z    Compiling time-core v0.1.8
+2026-11-14T20:10:25.0957797Z    Compiling powerfmt v0.2.0
+2026-11-14T20:10:25.2066073Z    Compiling deranged v0.5.5
+2026-11-14T20:10:25.4193716Z    Compiling proc-macro-crate v1.3.1
+2026-11-14T20:10:25.6208565Z    Compiling time-macros v0.2.26
+2026-11-14T20:10:25.8706933Z    Compiling foldhash v0.1.5
+2026-11-14T20:10:25.9385134Z    Compiling allocator-api2 v0.2.21
+2026-11-14T20:10:26.1152287Z    Compiling num_enum_derive v0.6.1
+2026-11-14T20:10:26.1415874Z    Compiling hashbrown v0.15.2
+2026-11-14T20:10:26.2827590Z    Compiling time v0.3.46
+2026-11-14T20:10:26.5256166Z    Compiling spl-tlv-account-resolution v0.5.1
+2026-11-14T20:10:26.5885780Z    Compiling num_enum v0.6.1
+2026-11-14T20:10:26.6255637Z    Compiling spl-token v4.0.0
+2026-11-14T20:10:26.8455957Z    Compiling darling_core v0.21.3
+2026-11-14T20:10:27.1677555Z    Compiling zstd-safe v5.0.2+zstd.1.5.2
+2026-11-14T20:10:27.2164378Z    Compiling spl-transfer-hook-interface v0.4.1
+2026-11-14T20:10:27.4999738Z    Compiling solana-security-txt v1.1.2
+2026-11-14T20:10:27.5185156Z    Compiling spl-token-metadata-interface v0.2.0
+2026-11-14T20:10:27.5985068Z    Compiling spl-token-group-interface v0.1.0
+2026-11-14T20:10:27.8326122Z    Compiling spl-memo v4.0.0
+2026-11-14T20:10:27.8508253Z    Compiling curve25519-dalek-derive v0.1.1
+2026-11-14T20:10:27.9996039Z    Compiling ring v0.16.20
+2026-11-14T20:10:28.1242539Z    Compiling solana-version v1.18.26
+2026-11-14T20:10:28.2005915Z    Compiling thiserror v2.0.18
+2026-11-14T20:10:28.3755741Z    Compiling spl-token-2022 v1.0.0
+2026-11-14T20:10:28.6876159Z    Compiling darling_macro v0.21.3
+2026-11-14T20:10:28.8606369Z    Compiling darling v0.21.3
+2026-11-14T20:10:28.8925038Z    Compiling futures-executor v0.3.31
+2026-11-14T20:10:29.0580061Z    Compiling thiserror-impl v2.0.18
+2026-11-14T20:10:29.5026713Z    Compiling curve25519-dalek v4.1.3
+2026-11-14T20:10:29.5886105Z    Compiling solana-vote-program v1.18.26
+2026-11-14T20:10:29.6755672Z    Compiling wincode v0.5.3
+2026-11-14T20:10:29.8426313Z    Compiling untrusted v0.7.1
+2026-11-14T20:10:29.8926265Z    Compiling five8_core v1.0.0
+2026-11-14T20:10:29.9033379Z    Compiling bitflags v1.3.2
+2026-11-14T20:10:29.9247254Z    Compiling spin v0.5.2
+2026-11-14T20:10:30.0156046Z    Compiling futures v0.3.31
+2026-11-14T20:10:30.0417171Z    Compiling wincode-derive v0.4.4
+2026-11-14T20:10:30.6889944Z    Compiling solana-config-program v1.18.26
+2026-11-14T20:10:30.9990806Z    Compiling Inflector v0.11.4
+2026-11-14T20:10:31.0816029Z    Compiling solana-program-error v3.0.1
+2026-11-14T20:10:31.1195899Z    Compiling unicode-width v0.2.2
+2026-11-14T20:10:31.1378627Z    Compiling solana-hash v4.3.0
+2026-11-14T20:10:31.1735523Z    Compiling base64 v0.13.1
+2026-11-14T20:10:31.2454079Z    Compiling rustix v1.1.3
+2026-11-14T20:10:31.2575542Z    Compiling unicode-xid v0.2.6
+2026-11-14T20:10:31.2921474Z    Compiling pastey v0.2.2
+2026-11-14T20:10:31.3250276Z    Compiling minimal-lexical v0.2.1
+2026-11-14T20:10:31.4279901Z    Compiling nom v7.1.3
+2026-11-14T20:10:31.4445753Z    Compiling synstructure v0.12.6
+2026-11-14T20:10:31.7618659Z    Compiling console v0.15.11
+2026-11-14T20:10:32.1996294Z    Compiling solana-sha256-hasher v3.1.0
+2026-11-14T20:10:32.2875790Z    Compiling spl-associated-token-account v2.3.0
+2026-11-14T20:10:32.6686225Z    Compiling five8 v1.0.0
+2026-11-14T20:10:32.7215769Z    Compiling five8_const v1.0.0
+2026-11-14T20:10:32.7623093Z    Compiling memoffset v0.7.1
+2026-11-14T20:10:32.8275795Z    Compiling sha2-const-stable v0.1.0
+2026-11-14T20:10:32.8999434Z    Compiling linux-raw-sys v0.11.0
+2026-11-14T20:10:33.0953419Z    Compiling data-encoding v2.10.0
+2026-11-14T20:10:33.1046057Z    Compiling solana-sanitize v3.0.1
+2026-11-14T20:10:33.1395710Z    Compiling solana-address v2.6.0
+2026-11-14T20:10:33.4723525Z    Compiling rusticata-macros v4.1.0
+2026-11-14T20:10:33.5696049Z    Compiling asn1-rs-derive v0.4.0
+2026-11-14T20:10:33.7206296Z    Compiling pem v1.1.1
+2026-11-14T20:10:33.8739781Z    Compiling jsonrpc-core v18.0.0
+2026-11-14T20:10:33.8963792Z    Compiling yasna v0.5.2
+2026-11-14T20:10:34.4056277Z    Compiling asn1-rs-impl v0.1.0
+2026-11-14T20:10:34.4311126Z    Compiling async-trait v0.1.89
+2026-11-14T20:10:34.4337663Z    Compiling fastrand v2.3.0
+2026-11-14T20:10:34.5292329Z    Compiling portable-atomic v1.13.1
+2026-11-14T20:10:34.5517631Z    Compiling asn1-rs v0.5.2
+2026-11-14T20:10:34.7726049Z    Compiling tempfile v3.24.0
+2026-11-14T20:10:34.9266272Z    Compiling rcgen v0.10.0
+2026-11-14T20:10:35.0490676Z    Compiling indexmap v1.9.3
+2026-11-14T20:10:35.1025248Z    Compiling openssl-probe v0.1.6
+2026-11-14T20:10:35.1777936Z    Compiling const-oid v0.7.1
+2026-11-14T20:10:35.2799450Z    Compiling oid-registry v0.6.1
+2026-11-14T20:10:35.4411317Z    Compiling der v0.5.1
+2026-11-14T20:10:35.5162133Z    Compiling rustls-native-certs v0.6.3
+2026-11-14T20:10:35.5465524Z    Compiling nix v0.26.4
+2026-11-14T20:10:35.9415881Z    Compiling dlopen2_derive v0.3.0
+2026-11-14T20:10:36.0427507Z    Compiling solana-perf v1.18.26
+2026-11-14T20:10:36.1078034Z    Compiling num_cpus v1.17.0
+2026-11-14T20:10:36.1445977Z    Compiling number_prefix v0.4.0
+2026-11-14T20:10:36.1975797Z    Compiling event-listener v2.5.3
+2026-11-14T20:10:36.3005942Z    Compiling bs58 v0.5.1
+2026-11-14T20:10:36.3410305Z    Compiling hashbrown v0.12.3
+2026-11-14T20:10:36.3978857Z    Compiling os_str_bytes v6.6.1
+2026-11-14T20:10:36.5419297Z    Compiling base64ct v1.8.3
+2026-11-14T20:10:36.6826468Z    Compiling spki v0.5.4
+2026-11-14T20:10:36.7885806Z    Compiling clap_lex v0.2.4
+2026-11-14T20:10:36.8956139Z    Compiling solana-rayon-threadlimit v1.18.26
+2026-11-14T20:10:36.9371384Z    Compiling indicatif v0.17.11
+2026-11-14T20:10:36.9377714Z    Compiling dlopen2 v0.5.0
+2026-11-14T20:10:37.0610368Z    Compiling quinn-proto v0.10.6
+2026-11-14T20:10:37.4696026Z    Compiling zstd v0.11.2+zstd.1.5.2
+2026-11-14T20:10:37.6376128Z    Compiling solana-account-decoder v1.18.26
+2026-11-14T20:10:37.9391965Z    Compiling der-parser v8.2.0
+2026-11-14T20:10:37.9575537Z    Compiling solana-connection-cache v1.18.26
+2026-11-14T20:10:38.1136417Z    Compiling solana-account-view v2.0.0
+2026-11-14T20:10:38.1935909Z    Compiling quinn-udp v0.4.1
+2026-11-14T20:10:38.3755847Z    Compiling webpki-roots v0.24.0
+2026-11-14T20:10:38.3846759Z    Compiling concurrent-queue v2.5.0
+2026-11-14T20:10:38.4195426Z    Compiling sha1 v0.10.6
+2026-11-14T20:10:38.4805653Z    Compiling serde_derive_internals v0.29.1
+2026-11-14T20:10:38.6121258Z    Compiling caps v0.5.6
+2026-11-14T20:10:38.8766019Z    Compiling utf-8 v0.7.6
+2026-11-14T20:10:38.9625814Z    Compiling schemars v0.8.22
+2026-11-14T20:10:39.0375747Z    Compiling textwrap v0.16.2
+2026-11-14T20:10:39.0795623Z    Compiling strsim v0.10.0
+2026-11-14T20:10:39.2955918Z    Compiling solana-transaction-status v1.18.26
+2026-11-14T20:10:39.3144843Z    Compiling shell-words v1.1.1
+2026-11-14T20:10:39.3845785Z    Compiling unicode-width v0.1.14
+2026-11-14T20:10:39.5186546Z    Compiling textwrap v0.11.0
+2026-11-14T20:10:39.6705888Z    Compiling dialoguer v0.10.4
+2026-11-14T20:10:39.8285492Z    Compiling clap v3.2.25
+2026-11-14T20:10:40.2596362Z    Compiling schemars_derive v0.8.22
+2026-11-14T20:10:40.6205822Z    Compiling solana-rpc-client-api v1.18.26
+2026-11-14T20:10:41.0425650Z    Compiling tungstenite v0.20.1
+2026-11-14T20:10:41.6715835Z    Compiling quinn v0.10.2
+2026-11-14T20:10:42.4165803Z    Compiling solana-rpc-client v1.18.26
+2026-11-14T20:10:42.7395769Z    Compiling async-channel v1.9.0
+2026-11-14T20:10:42.8095485Z    Compiling x509-parser v0.14.0
+2026-11-14T20:10:42.8207494Z    Compiling solana-instruction-view v2.1.0
+2026-11-14T20:10:42.8925693Z    Compiling pkcs8 v0.8.0
+2026-11-14T20:10:43.0180114Z    Compiling hex v0.4.3
+2026-11-14T20:10:43.1756429Z    Compiling rand_core v0.9.3
+2026-11-14T20:10:43.2875708Z    Compiling solana-program v2.0.25
+2026-11-14T20:10:43.3605702Z    Compiling rtoolbox v0.0.3
+2026-11-14T20:10:43.4365942Z    Compiling dyn-clone v1.0.20
+2026-11-14T20:10:43.4735530Z    Compiling vec_map v0.8.2
+2026-11-14T20:10:43.5535688Z    Compiling strsim v0.8.0
+2026-11-14T20:10:43.8660494Z    Compiling histogram v0.6.9
+2026-11-14T20:10:43.9366016Z    Compiling ansi_term v0.12.1
+2026-11-14T20:10:43.9559120Z    Compiling solana-streamer v1.18.26
+2026-11-14T20:10:44.0746269Z    Compiling clap v2.34.0
+2026-11-14T20:10:45.9275822Z    Compiling rpassword v7.4.0
+2026-11-14T20:10:46.0315557Z    Compiling pinocchio v0.11.1
+2026-11-14T20:10:46.7155534Z    Compiling tokio-tungstenite v0.20.1
+2026-11-14T20:10:46.8325925Z    Compiling solana-net-utils v1.18.26
+2026-11-14T20:10:46.9396232Z    Compiling solana-remote-wallet v1.18.26
+2026-11-14T20:10:47.0955709Z    Compiling solana-sdk-macro v2.0.25
+2026-11-14T20:10:47.2675875Z    Compiling solana-pubkey v4.2.0
+2026-11-14T20:10:47.2985662Z    Compiling solana-instruction-error v2.3.0
+2026-11-14T20:10:47.3516553Z    Compiling tokio-stream v0.1.18
+2026-11-14T20:10:47.3873619Z    Compiling solana-address-lookup-table-program v1.18.26
+2026-11-14T20:10:47.4565700Z    Compiling option-ext v0.2.0
+2026-11-14T20:10:47.4875513Z    Compiling ieee754 v0.2.6
+2026-11-14T20:10:47.6276584Z    Compiling base64 v0.22.1
+2026-11-14T20:10:47.6506846Z    Compiling solana-pubsub-client v1.18.26
+2026-11-14T20:10:47.9545821Z    Compiling fast-math v0.1.1
+2026-11-14T20:10:47.9935839Z    Compiling dirs-sys v0.5.0
+2026-11-14T20:10:48.1914099Z    Compiling solana-instruction v3.4.0
+2026-11-14T20:10:48.2485972Z    Compiling solana-clap-utils v1.18.26
+2026-11-14T20:10:48.7006297Z    Compiling anchor-derive-accounts-v2 v2.0.0 (https://github.com/solana-foundation/anchor?rev=e3cf760826fa0a60f247635ea0572e59861ec9b5#e3cf7608)
+2026-11-14T20:10:49.8115868Z    Compiling pyth-sdk v0.8.0
+2026-11-14T20:10:50.0815994Z    Compiling pinocchio-system v0.6.1
+2026-11-14T20:10:50.7096032Z    Compiling async-mutex v1.4.1
+2026-11-14T20:10:50.7695653Z    Compiling slow_primes v0.1.14
+2026-11-14T20:10:50.8925852Z    Compiling wait-timeout v0.2.1
+2026-11-14T20:10:50.9435573Z    Compiling hashbrown v0.14.5
+2026-11-14T20:10:51.0715854Z    Compiling bit-vec v0.8.0
+2026-11-14T20:10:51.2095968Z    Compiling sdd v3.0.10
+2026-11-14T20:10:51.3336073Z    Compiling quick-error v1.2.3
+2026-11-14T20:10:51.3648748Z    Compiling solana-msg v3.1.0
+2026-11-14T20:10:51.3886093Z    Compiling anchor-lang-v2 v2.0.0 (https://github.com/solana-foundation/anchor?rev=e3cf760826fa0a60f247635ea0572e59861ec9b5#e3cf7608)
+2026-11-14T20:10:51.3906301Z    Compiling rusty-fork v0.3.1
+2026-11-14T20:10:51.6165970Z    Compiling scc v2.4.0
+2026-11-14T20:10:51.7456319Z    Compiling dashmap v5.5.3
+2026-11-14T20:10:52.0395618Z    Compiling bit-set v0.8.0
+2026-11-14T20:10:52.1159847Z    Compiling pythnet-sdk v2.3.1
+2026-11-14T20:10:52.6336251Z    Compiling solana-quic-client v1.18.26
+2026-11-14T20:10:52.9741589Z    Compiling solana-rpc-client-nonce-utils v1.18.26
+2026-11-14T20:10:53.5036281Z    Compiling solana-tpu-client v1.18.26
+2026-11-14T20:10:53.7315901Z    Compiling pyth-sdk-solana v0.10.6
+2026-11-14T20:10:54.0082904Z    Compiling dirs v6.0.0
+2026-11-14T20:10:54.0689241Z    Compiling solana-udp-client v1.18.26
+2026-11-14T20:10:54.0906259Z    Compiling solana-thin-client v1.18.26
+2026-11-14T20:10:54.1104417Z    Compiling rand v0.9.2
+2026-11-14T20:10:54.3005938Z    Compiling rand_chacha v0.9.0
+2026-11-14T20:10:54.4492109Z    Compiling rand_xorshift v0.4.0
+2026-11-14T20:10:54.4686813Z    Compiling solana-bpf-loader-program v1.18.26
+2026-11-14T20:10:54.4775631Z    Compiling solana-compute-budget-program v1.18.26
+2026-11-14T20:10:54.5147442Z    Compiling solana-system-program v1.18.26
+2026-11-14T20:10:54.5795767Z    Compiling solana-loader-v4-program v1.18.26
+2026-11-14T20:10:54.8116252Z    Compiling percolator v0.1.1 (https://github.com/aeyakovenko/percolator?rev=a712af767eeb217876a3d3c50e3849b60ea54462#a712af76)
+2026-11-14T20:10:54.9475919Z    Compiling itertools v0.12.1
+2026-11-14T20:10:55.9485980Z    Compiling serial_test_derive v3.2.0
+2026-11-14T20:10:56.1096436Z    Compiling pinocchio v0.6.0
+2026-11-14T20:10:56.2416365Z    Compiling unarray v0.1.4
+2026-11-14T20:10:56.2585946Z    Compiling serial_test v3.2.0
+2026-11-14T20:10:56.2885710Z    Compiling proptest v1.9.0
+2026-11-14T20:10:56.5516589Z    Compiling percolator-prog v0.1.0 (/home/runner/work/_temp/percolator-prog)
+2026-11-14T20:10:56.6195996Z    Compiling litesvm v0.1.0
+2026-11-14T20:10:57.5115069Z    Compiling solana-client v1.18.26
+2026-11-14T20:10:59.6156135Z    Compiling shellexpand v3.1.1
+2026-11-14T20:11:00.0275849Z    Compiling rand_xorshift v0.3.0
+2026-11-14T20:11:03.6140247Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 22s
+2026-11-14T20:11:03.6350565Z warning: the following packages contain code that will be rejected by a future version of Rust: solana-client v1.18.26
+2026-11-14T20:11:03.6351726Z note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+2026-11-14T20:11:03.6598597Z      Running tests/outright_native_lifecycle.rs (/home/runner/work/_temp/percolator-prog/target/debug/deps/outright_native_lifecycle-865a403af05b5df1)
+2026-11-14T20:11:03.6621968Z 
+2026-11-14T20:11:03.6622648Z running 17 tests
+2026-11-14T20:11:05.2696328Z test javascript_failed_deposit_needs_a_new_blockhash_after_source_is_funded ... ok
+2026-11-14T20:11:05.7966746Z funding premium=-1 step=12 slot=14: payer capital=99999998 pnl=0, receiver capital=100000000 pnl=1
+2026-11-14T20:11:06.2186182Z test javascript_cpi_enforces_price_limit_and_revoked_maker_consent ... ok
+2026-11-14T20:11:06.4195796Z funding premium=-1 step=12 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+2026-11-14T20:11:07.8506144Z test javascript_instructions_reject_invalid_identity_authority_and_market_bindings ... ok
+2026-11-14T20:11:08.7526715Z Native SBF lifecycle CU: init=27874, deposit=38098, open=126785, reduce=138387, close=123274, withdraw=38986
+2026-11-14T20:11:08.7561855Z test javascript_adapter_executes_init_deposit_open_reduce_close_and_withdraw ... ok
+2026-11-14T20:11:09.5125943Z funding premium=-1 step=24 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+2026-11-14T20:11:09.9678795Z test keeper_planner_advances_authenticated_oracle_without_portfolio_owner_signature ... ok
+2026-11-14T20:11:11.8132743Z liquidation direction=-1 step=1 remaining=1000000 capital=5000000 pnl=0 insurance=0
+2026-11-14T20:11:12.2573559Z liquidation direction=-1 step=2 remaining=556451 capital=4312499 pnl=0 insurance=687501
+2026-11-14T20:11:12.6828428Z funding premium=1 step=12 slot=14: payer capital=99999998 pnl=0, receiver capital=100000000 pnl=1
+2026-11-14T20:11:12.7126010Z test keeper_oracle_failures_roll_back_market_portfolio_and_custody ... ok
+2026-11-14T20:11:12.7585872Z JS teardown: all primary portfolios removed, seven surplus atoms swept, vault closed, exact rent refund and persistent tombstone
+2026-11-14T20:11:12.7675571Z JS resolved receipt: keeper=false, initial=1250, topup=500, total=1750
+2026-11-14T20:11:12.7676315Z test javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_once ... ok
+2026-11-14T20:11:13.3243227Z funding premium=1 step=12 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+2026-11-14T20:11:14.6126103Z test later_rejection_rolls_back_an_earlier_spl_transfer_and_sequence_update ... ok
+2026-11-14T20:11:15.1553256Z liquidation direction=1 step=1 remaining=1000000 capital=5000000 pnl=0 insurance=0
+2026-11-14T20:11:15.7581190Z liquidation direction=1 step=2 remaining=612068 capital=4437498 pnl=0 insurance=562502
+2026-11-14T20:11:16.5375782Z test keeper_planner_liquidates_unhealthy_positions_and_preserves_custody ... ok
+2026-11-14T20:11:17.1305108Z funding premium=1 step=24 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+2026-11-14T20:11:18.2808326Z test javascript_crank_preserves_fractional_funding_across_settlement_cadence ... ok
+2026-11-14T20:11:19.9416749Z JS Recovery continuation: direction=1, obligation cleaned, authenticated finalization, exactly 1000 atoms paid, rent returned to market
+2026-11-14T20:11:20.7476187Z test wallet_planner_creates_seeded_portfolio_and_withdrawal_token_account ... ok
+2026-11-14T20:11:21.4906436Z JS teardown: all primary portfolios removed, seven surplus atoms swept, vault closed, exact rent refund and persistent tombstone
+2026-11-14T20:11:21.4907383Z test keeper_resolved_planner_expires_backing_and_pays_owner_without_owner_signature ... ok
+2026-11-14T20:11:21.4945320Z JS resolved receipt: keeper=true, initial=1250, topup=500, total=1750
+2026-11-14T20:11:23.9243080Z test wallet_planner_resolved_close_creates_ata_and_rolls_back_atomically ... ok
+2026-11-14T20:11:24.4066433Z JS Recovery continuation: direction=-1, obligation cleaned, authenticated finalization, exactly 1000 atoms paid, rent returned to market
+2026-11-14T20:11:24.4070469Z test recovery_obligation_survives_wallet_refresh_and_keeper_finalization_to_exact_payout ... ok
+2026-11-14T20:11:25.7760140Z JS Recovery exit: 50 atoms forfeited, 50 atoms charged, one-atom B budget; custody unchanged
+2026-11-14T20:11:25.7763664Z test wallet_recovery_exit_forfeits_unbooked_gain_applies_loss_and_rejects_stale_consent ... ok
+2026-11-14T20:11:25.8683228Z test wallet_planner_recovers_prefunded_addresses_with_atomic_allocation ... ok
+2026-11-14T20:11:30.5197728Z test wallet_planner_accounts_for_nonzero_fees_and_atomic_rejections ... ok
+2026-11-14T20:11:30.5198054Z 
+2026-11-14T20:11:30.5198395Z test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 26.86s
+2026-11-14T20:11:30.5198692Z 
+2026-11-14T20:11:30.5474473Z Post job cleanup.
+2026-11-14T20:11:30.6468825Z Post job cleanup.
+2026-11-14T20:11:30.7086703Z [command]/usr/bin/git version
+2026-11-14T20:11:30.7115588Z git version 2.56.1
+2026-11-14T20:11:30.7148491Z Temporarily overriding HOME='/home/runner/work/_temp/a40f719f-129e-4546-8db4-59fd1857183d' before making global git config changes
+2026-11-14T20:11:30.7149471Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T20:11:30.7152324Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/outright/outright
+2026-11-14T20:11:30.7174715Z Removing SSH command configuration
+2026-11-14T20:11:30.7179354Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T20:11:30.7202422Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T20:11:30.7353724Z Removing HTTP extra header
+2026-11-14T20:11:30.7358014Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T20:11:30.7378469Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T20:11:30.7695805Z Removing includeIf entries pointing to credentials config files
+2026-11-14T20:11:30.7698329Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T20:11:30.7710906Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T20:11:30.8138247Z Cleaning up orphan processes
