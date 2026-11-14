@@ -1,0 +1,26 @@
+{
+  "engine_commit": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "program_commit": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+  "baseline_commit": "1161b54094498ce23a287d2d2340e52d8cae68a3",
+  "node_version": "v24.22.1",
+  "systemd_units": {
+    "syntax": "passed",
+    "substitution": "Only /usr/bin/node was replaced with the available Node executable in temporary copies.",
+    "installed": false
+  },
+  "source_sha256": {
+    "protocol/operator/health.mjs": "fc512df96a8a15dd74653f705594da2851bd96f1a26cf2721b5daa851e69950b",
+    "protocol/operator/journal.mjs": "e7346d0e2486717957ee074c88fb227720b04330c330e7db7c7b27d26fa22acb",
+    "protocol/operator/keeper.mjs": "311e76b714c806306a2e45385f77596a7c4dd5ead79b5d413177a0d0ac9500fd",
+    "protocol/operator/monitor.mjs": "9d8aaa450f3a32e4e45baedb46e2efe3a200561075735f59e0d72f689eab4e17",
+    "protocol/operator/rpc.mjs": "294d8215705ce366400718bcaf495b99c2f44fef49e3cbb66f25e9e689941eaa",
+    "protocol/operator/systemd/outright-keeper-health.service": "0c1556f0361844f8c1bb6b94556626213ed97514b001a37a9653f244ea4d1374",
+    "protocol/operator/systemd/outright-keeper-health.timer": "09aed0c29d6bcadacf5e0ab9f6da083d8b950ad6a31752f90e91b28acc67cef8",
+    "protocol/operator/systemd/outright-keeper.service": "29c87448ea0651adeb8b0dec312201b92aa8918ff5267b73e5cf40ec9e2d7a93",
+    "protocol/tests/keeper.test.mjs": "12580e7003b6ef6c7e4219c67d1d5761e0d10f60179c2b80129351de6988df99",
+    "protocol/tests/keeper-monitor.test.mjs": "d05911c31203fc76c348506b7f655db1080e074d58cc33c68179b160385368bc",
+    "protocol/source-lock.json": "576c05e88fe964b95c84731fafd5e1f8e637c9223fc03252ef934cdb9295215e",
+    "protocol/package-lock.json": "11fbf96d369afe55a86f245710270a0e05ddcf9d576a62f9e7217a4dc3601152",
+    "protocol/upstream-contract.json": "f61efde51ee8ddb5983c896a231a28c367e227a96787859f06473dcc5cd9e311"
+  }
+}

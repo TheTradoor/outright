@@ -7,7 +7,7 @@ Earlier reproductions, failures, corrections and source-specific test counts
 are preserved in [REPAIR_HISTORY.md](REPAIR_HISTORY.md). This page tracks the
 current work without treating an old passing run as evidence for new code.
 
-## Current source
+## Last complete program qualification
 
 | Component | Exact identity |
 | --- | --- |
@@ -67,18 +67,24 @@ passed before PR #31 merged with the exact tested tree. See the
 
 ## Remaining release and acceptance work
 
+The keeper health follow-up adds local operational checks and Linux service
+templates without changing engine, program, instruction or custody code. Its
+source-specific validation is recorded in
+[keeper health verification](qualification/2026-11-14-keeper-health/README.md).
+The earlier complete qualification above retains its original source identity.
+
 | Done | ID | Requirement | What closes it |
 | --- | --- | --- | --- |
 | [ ] | QUAL-02 | Production risk scenarios | Exact accounting and rollback for the selected live Hybrid feed, funding/backing fees, insolvency, payout halts and teardown with reviewed parameters. |
 | [ ] | WAL-02 | Real desktop wallet acceptance | Actual wallet/version/browser through connect, approve/reject, account/network changes, signing, interruption and receipt recovery. Use [WALLET_ACCEPTANCE.md](WALLET_ACCEPTANCE.md). |
 | [ ] | WAL-03 | Physical iPhone/mobile acceptance | Actual supported wallet browser, complete transaction flow, backgrounding, lock/unlock, layout and recovery. DOM tests cannot close this item. |
 | [ ] | OPS-01 | Live oracle integration | Selected authenticated feed and publisher, freshness/confidence rejection, outage and resumed operation under the production configuration. |
-| [ ] | OPS-02 | Hosted keeper and portfolio discovery | Discovery is implemented and verified through client, SBF and real RPC validator checks. Completion still requires the operating host, production feeds and funded fee payer, capacity/latency and completeness monitoring, and production restart/outage/RPC acceptance. |
+| [ ] | OPS-02 | Hosted keeper and portfolio discovery | Discovery is verified through client, SBF and real RPC validator checks. Local health checks now track receipt age, sweep latency, rejected visits, bank progress and fee headroom across restart; Linux service templates are supplied. Completion still requires the actual host, live feeds, funded payer, independent discovery-completeness monitoring and production capacity/outage acceptance. |
 | [ ] | PROD-01 | Independent security review | Review the exact engine, wrapper, matcher, oracle, client and operations; resolve findings and record the reviewed release. |
 | [ ] | PROD-02 | Production deployment and authority custody | Operator-controlled signer, fee budget, program/market addresses, verifiable build and program bytes, reviewed upgrade/admin policy. Local test keypairs are excluded. |
 | [ ] | PROD-03 | Funded execution and backing | Real committed collateral, maker authorization and executable liquidity, inventory/capital limits and insurance policy. Test collateral is not liquidity. |
 | [ ] | PROD-04 | Reviewed market parameters | Collateral/feed identities, margin/leverage, OI and position limits, fees/funding and exit delays supported by stress results. |
-| [ ] | PROD-05 | Operations and incident response | Responsible operators, alerts, authority rotation, provider failure response and exercised permissionless exits. |
+| [ ] | PROD-05 | Operations and incident response | Health JSON and service exit status are available for host alert routing. Assigned operators, delivered alerts, authority rotation, provider failure response and exercised permissionless exits remain required. |
 | [ ] | PROD-06 | Final release enrollment | Enroll the approved source, deployed programs, market, authorities and services; repeat wallet acceptance, establish public site access and open deposits only for that release. |
 
 Ordinary traders must not upload a deployment file or configure RPC, oracle or

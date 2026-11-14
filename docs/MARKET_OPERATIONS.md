@@ -272,6 +272,13 @@ every other portfolio. A code, network, account identity, configuration, budget,
 storage or RPC failure stops the process. Repair the cause and restart with the
 same state directory. A restart reconciles a pending signature first.
 
+## Service health
+
+The CLI writes private health observations beside the transaction journal.
+[Keeper health and host setup](KEEPER_HOSTING.md) describes the read-only check,
+receipt and sweep time limits, retained failure counts and Linux service templates.
+A running process alone is insufficient evidence of maintenance progress.
+
 ## Receipts, fees and restart
 
 The keeper writes its signature and reserves the estimated network fee before
