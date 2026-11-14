@@ -1,0 +1,281 @@
+{
+  "run_id": 43520468937,
+  "run_url": "https://github.com/TheTradoor/outright/actions/runs/43520468937",
+  "source_head": "9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1",
+  "tested_merge": "1a3f222b7452242481b9633e1fc1c4c8fd00abbf",
+  "status": "completed",
+  "conclusion": "cancelled",
+  "superseded": true,
+  "superseded_by": {
+    "run_id": 43526782149,
+    "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c"
+  },
+  "recorded_passes": 2038,
+  "recorded_failures": 1,
+  "failure": "inv_048_matched_trade_and_open_interest_coherence::v16_program_typed_matched_book_obligation_oracle_is_source_complete",
+  "incomplete_shards": [
+    "v16_cu-02",
+    "v16_program_stateful_fuzz-08",
+    "v16_program_stateful_fuzz-09",
+    "v16_program_stateful_fuzz-10"
+  ],
+  "expected_shards": 33,
+  "retained_shards": 33,
+  "aggregate_job_id": 132234518737,
+  "aggregate_job_conclusion": "failure",
+  "successful_aggregate_artifact_present": false,
+  "complete_qualification": false,
+  "original_root_files": 140,
+  "original_artifact_zips": 34,
+  "complete_root_job_logs": 35,
+  "original_root_metadata_json_files": 71,
+  "authored_readme_added": true,
+  "archive": "retained-evidence.tar.gz",
+  "archive_bytes": 3557537,
+  "archive_sha256": "7c1d5ac1129deb8795d6032b544ebe9ddc2c108a03ef2d0486f2317d7015a3f3",
+  "archive_members": 141,
+  "member_index": "archive-members.json",
+  "deterministic_reencoding_verified": true,
+  "zip_metadata_and_integrity_checks": [
+    {
+      "file": "cu00.zip",
+      "artifact_id": 14083073947,
+      "bytes": 101555,
+      "sha256": "a8156c851ce4872ef732ef5712a5ae1af8f2c99bcffe2334fa40b828c0887554",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu01.zip",
+      "artifact_id": 14083199879,
+      "bytes": 105501,
+      "sha256": "0e907f6600f1bfb796c21542321ed6c3bce566479f400d056ec40634e0f102c6",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu02.zip",
+      "artifact_id": 14086270366,
+      "bytes": 94861,
+      "sha256": "402d1c0ed825c8a2d3f0cc6d75bc1c173bb35a9dbb05bab316dccd52d6954339",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu03.zip",
+      "artifact_id": 14084710135,
+      "bytes": 105514,
+      "sha256": "549962d79c5878b9764ec0276844d7935f057f9538ed82becec9f242d82f2257",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu04.zip",
+      "artifact_id": 14084416182,
+      "bytes": 99215,
+      "sha256": "f96568a2f1d4004f5a0352eb120da49814e42617c186aa03f2900fca512f56ea",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu05.zip",
+      "artifact_id": 14083782304,
+      "bytes": 105944,
+      "sha256": "73a9948ec69e4b2b416f8a908f9b44cce52f70f1a64d79c94284bd1a83b0b473",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu06.zip",
+      "artifact_id": 14082944372,
+      "bytes": 94554,
+      "sha256": "f0f71f92d7cd462f06c46e470b453537f2c2b18645cac8fe31e412cc7aa8746e",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu07.zip",
+      "artifact_id": 14083847997,
+      "bytes": 101192,
+      "sha256": "b0d59da15835fe5e6b35003c8c2bddcf1906d919242be3eadd1d6953cf41a86c",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu08.zip",
+      "artifact_id": 14084791537,
+      "bytes": 99263,
+      "sha256": "3fea12dd92737e5b80a170a612da6f47db92611f849c8a978d27e2be6c2c9d1b",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu09.zip",
+      "artifact_id": 14083967356,
+      "bytes": 103181,
+      "sha256": "24d11866e161ebe9318634579bbadc39c41ad4b188689f8c13068d82da2f6de6",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu10.zip",
+      "artifact_id": 14084383937,
+      "bytes": 102566,
+      "sha256": "d6f21ce398a236dd2f134e2959e5ad16bf16143af58ea86ec61f3cfbcfc8c353",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu11.zip",
+      "artifact_id": 14083377147,
+      "bytes": 101672,
+      "sha256": "b332bf4964bbc2e76da702ea146b4cd7ce82933dd02149b266af5e7904ed0ae3",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu12.zip",
+      "artifact_id": 14083333531,
+      "bytes": 101926,
+      "sha256": "46aefce3a2c56f3258c18b9976276d186dd60ce73ed717896d3d653c4e9607f5",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu13.zip",
+      "artifact_id": 14083363705,
+      "bytes": 94917,
+      "sha256": "c5d02cf10b724b0412a322242ba6be7031201e8c9b0aae854cfc439c4a62d2b0",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu14.zip",
+      "artifact_id": 14084557630,
+      "bytes": 90379,
+      "sha256": "1bf3fa809898c46d4f43d66f4b897a28a4e110113da2272af6866abb496495d6",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "cu15.zip",
+      "artifact_id": 14083054966,
+      "bytes": 89844,
+      "sha256": "6808bf7485311197a61c4e13c510ee2232f5f33743883f2ba98d2fd8e5da651b",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "native00.zip",
+      "artifact_id": 14084184499,
+      "bytes": 44735,
+      "sha256": "187bc0b06eff5d62e8c2cbc29e0ec0c5fc13503ccc8a7858cda60af6bb78233f",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "programs.zip",
+      "artifact_id": 14083605455,
+      "bytes": 493338,
+      "sha256": "f7c8dc72ca35f600e931c96bde0febfd5a2d52ebc652cd031099327e932ea07a",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "regressions00.zip",
+      "artifact_id": 14084529457,
+      "bytes": 80290,
+      "sha256": "3e4134e04afe35356a81b64d16556674ece6a492c6b09ee820a2ec1b32527a9d",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "regressions01.zip",
+      "artifact_id": 14085251078,
+      "bytes": 88116,
+      "sha256": "d545cb67029c6df6a979beabfaf1cdd5aba89b03621186961a90224e37f5c9c1",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "regressions02.zip",
+      "artifact_id": 14083834625,
+      "bytes": 83260,
+      "sha256": "e5fb5fdc15bb6774f9cceb1531d70afb12115ce623de755889bbd20795ac7cd1",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "regressions03.zip",
+      "artifact_id": 14085545930,
+      "bytes": 88976,
+      "sha256": "5833f3f71770e20643a29fc27286333f0d675eb4626f8f0a38fe206c4b5760af",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful00.zip",
+      "artifact_id": 14084637658,
+      "bytes": 67325,
+      "sha256": "d10a9e91d4e8b34858e7e13fae32b00a0209787ce207f8467eca11a27cd2f3fa",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful01.zip",
+      "artifact_id": 14085360322,
+      "bytes": 71315,
+      "sha256": "64d18afdba01d8921f26716b2d9bdcd6a755f9bea7317b2764703903d8874ce6",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful02.zip",
+      "artifact_id": 14084209188,
+      "bytes": 69456,
+      "sha256": "f6061d9333e99b672b697e817e31272c178453d7a323057f2fa1d3c5a0975035",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful03.zip",
+      "artifact_id": 14086260100,
+      "bytes": 69215,
+      "sha256": "2c7d1fcb877b64c122ee59ffe94621ee5b152a7be4e16086ef23bad42a68f243",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful04.zip",
+      "artifact_id": 14085555806,
+      "bytes": 71345,
+      "sha256": "21dcd4aade5fb8bef0e5cd0eedeb670adb34408264b4a2782214991588eb7390",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful05.zip",
+      "artifact_id": 14085085957,
+      "bytes": 66141,
+      "sha256": "621f23d067c0e4474ed014d3197b4f60708ebea461c2afad19bb6ec6bf4c6a17",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful06.zip",
+      "artifact_id": 14084548641,
+      "bytes": 68285,
+      "sha256": "21043e0261d8a5c835721c271fe1d5a69e51d2f315fbd349212c54f30acade4b",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful07.zip",
+      "artifact_id": 14085570909,
+      "bytes": 69469,
+      "sha256": "c6f6b9663a635472f1bf030ecfdd961a3a1feeb7a7bc8677b0b4b40987efa891",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful08.zip",
+      "artifact_id": 14085377247,
+      "bytes": 68625,
+      "sha256": "ec299e38f993e90f829a8db9c1bea5c1e7bc830c44ab53ad7a7d15092a915bae",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful09.zip",
+      "artifact_id": 14085167338,
+      "bytes": 66997,
+      "sha256": "38267e7436f8e89f665866979e8acdb3cbf11def2e3b12634f522b8e40490391",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful10.zip",
+      "artifact_id": 14086115964,
+      "bytes": 65288,
+      "sha256": "172d3e5dd67f7f76c6ffb70480e7d7b093fa00ac3f9a9aa22fed1e5fe8746968",
+      "github_metadata_digest_verified": true
+    },
+    {
+      "file": "stateful11.zip",
+      "artifact_id": 14085516914,
+      "bytes": 72026,
+      "sha256": "57262778dc789b1e214f70207ebd3cd410530714ae478154678bb752894a0ea6",
+      "github_metadata_digest_verified": true
+    }
+  ],
+  "final_37_shard_gate_status": "pending final aggregate evidence; separate source/run",
+  "note": "Counts describe recorded executions, including passes in incomplete shards; no unique complete-suite pass or mainnet approval is claimed."
+}

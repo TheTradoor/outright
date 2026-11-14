@@ -1,0 +1,56 @@
+   Compiling fast-math v0.1.1
+   Compiling solana-program v2.0.25
+   Compiling dirs-sys v0.5.0
+   Compiling solana-address-lookup-table-program v1.18.26
+   Compiling solana-pubsub-client v1.18.26
+   Compiling solana-instruction v3.4.0
+   Compiling solana-clap-utils v1.18.26
+   Compiling anchor-derive-accounts-v2 v2.0.0 (https://github.com/solana-foundation/anchor?rev=e3cf760826fa0a60f247635ea0572e59861ec9b5#e3cf7608)
+   Compiling pinocchio-system v0.6.1
+   Compiling pyth-sdk v0.8.0
+   Compiling proc-macro2 v1.0.106
+   Compiling async-mutex v1.4.1
+   Compiling slow_primes v0.1.14
+   Compiling wait-timeout v0.2.1
+   Compiling solana-msg v3.1.0
+   Compiling hashbrown v0.14.5
+   Compiling sdd v3.0.10
+   Compiling quick-error v1.2.3
+   Compiling bit-vec v0.8.0
+   Compiling bit-set v0.8.0
+   Compiling rusty-fork v0.3.1
+   Compiling scc v2.4.0
+   Compiling dashmap v5.5.3
+   Compiling anchor-lang-v2 v2.0.0 (https://github.com/solana-foundation/anchor?rev=e3cf760826fa0a60f247635ea0572e59861ec9b5#e3cf7608)
+   Compiling pythnet-sdk v2.3.1
+   Compiling solana-quic-client v1.18.26
+   Compiling quote v1.0.45
+   Compiling pyth-sdk-solana v0.10.6
+   Compiling solana-rpc-client-nonce-utils v1.18.26
+   Compiling solana-tpu-client v1.18.26
+   Compiling dirs v6.0.0
+   Compiling solana-udp-client v1.18.26
+   Compiling rand_xorshift v0.4.0
+   Compiling rand_chacha v0.9.0
+   Compiling rand v0.9.2
+   Compiling solana-thin-client v1.18.26
+   Compiling solana-bpf-loader-program v1.18.26
+   Compiling solana-compute-budget-program v1.18.26
+   Compiling solana-loader-v4-program v1.18.26
+   Compiling solana-system-program v1.18.26
+   Compiling percolator v0.1.1 (https://github.com/aeyakovenko/percolator?rev=a712af767eeb217876a3d3c50e3849b60ea54462#a712af76)
+   Compiling itertools v0.12.1
+   Compiling serial_test_derive v3.2.0
+   Compiling unarray v0.1.4
+   Compiling pinocchio v0.6.0
+   Compiling percolator-prog v0.1.0 (/workspace/scratch/31e010aaee78/ci-wrapper-sources/percolator-prog)
+   Compiling proptest v1.9.0
+   Compiling serial_test v3.2.0
+   Compiling litesvm v0.1.0
+   Compiling solana-client v1.18.26
+   Compiling shellexpand v3.1.1
+   Compiling syn v2.0.117
+   Compiling rand_xorshift v0.3.0
+    Finished `dev` profile [optimized] target(s) in 5m 27s
+warning: the following packages contain code that will be rejected by a future version of Rust: solana-client v1.18.26
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

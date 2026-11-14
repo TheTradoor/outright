@@ -1,0 +1,35 @@
+{
+  "reason": "compiler-artifact",
+  "package_id": "path+file:///workspace/scratch/31e010aaee78/ci-wrapper-sources/percolator-prog#0.1.0",
+  "manifest_path": "/workspace/scratch/31e010aaee78/ci-wrapper-sources/percolator-prog/Cargo.toml",
+  "target": {
+    "kind": [
+      "test"
+    ],
+    "crate_types": [
+      "bin"
+    ],
+    "name": "v16_program_stateful_fuzz",
+    "src_path": "/workspace/scratch/31e010aaee78/ci-wrapper-sources/percolator-prog/tests/v16_program_stateful_fuzz.rs",
+    "edition": "2021",
+    "doc": false,
+    "doctest": false,
+    "test": true
+  },
+  "profile": {
+    "opt_level": "1",
+    "debuginfo": 0,
+    "debug_assertions": true,
+    "overflow_checks": true,
+    "test": true
+  },
+  "features": [
+    "anchor-v2",
+    "default"
+  ],
+  "filenames": [
+    "/workspace/scratch/0659ce261e6a/optimized-target/debug/deps/v16_program_stateful_fuzz-03de7f636471ebba"
+  ],
+  "executable": "/workspace/scratch/0659ce261e6a/optimized-target/debug/deps/v16_program_stateful_fuzz-03de7f636471ebba",
+  "fresh": false
+}
