@@ -1,0 +1,3 @@
+[2026-11-14T07:50:33.699835115Z WARN  cargo_build_sbf] Package 'percolator-prog' has two crate types defined: cdylib and lib. This setting precludes link-time optimizations (LTO). Use cdylib for programs to be deployed and rlib for packages to be imported by other programs as libraries.
+Downloading platform-tools v1.58
+[2026-11-14T07:51:16.402596352Z ERROR cargo_build_sbf::toolchain] Failed to install platform-tools: could not unpack downloaded archive: failed to unpack `/home/agent/.cache/solana/v1.58/platform-tools.partial/rust/bin/rustdoc`

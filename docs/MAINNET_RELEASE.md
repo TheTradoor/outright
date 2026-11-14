@@ -11,7 +11,7 @@ funded market, reviewed risk policy or production operating service has been
 enrolled. Passing the local lifecycle is evidence for that flow, not a release
 authorization or an audit.
 
-The pending [mainnet client transport](MAINNET_CLIENT.md) implements network
+The merged [mainnet client transport](MAINNET_CLIENT.md) implements network
 validation, wallet-chain selection/signing and explorer handling. It does not
 close production enrollment, security review, liquidity or wallet acceptance.
 
@@ -44,7 +44,7 @@ repositories continue to say the software is unaudited and not production ready.
 
 | Release requirement | Current evidence and remaining work |
 | --- | --- |
-| Qualified engine and wrapper | Engine `a712af76` is unchanged. PR #28 adopts published wrapper `72dd8948`, whose tree exactly matches the repaired candidate that passed 2,120 executions. Runtime, generated contract and qualification now require that same published source. The changed client/source identity requires its own complete CI and validator results before merge; independent security review remains open. See the [repair checklist](REPAIR_CHECKLIST.md) for exact sources and results. |
+| Qualified engine and wrapper | Engine `a712af76` is unchanged. Merged PR #28 adopts published wrapper `72dd8948`. Runtime, generated contract and qualification require that same source. Its complete 37-shard, 2,120-execution qualification, 496 client tests, 17 SBF cases and both current-validator paths passed. All 51 checks passed before the identical source tree was merged. Independent security review remains open. See the [repair checklist](REPAIR_CHECKLIST.md) for exact sources and results. |
 | Independent security review | No Outright audit is recorded. Review must cover the exact engine, wrapper, matcher, oracle integration and application release, including custody and exit paths. |
 | Production deployment and authority custody | No mainnet program/market is enrolled. A verifiable build, actual program-data hash, authority policy and operator-controlled signing arrangement are required. Disposable local keys must never become production authorities. |
 | Funded maker and insurance | The 10,000 TEST fixture is synthetic. Actual collateral, maker consent, capital limits, inventory policy and insurance funding are not established. A matcher alone supplies no capital. |
