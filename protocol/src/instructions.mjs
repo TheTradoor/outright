@@ -3,7 +3,7 @@ import { PublicKey, TransactionInstruction } from "@solana/web3.js";
 export const TOKEN_PROGRAM_ID = new PublicKey(
   "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
 );
-export const WRAPPER_COMMIT = "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13";
+export const WRAPPER_COMMIT = "72dd8948b116e9e16a85c830e1e2a7915f12d542";
 export const ENGINE_COMMIT = "a712af767eeb217876a3d3c50e3849b60ea54462";
 
 function integer(value, name, bits, signed = false, nonzero = false) {

@@ -1,10 +1,11 @@
 # Real-wallet acceptance runbook
 
 **Status: not executed; desktop and physical-mobile acceptance remain unverified.**
-This runbook follows client revision `f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c`.
+This runbook originated at client revision `f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c`.
 The hosted profile is `null`, so its wallet and transaction flow is currently
-blocked by unavailable-market state. The client accepts only localnet/devnet;
-mainnet acceptance is blocked until mainnet support and enrollment exist.
+blocked by unavailable-market state. The pending [mainnet client transport](MAINNET_CLIENT.md)
+adds mainnet network and signing support; production enrollment and actual
+mainnet wallet acceptance remain incomplete.
 Automated DOM, generated-signer and validator results do not count as the
 real-wallet executions below.
 
@@ -48,8 +49,9 @@ reason and evidence, rather than marking an unavailable path passed.
 | Browser capabilities | Persistent local storage, Web Locks and Web Crypto Ed25519 work in this actual browser. Wallet advertises Wallet Standard connect, version-0 `solana:signTransaction`, and the required account chain. Record absent capability as unsupported/blocked. |
 | Transactions | Public wallet address, review action/amount/limit, signature, confirmed slot, successful or failed transaction metadata, fee and exact pre/post balances. Preserve unresolved receipt evidence separately. Never collect seed phrases, private keys or full operator state directories. |
 
-Devnet signing explicitly requests `solana:devnet`; localnet signing omits the
-chain field and sends through the configured loopback RPC. A sign-and-send-only
+Mainnet signing explicitly requests `solana:mainnet`; devnet requests
+`solana:devnet`. Localnet signing omits the chain field and sends through the
+configured loopback RPC, whose genesis cannot identify a known public network. A sign-and-send-only
 wallet cannot exercise this client. Registration alone does not prove that a
 wallet can complete signing and receipt recovery.
 

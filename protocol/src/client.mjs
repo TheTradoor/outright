@@ -31,9 +31,9 @@ import {
 import { readPortfolio } from "./accounts.mjs";
 import { readMarket, positionForMarket } from "./market.mjs";
 import { constants, keyString } from "./layout.mjs";
+import { validateNetwork } from "./network.mjs";
 
 const LOADER = "BPFLoaderUpgradeab1e11111111111111111111111";
-const DEVNET_GENESIS = "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
 const FINAL_STATES = new Set(["confirmed", "finalized", "failed"]);
 const key = (value) => new PublicKey(value);
 const same = (a, b) => keyString(a) === keyString(b);
@@ -129,29 +129,7 @@ export function validateProfile(input) {
     input.wrapperCommit !== WRAPPER_COMMIT
   )
     throw new Error("Deployment profile does not match this client release");
-  if (!["localnet", "devnet"].includes(input.cluster))
-    throw new Error("This release supports localnet and devnet deployments");
-  const url = new URL(input.rpcUrl);
-  const loopback = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
-  if (input.cluster === "localnet" && !loopback)
-    throw new Error("Localnet profiles require a loopback RPC endpoint");
-  if (
-    url.username ||
-    url.password ||
-    !(
-      url.protocol === "https:" ||
-      (input.cluster === "localnet" && loopback && url.protocol === "http:")
-    )
-  )
-    throw new Error(
-      "Use HTTPS or a local validator RPC URL without embedded credentials",
-    );
-  if (
-    typeof input.genesisHash !== "string" ||
-    !/^[1-9A-HJ-NP-Za-km-z]{20,44}$/.test(input.genesisHash) ||
-    (input.cluster === "devnet" && input.genesisHash !== DEVNET_GENESIS)
-  )
-    throw new Error("Invalid network genesis hash");
+  const network = validateNetwork(input);
   const program = programPin(input.program),
     market = keyString(input.market);
   const collateral = Object.freeze({
@@ -208,9 +186,7 @@ export function validateProfile(input) {
     throw new Error("Duplicate asset metadata");
   return Object.freeze({
     version: 1,
-    cluster: input.cluster,
-    rpcUrl: url.href,
-    genesisHash: input.genesisHash,
+    ...network,
     engineCommit: ENGINE_COMMIT,
     wrapperCommit: WRAPPER_COMMIT,
     program,
@@ -980,6 +956,10 @@ export class OutrightClient {
         throw new Error(
           `Wait for a new blockhash before another ${continuationName(prepared.action.type)} transaction`,
         );
+      if ((await this.connection.getGenesisHash()) !== this.profile.genesisHash)
+        throw new Error("RPC network changed before signing");
+      if (Date.now() > prepared.expiresAt || stored.revision !== this.#revision)
+        throw new Error("Review expired or account changed before signing");
       const signedBytes = await signTransaction(new Uint8Array(stored.bytes));
       const signed = VersionedTransaction.deserialize(signedBytes);
       const unsigned = VersionedTransaction.deserialize(stored.bytes);

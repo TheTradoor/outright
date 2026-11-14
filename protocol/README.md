@@ -113,7 +113,10 @@ is an upstream test fixture. These are local execution tests, not public-cluster
 validation. See the [verification record](../docs/NATIVE_VERIFICATION.md) for
 exact coverage and remaining requirements.
 
-The terminal and keeper support localnet and devnet only. The
+The pending client transport also supports `mainnet-beta` with a pinned genesis,
+explicit wallet chain and HTTPS RPC. The hosted deployment remains absent;
+mainnet transport support does not enroll or launch a production market. See
+[mainnet client transport](../docs/MAINNET_CLIENT.md) for verification and limits. The
 [operator guide](../docs/MARKET_OPERATIONS.md) covers setup, simulation, sending,
 fee limits and restart. Funded liquidity, provider oracle publishing, hosted
 keeper operations, broader recovery and risk coverage, additional teardown configurations and independent review

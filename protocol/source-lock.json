@@ -6,7 +6,12 @@
     "path": ".."
   },
   "program": {
-    "repository": "https://github.com/aeyakovenko/percolator-prog",
-    "revision": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13"
+    "repository": "https://github.com/TheTradoor/outright-program",
+    "revision": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+    "tree": "8b54b827082b2b838beacd88d4d99bd12878d2ca",
+    "upstream": {
+      "repository": "https://github.com/aeyakovenko/percolator-prog",
+      "revision": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13"
+    }
   }
 }

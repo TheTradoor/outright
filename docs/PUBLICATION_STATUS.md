@@ -27,11 +27,20 @@ after checking the unchanged lockfile resolved that setup failure without a
 source change. Earlier 17/17 candidate-SBF evidence is retained in PR #28; it is
 not relabeled as a new execution in this publication step.
 
+## Published-program adoption follow-up
+
+PR #28 is being updated to use the published program commit `72dd8948…` in the
+runtime source lock, generated contract, Rust dependency, SBF builds and complete
+qualification. The exact source tree is required, and a source guard prevents
+runtime and qualification from drifting apart. The engine pin is unchanged.
+The initial PR #28 commit above remains the publication record for its first
+snapshot; the updated PR needs its own complete affected CI before merge.
+
 ## Remaining release work
 
 - Finish PR #28's affected CI gates before merging its changed client bytes.
-- Adopt the published program revision in the runtime source lock, generated
-  contract and build paths; verify the affected integration and validator flows.
+- Verify and merge published-program adoption, including the affected integration,
+  complete qualification and current-validator flows.
 - Complete production deployment and authority custody, reviewed market/risk
   configuration, live oracle and keeper operations, funded liquidity,
   independent security review, and physical desktop/mobile wallet acceptance.

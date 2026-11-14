@@ -150,7 +150,7 @@ fn main() {
     legacy_deposit.extend(1_000_000u128.to_le_bytes());
     assert!(Instruction::decode(&legacy_deposit).is_err());
     println!("{}", serde_json::to_string_pretty(&json!({
-        "wrapperCommit":"357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+        "wrapperCommit":"72dd8948b116e9e16a85c830e1e2a7915f12d542",
         "engineCommit":"a712af767eeb217876a3d3c50e3849b60ea54462",
         "classicToken": token::export(),
         "localnet": localnet::export(),

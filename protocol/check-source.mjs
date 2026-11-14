@@ -9,6 +9,9 @@ const sources = JSON.parse(
 const contract = JSON.parse(
   readFileSync(new URL("./upstream-contract.json", import.meta.url)),
 );
+const qualification = JSON.parse(
+  readFileSync(new URL("../qualification/wrapper-source.json", import.meta.url)),
+);
 const paths = [
   "src",
   "Cargo.toml",
@@ -35,6 +38,16 @@ if (
   throw new Error(
     "Generated contract and source lock disagree. Review the source revisions before regenerating fixtures.",
   );
+}
+if (
+  !/^[0-9a-f]{40}$/.test(sources.program.tree ?? "") ||
+  qualification.wrapper.ref !== sources.program.revision ||
+  `https://github.com/${qualification.wrapper.repository}` !== sources.program.repository ||
+  qualification.wrapper.tree !== sources.program.tree ||
+  qualification.engine_ref !== sources.engine.revision ||
+  qualification.overlay
+) {
+  throw new Error("Runtime and qualification must use the same published program source");
 }
 git(["cat-file", "-e", `${sources.engine.revision}^{commit}`]);
 git(["diff", "--exit-code", sources.engine.revision, "--", ...paths]);

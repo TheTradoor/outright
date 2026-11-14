@@ -10,6 +10,7 @@ import {
   canReviewPortfolioClosure,
 } from "../src/settlement.mjs";
 import { isRecoveryAction, recoveryPosition } from "../src/recovery.mjs";
+import { walletChain, transactionExplorerUrl } from "../src/network.mjs";
 
 const $ = (id) => document.getElementById(id);
 const setText = (id, value) => {
@@ -209,14 +210,10 @@ function renderReceipt(record) {
   setText("receipt-state", labels[record.status] || "Unknown status");
   setText("receipt-description", record.summary);
   setText("receipt-link", record.signature);
-  const url = new URL(`https://explorer.solana.com/tx/${record.signature}`);
-  if (client.profile.cluster === "devnet")
-    url.searchParams.set("cluster", "devnet");
-  else {
-    url.searchParams.set("cluster", "custom");
-    url.searchParams.set("customUrl", client.profile.rpcUrl);
-  }
-  $("receipt-link").href = url.href;
+  $("receipt-link").href = transactionExplorerUrl(
+    client.profile,
+    record.signature,
+  );
   setText(
     "receipt-note",
     record.status === "expiredUnresolved"
@@ -502,10 +499,16 @@ function setAvailability(state) {
       "The market could not be loaded.",
       "Check your connection and try again. Trading stays unavailable until the market can be verified.",
     ],
-    ready: [
-      `Test market · ${client?.profile.cluster}`,
-      "Connect your wallet to view balances. This market uses test funds.",
-    ],
+    ready:
+      client?.profile.cluster === "mainnet-beta"
+        ? [
+            "Solana mainnet",
+            "Connect your wallet to view balances. Transactions use real funds.",
+          ]
+        : [
+            `Test market · ${client?.profile.cluster}`,
+            "Connect your wallet to view balances. This market uses test funds.",
+          ],
   };
   const [title, detail] = messages[state];
   setText("availability-title", title);
@@ -585,8 +588,8 @@ function supportsAccount(a) {
       Array.isArray(a.features) &&
       a.features.includes("solana:signTransaction") &&
       Array.isArray(a.chains) &&
-      (client?.profile.cluster === "localnet" ||
-        a.chains.includes("solana:devnet"))
+      (walletChain(client?.profile.cluster) === null ||
+        a.chains.includes(walletChain(client.profile.cluster)))
     );
   } catch {
     return false;
@@ -1005,8 +1008,8 @@ $("sign").addEventListener("click", () =>
         ].signTransaction({
           account: selectedAccount,
           transaction,
-          ...(selectedClient.profile.cluster === "devnet"
-            ? { chain: "solana:devnet" }
+          ...(walletChain(selectedClient.profile.cluster)
+            ? { chain: walletChain(selectedClient.profile.cluster) }
             : {}),
         });
         if (wallet !== selectedWallet || account !== selectedAccount)

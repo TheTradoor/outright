@@ -43,8 +43,8 @@ jobs:
       - name: Fetch pinned wrapper
         run: |
           git init "$RUNNER_TEMP/percolator-prog"
-          git -C "$RUNNER_TEMP/percolator-prog" remote add origin https://github.com/aeyakovenko/percolator-prog.git
-          git -C "$RUNNER_TEMP/percolator-prog" fetch --depth 1 origin 357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
+          git -C "$RUNNER_TEMP/percolator-prog" remote add origin https://github.com/TheTradoor/outright-program.git
+          git -C "$RUNNER_TEMP/percolator-prog" fetch --depth 1 origin 72dd8948b116e9e16a85c830e1e2a7915f12d542
           git -C "$RUNNER_TEMP/percolator-prog" checkout --detach FETCH_HEAD
       - name: Bootstrap market and execute both trade directions through RPC
         run: |

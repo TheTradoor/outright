@@ -1,0 +1,27 @@
+✔ mainnet profile preserves exact deployment identity and custody pins (275.490609ms)
+✔ mainnet rejects wrong, shortened and substituted genesis identities (1.221364ms)
+✔ mainnet RPC requires HTTPS and forbids URL credentials (0.307232ms)
+✔ a loopback proxy cannot relabel a known public network as localnet (0.26866ms)
+✔ wallet chain mapping fails closed for unsupported cluster names (0.290421ms)
+✔ mainnet explorer links do not disclose the configured RPC or query credentials (0.693421ms)
+✔ wrong-network RPC is rejected before mainnet balances or preparation (21.091773ms)
+✔ network change after mainnet review cannot reach the signer (43.659243ms)
+✔ profile enrollment rejects unsupported networks before RPC use (609.238554ms)
+✔ a slow pre-sign network response cannot reopen an expired mainnet review (44.544672ms)
+✔ network change inside the mainnet wallet prompt still prevents broadcast (58.528454ms)
+✔ mainnet support does not install a hosted deployment profile (9.185263ms)
+✔ mainnet keeper cannot use the local fixed-price oracle mode (5.778419ms)
+▶ mainnet terminal binds account selection, signing and receipts to mainnet
+  ✔ normal trader startup identifies real funds without operator import (5.812332ms)
+  ✔ devnet-only account cannot connect to a mainnet market (31.173336ms)
+  ✔ mainnet account receives an explicit mainnet signing request (180.562555ms)
+  ✔ losing mainnet account support clears the active session (7.922873ms)
+✔ mainnet terminal binds account selection, signing and receipts to mainnet (998.232292ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3020.092279

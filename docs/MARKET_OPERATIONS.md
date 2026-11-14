@@ -6,7 +6,9 @@ target. The engine selects the maintenance action, which can include accrual,
 portfolio refresh, liquidation or recovery work. The operator cannot choose a
 replacement price or bypass the engine's risk rules.
 
-This is a localnet/devnet operator client. No public Outright market or hosted
+The client includes pending mainnet transport support as well as localnet/devnet
+operation. [Transport validation](MAINNET_CLIENT.md) is not production enrollment.
+No public Outright market or hosted
 keeper is configured. It is not an oracle publisher, a portfolio indexer, a
 market deployment tool, or a source of liquidity.
 

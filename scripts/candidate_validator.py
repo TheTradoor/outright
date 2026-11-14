@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Qualify a base+overlay wrapper on the current validator without enrolling it."""
+"""Qualify a pinned wrapper on the current validator without enrolling it."""
 import argparse
 import json
 import os
@@ -59,7 +59,7 @@ def main():
         subprocess.run(["git", "diff", "--quiet", "HEAD", "--", "protocol", "scripts/candidate_validator.py", "scripts/candidate_validator.mjs", "scripts/wrapper_qualification.py", "qualification"], cwd=ROOT, check=True)
         subprocess.run(["node", "protocol/check-source.mjs"], cwd=ROOT, check=True)
         config = qualification.load_manifest()
-        assert config.get("overlay"), "This gate is for the reviewable candidate overlay"
+        assert config.get("overlay") or config["wrapper"].get("tree"), "A reviewed overlay or published source tree is required"
         qualification.fetch(workspace, config)
         builder = qualification.output(["cargo", "+1.95.0", "build-sbf", "--version"])
         assert builder.startswith("cargo-build-sbf 4.6.0"), builder

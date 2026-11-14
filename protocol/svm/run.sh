@@ -3,10 +3,11 @@ set -euo pipefail
 native_root="$(cd "$(dirname "$0")/../.." && pwd)"
 upstream_checkout="${1:?Pass the exact percolator-prog checkout directory}"
 upstream_checkout="$(cd "$upstream_checkout" && pwd)"
-expected_commit=357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
+expected_commit=72dd8948b116e9e16a85c830e1e2a7915f12d542
 test_path="$upstream_checkout/tests/outright_native_lifecycle.rs"
 node "$native_root/protocol/check-source.mjs"
 test "$(git -C "$upstream_checkout" rev-parse HEAD)" = "$expected_commit"
+test "$(git -C "$upstream_checkout" rev-parse HEAD^{tree})" = 8b54b827082b2b838beacd88d4d99bd12878d2ca
 git -C "$upstream_checkout" diff --quiet HEAD
 # Include ignored inputs: local ignore rules must not hide build configuration.
 test -z "$(git -C "$upstream_checkout" ls-files --others -- src Cargo.toml Cargo.lock .cargo build.rs tests/fixtures/auth_matcher ':(exclude,glob)tests/fixtures/auth_matcher/target/**')"

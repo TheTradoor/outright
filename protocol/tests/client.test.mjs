@@ -354,8 +354,13 @@ test("creation and ATA withdrawal plans include rent; missing makers never fabri
   assert.equal(init.rentLamports, 10_000_000);
   assert.equal(init.snapshot.portfolio, null);
   assert.throws(
-    () => validateProfile({ ...f.profile, cluster: "mainnet-beta" }),
-    /supports/,
+    () =>
+      validateProfile({
+        ...f.profile,
+        cluster: "mainnet-beta",
+        rpcUrl: "https://api.mainnet-beta.solana.com",
+      }),
+    /genesis/,
   );
 });
 

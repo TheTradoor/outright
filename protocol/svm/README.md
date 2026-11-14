@@ -66,8 +66,8 @@ rustup toolchain install 1.95.0 --profile minimal
 cargo install cargo-build-sbf --version 4.6.0 --locked
 npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
 
-git clone https://github.com/aeyakovenko/percolator-prog.git ../percolator-prog
-git -C ../percolator-prog checkout --detach 357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
+git clone https://github.com/TheTradoor/outright-program.git ../percolator-prog
+git -C ../percolator-prog checkout --detach 72dd8948b116e9e16a85c830e1e2a7915f12d542
 bash protocol/svm/run.sh ../percolator-prog
 ```
 
