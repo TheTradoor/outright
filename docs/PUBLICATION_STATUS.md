@@ -2,49 +2,42 @@
 
 Updated: **14 November 2026 (Asia/Jakarta, UTC+7)**.
 
-The GitHub write-access block is resolved. The existing installation now includes
-`TheTradoor/outright-program` in its selected repositories. GitHub confirmed the
-saved setting, and subsequent branch creation, blob/tree publication, PR creation
-and merge succeeded through the authenticated integration.
+The GitHub 403 is resolved. The existing installation retains selected-repository
+access and now includes `TheTradoor/outright-program`. Authenticated branch creation,
+source publication and the program PR merge succeeded after that change.
 
-| Work | Published result | Scope |
+| Work | Published result | Verification |
 | --- | --- | --- |
-| Program qualification and client freshness correction | [Outright PR #25](https://github.com/TheTradoor/outright/pull/25), merged as `c2df58efb9c1985078d0bbc2f3cc87bd2cb22b07` | All 48 reported checks passed before merge. The merge tree equals the checked source tree. |
-| Complete qualification evidence | [Outright PR #27](https://github.com/TheTradoor/outright/pull/27), merged as `97a89a247032a3bcf97a164884af7ff48ca1fdfc` | All 58 documentation/evidence files published; all four triggered engine checks passed. Source tree `a1215cef75349e1f978ace27f90e60e5df0dff8a` matches the retained local package. |
-| Mainnet client transport | [Outright PR #28](https://github.com/TheTradoor/outright/pull/28), head `5c8373ce5cc01d29f826ff6025da91f83e7f2320` | All 24 changed files published; tree `609b5042f12fc4af6279c900ec80011ca2c25892` matches the tested local source. Affected CI gates are running; do not treat this as release approval. |
-| Repaired program fork | [Program PR #1](https://github.com/TheTradoor/outright-program/pull/1), merged as `dab351b19cd463a76b29178cbe1e9c2c485163d1` | Candidate commit `72dd8948b116e9e16a85c830e1e2a7915f12d542` and merge have the exact qualified tree `8b54b827082b2b838beacd88d4d99bd12878d2ca`. Upstream history, license and engine dependency are retained. |
+| Wrapper qualification and client freshness | [PR #25](https://github.com/TheTradoor/outright/pull/25), merged as `c2df58efb9c1985078d0bbc2f3cc87bd2cb22b07` | All 48 reported checks passed before merge; merge tree matched the checked tree. |
+| Earlier complete evidence | [PR #27](https://github.com/TheTradoor/outright/pull/27), merged as `97a89a247032a3bcf97a164884af7ff48ca1fdfc` | All 58 evidence/documentation files published, including the earlier failed attempts. |
+| Repaired program fork | [Program PR #1](https://github.com/TheTradoor/outright-program/pull/1), merged as `dab351b19cd463a76b29178cbe1e9c2c485163d1` | Candidate `72dd8948b116e9e16a85c830e1e2a7915f12d542` and merge have the exact qualified tree `8b54b827082b2b838beacd88d4d99bd12878d2ca`. Upstream history, license and engine dependency are retained. |
+| Mainnet transport and program adoption | [PR #28](https://github.com/TheTradoor/outright/pull/28), merged as `3bfbe078c1493764bcb56bffc384dea99f5db55b` | All 51 checks passed before merge. The merge has tested tree `537c60abf1b371bce2e9b79cedcff1a22f53cefa`. Complete qualification passed 37 shards and 2,120 executions; the independent aggregate matches CI. |
+| Website client update | [Outright](https://outright.bollish-eth.chatgpt.site), version 30 | Source `3813d630edcfc49948128d7c8cecb4cf0744e7a2`; all 65 protocol files match PR #28. Build, route, mechanics and 496 client checks passed. Existing access is preserved; mainnet is not open. |
 
-The program-fork publication uses the existing evidence for the identical source
-tree: 37 shards, 2,120 passing executions and a verified aggregate. It does not
-claim a new test run in the fork. The complete evidence, including prior failed
-attempts, is retained in the [qualified-run record](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md).
+The current client uses the published program directly in its runtime source
+lock, Rust dependency, generated contract and both SBF build paths. Qualification
+must identify that same commit and source tree. The upstream Percolator engine
+remains `a712af767eeb217876a3d3c50e3849b60ea54462` with exact source equivalence.
 
-Before publishing the mainnet client, the native client suite was rerun:
-**495 passed, zero failed, skipped or cancelled**. Source identity and terminal
-build passed. The complete Python verifier suite passed **51/51**. An initial
-rerun lacked local Node dependencies; restoring the existing dependency tree
-after checking the unchanged lockfile resolved that setup failure without a
-source change. Earlier 17/17 candidate-SBF evidence is retained in PR #28; it is
-not relabeled as a new execution in this publication step.
+Fresh evidence includes **2,120 wrapper executions**, **496 client tests**, **17 application SBF cases**,
+two separately executed **seven-transaction validator paths**, and **53 local
+verifier tests**. The validator paths use a synthetic fixed-price market and
+reconcile exact collateral balances. Counts overlap in scope and are not a
+count of independent production scenarios. See the [complete current validation
+record](qualification/2026-11-14-published-program/README.md).
 
-## Published-program adoption follow-up
-
-PR #28 is being updated to use the published program commit `72dd8948…` in the
-runtime source lock, generated contract, Rust dependency, SBF builds and complete
-qualification. The exact source tree is required, and a source guard prevents
-runtime and qualification from drifting apart. The engine pin is unchanged.
-The initial PR #28 commit above remains the publication record for its first
-snapshot; the updated PR needs its own complete affected CI before merge.
+The initial PR #28 publication was `5c8373ce…`, tree `609b5042…`, with its
+495-client/51-verifier local results and earlier 17-case candidate evidence.
+Those records retain their original identities. The current source uses fresh
+CI and artifact verification; it does not relabel earlier results.
 
 ## Remaining release work
 
-- Finish PR #28's affected CI gates before merging its changed client bytes.
-- Verify and merge published-program adoption, including the affected integration,
-  complete qualification and current-validator flows.
-- Complete production deployment and authority custody, reviewed market/risk
-  configuration, live oracle and keeper operations, funded liquidity,
-  independent security review, and physical desktop/mobile wallet acceptance.
+The checked PR #28 tree is merged. The remaining production requirements are
+listed in [REPAIR_CHECKLIST.md](REPAIR_CHECKLIST.md): approved market
+parameters, authority custody and fee funding, funded execution/backing, live
+oracle and keeper/indexing operations, independent security review, physical
+wallet acceptance and final public release enrollment.
 
-The hosted deployment profile remains `null`. Mainnet is not live and public
-deposits are not enabled. Restoring GitHub access does not complete those release
-requirements. See the [repair checklist](REPAIR_CHECKLIST.md) for their scope.
+The hosted deployment profile remains `null`. No production market or public
+deposits are enabled. Website publication is not mainnet activation.

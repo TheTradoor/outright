@@ -1,0 +1,35 @@
+{
+  "scope": "website-documentation-publication",
+  "status": "succeeded",
+  "version": 30,
+  "site_source": "3813d630edcfc49948128d7c8cecb4cf0744e7a2",
+  "client_source": "02e16562c7e49ab2c4e399599e0b796f22e7b10e",
+  "client_tree": "537c60abf1b371bce2e9b79cedcff1a22f53cefa",
+  "protocol_files_matching": 65,
+  "program_commit": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+  "engine_commit": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "url": "https://outright.bollish-eth.chatgpt.site",
+  "published_at": "2026-11-14T07:55:40.053300+00:00",
+  "site_version_id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_651600784e648191b62f212691b2ed9b",
+  "deployment_id": "appgdep_6af813ea202c819184ee3e12dbd8f684",
+  "stored_archive": {
+    "content_hash": "sha256:5c2ec871f06b3f1f42c0c330265c2fd704772fc8685a3d851852d411bf794c93",
+    "bytes": 2048000,
+    "files": 36,
+    "hash_source": "Sites version response; recorded separately from the submitted archive"
+  },
+  "checks": {
+    "html_routes": 17,
+    "local_links_and_assets": 750
+  },
+  "changes": "Update the complete qualification result and engine-only comparison after PR #28 merge; protocol sources remain identical to version 29.",
+  "prior_client_and_browser_checks": "site-v29.json",
+  "audience": "existing owner-only access preserved",
+  "deployment_profile": null,
+  "mainnet_live": false,
+  "submitted_archive": {
+    "sha256": "f3c0c7d41a9653a9be067d83c33d933434c95537a70118f48283676e884b5bee",
+    "bytes": 1148176,
+    "entries": 55
+  }
+}

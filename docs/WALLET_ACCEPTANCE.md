@@ -21,12 +21,13 @@ No wallet brand or version is claimed supported by this document.
 | Hosted release | With the current `null` profile, verify only the unavailable/retry states. Do not count this as successful wallet acceptance. |
 | Mainnet release | Blocked by [PROD-06](REPAIR_CHECKLIST.md#remaining-release-and-acceptance-work) and the [mainnet release requirements](MAINNET_RELEASE.md). Repeat acceptance on the exact enrolled production release after those requirements are satisfied. |
 
-The ordinary local-market runner checks the enrolled upstream wrapper pin
-`357157e6e14d1d10ce78a995d5d50bb3c1f2ae13`. A run against that binary is baseline
-wallet evidence. The repaired candidate needs its own truthful source adoption,
-build and enrollment before wallet results can be attributed to it. The
-candidate-validator CI deliberately exports no deployment profile. Do not label
-a patched binary as the unchanged upstream commit to make a profile pass.
+The ordinary local-market runner now requires the published repaired wrapper
+`72dd8948b116e9e16a85c830e1e2a7915f12d542`, tree
+`8b54b827082b2b838beacd88d4d99bd12878d2ca`. Rebuild and enroll this exact source
+before attributing wallet results to it. Profiles built for the original upstream
+revision are deliberately incompatible with the new client source pin. The
+candidate-validator CI deliberately exports no deployment profile. Never relabel
+a binary or a profile to bypass source verification.
 
 Use disposable test funds and keep the test environment isolated while measuring
 balances. The test operator supplies the profile, oracle updates and maker;

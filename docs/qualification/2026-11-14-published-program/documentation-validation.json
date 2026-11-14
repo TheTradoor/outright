@@ -1,0 +1,13 @@
+{
+  "scope": "release-documentation-and-evidence",
+  "relative_links_checked": 128,
+  "json_parsing": "passed",
+  "archive_member_hashes": "all matched",
+  "wrapper_checks": 51,
+  "wrapper_execution_count": 2120,
+  "independent_aggregate": "matches CI except expected verifier revision metadata",
+  "program_build": "byte-identical to current-validator CI program",
+  "site_version": 30,
+  "protocol_changes": false,
+  "mainnet_live": false
+}

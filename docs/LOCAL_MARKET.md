@@ -28,8 +28,8 @@ From the Outright checkout:
 ```sh
 npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
 cargo install cargo-build-sbf --version 4.6.0 --locked
-git clone https://github.com/aeyakovenko/percolator-prog.git ../percolator-prog
-git -C ../percolator-prog checkout --detach 357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
+git clone https://github.com/TheTradoor/outright-program.git ../percolator-prog
+git -C ../percolator-prog checkout --detach 72dd8948b116e9e16a85c830e1e2a7915f12d542
 bash protocol/localnet/run.sh ../percolator-prog \
   --validator "$(command -v solana-test-validator)" \
   --state-dir "$PWD/protocol/localnet-state"

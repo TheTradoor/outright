@@ -1,0 +1,56 @@
+{
+  "scope": "website-publication",
+  "status": "succeeded",
+  "version": 29,
+  "site_source": "6f3e8960a6340547e80f08eeca7f8bbadffc031e",
+  "client_source": "02e16562c7e49ab2c4e399599e0b796f22e7b10e",
+  "client_tree": "537c60abf1b371bce2e9b79cedcff1a22f53cefa",
+  "protocol_files_matching": 65,
+  "program_commit": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+  "engine_commit": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "url": "https://outright.bollish-eth.chatgpt.site",
+  "published_at": "2026-11-14T07:35:00.674604+00:00",
+  "site_version_id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_70dbe09d60ec81919b75bfe0f69ded85",
+  "deployment_id": "appgdep_6af80f1134c481919a84cc9f6945e9d9",
+  "submitted_archive": {
+    "sha256": "e86e1d665824f30cc03814e1e0f1201090ec309217bda8a3f65dc6eb74de9d17",
+    "bytes": 1148114,
+    "entries": 55,
+    "uncompressed_tar_sha256": "1df21a6837014b26e08ee633111f552d314760bbcfb6eac11aaf4baaa0354b7c"
+  },
+  "stored_archive": {
+    "content_hash": "sha256:66735f382bd9e69ba742fd59f98e887b3699d597b35b17be82608109c44a2cb7",
+    "bytes": 2048000,
+    "files": 36,
+    "hash_source": "Sites version response; recorded separately from the submitted archive"
+  },
+  "checks": {
+    "html_routes": 17,
+    "local_links_and_assets": 750,
+    "mechanics_tests": 4,
+    "native_tests": 496,
+    "failed": 0
+  },
+  "browser": {
+    "scope": "desktop Chromium, unavailable market",
+    "terminal_navigation": "passed",
+    "retry": "passed",
+    "operator_settings_hidden_in_trader_mode": "passed",
+    "explicit_operator_dialog": "passed",
+    "physical_wallet": false,
+    "physical_phone": false,
+    "observed_console_errors": "Browser extension metadata messages; no application error observed"
+  },
+  "repair": {
+    "initial_site_test_failure": "CLI fixture expected protocol/profile.mjs; the website checkout used native-client/",
+    "correction": "Align the website source directory with the canonical protocol/ layout and update build commands",
+    "assertions_changed": false,
+    "evidence": [
+      "site-check-before.log",
+      "site-check-after.log"
+    ]
+  },
+  "audience": "existing owner-only access preserved",
+  "deployment_profile": null,
+  "mainnet_live": false
+}

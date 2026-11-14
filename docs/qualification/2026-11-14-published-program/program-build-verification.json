@@ -1,0 +1,45 @@
+{
+  "scope": "independent-program-build",
+  "status": "matched-validator-artifact",
+  "source_commit": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+  "source_tree": "8b54b827082b2b838beacd88d4d99bd12878d2ca",
+  "tracked_worktree_dirty": false,
+  "engine_commit": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "command": [
+    "cargo",
+    "+1.95.0",
+    "build-sbf",
+    "--tools-version",
+    "v1.58",
+    "--arch",
+    "v3",
+    "--sbf-out-dir",
+    "target/release-candidate",
+    "--",
+    "--locked"
+  ],
+  "toolchain": {
+    "cargo_build_sbf": "4.6.0",
+    "host_rust": "1.95.0",
+    "platform_tools": "v1.58",
+    "sbf_arch": "v3",
+    "validator": "4.4.1"
+  },
+  "binary": {
+    "path": "percolator_prog-sbpf-v3.so",
+    "bytes": 1270936,
+    "sha256": "1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e"
+  },
+  "validator_attestation": "candidate-attestation.json",
+  "ci_run": "https://github.com/TheTradoor/outright/actions/runs/43570649227",
+  "program_binary_identical_to_ci": true,
+  "build_logs": [
+    "program-build-cache-failure.log",
+    "program-build-cache-retry.log",
+    "program-build-verified.log"
+  ],
+  "environment_repair": "Two toolchain downloads could not unpack rustdoc on the 4.9 GiB home tmpfs. Moved the isolated v1.58 cache to the workspace filesystem, then the build passed. No program source or build flags were changed.",
+  "deployment": null,
+  "signing_keys_included": false,
+  "production_approval": false
+}

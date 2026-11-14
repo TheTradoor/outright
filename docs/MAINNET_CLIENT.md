@@ -1,6 +1,6 @@
 # Mainnet client and published program source
 
-This pending change implements mainnet network validation, wallet account
+The merged client implements mainnet network validation, wallet account
 selection, explicit signing-chain requests and transaction links, and adopts the
 published repaired program fork. It does not
 enroll a production market or enable the hosted terminal. The bundled
@@ -36,14 +36,20 @@ wrapper commit metadata: all instruction encodings, account layouts and other
 exported contract values were identical. The qualification manifest uses the same
 published revision without an overlay; its source guard rejects mismatched runtime
 and qualification pins, missing tree identity and staged program modifications.
-This revision needs fresh CI evidence. The results below describe the earlier
-mainnet-client snapshot and are retained with their original scope.
+Fresh CI for this revision passes 496 client tests, 17 application SBF cases
+and both seven-transaction current-validator paths. The 53-test verifier suite
+also passes locally. Complete wrapper qualification passed 37 shards and 2,120
+executions, with verified coverage and a matching independent aggregate.
+All 51 PR checks passed before merge. The complete evidence is retained in the
+[current validation record](qualification/2026-11-14-published-program/README.md).
+The results below describe the earlier mainnet-client snapshot and retain their
+original scope.
 
 The complete native client suite passed **495/495**, with zero failures, skips or
 cancellations. The focused network/terminal suite passed **18/18** (included in
 the complete count). The engine source identity check, exact Rust contract
 comparison and production terminal build passed. These are local checks for this
-pending change; they are not CI or mainnet acceptance results.
+earlier snapshot; they are not CI or mainnet acceptance results.
 
 The updated client also passed **17/17** application lifecycle cases against the
 repaired-candidate SBF in LiteSVM, in 69.06 seconds, with no failed, ignored or
@@ -71,15 +77,17 @@ or LiteSVM. No production signature, deployment or transfer is created. The
 complete wrapper qualification for PR #25 passed **2,120/2,120** executions in
 37 shards and its aggregate, at the original source `9191c881…` and tested merge
 `43ee4808…`. [Its evidence](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md)
-does not apply to these changed protocol bytes; they require their own affected
-release checks before adoption.
+does not apply to the changed protocol bytes. Their separate qualification is
+[run 43570649236](https://github.com/TheTradoor/outright/actions/runs/43570649236),
+which passed before the exact tested tree was merged as
+`3bfbe078c1493764bcb56bffc384dea99f5db55b`.
 
 ## Remaining release work
 
 PROD-06 remains open for the exact reviewed production deployment, public
 profile, real oracle and operational services, funded execution and fresh
-desktop/mobile acceptance. Fork publication is complete. Affected requalification
-of the client and adopted source, independent security review and the other requirements in
+desktop/mobile acceptance. Fork publication and the affected requalification
+of the client and adopted source are complete. Independent security review and the other requirements in
 [MAINNET_RELEASE.md](MAINNET_RELEASE.md) remain separate requirements.
 
 Network constants follow the published
