@@ -26,6 +26,12 @@ SPL account state.
 - Settle nonzero funding in both directions, once after 24 slots or twice after
   12 slots. Check fractional carry, exact index values, capital and PnL,
   settlement rollback and repeated cranks without a second charge.
+- Establish an after-hours Hybrid mark through a fee-paying trade, then settle
+  funding with a stale Pyth feed and its later recovery. Both directions and
+  both settlement schedules owe exactly three atoms and receive two. A fresh
+  observation preserves accrued funding and stops the former premium. Check
+  the strict fallback-delay boundary, malformed-feed rejection and recovery,
+  later-instruction rollback, same-slot retries, custody and mint supply.
 - Refresh and partially liquidate unhealthy long and short positions through
   the keeper planner with synthetic Pyth data. Check rounded fees, remaining
   exposure, health, custody, stale-oracle rejection and transaction rollback.
@@ -107,13 +113,23 @@ reject stale, wrong-feed, excessive-confidence and wrong-owner data, checking
 rollback. A forged caller slot cannot advance beyond the SVM Clock.
 The nonzero funding case uses a controlled AuthMark premium. AuthMark is not
 accepted by the devnet keeper; this fixture checks accounting through the
-low-level JavaScript instruction builder. The liquidation case uses the keeper
+low-level JavaScript instruction builder. The Hybrid funding case instead uses
+the keeper planner and establishes its premium through a public after-hours
+trade. Oracle configuration precedes all positions; live reconfiguration is
+forbidden by the wrapper. The 1 bps/slot price cap and small synthetic price
+isolate fractional funding from price PnL over the tested 24-slot window.
+External Pyth bytes and the VM Clock are controlled fixtures; market and
+portfolio state changes use public SBF instructions. A stalled feed may use
+the retained mark only after the configured slot delay. Wrong feed identity,
+owner, confidence or verification remains an error after that delay.
+The liquidation case uses the keeper
 planner and synthetic Hybrid Pyth observations. It covers bounded partial
 liquidation, not every insolvency or recovery path. A retained active position
 must still prevent withdrawal under the pinned engine's rule.
 
-The suite does not cover live oracle delivery, live Hybrid funding,
-mark-movement or backing fees, full recovery, production matcher behavior,
+The suite does not establish live oracle delivery or production Hybrid policy.
+The new trace verifies a paid mark move but does not qualify all mark-movement
+or backing-fee scenarios, full recovery, production matcher behavior,
 hosted keeper availability or wallet-extension compatibility.
 
 The resolved fixtures adapt the pinned wrapper's INV-067 late-backing trace.

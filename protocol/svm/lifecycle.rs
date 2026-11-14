@@ -1194,6 +1194,339 @@ fn oracle_keeper_fixture(seed: u8) -> (V16Svm, Pubkey, [u8; 32]) {
     (env, oracle, feed)
 }
 
+fn hybrid_funding_fixture(seed: u8, premium: i64) -> (V16Svm, Pubkey, [u8; 32]) {
+    let mut config = MarketConfig::default();
+    config.initial_price = 100;
+    config.max_price_move_bps_per_slot = 1;
+    config.max_abs_funding_e9_per_slot = 10_000;
+    config.max_accrual_dt_slots = 256;
+    config.min_funding_lifetime_slots = 256;
+    let mut env = V16Svm::new_with_asset_count([seed; 32], config, 1);
+    let feed = [seed; 32];
+    env.set_clock(1, 1_000);
+    let oracle = env.set_pyth_price(&feed, 100, -6, 0, 1_000);
+    env.configure_hybrid_oracle(0, 1, 1_000, 0, [feed, [0; 32], [0; 32]], &[oracle], 10, 100)
+        .expect("configure Hybrid before opening any position");
+    env.trade_no_cpi(0, 1, 0, 123_456_789, 100, 0).unwrap();
+    let payer = Keypair::new();
+    env.svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
+    // Let the stale Hybrid market discover a two-atom execution-price move.
+    // The public bounded cranks catch up first. The trade's rounded EWMA move
+    // is one atom and must be paid for; no state is edited to create a premium.
+    env.set_clock(201, 1_200);
+    for _ in 0..8 {
+        if env.primary_market_state().1.assets[0].slot_last == 201 {
+            break;
+        }
+        env.svm.expire_blockhash();
+        let ix = keeper_instruction_for(&env, payer.pubkey(), 4, oracle, feed);
+        send(&mut env, ix, &[&payer]).expect("bounded catch-up before an after-hours trade");
+    }
+    assert_eq!(env.primary_market_state().1.assets[0].slot_last, 201);
+    for actor in [2, 3] {
+        let ix = keeper_instruction_for(&env, payer.pubkey(), actor, oracle, feed);
+        send(&mut env, ix, &[&payer]).expect("refresh counterparties before mark discovery");
+    }
+    let insurance_before = env.primary_market_state().1.insurance;
+    env.trade_no_cpi(2, 3, 0, 123_456_789, (100 + 2 * premium) as u64, 0)
+        .expect("a fee-supported after-hours trade establishes the funding mark");
+    assert!(env.primary_market_state().1.insurance > insurance_before);
+    let asset = env.primary_market_state().1.assets[0];
+    assert_eq!(asset.effective_price, 100);
+    assert_eq!(asset.f_long_num, 0);
+    assert_eq!(asset.f_short_num, 0);
+    assert_eq!(
+        env.primary_profile(0).funding_mark_e6,
+        (100 + premium) as u64
+    );
+    assert_eq!(env.primary_profile(0).mark_ewma_e6, (100 + premium) as u64);
+    (env, oracle, feed)
+}
+
+#[test]
+fn keeper_hybrid_funding_survives_feed_outage_and_settlement_cadence() {
+    // At this small synthetic price, the 1 bps/slot movement allowance stays
+    // below one price atom for 24 slots. This isolates exactly 2.962962936
+    // collateral atoms of funding from mark PnL. The payer owes three atoms,
+    // the receiver gets two, whether settled once or in two 12-slot pieces.
+    // All market and portfolio changes use public instructions; only external
+    // Pyth account bytes and the VM Clock are controlled by the fixture.
+    for premium in [-1i64, 1] {
+        for step in [12u64, 24] {
+            let seed = 100 + u8::from(premium > 0) * 2 + u8::from(step == 12);
+            let (mut env, oracle, feed) = hybrid_funding_fixture(seed, premium);
+            let payer = Keypair::new();
+            env.svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
+            let custody = env.all_token_account_data();
+            let supply = env.mint_supply();
+            let baseline = env.primary_market_state().1;
+            let capitals = [
+                env.primary_portfolio(0).capital.get(),
+                env.primary_portfolio(1).capital.get(),
+            ];
+            let debtor = usize::from(premium < 0);
+            let creditor = 1 - debtor;
+            let portfolios = [
+                env.actors[0].portfolio,
+                env.actors[1].portfolio,
+                env.actors[4].portfolio,
+            ];
+
+            for slot in [213u64, 225] {
+                if slot == 213 && step == 24 {
+                    continue;
+                }
+                let now = 999 + slot as i64;
+                env.set_clock(slot, now);
+                if slot == 213 {
+                    // Ignore a stale, displaced quote and retain the
+                    // fee-supported after-hours mark.
+                    env.update_pyth_price(oracle, &feed, 50, -6, 0, 1_000);
+                } else {
+                    // Recovery restores the unchanged index, committing
+                    // old funding through this boundary before resetting
+                    // the mark. It must not erase or backdate that charge.
+                    env.update_pyth_price(oracle, &feed, 100, -6, 0, now);
+                }
+                let ix = keeper_instruction_for(&env, payer.pubkey(), 4, oracle, feed);
+                send(&mut env, ix, &[&payer])
+                    .expect("advance Hybrid funding through the JS keeper");
+                let asset = env.primary_market_state().1.assets[0];
+                let expected_index = -i128::from(premium)
+                    * 10_000
+                    * i128::from(slot - 201)
+                    * 100
+                    * percolator::ADL_ONE as i128
+                    / percolator::FUNDING_DEN as i128;
+                assert_eq!(asset.slot_last, slot);
+                assert_eq!(asset.effective_price, 100);
+                assert_eq!(asset.f_long_num, expected_index);
+                assert_eq!(asset.f_short_num, -expected_index);
+                let profile = env.primary_profile(0);
+                assert_eq!(
+                    profile.oracle_target_price_e6,
+                    if slot == 213 {
+                        (100 + premium) as u64
+                    } else {
+                        100
+                    }
+                );
+                assert_eq!(
+                    profile.last_good_oracle_slot,
+                    if slot == 213 { 1 } else { slot }
+                );
+                assert_eq!(
+                    profile.oracle_target_publish_time,
+                    if slot == 213 { 1_000 } else { now }
+                );
+
+                if slot == 225 || step == 12 {
+                    let order = if step == 12 {
+                        [creditor, debtor]
+                    } else {
+                        [debtor, creditor]
+                    };
+                    for actor in order {
+                        let ix = keeper_instruction_for(&env, payer.pubkey(), actor, oracle, feed);
+                        if actor == order[0] {
+                            let owner =
+                                Keypair::from_bytes(&env.actors[actor].signer.to_bytes()).unwrap();
+                            let duplicate = build(
+                                &env,
+                                "initPortfolio",
+                                json!({}),
+                                json!({"owner":owner.pubkey().to_string(),"market":env.market.to_string(),
+                                        "portfolio":env.actors[actor].portfolio.to_string()}),
+                            );
+                            let before = snapshot(&env, &portfolios);
+                            rejected(
+                                send_many(&mut env, &[ix.clone(), duplicate], &[&payer, &owner]),
+                                3,
+                                PercolatorError::AlreadyInitialized,
+                            );
+                            assert_unchanged(&env, &before);
+                        }
+                        send(&mut env, ix, &[&payer])
+                            .expect("settle Hybrid funding without the owner");
+                    }
+                    assert_eq!(
+                        env.primary_portfolio(creditor).pnl.get(),
+                        if slot == 213 { 1 } else { 2 }
+                    );
+                    assert_eq!(
+                        env.primary_portfolio(debtor).capital.get(),
+                        capitals[debtor] - if slot == 213 { 2 } else { 3 }
+                    );
+                }
+                assert_eq!(env.all_token_account_data(), custody);
+                assert_eq!(env.mint_supply(), supply);
+            }
+
+            let market = env.primary_market_state().1;
+            assert_eq!(market.vault, baseline.vault);
+            assert_eq!(market.c_tot, baseline.c_tot - 3);
+            assert_eq!(market.insurance, baseline.insurance);
+            assert_eq!(
+                env.primary_portfolio(creditor).capital.get(),
+                capitals[creditor]
+            );
+            assert_eq!(env.primary_portfolio(debtor).pnl.get(), 0);
+            for actor in 0..2 {
+                let decoded = read(
+                    &env,
+                    env.actors[actor].portfolio,
+                    env.actors[actor].signer.pubkey(),
+                );
+                assert_eq!(decoded["pnl"], if actor == creditor { "2" } else { "0" });
+                assert_eq!(
+                    decoded["capital"],
+                    (capitals[actor] - if actor == debtor { 3 } else { 0 }).to_string()
+                );
+                let mut idle = false;
+                for _ in 0..4 {
+                    env.svm.expire_blockhash();
+                    let before = snapshot(&env, &portfolios);
+                    let ix = keeper_instruction_for(&env, payer.pubkey(), actor, oracle, feed);
+                    let result = send(&mut env, ix, &[&payer]);
+                    if result.is_err() {
+                        rejected(result, 2, PercolatorError::EngineNonProgress);
+                        assert_unchanged(&env, &before);
+                        idle = true;
+                        break;
+                    }
+                    assert_eq!(env.primary_portfolio(creditor).pnl.get(), 2);
+                    assert_eq!(
+                        env.primary_portfolio(debtor).capital.get(),
+                        capitals[debtor] - 3
+                    );
+                    assert_eq!(env.primary_market_state().1.c_tot, market.c_tot);
+                    assert_eq!(env.primary_market_state().1.insurance, market.insurance);
+                    assert_eq!(env.all_token_account_data(), custody);
+                }
+                assert!(
+                    idle,
+                    "same-slot retries must stop without collecting funding again"
+                );
+            }
+            // Once a fresh observation restores the mark to the index,
+            // another 24 slots must not repeat the old funding premium.
+            env.set_clock(249, 1_248);
+            env.update_pyth_price(oracle, &feed, 100, -6, 0, 1_248);
+            let ix = keeper_instruction_for(&env, payer.pubkey(), 4, oracle, feed);
+            send(&mut env, ix, &[&payer]).expect("resume with zero premium after feed recovery");
+            let after = env.primary_market_state().1;
+            assert_eq!(after.assets[0].slot_last, 249);
+            assert_eq!(after.assets[0].effective_price, 100);
+            assert_eq!(after.assets[0].f_long_num, market.assets[0].f_long_num);
+            assert_eq!(after.assets[0].f_short_num, market.assets[0].f_short_num);
+            assert_eq!(env.primary_profile(0).funding_mark_e6, 100);
+            assert_eq!(env.primary_profile(0).last_good_oracle_slot, 249);
+            assert_eq!(after.c_tot, market.c_tot);
+            assert_eq!(after.insurance, market.insurance);
+            assert_eq!(env.all_token_account_data(), custody);
+            assert_eq!(env.mint_supply(), supply);
+            eprintln!("JS Hybrid funding premium={premium} step={step}: payer=3 receiver=2, resumed funding=0, custody conserved");
+        }
+    }
+}
+
+#[test]
+fn keeper_hybrid_fallback_requires_delay_and_trusted_feed() {
+    let (mut env, oracle, feed) = oracle_keeper_fixture(112);
+    let payer = Keypair::new();
+    env.svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
+    for slot in [8, 11] {
+        // At equality with the ten-slot delay, the stale observation must
+        // still fail. Only a strictly later slot permits the fallback.
+        env.set_clock(slot, 1_054 + slot as i64);
+        let before = snapshot(&env, &[env.actors[0].portfolio]);
+        let ix = keeper_instruction(&env, payer.pubkey(), oracle, feed);
+        rejected(
+            send(&mut env, ix, &[&payer]),
+            2,
+            PercolatorError::OracleStale,
+        );
+        assert_unchanged(&env, &before);
+    }
+    env.set_clock(12, 1_066);
+    let ix = keeper_instruction(&env, payer.pubkey(), oracle, feed);
+    send(&mut env, ix, &[&payer]).expect("fallback is admitted after the slot threshold");
+    assert_eq!(env.primary_profile(0).last_good_oracle_slot, 1);
+    assert_eq!(env.primary_profile(0).oracle_target_price_e6, 150_000_000);
+
+    for (case, seed) in [
+        ("wrong_feed", 108),
+        ("confidence", 109),
+        ("owner", 110),
+        ("partial", 111),
+    ] {
+        let (mut env, oracle, feed) = hybrid_funding_fixture(seed, 1);
+        let payer = Keypair::new();
+        env.svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
+        env.set_clock(213, 1_300);
+        env.update_pyth_price(oracle, &feed, 101, -6, 0, 1_300);
+        let valid_feed = env.svm.get_account(&oracle).unwrap();
+        env.update_pyth_price(
+            oracle,
+            if case == "wrong_feed" {
+                &[112; 32]
+            } else {
+                &feed
+            },
+            101,
+            -6,
+            if case == "confidence" { 101 } else { 0 },
+            1_300,
+        );
+        if case == "owner" || case == "partial" {
+            let mut account = env.svm.get_account(&oracle).unwrap();
+            if case == "owner" {
+                account.owner = Pubkey::new_unique();
+            } else {
+                account.data[40] = 0;
+            }
+            env.svm.set_account(oracle, account).unwrap();
+        }
+        let before = snapshot(
+            &env,
+            &[
+                env.actors[0].portfolio,
+                env.actors[1].portfolio,
+                env.actors[4].portfolio,
+            ],
+        );
+        let ix = keeper_instruction_for(&env, payer.pubkey(), 4, oracle, feed);
+        let expected = match case {
+            "wrong_feed" => InstructionError::Custom(PercolatorError::InvalidOracleKey as u32),
+            "confidence" => InstructionError::Custom(PercolatorError::OracleConfTooWide as u32),
+            "owner" => InstructionError::IllegalOwner,
+            _ => InstructionError::Custom(PercolatorError::OracleInvalid as u32),
+        };
+        assert_eq!(
+            send(&mut env, ix, &[&payer]).unwrap_err(),
+            TransactionError::InstructionError(2, expected),
+            "{case}"
+        );
+        assert_unchanged(&env, &before);
+        // Restore only the external observation. A fresh transaction must
+        // succeed without changing any market or portfolio bytes by hand.
+        env.svm.set_account(oracle, valid_feed).unwrap();
+        env.svm.expire_blockhash();
+        let custody = env.all_token_account_data();
+        let ix = keeper_instruction_for(&env, payer.pubkey(), 4, oracle, feed);
+        send(&mut env, ix, &[&payer]).expect("a valid feed restores keeper progress");
+        assert_eq!(env.primary_profile(0).last_good_oracle_slot, 213);
+        let asset = env.primary_market_state().1.assets[0];
+        assert_eq!(asset.slot_last, 213);
+        assert_eq!(asset.effective_price, 100);
+        let expected_index =
+            -10_000 * 12 * 100 * percolator::ADL_ONE as i128 / percolator::FUNDING_DEN as i128;
+        assert_eq!(asset.f_long_num, expected_index);
+        assert_eq!(asset.f_short_num, -expected_index);
+        assert_eq!(env.all_token_account_data(), custody);
+    }
+}
+
 #[test]
 fn keeper_planner_liquidates_unhealthy_positions_and_preserves_custody() {
     for direction in [-1i128, 1] {

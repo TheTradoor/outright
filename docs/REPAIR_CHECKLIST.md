@@ -50,6 +50,14 @@ A checked item is complete within its stated scope. Automated adapters and a
 website deployment do not establish real-wallet acceptance, production liquidity
 or independent security review.
 
+The Hybrid funding follow-up adds local coverage under INT-05: 19 SBF tests,
+594 client tests and 53 verifier tests pass. Four traces compare both funding
+directions and settlement schedules through feed outage and recovery. Strict
+fallback delay, malformed-feed rejection, exact accounting and rollback are
+checked. [Local evidence](qualification/2026-11-15-hybrid-funding/README.md).
+The changed harness still requires its own remote qualification; the last
+complete source qualification above remains PR #34 until that finishes.
+
 ## Completed keeper discovery
 
 The operator now supports opt-in discovery within its enrolled market. Full

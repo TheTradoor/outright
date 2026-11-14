@@ -1,0 +1,26 @@
+   Compiling percolator-prog v0.1.0 (/workspace/scratch/8fe88917ca62/percolator-prog)
+    Finished `test` profile [unoptimized] target(s) in 1.86s
+warning: the following packages contain code that will be rejected by a future version of Rust: solana-client v1.18.26
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running tests/outright_native_lifecycle.rs (/workspace/scratch/8fe88917ca62/percolator-prog/target/debug/deps/outright_native_lifecycle-ad48b61ed5170c8a)
+
+running 2 tests
+
+thread 'keeper_hybrid_funding_survives_feed_outage_and_settlement_cadence' (187) panicked at tests/outright_native_lifecycle.rs:1210:10:
+configure a Hybrid feed over existing exposure through public SBF: "FailedTransactionMetadata { err: InstructionError(3, Custom(21)), meta: TransactionMetadata { signature: ZqTpxnEhpYwDw9LoJW4DtexsVRvvwcsz7PfdcA3RCbyLxACXiSBPrpiDjYUX5F77gEos9ku5on9rXK7hNAs1E1w, logs: [\"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program Perco1ator111111111111111111111111111111111 invoke [1]\", \"Program Perco1ator111111111111111111111111111111111 consumed 2155 of 1399550 compute units\", \"Program Perco1ator111111111111111111111111111111111 failed: custom program error: 0x15\"], compute_units_consumed: 2661, return_data: TransactionReturnData { program_id: Perco1ator111111111111111111111111111111111, data: [] } } }"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test keeper_hybrid_funding_survives_feed_outage_and_settlement_cadence ... FAILED
+
+thread 'keeper_hybrid_fallback_rejects_malformed_or_untrusted_feeds' (186) panicked at tests/outright_native_lifecycle.rs:1210:10:
+configure a Hybrid feed over existing exposure through public SBF: "FailedTransactionMetadata { err: InstructionError(3, Custom(21)), meta: TransactionMetadata { signature: 4jbVyoYzMi38wiw5Y4mUcvpMhfuAUhA4EkwoqTXnvZNFoyz4ebJiJwkpk9GC9KFEdrmipHnGygRV2F8d3q8vDabY, logs: [\"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program Perco1ator111111111111111111111111111111111 invoke [1]\", \"Program Perco1ator111111111111111111111111111111111 consumed 2155 of 1399550 compute units\", \"Program Perco1ator111111111111111111111111111111111 failed: custom program error: 0x15\"], compute_units_consumed: 2661, return_data: TransactionReturnData { program_id: Perco1ator111111111111111111111111111111111, data: [] } } }"
+test keeper_hybrid_fallback_rejects_malformed_or_untrusted_feeds ... FAILED
+
+failures:
+
+failures:
+    keeper_hybrid_fallback_rejects_malformed_or_untrusted_feeds
+    keeper_hybrid_funding_survives_feed_outage_and_settlement_cadence
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 17 filtered out; finished in 0.90s
+
+error: test failed, to rerun pass `--test outright_native_lifecycle`
