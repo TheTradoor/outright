@@ -11,9 +11,9 @@ current work without treating an old passing run as evidence for new code.
 
 | Component | Exact identity |
 | --- | --- |
-| Qualified client | `c101229d38b495011b610d0a2f44f0725b4f7281`, [PR #34](https://github.com/TheTradoor/outright/pull/34) |
-| Tested PR merge | `73f1a7aebea9c537779ef2a35c0192f5a01b8195` |
-| Published merge | `e3d5308c2320de0c0b715be0cc0d3730b6a4e869`; same tested tree `27f13783393dbd45d8e0ccad50b400ae5eaf780d` |
+| Qualified client | `1d31c86bb2c497b0f67cff756f5fa9a305a83119`, [PR #36](https://github.com/TheTradoor/outright/pull/36) |
+| Tested PR merge | `536fb39f90f5df1b9b9406f47eba2ced1d28a43d` |
+| Published merge | `0c49df8518aee63bafc57fc35fb7f4e6a54aa4ae`; same tested tree `651a853825b9b35d8120cf19fa0166c258591145` |
 | Percolator engine | `a712af767eeb217876a3d3c50e3849b60ea54462`, unchanged upstream source |
 | Published program | `TheTradoor/outright-program@72dd8948b116e9e16a85c830e1e2a7915f12d542` |
 | Program source tree | `8b54b827082b2b838beacd88d4d99bd12878d2ca` |
@@ -28,35 +28,34 @@ staged program edits stop verification.
 | Done | ID | Work | Evidence and scope |
 | --- | --- | --- | --- |
 | [x] | ACCESS-01 | GitHub 403 and fork publication | Selected-repository access now includes the program fork. [Program PR #1](https://github.com/TheTradoor/outright-program/pull/1) is merged with the exact qualified tree. |
-| [x] | ENG-01 through ENG-06 | Upstream engine accounting fixes | Exact source equivalence and [current engine CI](https://github.com/TheTradoor/outright/actions/runs/43635639096) pass. Historical issue mapping remains in the repair history. |
+| [x] | ENG-01 through ENG-06 | Upstream engine accounting fixes | Exact source equivalence and [current engine CI](https://github.com/TheTradoor/outright/actions/runs/43646089182) pass. Historical issue mapping remains in the repair history. |
 | [x] | CASE-01 through CASE-10 | Reproduced wrapper, fixture and model failures | Corrections and negative controls are retained. [Earlier full qualification](https://github.com/TheTradoor/outright/actions/runs/43563227621) passed 2,120 executions. The new identity is tracked separately below. |
 | [x] | UI-01 through UI-07 | Trader onboarding, retry and chart recovery | Official profile loading is automatic. Deployment import is confined to operator mode. Regressions remain in the client suite. |
 | [x] | WAL-01, WAL-04 through WAL-08 | Wallet adapter and session recovery | Malformed registrations, account changes, failed subscriptions, old callbacks and disconnect races are covered by automated tests. |
 | [x] | TX-01, KPR-01, RPC-01 | Receipts, keeper deferral and local setup | Custody, network, source, fee-budget and unresolved-receipt guards pass in the current client suite. |
-| [x] | CLIENT-01 | Mainnet network and signing transport | [Native CI](https://github.com/TheTradoor/outright/actions/runs/43635639352): 594 tests, source equivalence, exact Rust conformance and terminal build pass. Includes genesis, HTTPS, wallet-chain selection, pre-sign checks and explorer privacy. |
+| [x] | CLIENT-01 | Mainnet network and signing transport | [Native CI](https://github.com/TheTradoor/outright/actions/runs/43646089202): 594 tests, source equivalence, exact Rust conformance and terminal build pass. Includes genesis, HTTPS, wallet-chain selection, pre-sign checks and explorer privacy. |
 | [x] | PROV-01 through PROV-03 | Source and qualification integrity | 53 local verifier tests pass. Source-drift tests reject wrong revisions, repositories, trees, engine identity, legacy overlays and staged program changes. |
-| [x] | RPC-02 | Published program on current validator | [Validator CI](https://github.com/TheTradoor/outright/actions/runs/43635639097): seven confirmed lifecycle transactions; starting/final collateral 1,000,000,000 atoms; final trader capital zero; maker capital 10,000,000,000 atoms. Synthetic fixed-price TEST market only. |
-| [x] | INT-03 | Application SBF integration on the published source | [SBF CI](https://github.com/TheTradoor/outright/actions/runs/43635639164): 17 passed, zero failed, ignored or filtered; 26.86 seconds. Controlled local fixtures only. |
-| [x] | INT-04 | Independently bound current-validator result | [Candidate validator CI](https://github.com/TheTradoor/outright/actions/runs/43635639124) passed in 26.121 seconds. Downloaded artifact digest, exact client tree, all 79 protocol files, binary hashes and seven-transaction report were independently checked. |
+| [x] | RPC-02 | Published program on current validator | [Validator CI](https://github.com/TheTradoor/outright/actions/runs/43646089181): seven confirmed lifecycle transactions; starting/final collateral 1,000,000,000 atoms; final trader capital zero; maker capital 10,000,000,000 atoms. Synthetic fixed-price TEST market only. |
+| [x] | INT-03 | Application SBF integration on the published source | [SBF CI](https://github.com/TheTradoor/outright/actions/runs/43646089235): 19 passed, zero failed, ignored or filtered; 58.34 seconds. Controlled local fixtures only. |
+| [x] | INT-04 | Independently bound current-validator result | [Candidate validator CI](https://github.com/TheTradoor/outright/actions/runs/43646089176) passed in 25.715 seconds. Downloaded artifact digest, exact client tree, all 79 protocol files, binary hashes and seven-transaction report were independently checked. |
 | [x] | BUILD-01 | Independently reproduce the SBPF v3 program | Rebuilt published source with the pinned toolchain; SHA256 exactly matches the program tested by candidate-validator CI. [Binary and provenance](qualification/2026-11-14-published-program/program-build-verification.json) are retained. Production signing and deployment remain open. |
 | [x] | ADOPT-01 | Merge published-program runtime adoption | PR #28 merged after all 51 checks passed. The merged source tree is identical to the tested tree. |
-| [x] | QUAL-03 | Complete qualification of the current client | [Run 43635639169](https://github.com/TheTradoor/outright/actions/runs/43635639169): 37 shards, 2,120 executions and the aggregate passed. Downloaded program/summary artifact digests, source/binary identities, harness inventory and aggregate records were checked. [Retained evidence and verifier](qualification/2026-11-15-pyth-inspection/README.md#remote-results). Individual raw wrapper logs were not independently downloaded for this run. The earlier PR #31 packet retains its separate 39-artifact/2,120-log verification. |
+| [x] | QUAL-03 | Complete qualification of the current client | [Run 43646089193](https://github.com/TheTradoor/outright/actions/runs/43646089193): 37 shards, 2,122 executions and the aggregate passed. Downloaded program/summary artifact digests, source/binary identities, harness inventory and aggregate records were checked. [Retained evidence and verifier](qualification/2026-11-15-hybrid-funding/README.md#remote-results). Individual raw wrapper logs were not independently downloaded for this run. The earlier PR #31 packet retains its separate 39-artifact/2,120-log verification. |
 | [x] | SITE-01 | Current website publication | [Version 31](qualification/2026-11-14-keeper-discovery/site-publication.json) deployed successfully from source `1517db4e58f0fb51ceedb3e7d8ffed5577e6e32f`. All 67 canonical protocol files match the PR #31 client. Checks pass for 17 routes, 754 links/assets, four mechanics tests and 525 client tests. This publication did not repeat the earlier browser visual check or establish physical-wallet acceptance. Existing owner-only access and the `null` deployment profile are preserved. |
 | [x] | KPR-02 | Durable portfolio discovery and bounded RPC transport | PR #31 passed 525 client tests, including 29 new cases, and real RPC discovery before/after account creation with overflow rejection. Static-target behavior, pending-receipt precedence, fee limits and duplicate protection are retained. |
 | [x] | KPR-03 | Keeper health and host templates | PR #32 merged after all 51 checks passed; its merge tree equals the tested tree. 540 client tests include 15 new monitor cases and real CLI restart/failure assertions against controlled RPC fixtures. Source equivalence, terminal build and service syntax checks pass. [Evidence](qualification/2026-11-14-keeper-health/README.md). Production host and alert acceptance remain open. |
 | [x] | ORC-01 | Read-only Pyth feed inspection | PR #34 merged after all 51 checks passed; its merge tree equals the tested tree. The inspector checks the exact receiver, full verification, feed identity, age, confidence and integer E6 scaling. 594 client tests include 54 oracle cases; 31 shared vectors match the published wrapper through Rust conformance. A real mainnet SOL/USD observation passed the explicit inspection policy. [Retained results](qualification/2026-11-15-pyth-inspection/README.md) and [operator guide](ORACLE_OPERATIONS.md). Feed publishing and production acceptance remain open. |
+| [x] | INT-05 | Hybrid funding through feed outage and recovery | PR #36 merged after all 51 checks passed; its tree equals the tested tree. The 19-case SBF suite includes both funding directions and two settlement schedules, strict fallback delay, malformed-feed rejection, recovery without retroactive or repeated charges, exact accounting and rollback. [Evidence](qualification/2026-11-15-hybrid-funding/README.md#remote-results). Production parameters and live publisher acceptance remain open. |
 
 A checked item is complete within its stated scope. Automated adapters and a
 website deployment do not establish real-wallet acceptance, production liquidity
 or independent security review.
 
-The Hybrid funding follow-up adds local coverage under INT-05: 19 SBF tests,
-594 client tests and 53 verifier tests pass. Four traces compare both funding
-directions and settlement schedules through feed outage and recovery. Strict
-fallback delay, malformed-feed rejection, exact accounting and rollback are
-checked. [Local evidence](qualification/2026-11-15-hybrid-funding/README.md).
-The changed harness still requires its own remote qualification; the last
-complete source qualification above remains PR #34 until that finishes.
+The Hybrid funding follow-up is merged through PR #36. Local checks passed 19
+SBF tests, 594 client tests and 53 verifier tests. Remote qualification passed
+all 51 checks and 2,122 wrapper executions with matching source and artifact
+identities. [Retained results](qualification/2026-11-15-hybrid-funding/README.md#remote-results).
+These controlled traces do not close QUAL-02 for production market parameters.
 
 ## Completed keeper discovery
 
@@ -82,7 +81,7 @@ templates without changing engine, program, instruction or custody code. Its
 local and remote validation is recorded in
 [keeper health verification](qualification/2026-11-14-keeper-health/README.md).
 The PR #31 evidence retains its original source identity. The Pyth inspection follow-up
-is merged through PR #34; its [current evidence](qualification/2026-11-15-pyth-inspection/README.md#remote-results)
+is merged through PR #34; its [retained evidence](qualification/2026-11-15-pyth-inspection/README.md#remote-results)
 is separate from the earlier keeper results. It does not deploy a publisher or
 approve production market parameters.
 
