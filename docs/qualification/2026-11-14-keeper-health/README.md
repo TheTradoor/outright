@@ -38,6 +38,48 @@ symlinks, corrupt history and sanitized output. The read-only health CLI passes
 with an unreachable configured RPC and an existing worker lock, leaving every
 file unchanged. Simulation and stopped processes cannot report readiness.
 
+## Remote results
+
+[PR #32](https://github.com/TheTradoor/outright/pull/32) merged after all 51 checks
+passed. Head `da50d845f752f03e9f8b778854bf436a86b93da5` was tested at PR merge
+`a4f4ebc0a9703011dc3f8fec12f6a0dd62218122`. Published merge
+`9ea27452e3be6e141727d205f4a5aae8b028bedb` has that same complete tree,
+`a53736b0d8a6282d16267832ef00b5006809faf8`.
+
+| Check | Result |
+| --- | --- |
+| [Native client](https://github.com/TheTradoor/outright/actions/runs/43619626553) | 540 passed, zero failed, cancelled or skipped. Source equivalence, Rust conformance and terminal build passed. [CI log](native-client.log). |
+| [Native SBF](https://github.com/TheTradoor/outright/actions/runs/43619626519) | 17 passed, zero failed, ignored or filtered; 32.75 seconds. [CI log](native-svm.log). |
+| [Current validator](https://github.com/TheTradoor/outright/actions/runs/43619626473) | Seven confirmed lifecycle transactions, conserved collateral, zero final trader capital, real RPC discovery and capacity rejection. [CI log](native-validator.log). |
+| [Candidate validator](https://github.com/TheTradoor/outright/actions/runs/43619626489) | Passed in 25.507 seconds. Downloaded archive digest, exact client tree, 73 protocol file hashes, deployed binary attestations and seven-transaction report checked. [Archive](candidate-current-validator.zip). |
+| [Full wrapper qualification](https://github.com/TheTradoor/outright/actions/runs/43619626528) | 37 shards, 2,120 executions and the aggregate passed. [Aggregate](wrapper-qualification.json). |
+| [Engine](https://github.com/TheTradoor/outright/actions/runs/43619626470) | Default and fuzz checks passed; upstream engine source remains unchanged. |
+
+[ci-verification.json](ci-verification.json) retains all 51 check identities and
+the GitHub digests of three downloaded archives. The candidate, wrapper program
+and wrapper aggregate archive bytes match those digests. Four wrapper SBF binary
+hashes match the program attestation; the aggregate has the same source identity,
+harness inventory, program hashes and exact 37-shard source roster. Its eight
+suite lists total 2,120 executions. Individual raw wrapper logs were not separately
+downloaded or independently verified for this run. The earlier PR #31 packet
+retains its broader raw-log verification under its original source identity.
+
+The candidate validator uses SBPF v3; the full wrapper matrix uses its separately
+pinned v0 build. Their binary hashes are checked against the corresponding
+attestation, not compared as if they were the same artifact. Both validator
+paths use the synthetic fixed-price TEST market, not a production oracle or
+funded market-making service.
+
+Recheck the retained artifacts and current source hashes from the repository root:
+
+```sh
+python3 docs/qualification/2026-11-14-keeper-health/verify_remote_evidence.py
+```
+
+This verifier checks downloaded evidence; it does not rerun the Rust or SBF tests.
+Its result is retained in [remote-verification.log](remote-verification.log).
+Documentation-only successors preserve the qualified protocol and runner identity.
+
 ## Remaining acceptance
 
 The [host guide](../../KEEPER_HOSTING.md) separates operational thresholds from
