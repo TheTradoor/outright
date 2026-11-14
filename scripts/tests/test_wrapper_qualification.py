@@ -2,6 +2,7 @@ import copy
 import contextlib
 import importlib.util
 import io
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -373,6 +374,33 @@ class QualificationTests(unittest.TestCase):
         harness = q.canonical_harnesses(self.workspace, self.config)["percolator_prog_lib-00"]
         self.assertEqual((harness["kind"], harness["target"], harness["source"]),
                          ("lib", "percolator_prog", "src/v16_program.rs"))
+
+    def test_ambient_profiles_cannot_disable_checks_or_change_host_optimization(self):
+        ambient = {
+            "PATH": "/tools/bin", "CARGO_PROFILE_TEST_DEBUG_ASSERTIONS": "false",
+            "CARGO_PROFILE_DEV_OVERFLOW_CHECKS": "false", "CARGO_PROFILE_TEST_OPT_LEVEL": "3",
+            "CARGO_PROFILE_TEST_BUILD_OVERRIDE_DEBUG_ASSERTIONS": "false",
+            "CARGO_PROFILE_TEST_PACKAGE_PERCOLATOR_OVERFLOW_CHECKS": "false",
+            "RUSTFLAGS": "-C overflow-checks=no", "CARGO_ENCODED_RUSTFLAGS": "unsafe",
+            "RUSTC_WRAPPER": "/tmp/wrapper", "RUSTC_WORKSPACE_WRAPPER": "/tmp/other",
+            "CARGO_TARGET_DIR": "/tmp/old-binaries", "SBF_OUT_PATH": "/tmp/other-program",
+            "PERCOLATOR_SEED": "different", "PROPTEST_CASES": "1",
+        }
+        with patch.dict(os.environ, ambient, clear=True):
+            env = q.host_environment(self.config, "v16_cu")
+        self.assertEqual(env["PATH"], "/tools/bin")
+        for profile in ("DEV", "TEST"):
+            self.assertEqual(env[f"CARGO_PROFILE_{profile}_OPT_LEVEL"], "1")
+            self.assertEqual(env[f"CARGO_PROFILE_{profile}_DEBUG_ASSERTIONS"], "true")
+            self.assertEqual(env[f"CARGO_PROFILE_{profile}_OVERFLOW_CHECKS"], "true")
+        for name in ambient.keys() - {"PATH", "CARGO_PROFILE_TEST_DEBUG_ASSERTIONS",
+                                    "CARGO_PROFILE_DEV_OVERFLOW_CHECKS", "CARGO_PROFILE_TEST_OPT_LEVEL"}:
+            self.assertNotIn(name, env)
+
+    def test_changed_host_profile_cannot_reuse_previous_reports(self):
+        self.reports[0]["host_profile"] = {**self.config["host_profile"], "opt_level": 0}
+        with self.assertRaisesRegex(AssertionError, "Mixed source/runner identities"):
+            self.verify()
 
     def test_reported_target_inventory_cannot_disagree_with_candidate(self):
         self.reports[0]["cargo_targets"]["default_features"] = []

@@ -38,6 +38,10 @@ def load_manifest():
         assert re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", source["repository"])
         assert re.fullmatch(r"[0-9a-f]{40}", source["ref"]), "Use immutable source commits"
     assert re.fullmatch(r"[0-9a-f]{40}", config["engine_ref"])
+    assert config["host_profile"] == {
+        "opt_level": 1, "debug": 0, "debug_assertions": True,
+        "overflow_checks": True, "codegen_units": 256, "incremental": False,
+    }, "Host qualification must retain checked arithmetic and assertions"
     overlay = config.get("overlay")
     if overlay:
         patch = (ROOT / overlay["path"]).resolve()
@@ -303,7 +307,8 @@ def identity(config):
     return {"wrapper": config["wrapper"], "matcher": config["matcher"],
             "overlay": config.get("overlay"),
             "engine_ref": config["engine_ref"], "manifest_sha256": digest(MANIFEST),
-            "runner_sha256": digest(__file__), "protocol_source": protocol_source()}
+            "runner_sha256": digest(__file__), "host_profile": config["host_profile"],
+            "protocol_source": protocol_source()}
 
 
 def check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory):
@@ -331,6 +336,26 @@ def compile_command(config, kind, target):
         return command + ["test", "--locked", "--lib", "--no-run", "--message-format=json"]
     return command + ["rustc", "--locked", "--" + kind, target,
                       "--message-format=json", "--", "-C", "debuginfo=0", "-C", "codegen-units=256"]
+
+
+def host_environment(config, suite):
+    # Optimize the host simulator, not the deployed SBF programs. Keep the
+    # complete original tests, debug assertions and checked integer arithmetic.
+    # Ambient Cargo profile overrides must not silently weaken those checks.
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith(("PERCOLATOR_", "PROPTEST_", "CARGO_PROFILE_"))
+           and key not in ("CARGO_TARGET_DIR", "SBF_OUT_PATH", "RUSTFLAGS",
+                           "CARGO_ENCODED_RUSTFLAGS", "RUSTC_WRAPPER",
+                           "RUSTC_WORKSPACE_WRAPPER")}
+    env.update(CARGO_BUILD_JOBS="1", CARGO_INCREMENTAL="0")
+    for profile in ("DEV", "TEST"):
+        for key, value in config["host_profile"].items():
+            env[f"CARGO_PROFILE_{profile}_{key.upper()}"] = (
+                str(value).lower() if isinstance(value, bool) else str(value)
+            )
+    if suite == "outright_native_lifecycle":
+        env["OUTRIGHT_NATIVE_DRIVER"] = str(ROOT / "protocol/svm/driver.mjs")
+    return env
 
 
 def run_logged(command, cwd, log, timeout, env=None):
@@ -404,14 +429,7 @@ def run_shard(workspace, config, shard_id, artifacts, result_dir):
                 destination.write_bytes(source.read_bytes())
         assert digest(wrapper / report["source"]) == report["harness_sha256"], "Test harness differs from canonical source"
         check_unchanged_sources(workspace, config, expected_identity, harnesses, inventory)
-        env = {key: value for key, value in os.environ.items()
-               if not key.startswith(("PERCOLATOR_", "PROPTEST_"))
-               and key not in ("CARGO_TARGET_DIR", "SBF_OUT_PATH", "RUSTFLAGS", "CARGO_ENCODED_RUSTFLAGS")}
-        env.update(CARGO_BUILD_JOBS="1", CARGO_INCREMENTAL="0",
-                   CARGO_PROFILE_DEV_DEBUG="0", CARGO_PROFILE_TEST_DEBUG="0",
-                   CARGO_PROFILE_TEST_CODEGEN_UNITS="256")
-        if suite == "outright_native_lifecycle":
-            env["OUTRIGHT_NATIVE_DRIVER"] = str(ROOT / "protocol/svm/driver.mjs")
+        env = host_environment(config, suite)
         compile_log = result_dir / "compile.log"
         command = compile_command(config, report["kind"], target)
         code, elapsed = run_logged(command, wrapper, compile_log, config["compile_timeout_seconds"], env)

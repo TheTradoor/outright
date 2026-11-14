@@ -39,8 +39,24 @@ shards. A separate shard runs all seventeen native client lifecycle tests by imp
 the existing lifecycle harness and driver against the same candidate. It does not
 invoke the older runner that requires a clean baseline HEAD. All jobs
 use standard `ubuntu-24.04` runners, one compiler job,
-disabled incremental compilation, zero debug information, 256 final codegen units,
-and one test process at a time. The library and three additional integration targets
+disabled incremental compilation, zero debug information, 256 codegen units,
+and one test process at a time. The manifest pins host optimization to level one
+for both development and test profiles, with debug assertions and integer overflow
+checks explicitly enabled. This speeds up the host simulator and reference-model
+bookkeeping; it does not change the SBF build, test bodies, compute limits, action
+alphabet, graph depth, or thirty-minute per-test deadline. Ambient Cargo profile
+overrides, compiler wrappers, and Rust flags are removed before host compilation.
+The host profile is part of the attested source identity, so older reports cannot
+be relabeled as results of the new build. A separate cache key avoids reusing the
+old unoptimized host cache.
+
+The first complete 37-shard run, `43526782149`, recorded a timeout in
+`v16_program_bounded_reference_graph_exhausts_public_action_words` after exactly
+1,800 seconds. Its graph replays 11,727 action words and 44,330 transitions. That
+execution remains a failure; optimization must pass the same original assertions
+and the full aggregate before qualification is complete.
+
+The library and three additional integration targets
 each have their own shard, for thirty-seven jobs total. At most twelve matrix jobs run concurrently. Host
 dependencies share a cache keyed by locked dependencies and the host build profile.
 

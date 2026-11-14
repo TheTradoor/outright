@@ -110,7 +110,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ runner.temp }}/wrapper-sources/percolator-prog/target/debug
-          key: wrapper-host-ubuntu24-rust1.95-debug0-v1-${{ steps.source.outputs.lock_hash }}
+          key: wrapper-host-ubuntu24-rust1.95-opt1-checked-v2-${{ steps.source.outputs.lock_hash }}
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: wrapper-programs
