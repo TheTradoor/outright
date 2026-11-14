@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "cluster": "mainnet-beta",
+  "rpcUrl": "https://api.mainnet-beta.solana.com",
+  "genesisHash": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+  "feedId": "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+  "shard": 0,
+  "maxAgeSeconds": "60",
+  "maxConfidenceBps": 100
+}

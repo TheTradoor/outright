@@ -26,6 +26,7 @@ public market remain unfinished.
 | Market keeper | [Worker with oracle checks, portfolio discovery, fee caps and durable receipts](docs/MARKET_OPERATIONS.md) |
 | Funded local market | [Validator bootstrap and complete RPC lifecycle check](docs/LOCAL_MARKET.md), with a fixed synthetic TEST/USD price |
 | Hosted services | Provider oracle publishing, keeper hosting and completeness monitoring remain open |
+| Oracle inspection | [Read-only Pyth Core checks against coherent on-chain Clock and feed data](docs/ORACLE_OPERATIONS.md) |
 | Public deployment | None |
 
 The intended user flow is wallet connection, collateral deposit, an executable
@@ -72,6 +73,7 @@ See [the development guide](docs/DEVELOPMENT.md) for test scope and
 - [Wallet terminal and deployment profiles](docs/WALLET_TERMINAL.md)
 - [Run a funded local market](docs/LOCAL_MARKET.md)
 - [Market keeper and operator recovery](docs/MARKET_OPERATIONS.md)
+- [Inspect Pyth feeds before market enrollment](docs/ORACLE_OPERATIONS.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security reporting](SECURITY.md)
 

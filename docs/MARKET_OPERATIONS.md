@@ -79,6 +79,11 @@ owns `account`. Accepted owner IDs are generated from the pinned wrapper in
 The SBF program verifies the provider data, feed identity, confidence,
 freshness and observation ordering during simulation and again on execution.
 
+For Pyth Core feeds, the [read-only oracle inspector](ORACLE_OPERATIONS.md)
+checks the provider account and Solana Clock before market enrollment. Its
+output includes the exact base58 feed ID needed here. Inspection does not
+publish prices or approve the market's risk parameters.
+
 Public-network assets must use external Hybrid oracle mode `1`, with one to three
 feeds. Manual mode `0` with no feeds is allowed only on localnet. AuthMark and
 EWMA-only assets are not supported by this operator release. The keeper does

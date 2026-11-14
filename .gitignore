@@ -54,6 +54,7 @@ scripts/__pycache__/
 /protocol/dist/
 /protocol/deployment.local.json
 /protocol/keeper.local.json
+/protocol/oracle.local.json
 /protocol/operator-state/
 /protocol/localnet-state/
 *.keypair.json
