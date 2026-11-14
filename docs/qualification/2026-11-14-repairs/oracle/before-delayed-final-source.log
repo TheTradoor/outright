@@ -1,0 +1,15 @@
+
+running 1 test
+test inv_077_bounded_work_and_maximum_shape_compute::v16_program_delayed_asset_recovery_progress_requires_only_fresh_live_oracles_at_max_shape ... 
+thread 'inv_077_bounded_work_and_maximum_shape_compute::v16_program_delayed_asset_recovery_progress_requires_only_fresh_live_oracles_at_max_shape' (7) panicked at tests/invariants/cu/inv_077_bounded_work_and_maximum_shape_compute.rs:5772:14:
+fresh Live observations plus an inert Recovery tail must retain bounded progress: "FailedTransactionMetadata { err: InstructionError(2, Custom(22)), meta: TransactionMetadata { signature: eGw4xNoJGyjVb9WxQXqhSHn8XhEpLwsB7YhJcJfc7m4W1GDhr3h33aMQZDPEgCYBp3Jm1tdnCYC1v5XMZzcht94, logs: [\"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program ComputeBudget111111111111111111111111111111 invoke [1]\", \"Program ComputeBudget111111111111111111111111111111 success\", \"Program Perco1ator111111111111111111111111111111111 invoke [1]\", \"Program Perco1ator111111111111111111111111111111111 consumed 255494 of 1399700 compute units\", \"Program Perco1ator111111111111111111111111111111111 failed: custom program error: 0x16\"], compute_units_consumed: 255818, return_data: TransactionReturnData { program_id: Perco1ator111111111111111111111111111111111, data: [] } } }"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    inv_077_bounded_work_and_maximum_shape_compute::v16_program_delayed_asset_recovery_progress_requires_only_fresh_live_oracles_at_max_shape
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 211 filtered out; finished in 6.38s
+

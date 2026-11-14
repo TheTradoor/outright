@@ -1,0 +1,135 @@
+{
+  "scope": "Final test fixture correction only. Production code and engine arithmetic unchanged by this patch. Local synthetic transactions only; no deployment, commit or push by this agent.",
+  "wrapper_revision": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "engine_revision": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "final_source": {
+    "path": "/workspace/scratch/31e010aaee78/funding-repair/tests/invariants/cu/inv_045_report_cadence_rewards.rs",
+    "sha256": "7b2ad748103a8f4655d0f7a3d5d8e584f92bd5ae4bf14470353d176c07228985"
+  },
+  "final_patch": {
+    "path": "/workspace/scratch/31e010aaee78/funding-final350.patch",
+    "sha256": "d402179df1aa1f4bda882ee40af26df064e3abd24b02559e56164d1c3f815da6"
+  },
+  "worktree": "/workspace/scratch/31e010aaee78/funding-repair",
+  "changed_tracked_files": [
+    "tests/invariants/cu/inv_045_report_cadence_rewards.rs"
+  ],
+  "architecture": "Original/default Anchor-v2; platform-tools v1.52; SBPFv0; legacy LiteSVM0.1; Rust1.95.0 host.",
+  "build_command": "PATH=/home/agent/.cargo/bin:$PATH flock /workspace/scratch/31e010aaee78/qualification-compile.lock env CARGO_BUILD_JOBS=1 cargo +1.95.0 rustc --locked --test outright_funding_qualification -- -C debuginfo=0 -C codegen-units=256",
+  "test_command": "PERCOLATOR_FUZZ_SBF=<immutable-artifact> target/debug/deps/outright_funding_qualification-a36eb720030cd2f2 report_cadence_rewards --nocapture --test-threads=2",
+  "results": [
+    {
+      "stage": "original upstream test, original SBF",
+      "passed": 0,
+      "failed": 1,
+      "duration_seconds": 3.0,
+      "reason": "Endpoint8 compares unequal authenticated funding histories as equal liquidation outcomes.",
+      "log": {
+        "path": "/workspace/scratch/31e010aaee78/funding-before.log",
+        "sha256": "480109446b60d0e83df0489b7cf5cb04f8b17df146476bce11560663884200fd"
+      }
+    },
+    {
+      "stage": "semantic correction, unchanged325000guard",
+      "passed": 3,
+      "failed": 1,
+      "duration_seconds": 10.44,
+      "reason": "Endpoint8 fixed and independent positive/negative controls pass; newly reached endpoint14 succeeds in SBF but measured325971 exceeds host325000guard.",
+      "log": {
+        "path": "/workspace/scratch/31e010aaee78/funding-final-after.log",
+        "sha256": "f4fd63964044779f69ce66940b2d7ad4a80f5b8169352935f986a0aa1138a280"
+      }
+    },
+    {
+      "stage": "separate diagnostic copy400000measuredcap and full same-history control",
+      "passed": 4,
+      "failed": 0,
+      "duration_seconds": 31.54,
+      "log": {
+        "path": "/workspace/scratch/31e010aaee78/funding-expanded-diagnostic-after.log",
+        "sha256": "0154b89520c3f4d235e3feb213ff81ac988da67ffa90e4ed70f5cef6ab843338"
+      }
+    },
+    {
+      "stage": "final scoped350000fixture, original SBF",
+      "passed": 4,
+      "failed": 0,
+      "duration_seconds": 19.1,
+      "artifact": {
+        "path": "/workspace/scratch/31e010aaee78/oracle-repair-before.so",
+        "sha256": "51b159ed4e9bb79903c9406029f3ea079089ab5564204a3ce51a88af8d8744c2"
+      },
+      "log": {
+        "path": "/workspace/scratch/31e010aaee78/funding-final350-baseline.log",
+        "sha256": "d1824091bcec300f92ccd8d3361d73f0979d7791f7614bd96e341f78a8cb94f5"
+      }
+    },
+    {
+      "stage": "final scoped350000fixture, Recovery guard SBF",
+      "passed": 4,
+      "failed": 0,
+      "duration_seconds": 17.26,
+      "artifact": {
+        "path": "/workspace/scratch/31e010aaee78/oracle-repair-after.so",
+        "sha256": "527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180"
+      },
+      "log": {
+        "path": "/workspace/scratch/31e010aaee78/funding-final350-recovery.log",
+        "sha256": "eb86c11532e771fca2751abaf5e6067f0f54c854717921ec1aa07a3e1084e081"
+      }
+    }
+  ],
+  "guard_change": {
+    "authorization": "Root approved explicitly after controlled full diagnostic passed.",
+    "scope": "Only nonzero-funded run_report_cadence helper via existing submit_with_cu_limit argument.",
+    "single_instruction_measured_guard_before": 325000,
+    "single_instruction_measured_guard_after": 350000,
+    "two_instruction_measured_bundle_guard_before": 650000,
+    "two_instruction_measured_bundle_guard_after": 700000,
+    "global_crank_cu_limit_unchanged": 325000,
+    "zero_funding_crank_cu_limit_unchanged": 325000,
+    "runtime_transaction_compute_budget_unchanged": 1400000,
+    "not_an_engine_performance_fix": true,
+    "baseline_max_single_headroom_percent": 7.298439880684127
+  },
+  "baseline_measured_funded_endpoint14_single_instruction_transactions": [
+    {
+      "reports": "lazy",
+      "counterparty_settlement": "delayed",
+      "cu": 325971
+    },
+    {
+      "reports": "eager",
+      "counterparty_settlement": "delayed",
+      "cu": 326005
+    },
+    {
+      "reports": "lazy",
+      "counterparty_settlement": "early",
+      "cu": 326159
+    },
+    {
+      "reports": "eager",
+      "counterparty_settlement": "early",
+      "cu": 326193
+    }
+  ],
+  "baseline_max_two_instruction_rollback_bundle_cu": 354858,
+  "semantics": {
+    "zero_funding": "Original strict liquidation tuple equality retained at endpoints8and14.",
+    "funded": "Each fully settled account value subtracts only independently input-derived funding and reverses exactly checked liquidation penalty/reward transfers; normalized per-account values and insurance must match across report histories.",
+    "same_history_positive_control": "Full settled liquidation outcome map is exactly equal across early/delayed healthy-counterparty settlement at both endpoints8and14; oracle profile and F indices must remain unchanged by settlement.",
+    "negative_controls": "Adding one atom to target expected funding or observed settled target value must break normalized equality.",
+    "all_original_assertions": "Original input-derived F indices, target funding counters, price/provenance, per-account values, liquidation and reward formulas, insurance/domain budgets, SPL custody/payout, stale-report rejection and whole-transaction rollback checks remain.",
+    "no_skip_ignore_or_tolerance": true,
+    "policy_boundary": "The specification requires settlement-cadence invariance for identical funding inputs. Different authenticated observation histories may produce different funding marks; report-frequency-independent policy across those histories is a separate question."
+  },
+  "diagnostic_manifest": {
+    "path": "/workspace/scratch/31e010aaee78/funding-expanded-diagnostic-manifest.json",
+    "sha256": "36d1d468321d25b0e38d9c5e15c5b7f66e55547941a644d69e918316e1384344"
+  },
+  "compile_log": {
+    "path": "/workspace/scratch/31e010aaee78/funding-final350-compile.log",
+    "sha256": "2be855d1b798461e6688abaea2b77919e255bf44cec69996e5ec9cfad2e684c0"
+  }
+}

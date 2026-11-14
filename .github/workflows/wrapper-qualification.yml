@@ -1,0 +1,168 @@
+name: Wrapper qualification
+
+on:
+  push:
+    branches: [master]
+    paths: ["qualification/**", "protocol/**", "scripts/wrapper_qualification.py", "scripts/tests/test_wrapper_qualification.py", ".github/workflows/wrapper-qualification.yml"]
+  pull_request:
+    paths: ["qualification/**", "protocol/**", "scripts/wrapper_qualification.py", "scripts/tests/test_wrapper_qualification.py", ".github/workflows/wrapper-qualification.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wrapper-qualification-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+  CARGO_BUILD_JOBS: "1"
+  CARGO_INCREMENTAL: "0"
+  CARGO_PROFILE_DEV_DEBUG: "0"
+  CARGO_PROFILE_TEST_DEBUG: "0"
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Check coverage verifier
+        run: python3 -m unittest discover -s scripts/tests -p test_wrapper_qualification.py -v
+      - name: Enumerate required shards
+        id: plan
+        run: python3 scripts/wrapper_qualification.py matrix
+
+  programs:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Fetch immutable wrapper and matcher sources
+        run: python3 scripts/wrapper_qualification.py fetch --workspace "$RUNNER_TEMP/wrapper-sources"
+      - name: Install pinned build tools
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal
+          cargo +1.95.0 install cargo-build-sbf --version 4.6.0 --locked
+      - name: Build all four SBF artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for project in percolator-prog percolator-prog/tests/fixtures/auth_matcher percolator-prog/tests/fixtures/hostile_matcher percolator-match; do
+            (cd "$RUNNER_TEMP/wrapper-sources/$project" && cargo +1.95.0 build-sbf --tools-version v1.52 --arch v0 -- --locked)
+          done
+      - name: Record source provenance and artifact digests
+        run: |
+          mkdir -p "$RUNNER_TEMP/program-artifacts"
+          python3 scripts/wrapper_qualification.py attest --workspace "$RUNNER_TEMP/wrapper-sources" --output "$RUNNER_TEMP/program-artifacts/artifacts.json"
+          cp qualification/wrapper-source.json "$RUNNER_TEMP/program-artifacts/source.json"
+          cp "$RUNNER_TEMP/wrapper-sources/percolator-prog/LICENSE" "$RUNNER_TEMP/program-artifacts/wrapper-LICENSE"
+          cp "$RUNNER_TEMP/wrapper-sources/percolator-match/LICENSE" "$RUNNER_TEMP/program-artifacts/matcher-LICENSE"
+          cp qualification/program-repair.patch "$RUNNER_TEMP/program-artifacts/program-repair.patch"
+          tar -C "$RUNNER_TEMP/wrapper-sources" -czf "$RUNNER_TEMP/program-artifacts/sbf.tar.gz" \
+            percolator-prog/target/deploy/percolator_prog.so \
+            percolator-prog/tests/fixtures/auth_matcher/target/deploy/auth_matcher.so \
+            percolator-prog/tests/fixtures/hostile_matcher/target/deploy/hostile_matcher.so \
+            percolator-match/target/deploy/percolator_match.so
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: wrapper-programs
+          path: ${{ runner.temp }}/program-artifacts/
+          if-no-files-found: error
+          retention-days: 14
+
+  qualify:
+    needs: [plan, programs]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Fetch the same immutable source
+        id: source
+        run: python3 scripts/wrapper_qualification.py fetch --workspace "$RUNNER_TEMP/wrapper-sources"
+      - name: Install pinned host toolchain
+        run: rustup toolchain install 1.95.0 --profile minimal
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        if: matrix.suite == 'outright_native_lifecycle'
+        with:
+          node-version: 22
+      - name: Install locked native client dependencies
+        if: matrix.suite == 'outright_native_lifecycle'
+        run: npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
+      - name: Reuse locked host dependencies
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ${{ runner.temp }}/wrapper-sources/percolator-prog/target/debug
+          key: wrapper-host-ubuntu24-rust1.95-opt1-checked-v2-${{ steps.source.outputs.lock_hash }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: wrapper-programs
+          path: ${{ runner.temp }}/program-artifacts
+      - name: Restore checked SBF artifacts
+        run: tar -C "$RUNNER_TEMP/wrapper-sources" -xzf "$RUNNER_TEMP/program-artifacts/sbf.tar.gz"
+      - name: Execute every assigned test and retain failures
+        run: |
+          python3 scripts/wrapper_qualification.py run \
+            --workspace "$RUNNER_TEMP/wrapper-sources" \
+            --shard '${{ matrix.id }}' \
+            --artifacts "$RUNNER_TEMP/program-artifacts/artifacts.json" \
+            --output "$RUNNER_TEMP/result-${{ matrix.id }}"
+      - name: Preserve inventory, results and per-test logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: wrapper-result-${{ matrix.id }}
+          path: ${{ runner.temp }}/result-${{ matrix.id }}/
+          if-no-files-found: error
+          retention-days: 14
+
+  coverage:
+    name: Complete wrapper qualification
+    if: always()
+    needs: [plan, programs, qualify]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Fetch the exact candidate for independent harness verification
+        run: python3 scripts/wrapper_qualification.py fetch --workspace "$RUNNER_TEMP/wrapper-sources"
+      - name: Install pinned host toolchain for Cargo target inventory
+        run: rustup toolchain install 1.95.0 --profile minimal
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: wrapper-result-*
+          path: ${{ runner.temp }}/wrapper-results
+      - name: Require all shards, all registered tests, and all passing results
+        run: |
+          python3 scripts/wrapper_qualification.py aggregate \
+            --workspace "$RUNNER_TEMP/wrapper-sources" \
+            --reports "$RUNNER_TEMP/wrapper-results" \
+            --output "$RUNNER_TEMP/wrapper-qualification.json"
+          test '${{ needs.plan.result }}' = success
+          test '${{ needs.programs.result }}' = success
+          test '${{ needs.qualify.result }}' = success
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: wrapper-qualification-summary
+          path: ${{ runner.temp }}/wrapper-qualification.json
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,72 @@
+{
+  "candidate_tree": "6621d5edd799f68ce0864f740ddc6da22e01c701",
+  "patch_sha256": "0b1474d1b0a7ab54b0890b6c121fc9292530ffedbfe0cc414e54afbceb91cfb8",
+  "sbf_sha256": "527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180",
+  "registered": 219,
+  "executed": 9,
+  "results": [
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::exposed_keeper_provenance::v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybrid_catchup",
+      "exit_code": 0,
+      "seconds": 7.45,
+      "log": "candidate-focused-01.log",
+      "log_sha256": "72a63f93fa77f5f4944e34b1a2e5313a4661e138c006480f0ad1addf991e56a1"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_maintenance_catchup::v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchup",
+      "exit_code": 0,
+      "seconds": 3.62,
+      "log": "candidate-focused-02.log",
+      "log_sha256": "659f89efa987d032e1a479b42d3282a5801aec76b3ce50e7395200117c8c07a2"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_policy_catchup::v16_program_reward_policy_succession_preserves_receipts_and_effective_price_catchup",
+      "exit_code": 0,
+      "seconds": 3.34,
+      "log": "candidate-focused-03.log",
+      "log_sha256": "c34156796974611ca39a3a970f0e65d336d808344d6236119a290351b1d794d1"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::reward_terminal_redemption::v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order",
+      "exit_code": 0,
+      "seconds": 7.31,
+      "log": "candidate-focused-04.log",
+      "log_sha256": "0d07aa817e2dcdd71bb77e0b10b8f00360dba33dfef6f4b619f461e4af295943"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::v16_program_retained_stale_penalty_survives_fresh_liquidation_and_catchup",
+      "exit_code": 0,
+      "seconds": 1.86,
+      "log": "candidate-focused-05.log",
+      "log_sha256": "2b31b3b6eb72c87686dd0d3a6560822c4049c9b86ba0b0a8ab3f6f5a9d7a9ee4"
+    },
+    {
+      "test": "inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody",
+      "exit_code": 0,
+      "seconds": 5.89,
+      "log": "candidate-focused-06.log",
+      "log_sha256": "7eeef215d02d3374d7eeb3a16d854ade7bc1e5ecf8d539eecbecaf9018edd783"
+    },
+    {
+      "test": "inv_072_order_robust_crankability::v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle",
+      "exit_code": 0,
+      "seconds": 0.99,
+      "log": "candidate-focused-07.log",
+      "log_sha256": "48601613c372e72f37e97c2782c1541613163b8afdb6be3943875602162f0dba"
+    },
+    {
+      "test": "inv_077_bounded_work_and_maximum_shape_compute::v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape",
+      "exit_code": 0,
+      "seconds": 6.44,
+      "log": "candidate-focused-08.log",
+      "log_sha256": "12dd7a42db4a106d7dba77e486ebcc4c95e5f2ed17313c2cd788cb45bcc40a48"
+    },
+    {
+      "test": "inv_077_bounded_work_and_maximum_shape_compute::v16_program_delayed_asset_recovery_progress_requires_only_fresh_live_oracles_at_max_shape",
+      "exit_code": 0,
+      "seconds": 6.14,
+      "log": "candidate-focused-09.log",
+      "log_sha256": "2faed86997617bfea043cbf89eda841b1c1d56ff99dac503491ee581b7a9db85"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "afterTokenAtoms": "1000000000",
+  "at": "2026-11-13T23:03:22.303Z",
+  "beforeTokenAtoms": "1000000000",
+  "deployed": {
+    "matcher": {
+      "address": "FKAA83SfxGk5pM4bTiikNT23WDA4AaW3BVnfztYfxFfd",
+      "programData": "Ha2F68mf6ht3gW2HnojrkxxqHEaZkNAY8b2PscTENaLj",
+      "sha256": "042f7cc2e6a7b343da58d511f72abf56f57e044f70f7b695a52aec2cb9d70190",
+      "upgradeAuthority": null
+    },
+    "program": {
+      "address": "69T1qvo9VkwRt4j65358JnC7me5hMGLnMVJBE9a1eus4",
+      "programData": "96uCXTS7d6LhoMeeEz8mneNzZvW8eiKWcxGWBkkY3Wwg",
+      "sha256": "1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e",
+      "upgradeAuthority": null
+    }
+  },
+  "finalPortfolioCapital": "0",
+  "genesisHash": "9XzALBU7Mtu38v1XZadJjJJ3yuM9AQQyuwSV4Xok3d91",
+  "identity": {
+    "binary_sha256": {
+      "matcher": "042f7cc2e6a7b343da58d511f72abf56f57e044f70f7b695a52aec2cb9d70190",
+      "program": "1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e"
+    },
+    "candidate_harness_sha256": "dbf9ba75ff6810535e7b5d45e509531a4a5c4c384c21495a78ce52cb9a1e8e67",
+    "candidate_runner_sha256": "a0632e6fbaad7836a05cfe9c79bfd1040ef20482194d173a899f0b234b3964a4",
+    "client_commit": "f056fb20b2928c446e0b67e806b8ad3996e79730",
+    "client_tree": "900fb80a9462e36b207d83bf113a8ad5de61f57a",
+    "reported_builder": "cargo-build-sbf 4.6.0\nDefault platform-tools: v1.58\nDefault Rust: 1.95.0",
+    "reported_validator": "solana-test-validator 4.4.1 (src:5bb30402; feat:9fd5a0b5, client:Agave)",
+    "scope": "candidate-current-validator",
+    "source": {
+      "engine_ref": "a712af767eeb217876a3d3c50e3849b60ea54462",
+      "manifest_sha256": "1ad89bd5c9afa7b848bd402a519270aea19195d2761320d22ca926028bab64cf",
+      "matcher": {
+        "ref": "60aac3a996d0264c47fbefe9a2625d6ee6fb6a47",
+        "repository": "aeyakovenko/percolator-match"
+      },
+      "overlay": {
+        "path": "qualification/program-repair.patch",
+        "sha256": "0b1474d1b0a7ab54b0890b6c121fc9292530ffedbfe0cc414e54afbceb91cfb8",
+        "tree": "6621d5edd799f68ce0864f740ddc6da22e01c701"
+      },
+      "runner_sha256": "246c1d10dc931375972166e7942ba90ab97a8009d80b1323deab9298a5b48d9f",
+      "wrapper": {
+        "ref": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+        "repository": "aeyakovenko/percolator-prog",
+        "upstream": "aeyakovenko/percolator-prog"
+      }
+    },
+    "toolchain": {
+      "cargo_build_sbf": "4.6.0",
+      "host_rust": "1.95.0",
+      "platform_tools": "v1.58",
+      "sbf_arch": "v3",
+      "validator": "4.4.1"
+    }
+  },
+  "instrument": "TEST/USD, fixed test price",
+  "makerCapital": "10000000000",
+  "network": "localnet",
+  "oversizedDepositRejected": true,
+  "scope": "candidate-current-validator",
+  "signatures": [
+    {
+      "action": "initialize",
+      "signature": "2EK2gHRVTbeekKVpbDrJ3xXXH3vQ3SUodJ4MW95266CBCzHas5NAp9AEH77YEJffupManCmL2dCGbNymMBPfXxqY"
+    },
+    {
+      "action": "deposit",
+      "signature": "4m87e9GbBWJ2px4zHSS6VMx5NxZePqhrLB4bhCnaQN9umDG3xHJw3sc2TedbFD3Dt8MNLP6SMyF4hizW3T7mdk75"
+    },
+    {
+      "action": "trade",
+      "side": "buy",
+      "signature": "5Gb4UpPxJNyubqyhewScVxdZh4pLf5DT38GdWCjsA6DMtnfUHzbZ5XscdzvogfduCztPLQsFPmPoosMuzWmXtAxw"
+    },
+    {
+      "action": "trade",
+      "side": "sell",
+      "signature": "3BjHacBPGAxowHtqSAJLGGYJ6YaAAY39Q6ypHr41LXuLX1aspUTStuTq7c1u42aSYXYbWWGimczvVcM33jGfS9ts"
+    },
+    {
+      "action": "trade",
+      "side": "sell",
+      "signature": "4QWDpFMAJVFpZwcaziykLnDzNY5kP2xfRxcYyMpLeKtbxNtzhjH91eaE8qcmJLzYB4zU7qKDgWu5fBmoT3tJHdv8"
+    },
+    {
+      "action": "trade",
+      "side": "buy",
+      "signature": "YfM8qeKbi3hWHB6SQTivdWVe5KXtBtF4y2qixMngUMSi4drNK6faz8n638diEnBUWK9PfiVLH3XhehWa8KWZorh"
+    },
+    {
+      "action": "withdraw",
+      "signature": "4Sdc3XeprZZdXJtxWefvBuKnt263p2FHvdk8MhduAws32FD64dBzh8yFAVxu1v9CCjEQsVLm5z6gHi2sCzBbaVpq"
+    }
+  ],
+  "status": "passed"
+}

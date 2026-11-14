@@ -1,0 +1,277 @@
+{
+  "scope": "Diagnostic copy only. Integration source/global325000CU regression guard unchanged. No production source edit, deployment or financial transaction.",
+  "worktree": "/workspace/scratch/31e010aaee78/funding-diagnostic",
+  "wrapper_revision": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "engine_revision": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "sbf_sha256": "51b159ed4e9bb79903c9406029f3ea079089ab5564204a3ce51a88af8d8744c2",
+  "architecture": "default Anchor-v2; platform-tools v1.52; SBPFv0; legacy LiteSVM0.1; host Rust1.95.0",
+  "build_command": "PATH=/home/agent/.cargo/bin:$PATH flock /workspace/scratch/31e010aaee78/qualification-compile.lock env CARGO_BUILD_JOBS=1 cargo +1.95.0 rustc --locked --test outright_funding_diagnostic -- -C debuginfo=0 -C codegen-units=256",
+  "run_command": "target/debug/deps/outright_funding_diagnostic-174acbe2a4b81fad report_cadence_rewards --nocapture --test-threads=1",
+  "diagnostic_only_differences": [
+    "Uses explicit400000 measured per-instruction guard only for funded helper; original325000 remains for zero funding and unchanged integration worktree.",
+    "Extends new same-history settlement control from endpoint8 to endpoints8 and14.",
+    "Logs each transaction CU, instruction count and expected rejection; transaction budget remains1400000."
+  ],
+  "result": {
+    "passed": 4,
+    "failed": 0,
+    "duration_seconds": 31.54,
+    "endpoint14_funded_outcomes": {
+      "lazy": {
+        "closed_q": 37119980,
+        "penalty": 18189,
+        "reward": 6062,
+        "target_value": 3081121,
+        "insurance": 1552199
+      },
+      "eager": {
+        "closed_q": 37103715,
+        "penalty": 18181,
+        "reward": 6059,
+        "target_value": 3081918,
+        "insurance": 1552194
+      }
+    },
+    "exact_checks": [
+      "Per-historyFindices",
+      "Fundingpaid/receivedcounters",
+      "Effectivepriceandprovenance",
+      "Eachsettledaccountvalue",
+      "Liquidationfee/rewardformulas",
+      "Insuranceanddomainbudget",
+      "SPLcustodyandkeeperpayout",
+      "Regressedoraclerollback",
+      "Exactfunding-normalizedcross-historyequality",
+      "One-atomnegativecontrols",
+      "Fullsame-historyearly/delayedsettledresultmapequality"
+    ]
+  },
+  "guards": {
+    "integration_crank_cu_limit": 325000,
+    "diagnostic_funded_measured_cap": 400000,
+    "runtime_transaction_budget": 1400000,
+    "worst_funded_single_instruction_transaction_cu": 326193,
+    "worst_funded_two_instruction_rollback_transaction_cu": 354858
+  },
+  "observed_liquidation_transactions": [
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=false settle_counterparties=false",
+      "funding": 0,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 323668,
+      "diagnostic_cap": 325000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=false settle_counterparties=false",
+      "funding": 0,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 352337,
+      "diagnostic_cap": 325000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=true settle_counterparties=false",
+      "funding": 0,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 323668,
+      "diagnostic_cap": 325000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=true settle_counterparties=false",
+      "funding": 0,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 352337,
+      "diagnostic_cap": 325000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=false settle_counterparties=false",
+      "funding": 0,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 272237,
+      "diagnostic_cap": 325000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=false settle_counterparties=false",
+      "funding": 0,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 300905,
+      "diagnostic_cap": 325000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=true settle_counterparties=false",
+      "funding": 0,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 272237,
+      "diagnostic_cap": 325000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=true settle_counterparties=false",
+      "funding": 0,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 300905,
+      "diagnostic_cap": 325000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=false settle_counterparties=false",
+      "funding": 1000,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 325971,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=false settle_counterparties=false",
+      "funding": 1000,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 354636,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=false settle_counterparties=true",
+      "funding": 1000,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 326159,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=false settle_counterparties=true",
+      "funding": 1000,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 354824,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=true settle_counterparties=false",
+      "funding": 1000,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 326005,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=true settle_counterparties=false",
+      "funding": 1000,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 354670,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=true settle_counterparties=true",
+      "funding": 1000,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 326193,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=14 eager=true settle_counterparties=true",
+      "funding": 1000,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 354858,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=false settle_counterparties=false",
+      "funding": 1000,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 274497,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=false settle_counterparties=false",
+      "funding": 1000,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 303161,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=false settle_counterparties=true",
+      "funding": 1000,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 274544,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=false settle_counterparties=true",
+      "funding": 1000,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 303208,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=true settle_counterparties=false",
+      "funding": 1000,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 274483,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=true settle_counterparties=false",
+      "funding": 1000,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 303147,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=true settle_counterparties=true",
+      "funding": 1000,
+      "instructions": 1,
+      "rejection": "None",
+      "cu": 274530,
+      "diagnostic_cap": 400000
+    },
+    {
+      "phase": "cadence liquidation: endpoint=8 eager=true settle_counterparties=true",
+      "funding": 1000,
+      "instructions": 2,
+      "rejection": "Some((3, Custom(27)))",
+      "cu": 303194,
+      "diagnostic_cap": 400000
+    }
+  ],
+  "guard_classification_sources": [
+    "tests/v16_cu.rs:37 hostCRANK_CU_LIMIT",
+    "tests/v16_cu.rs:863 transactioncomputeunitlimit1400000",
+    "tests/invariants/cu/inv_045_authenticated_reward_handoff.rs:110-188 send_transaction succeeds before hostCUassert"
+  ],
+  "likely_hot_path_not_profiled": [
+    "src/v16_program.rs:13987 permissionlesscrankzerocopy",
+    "src/v16_program.rs:14052,14347 actionable summaries",
+    "src/v16_program.rs:14382 engineautocrank",
+    "engine src/v16.rs:527-620 exactpartialclosebinarysearch invoked at19008",
+    "src/v16_program.rs:14469-14503 authenticated reward validation/credit and domain split"
+  ],
+  "files": [
+    {
+      "path": "/workspace/scratch/31e010aaee78/funding-diagnostic.patch",
+      "sha256": "72190a1c366150096710f150c3f04268e74816f97b54697c7dee2be1aaa61df7"
+    },
+    {
+      "path": "/workspace/scratch/31e010aaee78/funding-expanded-diagnostic-compile.log",
+      "sha256": "4aa52eb475b673a4bf4ffb9b142dc8070ee6987aab1c894a71489e24e2803510"
+    },
+    {
+      "path": "/workspace/scratch/31e010aaee78/funding-expanded-diagnostic-after.log",
+      "sha256": "0154b89520c3f4d235e3feb213ff81ac988da67ffa90e4ed70f5cef6ab843338"
+    }
+  ],
+  "source_sha256": "8e38202c397c4bc3c9d731e43562c607469d1ad9005c23c088df6de8f94f4502"
+}

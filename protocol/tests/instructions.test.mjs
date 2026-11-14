@@ -24,7 +24,11 @@ test("client fixtures and Cargo use the recorded source revisions", () => {
   assert.equal(contract.engineCommit, lock.engine.revision);
   assert.equal(contract.wrapperCommit, lock.program.revision);
   assert(cargo.includes('percolator = { path = "../.." }'));
-  assert(cargo.includes(`rev = "${contract.wrapperCommit}"`));
+  assert(
+    cargo.includes(
+      `percolator-prog = { git = "${lock.program.repository}", rev = "${contract.wrapperCommit}"`,
+    ),
+  );
 });
 
 for (const f of contract.fixtures)

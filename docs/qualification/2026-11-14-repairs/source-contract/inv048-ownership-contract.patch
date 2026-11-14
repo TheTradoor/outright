@@ -1,0 +1,47 @@
+diff --git a/tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs b/tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs
+index d98a32d1..7064e6e8 100644
+--- a/tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs
++++ b/tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs
+@@ -272,6 +272,12 @@ fn v16_program_typed_matched_book_obligation_oracle_is_source_complete() {
+             path: "tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs",
+             witness: "v16_program_all_trade_routes_keep_oi_equal_to_active_leg_scan",
+         },
++        Inv048ObligationOwner {
++            category: "exact effective OI rounding residue",
++            census_field: "rounding_residue",
++            path: "tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs",
++            witness: "v16_program_effective_oi_rounding_replays_both_exit_campaigns",
++        },
+         Inv048ObligationOwner {
+             category: "ADL-reduced raw residue",
+             census_field: "adl_reduced_raw_q",
+@@ -398,9 +404,27 @@ fn v16_program_typed_matched_book_obligation_oracle_is_source_complete() {
+             obligation.witness,
+         );
+     }
+-    assert_eq!(categories.len(), 13, "matched-book obligation roster drift");
++    assert_eq!(categories.len(), 14, "matched-book obligation roster drift");
+     assert!(model.contains("effective + ADL residue + reset residue"));
+-    assert!(model.contains("effective OI is not the sum of independently decoded effective legs"));
++    // The independent aggregate ledger and the per-leg ceiling census have a
++    // typed rounding residue. Keep its lifecycle witness and executable behavior
++    // owners registered; those tests check the exact arithmetic and reject
++    // corrupted A, basis, aggregate, reset, resize, and terminal-removal witnesses.
++    assert!(model.contains("struct EffectiveOiRoundingResidue"));
++    assert!(model.contains("rounding_residue: [EffectiveOiRoundingResidue; 2]"));
++    for witness in [
++        "ceil_leg_sums_reconcile_with_equal_aggregate_oi_without_tolerance",
++        "repeated_index_flooring_has_signed_residue_larger_than_one_atom_per_leg",
++        "independent_indices_basis_and_aggregate_reject_one_atom_mutations",
++        "capped_dead_leg_removal_requires_a_typed_terminal_witness",
++        "exhausted_unilateral_side_requires_one_reset_and_no_repeated_reset",
++        "canonical_resize_rejects_a_raw_atom_hidden_by_the_same_ceil_quantity",
++    ] {
++        assert!(
++            inv048_source_defines_test(model, witness),
++            "typed rounding residue lacks executable behavioral owner {witness}",
++        );
++    }
+ }
+ 
+ #[test]

@@ -3,6 +3,7 @@ import {
   OutrightClient,
   browserJournal,
   validateProfile,
+  isTradeOracleFresh,
 } from "../src/client.mjs";
 import {
   isSettlementAction,
@@ -95,6 +96,16 @@ function controls() {
   $("refresh").disabled = !client || !account || busy || loading;
   const live = snapshot?.market.mode === "live";
   const resolved = snapshot?.market.mode === "resolved";
+  const asset = selectedAsset();
+  const oracleUnavailable = Boolean(
+    live &&
+      asset?.lifecycle === "active" &&
+      !isTradeOracleFresh(client.profile, snapshot, asset),
+  );
+  $("trade-availability").hidden = !oracleUnavailable;
+  if (oracleUnavailable)
+    $("trade-review").setAttribute("aria-describedby", "trade-availability");
+  else $("trade-review").removeAttribute("aria-describedby");
   $("initialize").hidden =
     Boolean(snapshot?.portfolio) || Boolean(snapshot && !live);
   $("initialize").disabled = !ready || !live || Boolean(snapshot?.portfolio);
@@ -119,7 +130,8 @@ function controls() {
     !snapshot?.portfolio ||
     !snapshot?.maker?.matcherEnabled ||
     snapshot.maker.matcherExpirySlot <= BigInt(snapshot.slot) ||
-    selectedAsset()?.lifecycle !== "active" ||
+    asset?.lifecycle !== "active" ||
+    oracleUnavailable ||
     snapshot.market.mode !== "live";
   $("asset-select").disabled = !client || !snapshot || busy;
   $("sign").disabled = busy || !review;

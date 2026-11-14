@@ -1,0 +1,11 @@
+
+running 1 test
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::exposed_keeper_provenance::v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybrid_catchup ... exposed keeper: direction=-1, settle_first=false, episodes=[(12001223, 5987, 1995), (16653247, 8287, 2762)], payout=4757, owners=[3550175, 101550147, 9209964, 9245364, 9990000], residual=4
+exposed keeper: direction=-1, settle_first=true, episodes=[(12001223, 5987, 1995), (16653247, 8287, 2762)], payout=4757, owners=[3550175, 101550147, 9209964, 9245364, 9990000], residual=4
+exposed keeper: direction=1, settle_first=false, episodes=[(12001223, 5987, 1995), (16653247, 8287, 2762)], payout=4757, owners=[3550175, 101530147, 9209964, 9245364, 10010000], residual=4
+exposed keeper: direction=1, settle_first=true, episodes=[(12001223, 5987, 1995), (16653247, 8287, 2762)], payout=4757, owners=[3550175, 101530147, 9209964, 9245364, 10010000], residual=4
+row422 exposed AuthMark keeper: 4 histories, 8 rewarded liquidations, 12 healthy rollbacks, 4 active-withdraw rollbacks; crank=356245, payout=67106 CU
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 218 filtered out; finished in 7.44s
+

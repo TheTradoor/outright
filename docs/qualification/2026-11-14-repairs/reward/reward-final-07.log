@@ -1,0 +1,10 @@
+
+running 1 test
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::clipped_liquidation_reward::v16_program_fresh_report_rewards_only_collectible_full_close_penalty ... clipped reward authenticated=false publish_first=false: price=944800, nominal=47240, collected=100, reward=0, discovery=1540072, payout=1000, peak=209008 CU
+clipped reward authenticated=false publish_first=true: price=944800, nominal=47240, collected=100, reward=0, discovery=1540072, payout=1000, peak=209008 CU
+clipped reward authenticated=true publish_first=false: price=944800, nominal=47240, collected=100, reward=33, discovery=1540072, payout=1033, peak=257739 CU
+clipped reward authenticated=true publish_first=true: price=944800, nominal=47240, collected=100, reward=33, discovery=1540072, payout=1033, peak=257739 CU
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 5.60s
+

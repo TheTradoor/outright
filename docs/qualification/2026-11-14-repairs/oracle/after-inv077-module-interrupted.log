@@ -1,0 +1,50 @@
+
+running 77 tests
+test inv_077_bounded_work_and_maximum_shape_compute::native_insurance_exit::v16_program_native_insurance_partial_redemption_reaches_bounded_terminal_exit ... INV-077 native insurance: quorum=None, first=13, sync_surplus=false, paid=106, payouts=2, slab_calls=1, peak_CU=35977
+INV-077 native insurance: quorum=None, first=13, sync_surplus=true, paid=106, payouts=2, slab_calls=1, peak_CU=32977
+INV-077 native insurance: quorum=None, first=61, sync_surplus=false, paid=106, payouts=2, slab_calls=1, peak_CU=35977
+INV-077 native insurance: quorum=None, first=61, sync_surplus=true, paid=106, payouts=2, slab_calls=1, peak_CU=32977
+ok
+test inv_077_bounded_work_and_maximum_shape_compute::native_insurance_exit::v16_program_native_multisig_insurance_recreation_preserves_unsigned_retirement ... INV-077 native insurance: quorum=Some([0, 1]), first=13, sync_surplus=false, paid=106, payouts=2, slab_calls=1, peak_CU=33776
+INV-077 native insurance: quorum=Some([0, 1]), first=13, sync_surplus=true, paid=106, payouts=2, slab_calls=1, peak_CU=54776
+INV-077 native insurance: quorum=Some([0, 1]), first=61, sync_surplus=false, paid=106, payouts=2, slab_calls=1, peak_CU=33776
+INV-077 native insurance: quorum=Some([0, 1]), first=61, sync_surplus=true, paid=106, payouts=2, slab_calls=1, peak_CU=38276
+INV-077 native insurance: quorum=Some([0, 2]), first=13, sync_surplus=false, paid=106, payouts=2, slab_calls=1, peak_CU=45776
+INV-077 native insurance: quorum=Some([0, 2]), first=13, sync_surplus=true, paid=106, payouts=2, slab_calls=1, peak_CU=33776
+INV-077 native insurance: quorum=Some([0, 2]), first=61, sync_surplus=false, paid=106, payouts=2, slab_calls=1, peak_CU=39776
+INV-077 native insurance: quorum=Some([0, 2]), first=61, sync_surplus=true, paid=106, payouts=2, slab_calls=1, peak_CU=38276
+INV-077 native insurance: quorum=Some([1, 2]), first=13, sync_surplus=false, paid=106, payouts=2, slab_calls=1, peak_CU=60875
+INV-077 native insurance: quorum=Some([1, 2]), first=13, sync_surplus=true, paid=106, payouts=2, slab_calls=1, peak_CU=36875
+INV-077 native insurance: quorum=Some([1, 2]), first=61, sync_surplus=false, paid=106, payouts=2, slab_calls=1, peak_CU=36875
+INV-077 native insurance: quorum=Some([1, 2]), first=61, sync_surplus=true, paid=106, payouts=2, slab_calls=1, peak_CU=38375
+ok
+test inv_077_bounded_work_and_maximum_shape_compute::public_native_insurance_capacity::v16_program_public_max_market_native_partial_insurance_ledgers_complete_in_both_orders ... INV-073/077 public native insurance: order=[0, 1], assets=5682, domains=11364, account_bytes=10484480, user_paid=1009, reserve_paid=[98, 114], payments=6, exact_rejections=4, slab_calls=1, payout_CU=[[31815, 35175, 31184], [30812, 35175, 31193]], user_delete_slab_CU=[79619, 26345, 20396], peak_CU=211873
+INV-073/077 public native insurance: order=[1, 0], assets=5682, domains=11364, account_bytes=10484480, user_paid=1009, reserve_paid=[98, 114], payments=6, exact_rejections=4, slab_calls=1, payout_CU=[[36315, 39675, 35693], [35312, 39675, 35684]], user_delete_slab_CU=[85619, 26345, 26414], peak_CU=211873
+ok
+test inv_077_bounded_work_and_maximum_shape_compute::retired_sibling_recovery::v16_program_max_market_retired_siblings_preserve_oversized_force_close_and_owner_exit ... INV-077 public retired-prefix recovery: assets=5682, retired=5680, keeper_steps=2, rollbacks=1, peak_cu=223044, bound=400000, tx_ceiling=1400000
+ok
+test inv_077_bounded_work_and_maximum_shape_compute::secondary_quote_completion::v16_program_secondary_quote_repair_after_expiry_has_atomic_bounded_disposition ... INV-070/077 secondary repair: variant=0, split=false, retired=307, primary=17, secondary=19, close_calls=2, exact_rejections=2, peak_CU=72960
+INV-070/077 secondary repair: variant=0, split=true, retired=307, primary=17, secondary=19, close_calls=2, exact_rejections=2, peak_CU=71460
+INV-070/077 secondary repair: variant=1, split=false, retired=307, primary=17, secondary=19, close_calls=2, exact_rejections=2, peak_CU=69960
+INV-070/077 secondary repair: variant=1, split=true, retired=307, primary=17, secondary=19, close_calls=2, exact_rejections=2, peak_CU=90960
+INV-070/077 secondary repair: variant=2, split=false, retired=307, primary=17, secondary=42, close_calls=2, exact_rejections=1, peak_CU=64184
+INV-070/077 secondary repair: variant=2, split=true, retired=307, primary=17, secondary=42, close_calls=2, exact_rejections=1, peak_CU=65684
+ok
+test inv_077_bounded_work_and_maximum_shape_compute::short_side_b_budget::v16_program_max_shape_short_b_budget_has_exact_public_progress ... INV-077 short B: legs=14, sources=28, budget=4, rank=84->0, chunks=[14, 14], calls=28, peak_cu=554805
+ok
+test inv_077_bounded_work_and_maximum_shape_compute::terminal_destination_variants::v16_program_terminal_sweep_preserves_destination_authorities_and_exact_disposal ... INV-070/077 destination delegated=true, separate_closer=false, split=false: retired=307, swept=17, retained_allowance=11, close_calls=2, exact_rollbacks=2, peak_CU=54554
+INV-070/077 destination delegated=true, separate_closer=false, split=true: retired=307, swept=17, retained_allowance=11, close_calls=2, exact_rollbacks=2, peak_CU=48554
+INV-070/077 destination delegated=false, separate_closer=true, split=false: retired=307, swept=17, retained_allowance=0, close_calls=2, exact_rollbacks=2, peak_CU=48594
+INV-070/077 destination delegated=false, separate_closer=true, split=true: retired=307, swept=17, retained_allowance=0, close_calls=2, exact_rollbacks=2, peak_CU=48594
+INV-070/077 destination delegated=true, separate_closer=true, split=false: retired=307, swept=17, retained_allowance=11, close_calls=2, exact_rollbacks=2, peak_CU=50236
+INV-070/077 destination delegated=true, separate_closer=true, split=true: retired=307, swept=17, retained_allowance=11, close_calls=2, exact_rollbacks=2, peak_CU=50236
+ok
+test inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_dual_quote_provider_expiry_has_bounded_terminal_disposition ... INV-070/077 provider expiry: native_secondary=false, fixed_primary=false, primary=401 provider + 307 retired + 17 sweep, secondary=619 recovered, close_calls=2, peak_CU=50865
+INV-070/077 provider expiry: native_secondary=false, fixed_primary=true, primary=401 provider + 307 retired + 17 sweep, secondary=619 recovered, close_calls=2, peak_CU=49312
+INV-070/077 provider expiry: native_secondary=true, fixed_primary=false, primary=401 provider + 307 retired + 17 sweep, secondary=619 recovered, close_calls=2, peak_CU=50953
+INV-070/077 provider expiry: native_secondary=true, fixed_primary=true, primary=401 provider + 307 retired + 17 sweep, secondary=619 recovered, close_calls=2, peak_CU=49400
+ok
+test inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_freezable_quote_terminal_retry_preserves_retirement_and_rent ... INV-070/077 freezable quote: fixed_supply=false, retired=307, surplus=17/19, exact_rejections=7, close_calls=2, peak_CU=46416
+INV-070/077 freezable quote: fixed_supply=true, retired=307, surplus=17/19, exact_rejections=7, close_calls=2, peak_CU=52363
+ok
+test inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_max_market_dense_backing_expiry_has_bounded_terminal_progress ... 

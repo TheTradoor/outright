@@ -1,0 +1,7 @@
+
+running 1 test
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::v16_program_paid_discovery_fresh_handoff_authenticates_liquidation_and_keeper_exit ... authenticated handoff: oracle_succession=false, max_funding=0, funding_index=[0, 0], funding_dust=0, worlds=16, late_rollbacks=32, liquidation_rollbacks=16, peak_transaction_cu=300867
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 24.85s
+

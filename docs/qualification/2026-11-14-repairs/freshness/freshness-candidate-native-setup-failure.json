@@ -1,0 +1,21 @@
+{
+  "client_commit": "3372660fc4d76b47b6cdb1a12a239bce4dcb84f5",
+  "client_tree": "77f802229d2eba0c90d6cf57c4834078d9f9c383",
+  "wrapper_base": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "wrapper_candidate_tree": "6621d5edd799f68ce0864f740ddc6da22e01c701",
+  "program_sha256": "527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180",
+  "binary_sha256": "e9e4f4f9592c92205edec2e93036981f45855e410892f15579b930f6a49f08af",
+  "harness_sha256": "6dca2d4812a44fb31f70eddb154ef55f5a9c68cd4c7a82c97deb1e6be2bf87f8",
+  "driver_sha256": "fdfb568a54ad26dba02f2e614d5c731903c216e7c6ffa556ec208d36fd3b0351",
+  "command": [
+    "/workspace/scratch/31e010aaee78/oracle-repair/target/debug/deps/outright_native_lifecycle-8db788d2c1deb9b5",
+    "--include-ignored",
+    "--nocapture",
+    "--test-threads=1"
+  ],
+  "exit_code": 101,
+  "seconds": 21.84,
+  "log": "freshness-candidate-native-setup-failure.log",
+  "log_sha256": "00cb7342cae25bd267603fa65114c4371e2d20eef70751045fd3b4f15172a249",
+  "classification": "Harness setup failure before transactions: isolated worktree lacked locked Node dependencies; npm ci --offline --ignore-scripts installed 108 packages."
+}

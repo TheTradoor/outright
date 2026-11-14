@@ -1,0 +1,39 @@
+
+running 1 test
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::retained_penalty_handoff::paid_origin_routes::v16_program_paid_origin_routes_preserve_old_penalty_and_block_trade_origin_rewards ... retained penalty phase=0 price=997600 closed=12001223 penalty=5987 reward=0 budgets=[0, 0]
+retained penalty phase=1 price=995206 closed=16653247 penalty=8287 reward=0 budgets=[0, 0]
+retained penalty: liquidations=2 late_rollbacks=3 fixed_point_rollbacks=3 rewarded_rollbacks=0 discovery=1540072 old_penalty=5987 new_penalties=8287 rewards=0 payout=1000 CU trade=212977 crank=272285 rejection=300946 payout=55110
+Scope I paid origin: routes=Some((false, false, false)), missing_rollbacks=9, payout_rollbacks=1
+retained penalty phase=0 price=997600 closed=12001223 penalty=5987 reward=0 budgets=[0, 0]
+retained penalty phase=1 price=995206 closed=16653247 penalty=8287 reward=0 budgets=[0, 0]
+retained penalty: liquidations=2 late_rollbacks=3 fixed_point_rollbacks=3 rewarded_rollbacks=0 discovery=1540072 old_penalty=5987 new_penalties=8287 rewards=0 payout=1000 CU trade=212977 crank=272285 rejection=300946 payout=55110
+Scope I paid origin: routes=Some((false, false, true)), missing_rollbacks=12, payout_rollbacks=1
+retained penalty phase=0 price=997600 closed=12001223 penalty=5987 reward=0 budgets=[0, 0]
+retained penalty phase=1 price=995206 closed=16653247 penalty=8287 reward=0 budgets=[0, 0]
+retained penalty: liquidations=2 late_rollbacks=3 fixed_point_rollbacks=3 rewarded_rollbacks=0 discovery=1540072 old_penalty=5987 new_penalties=8287 rewards=0 payout=1000 CU trade=212977 crank=272285 rejection=300946 payout=55110
+Scope I paid origin: routes=Some((true, false, false)), missing_rollbacks=9, payout_rollbacks=1
+retained penalty phase=0 price=997600 closed=12001223 penalty=5987 reward=0 budgets=[0, 0]
+retained penalty phase=1 price=995206 closed=16653247 penalty=8287 reward=0 budgets=[0, 0]
+retained penalty: liquidations=2 late_rollbacks=3 fixed_point_rollbacks=3 rewarded_rollbacks=0 discovery=1540072 old_penalty=5987 new_penalties=8287 rewards=0 payout=1000 CU trade=212977 crank=272285 rejection=300946 payout=59610
+Scope I paid origin: routes=Some((true, false, true)), missing_rollbacks=12, payout_rollbacks=1
+retained penalty phase=0 price=997600 closed=12001223 penalty=5987 reward=0 budgets=[0, 0]
+retained penalty phase=1 price=995206 closed=16653247 penalty=8287 reward=0 budgets=[0, 0]
+retained penalty: liquidations=2 late_rollbacks=3 fixed_point_rollbacks=3 rewarded_rollbacks=0 discovery=1540072 old_penalty=5987 new_penalties=8287 rewards=0 payout=1000 CU trade=212977 crank=272285 rejection=300946 payout=61110
+Scope I paid origin: routes=Some((false, true, false)), missing_rollbacks=9, payout_rollbacks=1
+retained penalty phase=0 price=997600 closed=12001223 penalty=5987 reward=0 budgets=[0, 0]
+retained penalty phase=1 price=995206 closed=16653247 penalty=8287 reward=0 budgets=[0, 0]
+retained penalty: liquidations=2 late_rollbacks=3 fixed_point_rollbacks=3 rewarded_rollbacks=0 discovery=1540072 old_penalty=5987 new_penalties=8287 rewards=0 payout=1000 CU trade=212977 crank=272285 rejection=300946 payout=56610
+Scope I paid origin: routes=Some((false, true, true)), missing_rollbacks=12, payout_rollbacks=1
+retained penalty phase=0 price=997600 closed=12001223 penalty=5987 reward=0 budgets=[0, 0]
+retained penalty phase=1 price=995206 closed=16653247 penalty=8287 reward=0 budgets=[0, 0]
+retained penalty: liquidations=2 late_rollbacks=3 fixed_point_rollbacks=3 rewarded_rollbacks=0 discovery=1540072 old_penalty=5987 new_penalties=8287 rewards=0 payout=1000 CU trade=212977 crank=272285 rejection=300946 payout=56610
+Scope I paid origin: routes=Some((true, true, false)), missing_rollbacks=9, payout_rollbacks=1
+retained penalty phase=0 price=997600 closed=12001223 penalty=5987 reward=0 budgets=[0, 0]
+retained penalty phase=1 price=995206 closed=16653247 penalty=8287 reward=0 budgets=[0, 0]
+retained penalty: liquidations=2 late_rollbacks=3 fixed_point_rollbacks=3 rewarded_rollbacks=0 discovery=1540072 old_penalty=5987 new_penalties=8287 rewards=0 payout=1000 CU trade=212977 crank=272285 rejection=300946 payout=56610
+Scope I paid origin: routes=Some((true, true, true)), missing_rollbacks=12, payout_rollbacks=1
+Scope I paid origin: worlds=8, liquidations=16, exact_payouts=8, peak_cu=300946
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 210 filtered out; finished in 19.44s
+

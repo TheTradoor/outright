@@ -1,0 +1,11 @@
+
+running 6 tests
+test support::fuzz_model::effective_oi_rounding_regressions::canonical_resize_rejects_a_raw_atom_hidden_by_the_same_ceil_quantity ... ok
+test support::fuzz_model::effective_oi_rounding_regressions::ceil_leg_sums_reconcile_with_equal_aggregate_oi_without_tolerance ... ok
+test support::fuzz_model::effective_oi_rounding_regressions::capped_dead_leg_removal_requires_a_typed_terminal_witness ... ok
+test support::fuzz_model::effective_oi_rounding_regressions::exhausted_unilateral_side_requires_one_reset_and_no_repeated_reset ... ok
+test support::fuzz_model::effective_oi_rounding_regressions::repeated_index_flooring_has_signed_residue_larger_than_one_atom_per_leg ... ok
+test support::fuzz_model::effective_oi_rounding_regressions::independent_indices_basis_and_aggregate_reject_one_atom_mutations ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.00s
+

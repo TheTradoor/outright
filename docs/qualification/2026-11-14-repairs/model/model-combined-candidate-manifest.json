@@ -1,0 +1,66 @@
+{
+  "qualification": "frozen model against combined candidate SBF",
+  "wrapper_base_pin": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "engine_pin": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "worktree": "/workspace/scratch/31e010aaee78/model-repair",
+  "sbf_path": "/workspace/scratch/31e010aaee78/oracle-repair-after.so",
+  "sbf_sha256": "527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180",
+  "test_binary": "/workspace/scratch/31e010aaee78/model-repair/target/debug/deps/outright_model_checked-d2eeab6e0ec02570",
+  "test_binary_sha256": "1c448d4728606a8c3f528c326cd21fe0bc9cd9724dd3f71337970594be2f903e",
+  "source_sha256": {
+    "tests/support/fuzz_model.rs": "7d60d9a10d1c24cd8afa7061699e82c088a7982c0a92aec1c2761e7bc48a39fb",
+    "tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs": "c9b867e633467e2aaaa354e5800a915247522f6878c4aaddcf7aba3c21aac53c",
+    "tests/fixtures/inv_086_ceil_residue_scenario.json": "025b20c4b9a435a9215cd74005168548283a704ba7e2833553a38bdece921659",
+    "proptest-regressions/inv_086_reference_model_equivalence.txt": "355ca942643c085f61669ec39b6e98c98fd9922c376f0ebd4e4866ecd9c25ed7"
+  },
+  "environment": {
+    "PERCOLATOR_FUZZ_SBF": "/workspace/scratch/31e010aaee78/oracle-repair-after.so"
+  },
+  "source_or_artifact_edits": false,
+  "tests": [
+    {
+      "filter": "effective_oi_rounding_regressions",
+      "log": "/workspace/scratch/31e010aaee78/model-combined-candidate-units.log",
+      "expected_tests": 6,
+      "scope": "pure host math and mutation controls",
+      "log_sha256": "a14ba9b40737953e9099c8dcc5dca1655acf1851e2734a1804017a6bcb68800d",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "filter": "inv_086_reference_model_and_deployed_transition_equivalence::v16_program_effective_oi_rounding_replays_both_exit_campaigns",
+      "exact": true,
+      "log": "/workspace/scratch/31e010aaee78/model-combined-candidate-saved-replay.log",
+      "expected_tests": 1,
+      "scope": "preserved original failure through both public exit campaigns",
+      "log_sha256": "375ff6980587431fdcbb978152aaf52d5ce860673482e89493de2d0baec88d5e",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "filter": "inv_086_reference_model_and_deployed_transition_equivalence::v16_program_reference_model_matches_deployed_public_sequence",
+      "exact": true,
+      "log": "/workspace/scratch/31e010aaee78/model-combined-candidate-public-sequence.log",
+      "expected_tests": 1,
+      "scope": "unmodified default public-sequence proptest including retained corpus",
+      "log_sha256": "daf071121a9ffe32bbce44190e37a068c96d08bff63fd7b660dd95b77d786dca",
+      "status": "interrupted; completion unverified",
+      "session_id": 41829,
+      "liveness_check_utc": "2026-11-13T22:44:35.022123+00:00",
+      "liveness_check_result": "write_stdin: Unknown process id 41829",
+      "last_log_output_utc": "2026-11-13T22:33:06.646579+00:00",
+      "seconds_since_last_output_at_check": 688,
+      "completion_result": null
+    }
+  ],
+  "status": "partial: 7 checks passed (six pure controls and preserved public replay); default public-sequence fuzz interrupted with no verified completion",
+  "fuzz_restarted": false,
+  "baseline_evidence_preserved": true,
+  "notes": [
+    "The missing process session and absence of a final test result do not establish a pass or test failure.",
+    "Original default fuzz settings were retained; no case-count reduction.",
+    "Full CI is required for the complete candidate qualification gate."
+  ]
+}

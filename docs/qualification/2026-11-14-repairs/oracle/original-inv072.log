@@ -1,0 +1,19 @@
+TEST: inv_072_order_robust_crankability::v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle
+
+running 1 test
+test inv_072_order_robust_crankability::v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle ... 
+thread 'inv_072_order_robust_crankability::v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle' (20) panicked at tests/outright_qualification_cu.rs:4766:29:
+crank: FailedTransactionMetadata { err: InstructionError(2, Custom(22)), meta: TransactionMetadata { signature: 49vTtzjvpzS7SWAF2Qx3MXGv3i9QoVesybsr32DPCbqVtbuv7wKbMNeT3bpb79ebzwiTnPjopW48Bv4Zo2LctGan, logs: ["Program ComputeBudget111111111111111111111111111111 invoke [1]", "Program ComputeBudget111111111111111111111111111111 success", "Program ComputeBudget111111111111111111111111111111 invoke [1]", "Program ComputeBudget111111111111111111111111111111 success", "Program Perco1ator111111111111111111111111111111111 invoke [1]", "Program Perco1ator111111111111111111111111111111111 consumed 44995 of 1399700 compute units", "Program Perco1ator111111111111111111111111111111111 failed: custom program error: 0x16"], compute_units_consumed: 45319, return_data: TransactionReturnData { program_id: Perco1ator111111111111111111111111111111111, data: [] } } }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    inv_072_order_robust_crankability::v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 210 filtered out; finished in 1.07s
+
+
+EXIT_CODE: 101
+ELAPSED_SECONDS: 1.09

@@ -1,0 +1,16 @@
+{
+  "repository_mismatch": {
+    "exit_code": 1,
+    "rejected": true,
+    "revision_changed": false
+  },
+  "untracked_wrapper_config": {
+    "exit_code": 1,
+    "rejected_before_cargo": true,
+    "tracked_source_clean": true
+  },
+  "clean_source_control": {
+    "reached_toolchain_gate": true,
+    "real_compiler_executed": false
+  }
+}

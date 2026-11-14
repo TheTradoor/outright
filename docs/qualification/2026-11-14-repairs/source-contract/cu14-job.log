@@ -1,0 +1,455 @@
+﻿2026-11-13T22:54:26.6887970Z Current runner version: '2.338.2'
+2026-11-13T22:54:26.6908721Z ##[group]Runner Image Provisioner
+2026-11-13T22:54:26.6909459Z Hosted Compute Agent
+2026-11-13T22:54:26.6909982Z Version: 20261103.629
+2026-11-13T22:54:26.6910568Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-13T22:54:26.6911214Z Build Date: 2026-11-03T17:26:59Z
+2026-11-13T22:54:26.6911774Z Worker ID: {3491aebd-593d-4542-94cf-e67cc5107b24}
+2026-11-13T22:54:26.6912434Z Region: centralus
+2026-11-13T22:54:26.6912919Z Cloud: Azure
+2026-11-13T22:54:26.6913467Z ##[endgroup]
+2026-11-13T22:54:26.6914561Z ##[group]Operating System
+2026-11-13T22:54:26.6915090Z Ubuntu
+2026-11-13T22:54:26.6915621Z 24.04.5
+2026-11-13T22:54:26.6916070Z LTS
+2026-11-13T22:54:26.6916681Z ##[endgroup]
+2026-11-13T22:54:26.6917203Z ##[group]Runner Image
+2026-11-13T22:54:26.6917715Z Image: ubuntu-24.04
+2026-11-13T22:54:26.6918257Z Version: 20261111.370.1
+2026-11-13T22:54:26.6919332Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-13T22:54:26.6920702Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+2026-11-13T22:54:26.6921504Z ##[endgroup]
+2026-11-13T22:54:26.6922493Z ##[group]GITHUB_TOKEN Permissions
+2026-11-13T22:54:26.6923990Z Contents: read
+2026-11-13T22:54:26.6924608Z Metadata: read
+2026-11-13T22:54:26.6925137Z ##[endgroup]
+2026-11-13T22:54:26.6927130Z Secret source: Actions
+2026-11-13T22:54:26.6927934Z Cache mode: write
+2026-11-13T22:54:26.6928560Z Prepare workflow directory
+2026-11-13T22:54:26.7247356Z Prepare all required actions
+2026-11-13T22:54:26.7286675Z Getting action download info
+2026-11-13T22:54:27.0075492Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-13T22:54:27.1397998Z Download action repository 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38' (SHA:249970729cb0ef3589644e2896645e5dc5ba9c38)
+2026-11-13T22:54:27.2405296Z Download action repository 'actions/cache@5a3ec84eff668545956fd18022155c47e93e2684' (SHA:5a3ec84eff668545956fd18022155c47e93e2684)
+2026-11-13T22:54:27.4416293Z Download action repository 'actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-11-13T22:54:27.8761515Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-13T22:54:28.1615769Z Complete job name: qualify (v16_cu-14, v16_cu, 14)
+2026-11-13T22:54:28.2438256Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-13T22:54:28.2439611Z with:
+2026-11-13T22:54:28.2440223Z   persist-credentials: false
+2026-11-13T22:54:28.2440997Z   repository: TheTradoor/outright
+2026-11-13T22:54:28.2448546Z   token: ***
+2026-11-13T22:54:28.2449166Z   ssh-strict: true
+2026-11-13T22:54:28.2449793Z   ssh-user: git
+2026-11-13T22:54:28.2450401Z   clean: true
+2026-11-13T22:54:28.2451039Z   sparse-checkout-cone-mode: true
+2026-11-13T22:54:28.2451839Z   fetch-depth: 1
+2026-11-13T22:54:28.2452453Z   fetch-tags: false
+2026-11-13T22:54:28.2453084Z   show-progress: true
+2026-11-13T22:54:28.2453740Z   lfs: false
+2026-11-13T22:54:28.2454328Z   submodules: false
+2026-11-13T22:54:28.2525691Z   set-safe-directory: true
+2026-11-13T22:54:28.2526703Z   allow-unsafe-pr-checkout: false
+2026-11-13T22:54:28.2528280Z env:
+2026-11-13T22:54:28.2528906Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-13T22:54:28.2529687Z   CARGO_BUILD_JOBS: 1
+2026-11-13T22:54:28.2530411Z   CARGO_INCREMENTAL: 0
+2026-11-13T22:54:28.2531092Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-11-13T22:54:28.2531819Z   CARGO_PROFILE_TEST_DEBUG: 0
+2026-11-13T22:54:28.2532525Z ##[endgroup]
+2026-11-13T22:54:28.4960130Z Syncing repository: TheTradoor/outright
+2026-11-13T22:54:28.4962555Z ##[group]Getting Git version info
+2026-11-13T22:54:28.4963873Z Working directory is '/home/runner/work/outright/outright'
+2026-11-13T22:54:28.4965344Z [command]/usr/bin/git version
+2026-11-13T22:54:28.5036119Z git version 2.56.1
+2026-11-13T22:54:28.5055365Z ##[endgroup]
+2026-11-13T22:54:28.5069160Z Temporarily overriding HOME='/home/runner/work/_temp/73886b6c-e85e-49b7-a083-00b692137988' before making global git config changes
+2026-11-13T22:54:28.5072574Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T22:54:28.5075227Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/outright/outright
+2026-11-13T22:54:28.5125408Z Deleting the contents of '/home/runner/work/outright/outright'
+2026-11-13T22:54:28.5130081Z ##[group]Determining repository object format
+2026-11-13T22:54:28.5132125Z ##[endgroup]
+2026-11-13T22:54:28.5133687Z ##[group]Initializing the repository
+2026-11-13T22:54:28.5136302Z [command]/usr/bin/git init /home/runner/work/outright/outright
+2026-11-13T22:54:28.5331157Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-13T22:54:28.5333996Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-13T22:54:28.5336455Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-13T22:54:28.5338532Z hint: call:
+2026-11-13T22:54:28.5339568Z hint:
+2026-11-13T22:54:28.5340901Z hint: 	git config --global init.defaultBranch <name>
+2026-11-13T22:54:28.5342504Z hint:
+2026-11-13T22:54:28.5343995Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-13T22:54:28.5346380Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-13T22:54:28.5348644Z hint:
+2026-11-13T22:54:28.5349659Z hint: 	git branch -m <name>
+2026-11-13T22:54:28.5350810Z hint:
+2026-11-13T22:54:28.5352312Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-13T22:54:28.5355157Z Initialized empty Git repository in /home/runner/work/outright/outright/.git/
+2026-11-13T22:54:28.5359418Z [command]/usr/bin/git remote add origin https://github.com/TheTradoor/outright
+2026-11-13T22:54:28.5400245Z ##[endgroup]
+2026-11-13T22:54:28.5401912Z ##[group]Disabling automatic garbage collection
+2026-11-13T22:54:28.5403546Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-13T22:54:28.5436152Z ##[endgroup]
+2026-11-13T22:54:28.5438321Z ##[group]Setting up auth
+2026-11-13T22:54:28.5439551Z Removing SSH command configuration
+2026-11-13T22:54:28.5444171Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T22:54:28.5489885Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T22:54:28.5852857Z Removing HTTP extra header
+2026-11-13T22:54:28.5858852Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T22:54:28.5897323Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T22:54:28.6101669Z Removing includeIf entries pointing to credentials config files
+2026-11-13T22:54:28.6106630Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T22:54:28.6143624Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T22:54:28.6347870Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-13T22:54:28.6386925Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/outright/outright/.git.path /home/runner/work/_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:28.6423409Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:28.6458063Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:28.6492472Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:28.6525672Z ##[endgroup]
+2026-11-13T22:54:28.6527831Z ##[group]Fetching the repository
+2026-11-13T22:54:28.6534088Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +1a3f222b7452242481b9633e1fc1c4c8fd00abbf:refs/remotes/pull/25/merge
+2026-11-13T22:54:29.3175608Z From https://github.com/TheTradoor/outright
+2026-11-13T22:54:29.3177494Z  * [new ref]         1a3f222b7452242481b9633e1fc1c4c8fd00abbf -> pull/25/merge
+2026-11-13T22:54:29.3180325Z ##[endgroup]
+2026-11-13T22:54:29.3181089Z ##[group]Determining the checkout info
+2026-11-13T22:54:29.3181961Z ##[endgroup]
+2026-11-13T22:54:29.3186633Z [command]/usr/bin/git sparse-checkout disable
+2026-11-13T22:54:29.3246646Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-13T22:54:29.3281160Z ##[group]Checking out the ref
+2026-11-13T22:54:29.3284489Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/25/merge
+2026-11-13T22:54:29.3527532Z Note: switching to 'refs/remotes/pull/25/merge'.
+2026-11-13T22:54:29.3528024Z 
+2026-11-13T22:54:29.3528444Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-13T22:54:29.3529218Z changes and commit them, and you can discard any commits you make in this
+2026-11-13T22:54:29.3529972Z state without impacting any branches by switching back to a branch.
+2026-11-13T22:54:29.3530388Z 
+2026-11-13T22:54:29.3530738Z If you want to create a new branch to retain commits you create, you may
+2026-11-13T22:54:29.3531450Z do so (now or later) by using -c with the switch command. Example:
+2026-11-13T22:54:29.3531865Z 
+2026-11-13T22:54:29.3532087Z   git switch -c <new-branch-name>
+2026-11-13T22:54:29.3532383Z 
+2026-11-13T22:54:29.3532640Z Or undo this operation with:
+2026-11-13T22:54:29.3532978Z 
+2026-11-13T22:54:29.3533242Z   git switch -
+2026-11-13T22:54:29.3533572Z 
+2026-11-13T22:54:29.3534020Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-13T22:54:29.3534523Z 
+2026-11-13T22:54:29.3535300Z HEAD is now at 1a3f222 Merge 9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1 into c3e9246664e1dd2d21519681ff336a4539f52c4e
+2026-11-13T22:54:29.3537883Z ##[endgroup]
+2026-11-13T22:54:29.3583099Z [command]/usr/bin/git log -1 --format=%H
+2026-11-13T22:54:29.3611527Z 1a3f222b7452242481b9633e1fc1c4c8fd00abbf
+2026-11-13T22:54:29.3619955Z ##[group]Removing auth
+2026-11-13T22:54:29.3620632Z Removing SSH command configuration
+2026-11-13T22:54:29.3623431Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T22:54:29.3658793Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T22:54:29.3860187Z Removing HTTP extra header
+2026-11-13T22:54:29.3864307Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T22:54:29.3899033Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T22:54:29.4097527Z Removing includeIf entries pointing to credentials config files
+2026-11-13T22:54:29.4099330Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T22:54:29.4130580Z includeif.gitdir:/home/runner/work/outright/outright/.git.path
+2026-11-13T22:54:29.4131423Z includeif.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path
+2026-11-13T22:54:29.4132366Z includeif.gitdir:/github/workspace/.git.path
+2026-11-13T22:54:29.4133083Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T22:54:29.4138161Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/outright/outright/.git.path
+2026-11-13T22:54:29.4165947Z /home/runner/work/_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:29.4177207Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/outright/outright/.git.path /home/runner/work/_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:29.4219483Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path
+2026-11-13T22:54:29.4247247Z /home/runner/work/_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:29.4258868Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:29.4297886Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-13T22:54:29.4333248Z /github/runner_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:29.4340491Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:29.4377028Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T22:54:29.4404740Z /github/runner_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:29.4411819Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config
+2026-11-13T22:54:29.4448398Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T22:54:29.4647811Z Removing credentials config '/home/runner/work/_temp/git-credentials-c5574efa-eda4-4a65-bc67-5a0bd1d420c7.config'
+2026-11-13T22:54:29.4656370Z ##[endgroup]
+2026-11-13T22:54:29.4844978Z ##[group]Run python3 scripts/wrapper_qualification.py fetch --workspace "$RUNNER_TEMP/wrapper-sources"
+2026-11-13T22:54:29.4845822Z [36;1mpython3 scripts/wrapper_qualification.py fetch --workspace "$RUNNER_TEMP/wrapper-sources"[0m
+2026-11-13T22:54:29.4868138Z shell: /usr/bin/bash -e {0}
+2026-11-13T22:54:29.4868518Z env:
+2026-11-13T22:54:29.4868841Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-13T22:54:29.4869216Z   CARGO_BUILD_JOBS: 1
+2026-11-13T22:54:29.4869547Z   CARGO_INCREMENTAL: 0
+2026-11-13T22:54:29.4869896Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-11-13T22:54:29.4870256Z   CARGO_PROFILE_TEST_DEBUG: 0
+2026-11-13T22:54:29.4870601Z ##[endgroup]
+2026-11-13T22:54:29.5261923Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-13T22:54:29.5262932Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-13T22:54:29.5263793Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-13T22:54:29.5264339Z hint: call:
+2026-11-13T22:54:29.5264654Z hint:
+2026-11-13T22:54:29.5265024Z hint: 	git config --global init.defaultBranch <name>
+2026-11-13T22:54:29.5265434Z hint:
+2026-11-13T22:54:29.5265832Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-13T22:54:29.5266400Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-13T22:54:29.5267067Z hint:
+2026-11-13T22:54:29.5267378Z hint: 	git branch -m <name>
+2026-11-13T22:54:29.5267718Z hint:
+2026-11-13T22:54:29.5268133Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-13T22:54:29.5268804Z Initialized empty Git repository in /home/runner/work/_temp/wrapper-sources/percolator-prog/.git/
+2026-11-13T22:54:31.1822184Z From https://github.com/aeyakovenko/percolator-prog
+2026-11-13T22:54:31.1822757Z  * branch            357157e6e14d1d10ce78a995d5d50bb3c1f2ae13 -> FETCH_HEAD
+2026-11-13T22:54:31.2869171Z HEAD is now at 357157e build: bump engine pin to a712af76
+2026-11-13T22:54:31.4348835Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-13T22:54:31.4349373Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-13T22:54:31.4349819Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-13T22:54:31.4350286Z hint: call:
+2026-11-13T22:54:31.4350512Z hint:
+2026-11-13T22:54:31.4350831Z hint: 	git config --global init.defaultBranch <name>
+2026-11-13T22:54:31.4351084Z hint:
+2026-11-13T22:54:31.4351373Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-13T22:54:31.4351952Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-13T22:54:31.4352447Z hint:
+2026-11-13T22:54:31.4352721Z hint: 	git branch -m <name>
+2026-11-13T22:54:31.4353011Z hint:
+2026-11-13T22:54:31.4353292Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-13T22:54:31.4353889Z Initialized empty Git repository in /home/runner/work/_temp/wrapper-sources/percolator-match/.git/
+2026-11-13T22:54:31.7180589Z From https://github.com/aeyakovenko/percolator-match
+2026-11-13T22:54:31.7181223Z  * branch            60aac3a996d0264c47fbefe9a2625d6ee6fb6a47 -> FETCH_HEAD
+2026-11-13T22:54:31.7226237Z HEAD is now at 60aac3a Add batched multi-fill matcher ABI (tag 3)
+2026-11-13T22:54:31.8829197Z ##[group]Run rustup toolchain install 1.95.0 --profile minimal
+2026-11-13T22:54:31.8829590Z [36;1mrustup toolchain install 1.95.0 --profile minimal[0m
+2026-11-13T22:54:31.8846631Z shell: /usr/bin/bash -e {0}
+2026-11-13T22:54:31.8846861Z env:
+2026-11-13T22:54:31.8847032Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-13T22:54:31.8847262Z   CARGO_BUILD_JOBS: 1
+2026-11-13T22:54:31.8847457Z   CARGO_INCREMENTAL: 0
+2026-11-13T22:54:31.8847637Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-11-13T22:54:31.8847841Z   CARGO_PROFILE_TEST_DEBUG: 0
+2026-11-13T22:54:31.8848055Z ##[endgroup]
+2026-11-13T22:54:31.9295665Z info: syncing channel updates for 1.95.0-x86_64-unknown-linux-gnu
+2026-11-13T22:54:32.1446368Z info: latest update on 2026-04-16 for version 1.95.0 (59807616e 2026-04-14)
+2026-11-13T22:54:32.1447060Z info: downloading 3 components
+2026-11-13T22:54:38.8234099Z 
+2026-11-13T22:54:38.8298844Z   1.95.0-x86_64-unknown-linux-gnu installed - rustc 1.95.0 (59807616e 2026-04-14)
+2026-11-13T22:54:38.8299321Z 
+2026-11-13T22:54:38.8504278Z ##[group]Run actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+2026-11-13T22:54:38.8504590Z with:
+2026-11-13T22:54:38.8504942Z   path: ~/.cargo/registry
+~/.cargo/git
+/home/runner/work/_temp/wrapper-sources/percolator-prog/target/debug
+
+2026-11-13T22:54:38.8505551Z   key: wrapper-host-ubuntu24-rust1.95-debug0-v1-47b7b4963cb4322de142e3bc04d347460eb28f1910f1ea4061be041d2cfdb97d
+2026-11-13T22:54:38.8506015Z   enableCrossOsArchive: false
+2026-11-13T22:54:38.8506224Z   fail-on-cache-miss: false
+2026-11-13T22:54:38.8506413Z   lookup-only: false
+2026-11-13T22:54:38.8506861Z   save-always: false
+2026-11-13T22:54:38.8507028Z env:
+2026-11-13T22:54:38.8507193Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-13T22:54:38.8507399Z   CARGO_BUILD_JOBS: 1
+2026-11-13T22:54:38.8507568Z   CARGO_INCREMENTAL: 0
+2026-11-13T22:54:38.8507744Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-11-13T22:54:38.8507931Z   CARGO_PROFILE_TEST_DEBUG: 0
+2026-11-13T22:54:38.8508116Z ##[endgroup]
+2026-11-13T22:54:38.9354211Z (node:2306) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T22:54:38.9354967Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T22:54:39.1222714Z Cache hit for: wrapper-host-ubuntu24-rust1.95-debug0-v1-47b7b4963cb4322de142e3bc04d347460eb28f1910f1ea4061be041d2cfdb97d
+2026-11-13T22:54:39.1344488Z (node:2306) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-13T22:54:40.2588217Z Received 130023424 of 727258806 (17.9%), 124.0 MBs/sec
+2026-11-13T22:54:41.2573308Z Received 310378496 of 727258806 (42.7%), 147.9 MBs/sec
+2026-11-13T22:54:42.2576132Z Received 515899392 of 727258806 (70.9%), 163.9 MBs/sec
+2026-11-13T22:54:43.2576998Z Received 700448768 of 727258806 (96.3%), 167.0 MBs/sec
+2026-11-13T22:54:43.3511780Z Received 727258806 of 727258806 (100.0%), 169.4 MBs/sec
+2026-11-13T22:54:43.3513796Z Cache Size: ~694 MB (727258806 B)
+2026-11-13T22:54:43.3548164Z [command]/usr/bin/tar -xf /home/runner/work/_temp/0ad956cb-23ea-42c7-9426-dc24d10aa222/cache.tzst -P -C /home/runner/work/outright/outright --use-compress-program unzstd
+2026-11-13T22:54:49.5046611Z Cache restored successfully
+2026-11-13T22:54:49.5735265Z Cache restored from key: wrapper-host-ubuntu24-rust1.95-debug0-v1-47b7b4963cb4322de142e3bc04d347460eb28f1910f1ea4061be041d2cfdb97d
+2026-11-13T22:54:49.6154722Z ##[group]Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+2026-11-13T22:54:49.6155064Z with:
+2026-11-13T22:54:49.6155252Z   name: wrapper-programs
+2026-11-13T22:54:49.6155493Z   path: /home/runner/work/_temp/program-artifacts
+2026-11-13T22:54:49.6155754Z   merge-multiple: false
+2026-11-13T22:54:49.6155954Z   repository: TheTradoor/outright
+2026-11-13T22:54:49.6156173Z   run-id: 43520468937
+2026-11-13T22:54:49.6156346Z env:
+2026-11-13T22:54:49.6156743Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-13T22:54:49.6157004Z   CARGO_BUILD_JOBS: 1
+2026-11-13T22:54:49.6157191Z   CARGO_INCREMENTAL: 0
+2026-11-13T22:54:49.6157381Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-11-13T22:54:49.6157586Z   CARGO_PROFILE_TEST_DEBUG: 0
+2026-11-13T22:54:49.6157785Z ##[endgroup]
+2026-11-13T22:54:49.8175971Z Downloading single artifact
+2026-11-13T22:54:49.8333953Z (node:2332) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T22:54:49.8334925Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T22:54:49.9845087Z Preparing to download the following artifacts:
+2026-11-13T22:54:49.9845980Z - wrapper-programs (ID: 14083605455, Size: 493338, Expected Digest: sha256:f7c8dc72ca35f600e931c96bde0febfd5a2d52ebc652cd031099327e932ea07a)
+2026-11-13T22:54:50.1854971Z Redirecting to blob download url: https://productionresultssa2.blob.core.windows.net/actions-results/292d09fa-e8c4-8ada-8818-a3663978e549/workflow-job-run-22e54be7-d6fb-595b-9ef6-aca9505697d9/artifacts/ba69c64c7ce7ef7b2c8315e691905df406531d48aa60154e85a644fadba0b31f.zip
+2026-11-13T22:54:50.1856739Z Starting download of artifact to: /home/runner/work/_temp/program-artifacts
+2026-11-13T22:54:50.3611459Z (node:2332) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-13T22:54:50.5304747Z SHA256 digest of downloaded artifact is f7c8dc72ca35f600e931c96bde0febfd5a2d52ebc652cd031099327e932ea07a
+2026-11-13T22:54:50.5305471Z Artifact download completed successfully.
+2026-11-13T22:54:50.5305844Z Total of 1 artifact(s) downloaded
+2026-11-13T22:54:50.5308798Z Download artifact has finished successfully
+2026-11-13T22:54:50.5826871Z ##[group]Run tar -C "$RUNNER_TEMP/wrapper-sources" -xzf "$RUNNER_TEMP/program-artifacts/sbf.tar.gz"
+2026-11-13T22:54:50.5827487Z [36;1mtar -C "$RUNNER_TEMP/wrapper-sources" -xzf "$RUNNER_TEMP/program-artifacts/sbf.tar.gz"[0m
+2026-11-13T22:54:50.5844949Z shell: /usr/bin/bash -e {0}
+2026-11-13T22:54:50.5845168Z env:
+2026-11-13T22:54:50.5845350Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-13T22:54:50.5845572Z   CARGO_BUILD_JOBS: 1
+2026-11-13T22:54:50.5845763Z   CARGO_INCREMENTAL: 0
+2026-11-13T22:54:50.5845954Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-11-13T22:54:50.5846393Z   CARGO_PROFILE_TEST_DEBUG: 0
+2026-11-13T22:54:50.5846693Z ##[endgroup]
+2026-11-13T22:54:50.6923038Z ##[group]Run python3 scripts/wrapper_qualification.py run \
+2026-11-13T22:54:50.6923607Z [36;1mpython3 scripts/wrapper_qualification.py run \[0m
+2026-11-13T22:54:50.6924082Z [36;1m  --workspace "$RUNNER_TEMP/wrapper-sources" \[0m
+2026-11-13T22:54:50.6924486Z [36;1m  --shard 'v16_cu-14' \[0m
+2026-11-13T22:54:50.6924911Z [36;1m  --artifacts "$RUNNER_TEMP/program-artifacts/artifacts.json" \[0m
+2026-11-13T22:54:50.6925394Z [36;1m  --output "$RUNNER_TEMP/result-v16_cu-14"[0m
+2026-11-13T22:54:50.6947157Z shell: /usr/bin/bash -e {0}
+2026-11-13T22:54:50.6947473Z env:
+2026-11-13T22:54:50.6947732Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-13T22:54:50.6948065Z   CARGO_BUILD_JOBS: 1
+2026-11-13T22:54:50.6948348Z   CARGO_INCREMENTAL: 0
+2026-11-13T22:54:50.6948629Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-11-13T22:54:50.6948941Z   CARGO_PROFILE_TEST_DEBUG: 0
+2026-11-13T22:54:50.6949243Z ##[endgroup]
+2026-11-13T22:55:07.6011044Z v16_cu-14 1/98 PASS inv_037_exact_residual_partition::v16_bpf_account_residual_reward_counter_accumulates_across_batch_legs
+2026-11-13T22:55:09.8700550Z v16_cu-14 2/98 PASS inv_037_exact_residual_partition::v16_bpf_account_residual_reward_counter_caps_available_crystallized_loss
+2026-11-13T22:55:14.3443708Z v16_cu-14 3/98 PASS inv_037_exact_residual_partition::v16_bpf_account_residual_reward_counter_covers_all_trade_paths
+2026-11-13T22:55:17.0149798Z v16_cu-14 4/98 PASS inv_037_exact_residual_partition::v16_bpf_backing_residual_reward_counter_covers_all_trade_paths
+2026-11-13T22:55:17.5808144Z v16_cu-14 5/98 PASS inv_037_exact_residual_partition::v16_bpf_backing_residual_reward_counter_is_domain_isolated_and_sync_gated
+2026-11-13T22:55:18.1467770Z v16_cu-14 6/98 PASS inv_037_exact_residual_partition::v16_bpf_backing_residual_reward_counter_is_snapshot_deterministic
+2026-11-13T22:55:19.1135455Z v16_cu-14 7/98 PASS inv_037_exact_residual_partition::v16_program_insurance_covered_liquidation_close_ledger_partitions_exactly
+2026-11-13T22:55:21.3828071Z v16_cu-14 8/98 PASS inv_048_matched_trade_and_open_interest_coherence::v16_program_all_trade_routes_keep_oi_equal_to_active_leg_scan
+2026-11-13T22:55:21.5425906Z v16_cu-14 9/98 PASS inv_048_matched_trade_and_open_interest_coherence::v16_program_position_mutation_composition_is_source_complete
+2026-11-13T22:55:21.6152045Z v16_cu-14 10/98 FAIL inv_048_matched_trade_and_open_interest_coherence::v16_program_typed_matched_book_obligation_oracle_is_source_complete
+2026-11-13T22:55:24.2716807Z v16_cu-14 11/98 PASS inv_064_insurance_withdrawal_policy_equivalence::native_replenishment_epoch::v16_native_replenishment_preserves_consumed_consent_across_resolved_quote_routes
+2026-11-13T22:55:25.5392467Z v16_cu-14 12/98 PASS inv_064_insurance_withdrawal_policy_equivalence::operator_terminal_handoff::v16_program_same_slot_operator_departure_preserves_terminal_recipient_and_budget
+2026-11-13T22:55:26.1051784Z v16_cu-14 13/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_attack_live_insurance_asset_withdraw_uniform_for_asset0_and_permissionless_asset
+2026-11-13T22:55:26.6710809Z v16_cu-14 14/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_attack_removed_limited_insurance_tags_reject_without_mutation
+2026-11-13T22:55:27.7883218Z v16_cu-14 15/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_attack_resolved_asset_insurance_withdraw_requires_full_wind_down
+2026-11-13T22:55:28.3543207Z v16_cu-14 16/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_attack_resolved_backing_withdraw_is_limited_to_surplus_before_wind_down
+2026-11-13T22:55:28.9202189Z v16_cu-14 17/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_attack_unexposed_target_move_cannot_grief_live_insurance_withdrawals
+2026-11-13T22:55:29.5864069Z v16_cu-14 18/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_attack_unrelated_refresh_cannot_mask_loss_stale_insurance_gate
+2026-11-13T22:55:30.2028131Z v16_cu-14 19/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_attack_withdraw_insurance_domain_budget_cannot_be_overdrawn
+2026-11-13T22:55:30.8188149Z v16_cu-14 20/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_bpf_resolved_terminal_insurance_drains_dynamic_domain_after_positions_close
+2026-11-13T22:55:31.3847761Z v16_cu-14 21/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_live_insurance_withdraw_uses_active_loss_not_bankruptcy_history
+2026-11-13T22:55:33.1535444Z v16_cu-14 22/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_program_insurance_withdrawal_ledger_history_is_economically_transparent
+2026-11-13T22:55:33.8199766Z v16_cu-14 23/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_program_insurance_withdrawal_schedules_preserve_asset_allowance_and_exact_retry
+2026-11-13T22:55:36.0402150Z v16_cu-14 24/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_program_live_and_resolved_insurance_withdrawals_share_one_finite_budget
+2026-11-13T22:55:38.4104651Z v16_cu-14 25/98 PASS inv_064_insurance_withdrawal_policy_equivalence::v16_program_second_asset_overwithdraw_restores_paid_prefix_ledgers_and_consent
+2026-11-13T22:55:38.9764707Z v16_cu-14 26/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_attack_close_resolved_dest_validation
+2026-11-13T22:55:39.5423869Z v16_cu-14 27/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_attack_permissionless_close_resolved_rejects_delegated_dest
+2026-11-13T22:55:40.1101223Z v16_cu-14 28/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_bpf_resolved_payout_tags_are_bounded_and_update_state
+2026-11-13T22:55:40.6760541Z v16_cu-14 29/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_program_claim_resolved_topup_rejects_delegated_vault_without_burning_receipt
+2026-11-13T22:55:41.3423933Z v16_cu-14 30/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_program_resolved_payout_secondary_rail_exhausts_shared_receipt
+2026-11-13T22:55:41.9086019Z v16_cu-14 31/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_program_resolved_payout_topup_bad_dest_does_not_burn_receipt
+2026-11-13T22:55:42.4746994Z v16_cu-14 32/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_program_resolved_payout_topup_rejects_delegated_dest_without_burning_receipt
+2026-11-13T22:55:43.0908022Z v16_cu-14 33/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_program_resolved_receipt_replays_extract_no_value_on_any_public_rail
+2026-11-13T22:55:46.2131740Z v16_cu-14 34/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_program_retired_coowned_receipt_rolls_back_live_sibling_topup_bundle
+2026-11-13T22:55:52.4434963Z v16_cu-14 35/98 PASS inv_068_receipt_uniqueness_and_monotonic_topups::v16_program_same_owner_receipts_keep_independent_topups_and_terminal_replays
+2026-11-13T22:58:32.0843765Z v16_cu-14 36/98 PASS inv_071_crank_progress::dense_terminal_claimants::v16_program_dense_claimants_and_reserves_reconcile_at_supported_capacity
+2026-11-13T23:03:24.3370001Z v16_cu-14 37/98 PASS inv_071_crank_progress::generated_terminal_actionability::v16_program_generated_receipts_and_reserves_have_constructible_terminal_progress
+2026-11-13T23:03:25.7550633Z v16_cu-14 38/98 PASS inv_071_crank_progress::recovery_obligation_finalization::v16_program_recovery_releases_obligation_before_exact_finalization_and_payout
+2026-11-13T23:03:27.1731959Z v16_cu-14 39/98 PASS inv_071_crank_progress::recovery_obligation_finalization::v16_program_released_obligation_crank_advances_epoch_in_live_and_market_recovery
+2026-11-13T23:03:32.2993167Z v16_cu-14 40/98 PASS inv_071_crank_progress::terminal_cursor_time::v16_program_persisted_scan_reclassifies_time_without_skipping_live_siblings
+2026-11-13T23:03:37.3254663Z v16_cu-14 41/98 PASS inv_071_crank_progress::terminal_prefix_insurance::v16_program_scanned_insurance_withdrawals_preserve_peer_entitlements_across_late_expiry
+2026-11-13T23:03:50.3201237Z v16_cu-14 42/98 PASS inv_071_crank_progress::terminal_prefix_recredit::v16_program_later_expiry_recomputes_scanned_asset_insurance_entitlement
+2026-11-13T23:03:52.8407619Z v16_cu-14 43/98 PASS inv_071_crank_progress::terminal_reserve_backfill::v16_program_terminal_prefix_blocks_reserve_backfill_across_expiry_and_retries_cleanup
+2026-11-13T23:03:53.4569415Z v16_cu-14 44/98 PASS inv_071_crank_progress::v16_attack_auto_crank_prioritizes_b_stale_over_liquidation_reward_tail
+2026-11-13T23:03:54.3239795Z v16_cu-14 45/98 PASS inv_071_crank_progress::v16_attack_auto_crank_reaches_later_material_liquidation_past_tiny_first_leg
+2026-11-13T23:03:54.9402791Z v16_cu-14 46/98 PASS inv_071_crank_progress::v16_attack_resolved_permissionless_crank_survives_drained_owner_system_account
+2026-11-13T23:03:56.5086889Z v16_cu-14 47/98 PASS inv_071_crank_progress::v16_attack_risk_reducing_trade_cannot_erase_canonical_price_movement_remainder
+2026-11-13T23:03:57.0747735Z v16_cu-14 48/98 PASS inv_071_crank_progress::v16_attack_stale_liquidation_budget_observation_crank_progresses_without_reward_or_value
+2026-11-13T23:03:57.6908596Z v16_cu-14 49/98 PASS inv_071_crank_progress::v16_program_auto_crank_current_solvent_partial_liquidation_makes_progress
+2026-11-13T23:03:58.3070964Z v16_cu-14 50/98 PASS inv_071_crank_progress::v16_program_b_budget_lock_prerequisite_rejects_post_adl_basis_reissue
+2026-11-13T23:04:00.0262135Z v16_cu-14 51/98 PASS inv_071_crank_progress::v16_program_bankruptcy_escalation_matrix_commits_recovery_and_resolves
+2026-11-13T23:04:01.2439624Z v16_cu-14 52/98 PASS inv_071_crank_progress::v16_program_completed_terminal_hint_replay_preserves_remaining_crank_rank
+2026-11-13T23:04:01.2767931Z v16_cu-14 53/98 PASS inv_071_crank_progress::v16_program_crank_progress_and_recovery_composition_is_source_complete
+2026-11-13T23:04:01.8428634Z v16_cu-14 54/98 PASS inv_071_crank_progress::v16_program_ewma_crank_commits_once_then_rejects_same_slot_fixed_point
+2026-11-13T23:04:02.6097191Z v16_cu-14 55/98 PASS inv_071_crank_progress::v16_program_inv082_public_close_classifier_matches_concrete_engine_dispatch
+2026-11-13T23:04:03.7776846Z v16_cu-14 56/98 PASS inv_071_crank_progress::v16_program_micro_price_schedule_is_partition_invariant_and_eventually_progresses
+2026-11-13T23:04:04.3440294Z v16_cu-14 57/98 PASS inv_071_crank_progress::v16_program_permissionless_crank_closes_capital_only_resolved_account
+2026-11-13T23:04:05.1109422Z v16_cu-14 58/98 PASS inv_071_crank_progress::v16_program_prospective_loss_expiry_matrix_keeps_resolved_exit_live
+2026-11-13T23:04:05.7777435Z v16_cu-14 59/98 PASS inv_071_crank_progress::v16_program_prospective_source_expiry_prerequisite_matrix_keeps_exit_live
+2026-11-13T23:04:06.5445851Z v16_cu-14 60/98 PASS inv_071_crank_progress::v16_program_public_b_prerequisite_preserves_later_liquidation_progress
+2026-11-13T23:04:07.4119991Z v16_cu-14 61/98 PASS inv_071_crank_progress::v16_program_public_expired_close_preempts_b_stale_and_preserves_terminal_progress
+2026-11-13T23:04:08.1787942Z v16_cu-14 62/98 PASS inv_071_crank_progress::v16_program_public_pending_close_preempts_b_stale_then_exposes_b_progress
+2026-11-13T23:04:09.1462066Z v16_cu-14 63/98 PASS inv_071_crank_progress::v16_program_public_retained_source_lien_does_not_hide_adverse_leg_progress
+2026-11-13T23:04:09.8630369Z v16_cu-14 64/98 PASS inv_071_crank_progress::v16_regression_crank_idempotent_at_settlement_fixed_point
+2026-11-13T23:04:12.3339633Z v16_cu-14 65/98 PASS inv_080_error_propagation_and_exact_rollback::backing_bundle_cpi_retry::v16_program_second_backing_cpi_failure_restores_sidecars_and_shared_intent_retry
+2026-11-13T23:04:13.5017993Z v16_cu-14 66/98 PASS inv_080_error_propagation_and_exact_rollback::native_deposit_sync_retry::v16_program_native_deposit_cpi_failure_restores_sync_and_signed_retry
+2026-11-13T23:04:14.6694727Z v16_cu-14 67/98 PASS inv_080_error_propagation_and_exact_rollback::reserve_swap_authority_rollback::v16_program_retained_swap_epoch_error_restores_native_custody_and_authority_roundtrip
+2026-11-13T23:04:15.2358423Z v16_cu-14 68/98 PASS inv_080_error_propagation_and_exact_rollback::v16_attack_crank_target_portfolio_rejects_before_oracle_tail_parse
+2026-11-13T23:04:15.8522024Z v16_cu-14 69/98 PASS inv_080_error_propagation_and_exact_rollback::v16_attack_hybrid_liquidation_bad_reward_tail_rolls_back_oracle_update
+2026-11-13T23:04:16.4186143Z v16_cu-14 70/98 PASS inv_080_error_propagation_and_exact_rollback::v16_attack_hybrid_soft_stale_partial_oracle_error_does_not_poison_retry
+2026-11-13T23:04:16.9849178Z v16_cu-14 71/98 PASS inv_080_error_propagation_and_exact_rollback::v16_attack_liquidation_reward_wrong_owner_rejects_before_oracle_tail_parse
+2026-11-13T23:04:17.9521744Z v16_cu-14 72/98 PASS inv_080_error_propagation_and_exact_rollback::v16_attack_liquidation_wrong_owner_rolls_back_legacy_reward_realloc
+2026-11-13T23:04:18.5185750Z v16_cu-14 73/98 PASS inv_080_error_propagation_and_exact_rollback::v16_attack_permissionless_close_resolved_bad_dest_rolls_back_legacy_realloc
+2026-11-13T23:04:19.1349314Z v16_cu-14 74/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_cranker_reward_liquidation_rejects_invalid_shape_without_paying_reward
+2026-11-13T23:04:19.7013021Z v16_cu-14 75/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_backing_earnings_withdraw_rolls_back_bucket_and_ledger
+2026-11-13T23:04:20.2676317Z v16_cu-14 76/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_backing_topup_transfer_preserves_same_intent_retry
+2026-11-13T23:04:20.8341821Z v16_cu-14 77/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_backing_withdraw_transfer_rolls_back_bucket_and_ledger
+2026-11-13T23:04:21.4006099Z v16_cu-14 78/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_claim_resolved_topup_rolls_back_receipt_and_ledger
+2026-11-13T23:04:21.9668057Z v16_cu-14 79/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_close_resolved_transfer_rolls_back_payout_state
+2026-11-13T23:04:22.5833295Z v16_cu-14 80/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_deposit_spl_transfer_rolls_back_engine_credit
+2026-11-13T23:04:23.1497206Z v16_cu-14 81/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_domain_insurance_topup_transfer_preserves_same_intent_retry
+2026-11-13T23:04:23.7161416Z v16_cu-14 82/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_insurance_topup_transfer_preserves_same_intent_retry
+2026-11-13T23:04:24.2824316Z v16_cu-14 83/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_terminal_insurance_withdraw_rolls_back_market_and_ledger
+2026-11-13T23:04:24.8488724Z v16_cu-14 84/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_failed_withdraw_spl_transfer_rolls_back_engine_debit
+2026-11-13T23:04:25.4652524Z v16_cu-14 85/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_no_cranker_liquidation_rejects_invalid_final_market_shape
+2026-11-13T23:04:26.0318992Z v16_cu-14 86/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_overwithdraw_engine_error_rolls_back_public_route
+2026-11-13T23:04:26.5982153Z v16_cu-14 87/98 PASS inv_080_error_propagation_and_exact_rollback::v16_bpf_tradenocpi_rejects_invalid_final_market_shape
+2026-11-13T23:04:27.2147572Z v16_cu-14 88/98 PASS inv_080_error_propagation_and_exact_rollback::v16_engine_error_aborts_before_later_cpi_return_consumer_can_execute
+2026-11-13T23:04:27.7811265Z v16_cu-14 89/98 PASS inv_080_error_propagation_and_exact_rollback::v16_engine_error_aborts_before_later_valid_instruction_can_commit
+2026-11-13T23:04:28.4478732Z v16_cu-14 90/98 PASS inv_080_error_propagation_and_exact_rollback::v16_program_batch_tradecpi_rejects_stale_resolve_matured_atomically
+2026-11-13T23:04:29.0142359Z v16_cu-14 91/98 PASS inv_080_error_propagation_and_exact_rollback::v16_program_claim_resolved_topup_bad_dest_rolls_back_legacy_realloc
+2026-11-13T23:04:29.5805616Z v16_cu-14 92/98 PASS inv_080_error_propagation_and_exact_rollback::v16_program_crank_raw_program_portfolio_realloc_rolls_back
+2026-11-13T23:04:29.5895076Z v16_cu-14 93/98 PASS inv_080_error_propagation_and_exact_rollback::v16_program_dispatch_and_entrypoints_preserve_every_handler_error
+2026-11-13T23:04:29.6223486Z v16_cu-14 94/98 PASS inv_080_error_propagation_and_exact_rollback::v16_program_explicit_engine_error_dispositions_are_source_complete
+2026-11-13T23:04:31.3911261Z v16_cu-14 95/98 PASS inv_080_error_propagation_and_exact_rollback::v16_program_insurance_funding_prefix_rolls_back_created_ledger_on_engine_error
+2026-11-13T23:04:31.9575177Z v16_cu-14 96/98 PASS inv_080_error_propagation_and_exact_rollback::v16_program_stale_cure_rolls_back_legacy_realloc_and_transfer
+2026-11-13T23:04:32.5238979Z v16_cu-14 97/98 PASS inv_080_error_propagation_and_exact_rollback::v16_program_stale_init_portfolio_rolls_back_undersized_realloc
+2026-11-13T23:04:33.1404961Z v16_cu-14 98/98 PASS inv_080_error_propagation_and_exact_rollback::v16_program_stale_maintenance_rolls_back_legacy_cranker_reallocs
+2026-11-13T23:04:33.2389709Z ##[error]Process completed with exit code 1.
+2026-11-13T23:04:33.2461288Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-13T23:04:33.2461612Z with:
+2026-11-13T23:04:33.2461803Z   name: wrapper-result-v16_cu-14
+2026-11-13T23:04:33.2462063Z   path: /home/runner/work/_temp/result-v16_cu-14/
+2026-11-13T23:04:33.2462327Z   if-no-files-found: error
+2026-11-13T23:04:33.2462534Z   retention-days: 14
+2026-11-13T23:04:33.2462719Z   compression-level: 6
+2026-11-13T23:04:33.2462901Z   overwrite: false
+2026-11-13T23:04:33.2463092Z   include-hidden-files: false
+2026-11-13T23:04:33.2463285Z env:
+2026-11-13T23:04:33.2463459Z   CARGO_NET_GIT_FETCH_WITH_CLI: true
+2026-11-13T23:04:33.2463674Z   CARGO_BUILD_JOBS: 1
+2026-11-13T23:04:33.2463854Z   CARGO_INCREMENTAL: 0
+2026-11-13T23:04:33.2464039Z   CARGO_PROFILE_DEV_DEBUG: 0
+2026-11-13T23:04:33.2464237Z   CARGO_PROFILE_TEST_DEBUG: 0
+2026-11-13T23:04:33.2464430Z ##[endgroup]
+2026-11-13T23:04:33.3969172Z (node:3005) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-13T23:04:33.3970059Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-13T23:04:33.4206342Z With the provided path, there will be 100 files uploaded
+2026-11-13T23:04:33.4211606Z Artifact name is valid!
+2026-11-13T23:04:33.4212419Z Root directory input is valid!
+2026-11-13T23:04:33.7151252Z Beginning upload of artifact content to blob storage
+2026-11-13T23:04:33.7981618Z (node:3005) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-13T23:04:34.0092305Z Uploaded bytes 90379
+2026-11-13T23:04:34.0544979Z Finished uploading artifact content to blob storage!
+2026-11-13T23:04:34.0545595Z SHA256 digest of uploaded artifact zip is 1bf3fa809898c46d4f43d66f4b897a28a4e110113da2272af6866abb496495d6
+2026-11-13T23:04:34.0547495Z Finalizing artifact upload
+2026-11-13T23:04:34.5481145Z Artifact wrapper-result-v16_cu-14.zip successfully finalized. Artifact ID 14084557630
+2026-11-13T23:04:34.5482175Z Artifact wrapper-result-v16_cu-14 has been successfully uploaded! Final size is 90379 bytes. Artifact ID is 14084557630
+2026-11-13T23:04:34.5487661Z Artifact download URL: https://github.com/TheTradoor/outright/actions/runs/43520468937/artifacts/14084557630
+2026-11-13T23:04:34.5694515Z Post job cleanup.
+2026-11-13T23:04:34.6407123Z [command]/usr/bin/git version
+2026-11-13T23:04:34.6438777Z git version 2.56.1
+2026-11-13T23:04:34.6473632Z Temporarily overriding HOME='/home/runner/work/_temp/102f0228-24df-4978-a45b-7cc2fe110c9a' before making global git config changes
+2026-11-13T23:04:34.6474654Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T23:04:34.6476695Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/outright/outright
+2026-11-13T23:04:34.6505675Z Removing SSH command configuration
+2026-11-13T23:04:34.6512538Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T23:04:34.6542999Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T23:04:34.6753762Z Removing HTTP extra header
+2026-11-13T23:04:34.6758723Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T23:04:34.6791077Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T23:04:34.7020004Z Removing includeIf entries pointing to credentials config files
+2026-11-13T23:04:34.7027209Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T23:04:34.7100684Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T23:04:34.7454543Z Cleaning up orphan processes
+2026-11-13T23:04:34.7745552Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684, actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,2564 @@
+diff --git a/OUTRIGHT.md b/OUTRIGHT.md
+new file mode 100644
+index 00000000..98ad8520
+--- /dev/null
++++ b/OUTRIGHT.md
+@@ -0,0 +1,16 @@
++# Outright program qualification
++
++This is a development fork of [aeyakovenko/percolator-prog](https://github.com/aeyakovenko/percolator-prog), based on upstream commit `357157e6e14d1d10ce78a995d5d50bb3c1f2ae13`. The upstream history, license and attribution are retained. The Percolator engine dependency remains `a712af767eeb217876a3d3c50e3849b60ea54462`; the engine's accounting implementation is not modified by this repair series.
++
++## Changes under qualification
++
++- Allow an asset already in Recovery to use its frozen, committed state during account-health progress. The oracle profile is still validated. Live and DrainOnly assets retain their existing freshness checks. Tests cover delayed Recovery, malformed and stale Live observations, omitted evidence, rollback, custody and the original maximum-shape compute limits.
++- Align reward fixtures with the existing authenticated-price provenance rule. Trade-origin catch-up still cannot earn rewards merely because a fresh external target was published. Positive receipt tests first authenticate the effective price through a public crank; negative controls retain zero unauthorized rewards.
++- Compare funded report histories using their exact input-derived funding. Different observation histories can legitimately accrue different funding; identical histories with different account-settlement timing must still reconcile exactly.
++- Reconcile rounded per-leg exposure with aggregate open interest in the independent test model. Exact aggregate accounting, an independent ADL index/epoch history, canonical raw-basis transitions and scoped terminal-removal witnesses remain checked. The retained failure is replayed through both permissionless progress and owner exit. No arbitrary one-atom tolerance is added.
++
++## Evidence and release status
++
++The [Outright application repository](https://github.com/TheTradoor/outright) owns the pinned-source qualification workflow, native client integration and release checklist. Each result must identify the exact source and SBF artifact it executed. Passing a focused regression does not substitute for the complete wrapper gates or current-validator integration.
++
++This fork is not a mainnet deployment. A public release still requires complete qualification, a verified deployed program and market, operator-controlled authorities, live oracle and keeper operations, real-wallet acceptance and independent security review. The website's mainnet transaction path remains disabled until those prerequisites are met.
+diff --git a/src/v16_program.rs b/src/v16_program.rs
+index 38c0f01e..b5172d64 100644
+--- a/src/v16_program.rs
++++ b/src/v16_program.rs
+@@ -14741,6 +14741,14 @@ pub mod processor {
+             return Err(PercolatorError::InvalidInstruction.into());
+         }
+         let profile = read_oracle_profile_from_view(group, cfg, asset_index)?;
++        // Asset Recovery settles already-committed K/F/B at its frozen price. Its
++        // oracle profile cannot receive a new Live observation after shutdown, so
++        // requiring a current-slot report would strand otherwise-bounded progress.
++        // Five is the pinned engine account encoding for Recovery; all other
++        // lifecycles retain the existing health-observation checks below.
++        if group.markets[asset_index].engine.asset.lifecycle == 5 {
++            return Ok(());
++        }
+         // A stale-account refresh cannot consume this slot's accrual interval from a prior-slot
+         // Hybrid observation. In normal external mode every active health leg must have advanced
+         // from an authenticated report in this slot. Once the configured after-hours threshold
+diff --git a/tests/fixtures/inv_086_ceil_residue_scenario.json b/tests/fixtures/inv_086_ceil_residue_scenario.json
+new file mode 100644
+index 00000000..6d7aace0
+--- /dev/null
++++ b/tests/fixtures/inv_086_ceil_residue_scenario.json
+@@ -0,0 +1,135 @@
++{
++  "seed": [
++    0,
++    0,
++    0,
++    0,
++    0,
++    0,
++    0,
++    0,
++    10,
++    190,
++    101,
++    105,
++    240,
++    2,
++    140,
++    129,
++    247,
++    246,
++    233,
++    219,
++    191,
++    23,
++    40,
++    144,
++    172,
++    253,
++    245,
++    59,
++    69,
++    52,
++    14,
++    70
++  ],
++  "config": {
++    "max_price_move_bps_per_slot": 500,
++    "max_accrual_dt_slots": 2,
++    "max_abs_funding_e9_per_slot": 0,
++    "maintenance_fee_per_slot": 1
++  },
++  "actions": [
++    {
++      "ConvertReleasedPnl": {
++        "actor": 189,
++        "amount": 230
++      }
++    },
++    {
++      "SyncMaintenanceFee": {
++        "actor": 171,
++        "dt": 4
++      }
++    },
++    {
++      "CrossMarketSubstitution": {
++        "actor": 133
++      }
++    },
++    {
++      "ForceCloseAbandoned": {
++        "cranker": 157,
++        "account_a": 188,
++        "account_b": 223,
++        "asset": 236,
++        "dt": 164,
++        "units": 252
++      }
++    },
++    {
++      "Trade": {
++        "route": "Cpi",
++        "taker": 243,
++        "maker": 190,
++        "asset": 166,
++        "units": -1,
++        "fee_bps": 1,
++        "price_move_bps": 532,
++        "prefer_reduce": true
++      }
++    },
++    {
++      "Withdraw": {
++        "actor": 63,
++        "amount": 196
++      }
++    },
++    {
++      "Trade": {
++        "route": "BatchCpi",
++        "taker": 206,
++        "maker": 159,
++        "asset": 123,
++        "units": -3,
++        "fee_bps": 15,
++        "price_move_bps": 647,
++        "prefer_reduce": false
++      }
++    },
++    {
++      "DrainOnlyAsset": {
++        "asset": 227
++      }
++    },
++    {
++      "ClaimResolvedPayoutTopup": {
++        "actor": 170
++      }
++    },
++    {
++      "RetireAsset": {
++        "asset": 228,
++        "dt": 1
++      }
++    },
++    {
++      "TopUpInsurance": {
++        "domain": 63,
++        "amount": 385
++      }
++    },
++    {
++      "RebalanceReduce": {
++        "actor": 155,
++        "asset": 37
++      }
++    },
++    {
++      "Crank": {
++        "actor": 145,
++        "hints": "Reversed"
++      }
++    }
++  ]
++}
+diff --git a/tests/invariants/cu/inv_045_authenticated_reward_handoff.rs b/tests/invariants/cu/inv_045_authenticated_reward_handoff.rs
+index ccb49823..8b8fa9a6 100644
+--- a/tests/invariants/cu/inv_045_authenticated_reward_handoff.rs
++++ b/tests/invariants/cu/inv_045_authenticated_reward_handoff.rs
+@@ -183,6 +183,68 @@ fn submit_with_cu_limit(
+     cu
+ }
+ 
++// The receipt matrices below need authenticated-origin liquidation. A fresh
++// report alone cannot erase a stale trade's provenance while effective price
++// still lags. Corroborate the already accepted current price through the public
++// crank before testing later authenticated-price receipt lifecycle behavior.
++fn corroborate_current_price(
++    env: &mut V16CuEnv,
++    asset: u16,
++    feed: &[u8; 32],
++    portfolio: Pubkey,
++    signer: &Keypair,
++    portfolios: [Pubkey; 5],
++    tracked: &mut Vec<Pubkey>,
++) -> (Pubkey, u64) {
++    let clock = env.svm.get_sysvar::<Clock>();
++    let before = env.market_state().1;
++    let before_values = values(env, portfolios);
++    let custody = [env.mint, env.vault].map(|key| env.svm.get_account(&key));
++    let prior = state::read_asset_oracle_profile(
++        &env.svm.get_account(&env.market).unwrap().data,
++        asset as usize,
++    ).unwrap();
++    assert_eq!(prior.effective_price_provenance,
++        percolator_prog::constants::EFFECTIVE_PRICE_PROVENANCE_TRADE_DRIVEN);
++    let price = before.assets[asset as usize].effective_price;
++    let report = env.set_pyth_price_with_conf(feed, price as i64, -6, 0, clock.unix_timestamp);
++    tracked.push(report);
++    let ix = Instruction {
++        program_id: env.program_id,
++        accounts: vec![
++            AccountMeta::new(signer.pubkey(), true),
++            AccountMeta::new(env.market, false),
++            AccountMeta::new(portfolio, false),
++            AccountMeta::new_readonly(report, false),
++        ],
++        data: ProgInstruction::PermissionlessCrank {
++            now_slot: u64::MAX,
++            observations: crank_observations_with_accounts(asset, 1),
++        }.encode(),
++    };
++    let cu = submit_with_cu_limit(env, signer, &[ix], tracked, None, 500_000);
++    let after = env.market_state().1;
++    let profile = state::read_asset_oracle_profile(
++        &env.svm.get_account(&env.market).unwrap().data,
++        asset as usize,
++    ).unwrap();
++    assert_eq!(after.assets[asset as usize].effective_price, price);
++    assert_eq!(after.assets[asset as usize].raw_oracle_target_price, price);
++    assert_eq!(profile.effective_price_provenance,
++        percolator_prog::constants::EFFECTIVE_PRICE_PROVENANCE_AUTHENTICATED);
++    assert_eq!(profile.last_good_oracle_slot, clock.slot);
++    assert_eq!(profile.oracle_target_publish_time, clock.unix_timestamp);
++    assert_eq!(values(env, portfolios), before_values,
++        "corroboration itself cannot pay a reward or alter owner value");
++    assert_eq!(after.insurance, before.insurance);
++    assert_eq!(after.insurance_domain_budget, before.insurance_domain_budget);
++    assert_eq!(after.insurance_domain_budget_remaining_total,
++        before.insurance_domain_budget_remaining_total);
++    assert_eq!([env.mint, env.vault].map(|key| env.svm.get_account(&key)), custody);
++    census(env, portfolios);
++    (report, cu)
++}
++
+ fn run_authenticated_handoff(
+     max_funding: u64,
+     fresh_prices: &[u64],
+diff --git a/tests/invariants/cu/inv_045_exposed_keeper_provenance.rs b/tests/invariants/cu/inv_045_exposed_keeper_provenance.rs
+index 6b376659..60b85770 100644
+--- a/tests/invariants/cu/inv_045_exposed_keeper_provenance.rs
++++ b/tests/invariants/cu/inv_045_exposed_keeper_provenance.rs
+@@ -14,6 +14,9 @@
+ //! CPI, underwater/shared-owner recipients, more providers, nonzero funding or
+ //! maintenance, arbitrary histories and terminal redemption remain unproven.
+ //! Row 422 stays OPEN; this is a finite conformance family, not a generic oracle.
++//! Receipt histories first publicly corroborate the current effective price.
++//! Their later lag is authenticated-origin; a merely fresh report during
++//! trade-origin lag remains non-rewardable and is covered by the handoff controls.
+ 
+ use super::*;
+ 
+@@ -177,6 +180,11 @@ fn v16_program_exposed_auth_keeper_reward_commutes_with_settlement_through_hybri
+             assert_eq!(staged.insurance_domain_budget_remaining_total, 0);
+             assert_eq!(env.portfolio_state(keeper).legs, keeper_legs);
+ 
++            let (_, corroboration_cu) = corroborate_current_price(
++                &mut env, 0, &feed, trader_a, &owners[4], portfolios, &mut tracked,
++            );
++            peak_crank = peak_crank.max(corroboration_cu);
++
+             let mut total_fee = 0;
+             let mut total_reward = 0;
+             let mut budgets = [0u128; 2];
+diff --git a/tests/invariants/cu/inv_045_report_cadence_rewards.rs b/tests/invariants/cu/inv_045_report_cadence_rewards.rs
+index 9f1123ae..7805d55d 100644
+--- a/tests/invariants/cu/inv_045_report_cadence_rewards.rs
++++ b/tests/invariants/cu/inv_045_report_cadence_rewards.rs
+@@ -7,12 +7,47 @@ use super::*;
+ 
+ #[test]
+ fn v16_program_paid_price_catchup_report_cadence_preserves_reward_and_rejects_regression() {
+-    run_report_cadence(0);
++    run_report_cadence(0, false, &[8, 14]);
+ }
+ 
+ #[test]
+ fn v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody() {
+-    run_report_cadence(1_000);
++    run_report_cadence(1_000, false, &[8, 14]);
++}
++
++#[test]
++fn v16_program_fixed_report_history_preserves_funding_across_settlement_cadence() {
++    let delayed = run_report_cadence(1_000, false, &[8, 14]);
++    let eager = run_report_cadence(1_000, true, &[8, 14]);
++    assert_eq!(
++        delayed, eager,
++        "the same authenticated report history must preserve settled liquidation outcomes"
++    );
++}
++
++// A report renewal changes the funding-mark checkpoint, so different report
++// histories need not have equal funding or liquidation quantities. Remove only
++// the independently input-derived funding and the explicitly checked liquidation
++// transfers; the residual price-only entitlement and insurance stock must agree.
++type CadenceOutcome = (u128, u128, u128, [i128; 5], u128);
++
++fn report_history_economic_basis(
++    outcome: &CadenceOutcome,
++    funding_atoms: [i128; 4],
++) -> ([i128; 5], u128) {
++    let mut values = outcome.3;
++    for (value, funding) in values.iter_mut().zip(funding_atoms) {
++        *value -= funding;
++    }
++    values[0] += outcome.1 as i128;
++    values[4] -= outcome.2 as i128;
++    let insurance_basis = outcome
++        .4
++        .checked_add(outcome.2)
++        .unwrap()
++        .checked_sub(outcome.1)
++        .unwrap();
++    (values, insurance_basis)
+ }
+ 
+ #[test]
+@@ -283,9 +318,40 @@ fn v16_program_paid_rediscovery_revokes_prior_reward_authentication_until_recatc
+     }
+ }
+ 
+-fn run_report_cadence(max_funding: u64) {
++fn run_report_cadence(
++    max_funding: u64,
++    settle_counterparties: bool,
++    endpoints: &[u64],
++) -> std::collections::BTreeMap<(u64, bool), CadenceOutcome> {
+     const REPORT: u64 = 980_000;
+     const SHARE: u128 = 3_333;
++    // The corrected funding expectation reaches authenticated endpoint-14 reward
++    // collection, previously hidden by the endpoint-8 assertion. Measured single
++    // instruction CU is 325,971/326,005 (delayed settlement, lazy/eager reports)
++    // and 326,159/326,193 (early settlement). Give only this funded receipt path
++    // a 350,000 regression budget; keep the global/zero-funding 325,000 guard and
++    // the actual 1,400,000 transaction budget unchanged. This is a measured test
++    // budget correction, not an engine performance change.
++    const FUNDED_REWARD_CRANK_CU_LIMIT: u64 = 350_000;
++    let crank_cu_limit = if max_funding == 0 {
++        CRANK_CU_LIMIT
++    } else {
++        FUNDED_REWARD_CRANK_CU_LIMIT
++    };
++    let submit = |env: &mut V16CuEnv,
++                  signer: &Keypair,
++                  instructions: &[Instruction],
++                  tracked: &[Pubkey],
++                  rejection: Option<(u8, InstructionError)>| {
++        submit_with_cu_limit(
++            env,
++            signer,
++            instructions,
++            tracked,
++            rejection,
++            crank_cu_limit,
++        )
++    };
+     // Funding accrues exactly (#458), one path step per slot: each side's A-scaled
+     // index moves by its own floor of rate * price * ADL_ONE / FUNDING_DEN, and a
+     // leg settles floor(lots * index / ADL_ONE) atoms. Slot 6 accrues the paid
+@@ -316,10 +382,18 @@ fn run_report_cadence(max_funding: u64) {
+     let funding_atoms_at = |slot: u64, eager: bool| {
+         let index = funding_index_at(slot, eager);
+         let settled = |lots: i128, side: usize| (lots * index[side]).div_euclid(ADL_ONE as i128);
+-        [settled(100, 0), settled(100, 1), settled(1, 0), settled(1, 1)]
++        [
++            settled(100, 0),
++            settled(100, 1),
++            settled(1, 0),
++            settled(1, 1),
++        ]
+     };
+     if max_funding != 0 {
+-        assert_eq!(funding_index_at(6, true), [997_600_000_000_000, -997_600_000_000_000]);
++        assert_eq!(
++            funding_index_at(6, true),
++            [997_600_000_000_000, -997_600_000_000_000]
++        );
+         assert_eq!(funding_atoms_at(6, false), [99, -100, 0, -1]);
+     } else {
+         assert_eq!(funding_atoms_at(14, false), [0; 4]);
+@@ -327,7 +401,8 @@ fn run_report_cadence(max_funding: u64) {
+     let mut peak_cu = 0;
+     let mut liquidations = 0;
+     let mut rollbacks = 0;
+-    for endpoint in [8, 14] {
++    let mut outcomes = std::collections::BTreeMap::new();
++    for &endpoint in endpoints {
+         let mut reference = None;
+         for eager in [false, true] {
+             let mut env = inv018_public_spl_market_with_params(
+@@ -412,6 +487,7 @@ fn run_report_cadence(max_funding: u64) {
+                 set_test_clock(&mut env, slot, now);
+                 fresh = env.set_pyth_price_with_conf(&feed, REPORT as i64, -6, 0, now);
+                 tracked.push(fresh);
++                println!("cadence publication: endpoint={endpoint} eager={eager} slot={slot} settle_counterparties={settle_counterparties}");
+                 let publication = observe(&env, keeper, owners[4].pubkey(), Some(fresh), None);
+                 peak_cu = peak_cu.max(submit(&mut env, &owners[4], &[publication], &tracked, None));
+                 publications += 1;
+@@ -439,6 +515,48 @@ fn run_report_cadence(max_funding: u64) {
+                 );
+                 assert_eq!(group.insurance, discovery);
+                 assert_eq!(group.insurance_domain_budget_remaining_total, 0);
++                if settle_counterparties {
++                    let observation = state::read_asset_oracle_profile(
++                        &env.svm.get_account(&env.market).unwrap().data,
++                        0,
++                    )
++                    .unwrap();
++                    let funding = funding_atoms_at(slot, eager);
++                    let loss = i128::from(ENTRY - price);
++                    for i in [1, 2, 3] {
++                        let refresh =
++                            observe(&env, portfolios[i], owners[4].pubkey(), Some(fresh), None);
++                        peak_cu =
++                            peak_cu.max(submit(&mut env, &owners[4], &[refresh], &tracked, None));
++                    }
++                    expected[1] = FUNDS[1] as i128 + 100 * loss + funding[1];
++                    expected[2] = FUNDS[2] as i128 - paid as i128 - loss + funding[2];
++                    expected[3] = FUNDS[3] as i128 - paid as i128 + loss + funding[3];
++                    assert_eq!(values(&env, portfolios), expected);
++                    let settled = env.market_state().1;
++                    assert_eq!(settled.insurance, discovery);
++                    assert_eq!(settled.assets[0].slot_last, slot);
++                    assert_eq!(settled.assets[0].effective_price, price);
++                    assert_eq!(
++                        [settled.assets[0].f_long_num, settled.assets[0].f_short_num],
++                        funding_index_at(slot, eager),
++                        "account settlement must not accrue another funding step"
++                    );
++                    assert_eq!(
++                        state::read_asset_oracle_profile(
++                            &env.svm.get_account(&env.market).unwrap().data,
++                            0,
++                        )
++                        .unwrap(),
++                        observation,
++                        "account settlement must preserve the authenticated funding-mark history"
++                    );
++                    assert_eq!(
++                        [env.mint, env.vault].map(|key| env.svm.get_account(&key)),
++                        custody
++                    );
++                    census(&env, portfolios);
++                }
+             }
+             assert_eq!(publications, if eager { endpoint - 5 } else { 2 });
+ 
+@@ -463,6 +581,7 @@ fn run_report_cadence(max_funding: u64) {
+             tracked.push(older);
+             let valid = observe(&env, target, owners[4].pubkey(), Some(fresh), Some(keeper));
+             let regressed = observe(&env, target, owners[4].pubkey(), Some(older), Some(keeper));
++            println!("cadence liquidation: endpoint={endpoint} eager={eager} settle_counterparties={settle_counterparties}");
+             let mut result = None;
+             for _ in 0..6 {
+                 let before = env.market_state().1;
+@@ -515,9 +634,7 @@ fn run_report_cadence(max_funding: u64) {
+                 assert_eq!(values(&env, portfolios), after_values);
+                 assert_eq!(
+                     after_values[0],
+-                    FUNDS[0] as i128
+-                        - 100 * i128::from(ENTRY - price)
+-                        + funding_atoms[0]
++                    FUNDS[0] as i128 - 100 * i128::from(ENTRY - price) + funding_atoms[0]
+                         - penalty as i128
+                 );
+                 let account = env.portfolio_state(target);
+@@ -542,6 +659,7 @@ fn run_report_cadence(max_funding: u64) {
+                 break;
+             }
+             let result = result.expect("bounded liquidation must collect a nonzero fee");
++            println!("cadence settlement: endpoint={endpoint} eager={eager} settle_counterparties={settle_counterparties}");
+             // Reconcile the untouched counterparties' latent K/F through public
+             // account cranks before comparing individual economic entitlements.
+             for _ in 0..8 {
+@@ -560,12 +678,20 @@ fn run_report_cadence(max_funding: u64) {
+             }
+             assert!(census(&env, portfolios).iter().all(|value| *value));
+             let price_loss = i128::from(ENTRY - price);
+-            expected[0] -= 100 * price_loss - funding_atoms[0] + result.1 as i128;
+-            expected[1] += 100 * price_loss + funding_atoms[1];
+-            expected[2] -= price_loss - funding_atoms[2];
+-            expected[3] += price_loss + funding_atoms[3];
+-            expected[4] += result.2 as i128;
++            expected[0] = FUNDS[0] as i128 - 100 * price_loss + funding_atoms[0] - result.1 as i128;
++            expected[1] = FUNDS[1] as i128 + 100 * price_loss + funding_atoms[1];
++            expected[2] = FUNDS[2] as i128 - paid as i128 - price_loss + funding_atoms[2];
++            expected[3] = FUNDS[3] as i128 - paid as i128 + price_loss + funding_atoms[3];
++            expected[4] = FUNDS[4] as i128 + result.2 as i128;
+             assert_eq!(values(&env, portfolios), expected);
++            let settled_result = (
++                result.0,
++                result.1,
++                result.2,
++                values(&env, portfolios),
++                result.4,
++            );
++            assert!(outcomes.insert((endpoint, eager), settled_result).is_none());
+             let payout = u128::from(FUNDS[4]) + result.2;
+             let withdraw = env.withdraw_ix(keeper, payout);
+             let cu = env
+@@ -591,18 +717,47 @@ fn run_report_cadence(max_funding: u64) {
+             );
+             assert_eq!(values(&env, portfolios)[4], 0);
+             census(&env, portfolios);
+-            if let Some(expected) = &reference {
+-                assert_eq!(
+-                    &result, expected,
+-                    "renewal/crank cadence changed liquidation economics"
+-                );
++            if let Some((prior_result, prior_settled, prior_funding)) = &reference {
++                if max_funding == 0 {
++                    assert_eq!(
++                        &result, prior_result,
++                        "renewal/crank cadence changed zero-funding liquidation economics"
++                    );
++                } else {
++                    let baseline = report_history_economic_basis(prior_settled, *prior_funding);
++                    assert_eq!(
++                        report_history_economic_basis(&settled_result, funding_atoms),
++                        baseline,
++                        "input-derived funding and checked fees must explain the complete difference"
++                    );
++                    assert_ne!(
++                        funding_atoms, *prior_funding,
++                        "exercise distinct funding histories"
++                    );
++                    // This relation must detect even a one-atom incorrect funding
++                    // expectation, not accept an arbitrary cadence discrepancy.
++                    let mut wrong_funding = funding_atoms;
++                    wrong_funding[0] += 1;
++                    assert_ne!(
++                        report_history_economic_basis(&settled_result, wrong_funding),
++                        baseline
++                    );
++                    let mut wrong_value = settled_result;
++                    wrong_value.3[0] += 1;
++                    assert_ne!(
++                        report_history_economic_basis(&wrong_value, funding_atoms),
++                        baseline
++                    );
++                    println!("funded normalization: endpoint={endpoint}, exact residual equality; one-atom funding/value mutations rejected");
++                }
+             } else {
+-                reference = Some(result);
++                reference = Some((result, settled_result, funding_atoms));
+             }
+-            println!("funding={max_funding} endpoint={endpoint} eager={eager}: price={price}, liquidation={result:?}, payout={payout}");
++            println!("funding={max_funding} endpoint={endpoint} eager={eager} settle_counterparties={settle_counterparties}: price={price}, liquidation={result:?}, payout={payout}");
+         }
+     }
+-    assert_eq!(liquidations, 4);
++    assert_eq!(liquidations, 2 * endpoints.len());
+     assert!(rollbacks >= liquidations);
+     println!("paid-price cadence: liquidations={liquidations}, exact rollbacks={rollbacks}, peak CU={peak_cu}");
++    outcomes
+ }
+diff --git a/tests/invariants/cu/inv_045_retained_penalty_handoff.rs b/tests/invariants/cu/inv_045_retained_penalty_handoff.rs
+index 7f676fc4..84b2ad28 100644
+--- a/tests/invariants/cu/inv_045_retained_penalty_handoff.rs
++++ b/tests/invariants/cu/inv_045_retained_penalty_handoff.rs
+@@ -1,6 +1,7 @@
+ //! INV-045 / row 422: old liquidation penalties survive a later fresh-report handoff.
+-//! A committed stale-mark liquidation precedes fresh liquidation while price still
+-//! lags. Discovery fees and the old penalty remain outside every new reward/budget.
++//! A committed stale-mark liquidation precedes liquidation at a fully reached
++//! fresh target. Discovery fees and the old penalty remain outside every new
++//! reward/budget; routed histories retain their fresh-but-lagging negative cases.
+ 
+ use super::*;
+ 
+@@ -258,24 +259,29 @@ fn run_retained_handoff_impl(
+     let stale_price = ENTRY - ENTRY * 24 / 10_000;
+     // Replacing the pending target restarts the cap anchor at the accepted price.
+     let handoff_price = stale_price - stale_price * 24 / 10_000;
+-    for (phase, slot, price) in [
+-        (0, 6, stale_price),
+-        (1, 7, handoff_price),
+-        (2, 14, FRESH_TARGET),
+-    ] {
++    let phases = if routes.is_none() {
++        // Permit enough elapsed movement to reach the authenticated target
++        // before the second liquidation. Fresh-but-lagging routed histories
++        // below retain their original zero-reward coverage.
++        [(0, 6, stale_price), (1, 14, FRESH_TARGET), (2, 15, FRESH_TARGET)]
++    } else {
++        [(0, 6, stale_price), (1, 7, handoff_price), (2, 14, FRESH_TARGET)]
++    };
++    for (phase, slot, price) in phases {
+         let now = 995 + slot as i64;
+         set_test_clock(&mut env, slot, now);
++        let report_target = FRESH_TARGET;
+         let report = if phase == 0 {
+             initial
+         } else {
+-            env.set_pyth_price_with_conf(&feed, FRESH_TARGET as i64, -6, 0, now)
++            env.set_pyth_price_with_conf(&feed, report_target as i64, -6, 0, now)
+         };
+         let recipient_report = if routes.is_some() && hybrid_recipient {
+             Some(env.set_pyth_price_with_conf(&recipient_feed, 120, -6, 0, now))
+         } else {
+             None
+         };
+-        let equivocal = env.set_pyth_price_with_conf(&feed, FRESH_TARGET as i64 + 1, -6, 0, now);
++        let equivocal = env.set_pyth_price_with_conf(&feed, report_target as i64 + 1, -6, 0, now);
+         tracked.extend([report, equivocal]);
+         tracked.extend(recipient_report);
+         let valid = observe_with_optional_recipient_report(
+@@ -344,6 +350,7 @@ fn run_retained_handoff_impl(
+             let keeper_before = env.portfolio_state(keeper);
+             let before_cert = health_cert(&env.portfolio_state(target));
+             if phase == 2
++                && before.assets[0].slot_last == slot
+                 && before.assets[0].effective_price == price
+                 && before_cert.certified_liq_deficit == 0
+                 && census(&env, portfolios)[0]
+@@ -389,7 +396,7 @@ fn run_retained_handoff_impl(
+             assert_eq!(after.assets[0].effective_price, price, "phase={phase}");
+             assert_eq!(
+                 after.assets[0].raw_oracle_target_price,
+-                if phase == 0 { MARK } else { FRESH_TARGET }
++                if phase == 0 { MARK } else { report_target }
+             );
+             assert_eq!(
+                 profile.last_good_oracle_slot,
+@@ -439,13 +446,23 @@ fn run_retained_handoff_impl(
+             } else {
+                 assert!(old_penalty > 0);
+                 if phase == 1 {
+-                    assert!(
+-                        price > MARK && MARK > FRESH_TARGET,
+-                        "fresh publication precedes paid-target catchup"
+-                    );
+-                    for wrong in [ENTRY, MARK, FRESH_TARGET, ACCEPTED_PRINT, 900_000] {
++                    if routes.is_none() {
++                        assert_eq!(price, report_target);
++                        let profile = state::read_asset_oracle_profile(
++                            &env.svm.get_account(&env.market).unwrap().data, 0,
++                        ).unwrap();
++                        assert_eq!(profile.effective_price_provenance,
++                            percolator_prog::constants::EFFECTIVE_PRICE_PROVENANCE_AUTHENTICATED);
++                    } else {
++                        assert!(price > MARK && MARK > FRESH_TARGET,
++                            "routed paid-origin publication remains behind its target");
++                    }
++                    for wrong in [ENTRY, MARK, ACCEPTED_PRINT, 900_000] {
+                         assert_ne!(penalty, fee(closed, wrong, 5));
+                     }
++                    if routes.is_some() {
++                        assert_ne!(penalty, fee(closed, FRESH_TARGET, 5));
++                    }
+                 }
+                 new_penalties += penalty;
+                 rewards += reward;
+diff --git a/tests/invariants/cu/inv_045_reward_maintenance_catchup.rs b/tests/invariants/cu/inv_045_reward_maintenance_catchup.rs
+index 8fb64135..9cfa0ffe 100644
+--- a/tests/invariants/cu/inv_045_reward_maintenance_catchup.rs
++++ b/tests/invariants/cu/inv_045_reward_maintenance_catchup.rs
+@@ -2,6 +2,9 @@
+ //! recipient's own maintenance. Asset-0 maintenance budgets and asset-1
+ //! liquidation budgets must remain distinct across fee collection order.
+ //! Public construction and instructions only; finite conformance, row stays OPEN.
++//! Receipt histories first publicly corroborate the current effective price.
++//! Their later lag is authenticated-origin; a merely fresh report during
++//! trade-origin lag remains non-rewardable and is covered by the handoff controls.
+ 
+ use super::*;
+ 
+@@ -190,6 +193,11 @@ fn v16_program_keeper_maintenance_preserves_distinct_reward_budgets_until_catchu
+         assert_eq!(env.market_state().1.assets[1].raw_oracle_target_price, MARK);
+         assert_eq!(env.portfolio_state(keeper).last_fee_slot.get(), 1);
+         treasury(&env, portfolios, discovery, 0, 0, [0; 2]);
++        let (_, corroboration_cu) = corroborate_current_price(
++            &mut env, 1, &feed, trader_a, &owners[4], portfolios, &mut tracked,
++        );
++        peak = peak.max(corroboration_cu);
++
+         let mut fees = 0;
+         let mut rewards = 0;
+         let mut budgets = [0; 2];
+diff --git a/tests/invariants/cu/inv_045_reward_policy_catchup.rs b/tests/invariants/cu/inv_045_reward_policy_catchup.rs
+index af648f58..35a05b43 100644
+--- a/tests/invariants/cu/inv_045_reward_policy_catchup.rs
++++ b/tests/invariants/cu/inv_045_reward_policy_catchup.rs
+@@ -1,6 +1,9 @@
+ //! INV-036/045/061, row422: earned rewards across policy succession during catchup.
+ //! A retained liquidation instruction crosses the policy update after certification;
+ //! paying the earlier receipt before or after that update must preserve entitlement.
++//! Receipt histories first publicly corroborate the current effective price.
++//! Their later lag is authenticated-origin; a merely fresh report during
++//! trade-origin lag remains non-rewardable and is covered by the handoff controls.
+ 
+ use super::*;
+ 
+@@ -124,6 +127,11 @@ fn v16_program_reward_policy_succession_preserves_receipts_and_effective_price_c
+         assert_eq!(staged.assets[0].raw_oracle_target_price, MARK);
+         census(&env, portfolios);
+ 
++        let (_, corroboration_cu) = corroborate_current_price(
++            &mut env, 0, &feed, trader_a, &owners[4], portfolios, &mut tracked,
++        );
++        peak_crank = peak_crank.max(corroboration_cu);
++
+         let mut total_fee = 0;
+         let mut total_reward = 0;
+         let mut paid = 0;
+diff --git a/tests/invariants/cu/inv_045_reward_terminal_redemption.rs b/tests/invariants/cu/inv_045_reward_terminal_redemption.rs
+index aaca50cd..18eb4e54 100644
+--- a/tests/invariants/cu/inv_045_reward_terminal_redemption.rs
++++ b/tests/invariants/cu/inv_045_reward_terminal_redemption.rs
+@@ -3,6 +3,9 @@
+ //! conformance only; retained versus early receipts cross both redemption orders.
+ //! System/SPL/ATA/wrapper construction; only Clock, external Pyth reports, signer
+ //! SOL and program loading are harness inputs. No protocol-account mutation.
++//! Receipt histories first publicly corroborate the current effective price.
++//! Their later lag is authenticated-origin; a merely fresh report during
++//! trade-origin lag remains non-rewardable and is covered by the handoff controls.
+ 
+ use super::*;
+ 
+@@ -159,6 +162,12 @@ fn v16_program_hybrid_catchup_rewards_survive_resolved_cohort_redemption_order()
+             let discovery = 2 * fee(POS_SCALE, ACCEPTED_PRINT, bps);
+             assert_eq!(env.market_state().1.assets[0].effective_price, ENTRY);
+             assert_eq!(env.market_state().1.assets[0].raw_oracle_target_price, MARK);
++            let (corroborated_report, corroboration_cu) = corroborate_current_price(
++                &mut env, 0, &feed, trader_a, &owners[4], portfolios, &mut tracked,
++            );
++            providers.push((corroborated_report, env.svm.get_account(&corroborated_report)));
++            peak = peak.max(corroboration_cu);
++
+             let mut fees = 0;
+             let mut rewards = 0;
+             let mut budgets = [0; 2];
+diff --git a/tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs b/tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs
+index d98a32d1..7064e6e8 100644
+--- a/tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs
++++ b/tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs
+@@ -272,6 +272,12 @@ fn v16_program_typed_matched_book_obligation_oracle_is_source_complete() {
+             path: "tests/invariants/cu/inv_048_matched_trade_and_open_interest_coherence.rs",
+             witness: "v16_program_all_trade_routes_keep_oi_equal_to_active_leg_scan",
+         },
++        Inv048ObligationOwner {
++            category: "exact effective OI rounding residue",
++            census_field: "rounding_residue",
++            path: "tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs",
++            witness: "v16_program_effective_oi_rounding_replays_both_exit_campaigns",
++        },
+         Inv048ObligationOwner {
+             category: "ADL-reduced raw residue",
+             census_field: "adl_reduced_raw_q",
+@@ -398,9 +404,27 @@ fn v16_program_typed_matched_book_obligation_oracle_is_source_complete() {
+             obligation.witness,
+         );
+     }
+-    assert_eq!(categories.len(), 13, "matched-book obligation roster drift");
++    assert_eq!(categories.len(), 14, "matched-book obligation roster drift");
+     assert!(model.contains("effective + ADL residue + reset residue"));
+-    assert!(model.contains("effective OI is not the sum of independently decoded effective legs"));
++    // The independent aggregate ledger and the per-leg ceiling census have a
++    // typed rounding residue. Keep its lifecycle witness and executable behavior
++    // owners registered; those tests check the exact arithmetic and reject
++    // corrupted A, basis, aggregate, reset, resize, and terminal-removal witnesses.
++    assert!(model.contains("struct EffectiveOiRoundingResidue"));
++    assert!(model.contains("rounding_residue: [EffectiveOiRoundingResidue; 2]"));
++    for witness in [
++        "ceil_leg_sums_reconcile_with_equal_aggregate_oi_without_tolerance",
++        "repeated_index_flooring_has_signed_residue_larger_than_one_atom_per_leg",
++        "independent_indices_basis_and_aggregate_reject_one_atom_mutations",
++        "capped_dead_leg_removal_requires_a_typed_terminal_witness",
++        "exhausted_unilateral_side_requires_one_reset_and_no_repeated_reset",
++        "canonical_resize_rejects_a_raw_atom_hidden_by_the_same_ceil_quantity",
++    ] {
++        assert!(
++            inv048_source_defines_test(model, witness),
++            "typed rounding residue lacks executable behavioral owner {witness}",
++        );
++    }
+ }
+ 
+ #[test]
+diff --git a/tests/invariants/cu/inv_072_order_robust_crankability.rs b/tests/invariants/cu/inv_072_order_robust_crankability.rs
+index 21dd0366..291852b5 100644
+--- a/tests/invariants/cu/inv_072_order_robust_crankability.rs
++++ b/tests/invariants/cu/inv_072_order_robust_crankability.rs
+@@ -887,8 +887,9 @@ fn v16_program_budgeted_out_of_order_crank_refreshes_without_unearned_reward() {
+     );
+ }
+ 
+-// user's economics, aggregate engine state, or custody.
+-
++// A first-asset report is dispensable only after its authenticated observation has
++// already been committed in this slot. An unrelated asset's progress cannot make
++// an old Hybrid observation current, and caller-supplied stale tails must roll back.
+ #[test]
+ fn v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle() {
+     const MARK: u64 = 1_000_000;
+@@ -918,50 +919,43 @@ fn v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle() {
+ 
+     let owner_a = Keypair::new();
+     let owner_b = Keypair::new();
++    let observer_owner = Keypair::new();
+     let account_a = env.create_portfolio(&owner_a);
+     let account_b = env.create_portfolio(&owner_b);
+-    env.deposit(&owner_a, account_a, 10_000_000);
+-    env.deposit(&owner_b, account_b, 10_000_000);
+-    env.trade_asset_with_cu(
+-        0,
+-        &owner_a,
+-        account_a,
+-        &owner_b,
+-        account_b,
+-        POS_SCALE as i128,
+-        MARK,
+-        0,
+-    );
+-    env.trade_asset_with_cu(
+-        1,
+-        &owner_a,
+-        account_a,
+-        &owner_b,
+-        account_b,
+-        POS_SCALE as i128,
+-        MARK,
+-        0,
+-    );
++    let observer = env.create_portfolio(&observer_owner);
++    let token_a = env.deposit(&owner_a, account_a, 10_000_000);
++    let token_b = env.deposit(&owner_b, account_b, 10_000_000);
++    for asset_index in [0, 1] {
++        env.trade_asset_with_cu(
++            asset_index,
++            &owner_a,
++            account_a,
++            &owner_b,
++            account_b,
++            POS_SCALE as i128,
++            MARK,
++            0,
++        );
++    }
+     let a_before_update = env.portfolio_state(account_a);
+     assert!(
+         health_cert(&a_before_update).valid,
+         "setup starts from a current multi-asset account"
+     );
+-    assert_eq!(
+-        active_leg_for_asset(&a_before_update, 0).asset_index,
+-        0,
+-        "asset 0 is active"
+-    );
+-    assert_eq!(
+-        active_leg_for_asset(&a_before_update, 1).asset_index,
+-        1,
+-        "asset 1 is active"
+-    );
++    for asset_index in [0, 1] {
++        assert_eq!(
++            active_leg_for_asset(&a_before_update, asset_index).asset_index,
++            asset_index as u32,
++            "both price-taking legs are active"
++        );
++    }
+ 
+     set_test_clock(&mut env, REFRESH_SLOT, 200);
+     env.push_auth_mark_for_asset_as_admin(1, REFRESH_SLOT, MARK + 10_000);
++    // A flat observer may advance the selected asset without certifying either
++    // two-leg trader from a previous-slot Hybrid observation.
+     env.crank(
+-        account_b,
++        observer,
+         ProgInstruction::PermissionlessCrank {
+             now_slot: REFRESH_SLOT,
+             observations: crank_observations(1),
+@@ -973,48 +967,144 @@ fn v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle() {
+             < group_after_asset1.oracle_epoch,
+         "asset-1 progress makes account A stale"
+     );
++    let current0 = env.set_pyth_price_with_conf(&stale_feed0, MARK as i64, -6, 0, 200);
++    // All protocol, provider and token accounts are framed. The network fee
++    // payer is excluded; transaction rejection still charges its signature fee.
++    let tracked = [
++        env.market, account_a, account_b, observer, env.vault, env.mint, token_a, token_b,
++        initial0, current0,
++    ];
++    let before = tracked.map(|key| env.svm.get_account(&key).unwrap());
++    for (observations, tail, expected, label) in [
++        (
++            vec![],
++            vec![],
++            PercolatorError::EngineNonProgress,
++            "omitting the active Hybrid leg before its current-slot report",
++        ),
++        (
++            crank_observations_with_accounts(0, 1),
++            vec![AccountMeta::new_readonly(initial0, false)],
++            PercolatorError::OracleStale,
++            "supplying a stale first-asset report",
++        ),
++    ] {
++        let mut accounts = vec![
++            AccountMeta::new(env.payer.pubkey(), true),
++            AccountMeta::new(env.market, false),
++            AccountMeta::new(account_a, false),
++        ];
++        accounts.extend(tail);
++        env.svm.expire_blockhash();
++        let error = env
++            .send(
++                ProgInstruction::PermissionlessCrank {
++                    now_slot: REFRESH_SLOT,
++                    observations,
++                },
++                accounts,
++                &[],
++            )
++            .expect_err(label);
++        assert!(
++            error.contains(&format!("InstructionError(2, Custom({}))", expected as u32)),
++            "{label}: {error}"
++        );
++        assert_eq!(
++            tracked.map(|key| env.svm.get_account(&key).unwrap()),
++            before,
++            "{label}: exact account and custody rollback"
++        );
++    }
+ 
+-    env.svm.expire_blockhash();
+-    let stale_asset0_attempt = env.send(
++    // Authenticate asset 0 at the same price through a public bounded crank.
++    // The selected account is still stale; only market evidence is advanced.
++    let observer_cu = env.crank_with_oracle_tail(
++        observer,
+         ProgInstruction::PermissionlessCrank {
+             now_slot: REFRESH_SLOT,
+             observations: crank_observations_with_accounts(0, 1),
+         },
+-        vec![
+-            AccountMeta::new(env.payer.pubkey(), true),
+-            AccountMeta::new(env.market, false),
+-            AccountMeta::new(account_a, false),
+-            AccountMeta::new_readonly(initial0, false),
+-        ],
+-        &[],
++        &[current0],
++    );
++    assert_cu_within(
++        "authenticate unchanged first-asset price",
++        observer_cu,
++        CRANK_CU_LIMIT,
+     );
++    let market_before_refresh = env.svm.get_account(&env.market).unwrap();
++    let profile0 = state::read_asset_oracle_profile(&market_before_refresh.data, 0).unwrap();
++    assert_eq!(profile0.last_good_oracle_slot, REFRESH_SLOT);
+     assert!(
+-        stale_asset0_attempt.is_err(),
+-        "asset-0 oracle is stale; the refresh must not depend on it"
++        health_cert(&env.portfolio_state(account_a)).cert_oracle_epoch
++            < env.market_state().1.oracle_epoch
+     );
++    let peer_before = env.svm.get_account(&account_b).unwrap();
++    let custody = [env.vault, env.mint, token_a, token_b, initial0, current0];
++    let custody_before = custody.map(|key| env.svm.get_account(&key).unwrap());
++    let group_before_refresh = env.market_state().1;
+ 
+     env.svm.expire_blockhash();
+-    let refresh = env.send(
+-        ProgInstruction::PermissionlessCrank {
+-            now_slot: REFRESH_SLOT,
+-            observations: vec![],
+-        },
+-        vec![
+-            AccountMeta::new(env.payer.pubkey(), true),
+-            AccountMeta::new(env.market, false),
+-            AccountMeta::new(account_a, false),
+-        ],
+-        &[],
++    let refresh_cu = env
++        .send(
++            ProgInstruction::PermissionlessCrank {
++                now_slot: REFRESH_SLOT,
++                observations: vec![],
++            },
++            vec![
++                AccountMeta::new(env.payer.pubkey(), true),
++                AccountMeta::new(env.market, false),
++                AccountMeta::new(account_a, false),
++            ],
++            &[],
++        )
++        .expect(
++            "already-current authenticated market evidence needs no duplicate first-asset tail",
++        );
++    assert_cu_within(
++        "no-tail refresh after current first-asset evidence",
++        refresh_cu,
++        CRANK_CU_LIMIT,
+     );
+-    assert!(
+-        refresh.is_ok(),
+-        "account refresh should use already-current market state, not require an unneeded first-asset oracle: {refresh:?}"
++    let refreshed = env.portfolio_state(account_a);
++    let group_after_refresh = env.market_state().1;
++    assert!(health_cert(&refreshed).valid);
++    assert_eq!(
++        health_cert(&refreshed).cert_oracle_epoch,
++        group_after_refresh.oracle_epoch
+     );
+-    assert!(
+-        health_cert(&env.portfolio_state(account_a)).cert_oracle_epoch
+-            >= env.market_state().1.oracle_epoch,
+-        "refresh makes the stale account current"
++    assert_eq!(
++        health_cert(&refreshed).cert_funding_epoch,
++        group_after_refresh.funding_epoch
++    );
++    assert_eq!(
++        health_cert(&refreshed).cert_risk_epoch,
++        group_after_refresh.risk_epoch
++    );
++    for asset_index in [0, 1] {
++        assert_eq!(
++            active_leg_for_asset(&refreshed, asset_index).basis_pos_q,
++            active_leg_for_asset(&a_before_update, asset_index).basis_pos_q,
++            "refresh does not reduce either position"
++        );
++        assert_eq!(
++            (
++                group_after_refresh.assets[asset_index].oi_eff_long_q,
++                group_after_refresh.assets[asset_index].oi_eff_short_q
++            ),
++            (
++                group_before_refresh.assets[asset_index].oi_eff_long_q,
++                group_before_refresh.assets[asset_index].oi_eff_short_q
++            ),
++            "refresh does not change aggregate open interest"
++        );
++    }
++    assert_eq!(env.svm.get_account(&account_b).unwrap(), peer_before);
++    assert_eq!(
++        custody.map(|key| env.svm.get_account(&key).unwrap()),
++        custody_before
+     );
++    eprintln!("INV-072 current-evidence then no-tail refresh CU: authenticate={observer_cu}, refresh={refresh_cu}");
+ }
+ 
+ // repeatedly landing no-observation refreshes first.
+diff --git a/tests/invariants/cu/inv_077_bounded_work_and_maximum_shape_compute.rs b/tests/invariants/cu/inv_077_bounded_work_and_maximum_shape_compute.rs
+index eb9c2c8c..a89b7873 100644
+--- a/tests/invariants/cu/inv_077_bounded_work_and_maximum_shape_compute.rs
++++ b/tests/invariants/cu/inv_077_bounded_work_and_maximum_shape_compute.rs
+@@ -14,11 +14,14 @@
+ //! shape can strand a required exit route. A dedicated 14-leg/28-source Recovery test leaves one
+ //! K/F cohort unsettled, freezes its asset, and proves the sole public crank settles committed
+ //! state without accruing the frozen asset or exceeding the CU ceiling. The corresponding Hybrid
+-//! product carries all 42 authenticated feed references into the frozen Recovery state: stale
+-//! tails remain discovery-only, every accepted call mutates, and committed K/F progress occurs in
+-//! 28 calls at no more than 1.147M CU while the frozen asset, oracle profile, custody, and feeds are
+-//! framed exactly. A separate flat-account route fills all 28 historical source slots, requires
+-//! the automatic crank to release every
++//! product carries all 42 authenticated feed references into an asset-level Recovery state.
++//! Missing current-slot Live observations and an expired complete tail reject with exact rollback.
++//! Fresh observations for the thirteen Live assets then permit bounded K/F progress while the
++//! Recovery asset's three expired references remain inert. Every accepted call mutates, and the
++//! frozen asset, oracle profile, custody and feed accounts are framed exactly. A distinct
++//! one-slot-delayed world retains the same frozen state and requires the same bounded progress;
++//! its result is recorded separately from the same-slot control. A separate flat-account route
++//! fills all 28 historical source slots and requires the automatic crank to release every
+ //! obsolete source lien without an oracle tail, and then converts and withdraws the complete claim.
+ //! The combined-shape owner-exit route reaches fourteen active legs and all twenty-eight source
+ //! domains through public trades, then executes `RebalanceReduce`, ResetPending cleanup, explicit
+@@ -5283,6 +5286,18 @@ fn v16_program_recovery_kf_refresh_at_14_leg_28_source_shape_is_bounded() {
+ 
+ #[test]
+ fn v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape() {
++    run_public_asset_recovery_with_fresh_live_observations(0);
++}
++
++#[test]
++fn v16_program_delayed_asset_recovery_progress_requires_only_fresh_live_oracles_at_max_shape() {
++    // This independent world retains the immediate world's frozen state but lets the next
++    // authenticated Clock slot arrive. Fresh Live observations must not leave committed
++    // Recovery work stranded merely because the frozen asset cannot receive a new report.
++    run_public_asset_recovery_with_fresh_live_observations(1);
++}
++
++fn run_public_asset_recovery_with_fresh_live_observations(delay_slots: u64) {
+     const ACTIVE_CAP: u16 = percolator_prog::constants::WRAPPER_MAX_PORTFOLIO_ASSETS;
+     const MOVED_PRICE: u64 = 110;
+ 
+@@ -5293,6 +5308,10 @@ fn v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_sha
+     let asset_slot = usize::from(asset_index);
+     let custody_before = env.token_amount(env.vault);
+     env.configure_permissionless_resolve_with_cu(1_000, 5);
++    // A flat observer can stage bounded market work without recertifying the fourteen-leg
++    // trading account. Live account refresh still requires current authenticated evidence
++    // for every active Hybrid leg, including when a different leg enters Recovery later.
++    let observer = env.create_portfolio(&Keypair::new());
+ 
+     slot = slot.checked_add(1).unwrap();
+     let publish_time = 100 + slot as i64;
+@@ -5302,14 +5321,68 @@ fn v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_sha
+         env.set_pyth_price(&feeds[1], 150_000_000, -6, publish_time),
+         env.set_pyth_price(&feeds[2], 200_000_000, -6, publish_time),
+     ];
+-    env.crank_with_oracle_tail(
+-        taker,
++    let missing_report_market = env.svm.get_account(&env.market).unwrap();
++    let missing_report_taker = env.svm.get_account(&taker).unwrap();
++    let missing_report_lp = env.svm.get_account(&lp).unwrap();
++    let missing_report_vault = env.svm.get_account(&env.vault).unwrap();
++    let moved_feeds_before = moved_oracles.map(|key| env.svm.get_account(&key).unwrap());
++    let mut missing_report_accounts = vec![
++        AccountMeta::new(env.payer.pubkey(), true),
++        AccountMeta::new(env.market, false),
++        AccountMeta::new(taker, false),
++    ];
++    missing_report_accounts.extend(
++        moved_oracles
++            .iter()
++            .copied()
++            .map(|key| AccountMeta::new_readonly(key, false)),
++    );
++    env.svm.expire_blockhash();
++    let missing_report_error = env
++        .send(
++            ProgInstruction::PermissionlessCrank {
++                now_slot: slot,
++                observations: crank_observations_with_accounts(asset_index, 3),
++            },
++            missing_report_accounts,
++            &[],
++        )
++        .expect_err("one fresh leg cannot recertify thirteen unobserved active Hybrid legs");
++    assert!(
++        missing_report_error.contains(&format!(
++            "InstructionError(2, Custom({}))",
++            PercolatorError::EngineNonProgress as u32
++        )),
++        "missing current-slot reports must return EngineNonProgress: {missing_report_error}"
++    );
++    assert_eq!(
++        env.svm.get_account(&env.market).unwrap(),
++        missing_report_market
++    );
++    assert_eq!(env.svm.get_account(&taker).unwrap(), missing_report_taker);
++    assert_eq!(env.svm.get_account(&lp).unwrap(), missing_report_lp);
++    assert_eq!(
++        env.svm.get_account(&env.vault).unwrap(),
++        missing_report_vault
++    );
++    assert_eq!(
++        moved_oracles.map(|key| env.svm.get_account(&key).unwrap()),
++        moved_feeds_before
++    );
++
++    let stage_cu = env.crank_with_oracle_tail(
++        observer,
+         ProgInstruction::PermissionlessCrank {
+             now_slot: slot,
+             observations: crank_observations(asset_index),
+         },
+         &moved_oracles,
+     );
++    assert_cu_within(
++        "Hybrid single-asset staging through flat observer",
++        stage_cu,
++        1_375_000,
++    );
+ 
+     let live_group = env.market_state().1;
+     let stale_lp = env.portfolio_state(lp);
+@@ -5320,6 +5393,12 @@ fn v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_sha
+ 
+     slot = slot.checked_add(1).unwrap();
+     set_test_clock(&mut env, slot, publish_time + 1);
++    let checkpoint_oracles = [
++        env.set_pyth_price(&feeds[0], 3_300_000, -6, publish_time + 1),
++        env.set_pyth_price(&feeds[1], 150_000_000, -6, publish_time + 1),
++        env.set_pyth_price(&feeds[2], 200_000_000, -6, publish_time + 1),
++    ];
++    let checkpoint_feeds_before = checkpoint_oracles.map(|key| env.svm.get_account(&key).unwrap());
+     let mut checkpoint_calls = 0usize;
+     let mut checkpoint_max_cu = 0u64;
+     loop {
+@@ -5327,25 +5406,25 @@ fn v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_sha
+             let account = env.svm.get_account(&env.market).unwrap();
+             state::read_asset_oracle_profile(&account.data, asset_slot).unwrap()
+         };
+-        if profile.funding_mark_pending_e6 == 0 {
++        if profile.funding_mark_pending_e6 == 0 && profile.last_good_oracle_slot == slot {
+             break;
+         }
+         let market_before = env.svm.get_account(&env.market).unwrap();
+-        let portfolio_before = env.svm.get_account(&taker).unwrap();
++        let portfolio_before = env.svm.get_account(&observer).unwrap();
+         let cu = env.crank_with_oracle_tail(
+-            taker,
++            observer,
+             ProgInstruction::PermissionlessCrank {
+                 now_slot: slot,
+                 observations: crank_observations(asset_index),
+             },
+-            &moved_oracles,
++            &checkpoint_oracles,
+         );
+         assert_cu_within("Hybrid funding-checkpoint catch-up", cu, 1_375_000);
+         checkpoint_calls += 1;
+         checkpoint_max_cu = checkpoint_max_cu.max(cu);
+         assert!(
+             env.svm.get_account(&env.market).unwrap() != market_before
+-                || env.svm.get_account(&taker).unwrap() != portfolio_before,
++                || env.svm.get_account(&observer).unwrap() != portfolio_before,
+             "every accepted Hybrid checkpoint call must mutate economic state"
+         );
+         assert!(
+@@ -5359,6 +5438,18 @@ fn v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_sha
+         "funding-checkpoint catch-up must preserve the LP's committed K/F cohort"
+     );
+ 
++    assert!(
++        checkpoint_calls > 0,
++        "the Recovery asset must receive a current-slot authenticated report"
++    );
++    let current_market = env.svm.get_account(&env.market).unwrap();
++    assert_eq!(
++        state::read_asset_oracle_profile(&current_market.data, asset_slot)
++            .unwrap()
++            .last_good_oracle_slot,
++        slot,
++    );
++
+     let admin = env.admin.insecure_clone();
+     env.svm.expire_blockhash();
+     env.send(
+@@ -5391,32 +5482,278 @@ fn v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_sha
+         let account = env.svm.get_account(&env.market).unwrap();
+         state::read_asset_oracle_profile(&account.data, asset_slot).unwrap()
+     };
+-    let feeds_before = moved_oracles.map(|key| env.svm.get_account(&key).unwrap());
+     let active_bitmap_before = active_bitmap(&stale_lp);
+-
++    // No state is rewound or cloned: each test builds its own public fixture. The delayed
++    // world keeps the asset/profile frozen and renews only the still-Live observations.
++    slot = slot.checked_add(delay_slots).unwrap();
++    let current_publish_time = publish_time + 1 + i64::try_from(delay_slots).unwrap();
++    set_test_clock(&mut env, slot, current_publish_time);
++    let stale_oracles = [
++        env.set_pyth_price(&feeds[0], 3_300_000, -6, publish_time - 60),
++        env.set_pyth_price(&feeds[1], 150_000_000, -6, publish_time - 60),
++        env.set_pyth_price(&feeds[2], 200_000_000, -6, publish_time - 60),
++    ];
++    let stale_feeds_before = stale_oracles.map(|key| env.svm.get_account(&key).unwrap());
+     let observations = (0..ACTIVE_CAP)
+         .map(|observed_asset| CrankObservationHint {
+             asset_index: observed_asset,
+             oracle_accounts: 3,
+         })
+         .collect::<Vec<_>>();
+-    let mut accounts = vec![
++    let mut stale_accounts = vec![
+         AccountMeta::new(env.payer.pubkey(), true),
+         AccountMeta::new(env.market, false),
+         AccountMeta::new(lp, false),
+     ];
+     for _ in 0..ACTIVE_CAP {
++        stale_accounts.extend(
++            stale_oracles
++                .iter()
++                .copied()
++                .map(|key| AccountMeta::new_readonly(key, false)),
++        );
++    }
++    let rejected_market = env.svm.get_account(&env.market).unwrap();
++    let rejected_lp = env.svm.get_account(&lp).unwrap();
++    let rejected_taker = env.svm.get_account(&taker).unwrap();
++    let rejected_vault = env.svm.get_account(&env.vault).unwrap();
++    env.svm.expire_blockhash();
++    let stale_error = env
++        .send(
++            ProgInstruction::PermissionlessCrank {
++                now_slot: slot,
++                observations: observations.clone(),
++            },
++            stale_accounts,
++            &[],
++        )
++        .expect_err(
++            "one Recovery asset cannot authorize stale observations for thirteen Live assets",
++        );
++    assert!(
++        stale_error.contains(&format!(
++            "InstructionError(2, Custom({}))",
++            PercolatorError::OracleStale as u32
++        )),
++        "expired live-asset observations must return OracleStale: {stale_error}"
++    );
++    assert_eq!(env.svm.get_account(&env.market).unwrap(), rejected_market);
++    assert_eq!(env.svm.get_account(&lp).unwrap(), rejected_lp);
++    assert_eq!(env.svm.get_account(&taker).unwrap(), rejected_taker);
++    assert_eq!(env.svm.get_account(&env.vault).unwrap(), rejected_vault);
++    assert_eq!(
++        stale_oracles.map(|key| env.svm.get_account(&key).unwrap()),
++        stale_feeds_before
++    );
++
++    // Renew only the thirteen Live profiles at their unchanged price. The frozen asset's
++    // three expired feed references remain present and inert; its profile must stay exact.
++    let fresh_oracles = [
++        env.set_pyth_price(&feeds[0], 3_000_000, -6, current_publish_time),
++        env.set_pyth_price(&feeds[1], 150_000_000, -6, current_publish_time),
++        env.set_pyth_price(&feeds[2], 200_000_000, -6, current_publish_time),
++    ];
++    let fresh_feeds_before = fresh_oracles.map(|key| env.svm.get_account(&key).unwrap());
++    let mut accounts = vec![
++        AccountMeta::new(env.payer.pubkey(), true),
++        AccountMeta::new(env.market, false),
++        AccountMeta::new(lp, false),
++    ];
++    for observed_asset in 0..ACTIVE_CAP {
++        let selected = if observed_asset == asset_index {
++            &stale_oracles
++        } else {
++            &fresh_oracles
++        };
+         accounts.extend(
+-            moved_oracles
++            selected
+                 .iter()
+                 .copied()
+                 .map(|key| AccountMeta::new_readonly(key, false)),
+         );
+     }
+ 
++    // A frozen leg does not exempt any still-Live leg from authentication.
++    // Put the bad leg last among the Live assets so rejection also rolls back
++    // earlier accepted observations in the same instruction.
++    let last_live_asset = asset_index - 1;
++    let wrong_feed = env.set_pyth_price(&[0xe7u8; 32], 3_000_000, -6, current_publish_time);
++    let foreign_owner = env.set_pyth_price(&feeds[0], 3_000_000, -6, current_publish_time);
++    let mut foreign_account = env.svm.get_account(&foreign_owner).unwrap();
++    foreign_account.owner = Pubkey::new_unique();
++    env.svm.set_account(foreign_owner, foreign_account).unwrap();
++    let malformed = env.set_pyth_price(&feeds[0], 3_000_000, -6, current_publish_time);
++    let mut malformed_account = env.svm.get_account(&malformed).unwrap();
++    malformed_account.data.truncate(8);
++    env.svm.set_account(malformed, malformed_account).unwrap();
++    let tracked = [
++        env.market,
++        lp,
++        taker,
++        observer,
++        env.vault,
++        env.mint,
++        moved_oracles[0],
++        moved_oracles[1],
++        moved_oracles[2],
++        checkpoint_oracles[0],
++        checkpoint_oracles[1],
++        checkpoint_oracles[2],
++        stale_oracles[0],
++        stale_oracles[1],
++        stale_oracles[2],
++        fresh_oracles[0],
++        fresh_oracles[1],
++        fresh_oracles[2],
++        wrong_feed,
++        foreign_owner,
++        malformed,
++    ];
++    let reject_live_evidence = |env: &mut V16CuEnv,
++                                hints: Vec<CrankObservationHint>,
++                                metas: Vec<AccountMeta>,
++                                expected: &str,
++                                label: &str| {
++        let before = tracked.map(|key| env.svm.get_account(&key).unwrap());
++        env.svm.expire_blockhash();
++        let error = env
++            .send(
++                ProgInstruction::PermissionlessCrank {
++                    now_slot: slot,
++                    observations: hints,
++                },
++                metas,
++                &[],
++            )
++            .expect_err(label);
++        assert!(error.contains(expected), "{label}: {error}");
++        assert_eq!(
++            tracked.map(|key| env.svm.get_account(&key).unwrap()),
++            before,
++            "{label}: protocol, custody and provider accounts must roll back exactly"
++        );
++    };
++    for (label, replacement, expected) in [
++        (
++            "one expired Live report",
++            stale_oracles[0],
++            format!(
++                "InstructionError(2, Custom({}))",
++                PercolatorError::OracleStale as u32
++            ),
++        ),
++        (
++            "a current report for the wrong Live feed",
++            wrong_feed,
++            format!(
++                "InstructionError(2, Custom({}))",
++                PercolatorError::InvalidOracleKey as u32
++            ),
++        ),
++        (
++            "a current Live report with a foreign owner",
++            foreign_owner,
++            "InstructionError(2, IllegalOwner)".to_string(),
++        ),
++        (
++            "malformed current Live evidence",
++            malformed,
++            "InstructionError(2, InvalidAccountData)".to_string(),
++        ),
++    ] {
++        let mut invalid_accounts = accounts.clone();
++        invalid_accounts[3 + usize::from(last_live_asset) * 3] =
++            AccountMeta::new_readonly(replacement, false);
++        reject_live_evidence(
++            &mut env,
++            observations.clone(),
++            invalid_accounts,
++            &expected,
++            label,
++        );
++    }
++    let mut omitted_accounts = accounts.clone();
++    let first = 3 + usize::from(last_live_asset) * 3;
++    omitted_accounts.drain(first..first + 3);
++    let omitted_observations = observations
++        .iter()
++        .copied()
++        .filter(|hint| hint.asset_index != last_live_asset)
++        .collect::<Vec<_>>();
+     let max_steps = percolator_prog::constants::WRAPPER_MAX_BOUNDED_SOURCE_DOMAINS
+         + usize::from(ACTIVE_CAP)
+         + 4;
++    let custody_accounts = [env.vault, env.mint];
++    let custody_accounts_before = custody_accounts.map(|key| env.svm.get_account(&key).unwrap());
++    let mut omitted_calls = 0usize;
++    let mut omitted_max_cu = 0u64;
++    loop {
++        let before = tracked.map(|key| env.svm.get_account(&key).unwrap());
++        let group_before = env.market_state().1;
++        let omitted_profile_before = state::read_asset_oracle_profile(
++            &before[0].data, usize::from(last_live_asset),
++        ).unwrap();
++        env.svm.expire_blockhash();
++        let result = env.send(
++            ProgInstruction::PermissionlessCrank {
++                now_slot: slot,
++                observations: omitted_observations.clone(),
++            },
++            omitted_accounts.clone(),
++            &[],
++        );
++        match result {
++            Err(error) => {
++                assert!(
++                    error.contains(&format!(
++                        "InstructionError(2, Custom({}))",
++                        PercolatorError::EngineNonProgress as u32
++                    )),
++                    "the omitted Live leg must block health recertification: {error}"
++                );
++                assert_eq!(
++                    tracked.map(|key| env.svm.get_account(&key).unwrap()),
++                    before,
++                    "the missing-Live-observation rejection must roll back exactly"
++                );
++                break;
++            }
++            Ok(cu) => {
++                // The one-slot accrual cap permits market-only catch-up before the
++                // health boundary. It cannot touch any portfolio, the omitted Live
++                // asset, or the frozen Recovery asset while advancing supplied Live slots.
++                omitted_calls += 1;
++                omitted_max_cu = omitted_max_cu.max(cu);
++                assert_cu_within("market catch-up before missing-Live boundary", cu, 1_375_000);
++                assert!(omitted_calls <= max_steps);
++                let after = tracked.map(|key| env.svm.get_account(&key).unwrap());
++                assert_ne!(after[0], before[0]);
++                assert_eq!(&after[1..], &before[1..]);
++                let group = env.market_state().1;
++                assert_eq!(group.assets[asset_slot], group_before.assets[asset_slot]);
++                assert_eq!(
++                    group.assets[usize::from(last_live_asset)],
++                    group_before.assets[usize::from(last_live_asset)],
++                );
++                assert_eq!(
++                    state::read_asset_oracle_profile(&after[0].data, asset_slot).unwrap(),
++                    profile_before,
++                );
++                assert_eq!(
++                    state::read_asset_oracle_profile(&after[0].data, usize::from(last_live_asset)).unwrap(),
++                    omitted_profile_before,
++                );
++                let mut still_behind = false;
++                for live_asset in 0..usize::from(last_live_asset) {
++                    assert!(group.assets[live_asset].slot_last > group_before.assets[live_asset].slot_last);
++                    assert!(group.assets[live_asset].slot_last <= slot);
++                    still_behind |= group.assets[live_asset].slot_last < slot;
++                }
++                assert!(still_behind, "market-only success requires incomplete bounded catch-up");
++                assert_eq!(group.assets[asset_slot].stale_account_count_short, stale_count_before);
++            }
++        }
++    }
+     let mut calls = 0usize;
+     let mut max_cu = 0u64;
+     loop {
+@@ -5432,25 +5769,31 @@ fn v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_sha
+                 accounts.clone(),
+                 &[],
+             )
+-            .expect("stale complete-tail transaction must retain bounded Recovery progress");
++            .expect(
++                "fresh Live observations plus an inert Recovery tail must retain bounded progress",
++            );
+         assert_cu_within(
+-            "Recovery max-shape stale complete-tail crank",
++            "Recovery max-shape fresh-Live / stale-Recovery complete-tail crank",
+             cu,
+             1_375_000,
+         );
+         calls += 1;
+         max_cu = max_cu.max(cu);
++        assert!(
++            omitted_calls + calls <= max_steps,
++            "combined market catch-up and fresh-Live refresh must retain the original finite rank"
++        );
+         assert!(
+             env.svm.get_account(&env.market).unwrap() != market_step_before
+                 || env.svm.get_account(&lp).unwrap() != portfolio_step_before,
+-            "every accepted stale-tail Recovery call must mutate economic state"
++            "every accepted mixed-tail Recovery call must mutate economic state"
+         );
+         if env.market_state().1.assets[asset_slot].stale_account_count_short < stale_count_before {
+             break;
+         }
+         assert!(
+             calls <= max_steps,
+-            "stale complete-tail schedule must reach committed K/F progress within its finite rank"
++            "fresh Live observations must reach committed Recovery K/F progress within the original finite rank"
+         );
+     }
+ 
+@@ -5483,14 +5826,39 @@ fn v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_sha
+     assert_eq!(refreshed_leg.kf_epoch_snap, refreshed_asset.kf_epoch_short);
+     assert_eq!(active_bitmap(&lp_after), active_bitmap_before);
+     assert_eq!(profile_after, profile_before);
++    assert_eq!(
++        stale_oracles.map(|key| env.svm.get_account(&key).unwrap()),
++        stale_feeds_before
++    );
++    assert_eq!(
++        fresh_oracles.map(|key| env.svm.get_account(&key).unwrap()),
++        fresh_feeds_before
++    );
+     assert_eq!(
+         moved_oracles.map(|key| env.svm.get_account(&key).unwrap()),
+-        feeds_before
++        moved_feeds_before
++    );
++    assert_eq!(
++        checkpoint_oracles.map(|key| env.svm.get_account(&key).unwrap()),
++        checkpoint_feeds_before
+     );
++    for live_asset in 0..asset_slot {
++        let market_account = env.svm.get_account(&env.market).unwrap();
++        let profile = state::read_asset_oracle_profile(&market_account.data, live_asset).unwrap();
++        assert_eq!(
++            profile.last_good_oracle_slot, slot,
++            "every Live Hybrid leg must be current"
++        );
++        assert_eq!(recovery_after.assets[live_asset].effective_price, 100);
++    }
+     assert_eq!(env.token_amount(env.vault), custody_before);
+     assert_eq!(recovery_after.vault as u64, custody_before);
++    assert_eq!(
++        custody_accounts.map(|key| env.svm.get_account(&key).unwrap()),
++        custody_accounts_before,
++    );
+     println!(
+-        "INV-071/072/077 Recovery 14-leg/28-source/42-feed K/F progress: checkpoint={checkpoint_calls}/{checkpoint_max_cu}, recovery={calls}/{max_cu}"
++        "INV-071/072/077 Recovery 14-leg/28-source/42-feed K/F progress: delay={delay_slots}, checkpoint={checkpoint_calls}/{checkpoint_max_cu}, catchup={omitted_calls}/{omitted_max_cu}, recovery={calls}/{max_cu}"
+     );
+ }
+ 
+diff --git a/tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs b/tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs
+index 4bf33118..e5ca041f 100644
+--- a/tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs
++++ b/tests/invariants/stateful/inv_086_reference_model_and_deployed_transition_equivalence.rs
+@@ -350,8 +350,7 @@ fn assert_resolved_reserve_controls(evidence: &LiquidationToPartialReceiptEviden
+         "the lapsed reserve must pay the claimant its full entitlement: {evidence:?}"
+     );
+     assert!(
+-        terminal.terminal_landing_slot > landing
+-            && terminal.terminal_landing_slot == 111,
++        terminal.terminal_landing_slot > landing && terminal.terminal_landing_slot == 111,
+         "wind-down waits for the last pledged bucket's #224-bounded lapse: {evidence:?}"
+     );
+ }
+@@ -2067,6 +2066,23 @@ fn v16_program_reference_model_dimension_composition_is_source_complete() {
+     ));
+ }
+ 
++// This fixed public sequence has unequal sums of per-leg ceil quantities after
++// ADL while the two aggregate OI ledgers remain exactly equal. Replay both
++// permissionless progress and independent owner exit, including all existing
++// price/PnL/custody and rollback oracles in run_scenario.
++#[test]
++fn v16_program_effective_oi_rounding_replays_both_exit_campaigns() {
++    let scenario: Scenario = serde_json::from_str(include_str!(
++        "../../fixtures/inv_086_ceil_residue_scenario.json"
++    ))
++    .expect("decode retained ceil-residue scenario");
++    let coverage = run_scenario(&scenario).expect("exact ceil-residue public sequence and exits");
++    assert!(coverage.route_success.iter().all(|count| *count != 0));
++    assert!(
++        coverage.token_frame_checks != 0 && coverage.current_certificate_full_refresh_checks != 0
++    );
++}
++
+ proptest! {
+     #![proptest_config(ProptestConfig {
+         cases: env_usize("PERCOLATOR_INV086_FUZZ_CASES", 8) as u32,
+diff --git a/tests/support/fuzz_model.rs b/tests/support/fuzz_model.rs
+index 181cbef9..9dc3f8dc 100644
+--- a/tests/support/fuzz_model.rs
++++ b/tests/support/fuzz_model.rs
+@@ -5,7 +5,7 @@ use super::v16_svm::{
+ use percolator::{
+     active_bitmap_is_empty, v16_domain_pair_for_asset_index, AssetLifecycleV16, AssetStateV16,
+     BackingBucketStatusV16, CloseProgressLedgerV16, HealthCertV16, MarketModeV16, PortfolioLegV16,
+-    ResolvedPayoutLedgerV16, ResolvedPayoutReceiptV16, SideModeV16, SideV16, BOUND_SCALE,
++    ResolvedPayoutLedgerV16, ResolvedPayoutReceiptV16, SideModeV16, SideV16, ADL_ONE, BOUND_SCALE,
+     CREDIT_RATE_SCALE, MAX_MARGIN_BPS, PORTFOLIO_SOURCE_DOMAIN_CAP, POS_SCALE,
+ };
+ use percolator_prog::{
+@@ -3048,6 +3048,291 @@ pub(crate) fn assert_current_certificate_matches_independent(
+     Ok(true)
+ }
+ 
++// This is a transition ledger, not a copy of the deployed A index. Public
++// attachments start at unit A; only a witnessed unilateral close floors the
++// opposite index, and only an exhausted epoch can reset it.
++#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
++struct IndependentAdlIndex {
++    a: u128,
++    epoch: u64,
++    reset_pending: bool,
++    reset_confirmation_due: bool,
++}
++
++impl IndependentAdlIndex {
++    const INITIAL: Self = Self {
++        a: ADL_ONE,
++        epoch: 0,
++        reset_pending: false,
++        reset_confirmation_due: false,
++    };
++
++    fn unilateral_reduction(self, before_oi: u128, reduce_q: u128) -> Result<Self, String> {
++        let after_oi = before_oi
++            .checked_sub(reduce_q)
++            .ok_or("independent A reduction exceeds aggregate OI")?;
++        if reduce_q == 0 {
++            return Ok(self);
++        }
++        if self.reset_pending {
++            return Err("unilateral close cannot reduce a prior-reset side".into());
++        }
++        let a = if after_oi == 0 {
++            ADL_ONE
++        } else {
++            super::reference_math::mul_div_floor(self.a, after_oi, before_oi)?
++        };
++        if a == 0 {
++            return Err("successful independent A transition reached zero".into());
++        }
++        Ok(if after_oi == 0 {
++            Self {
++                a,
++                epoch: self
++                    .epoch
++                    .checked_add(1)
++                    .ok_or("independent reset epoch overflow")?,
++                reset_pending: true,
++                reset_confirmation_due: true,
++            }
++        } else {
++            Self { a, ..self }
++        })
++    }
++
++    fn reconcile(
++        self,
++        asset: &AssetStateV16,
++        side: usize,
++        expected_oi: u128,
++        pending_domain_loss_barrier: u64,
++    ) -> Result<Self, String> {
++        let (a, epoch, oi, pending, stored, stale, mode) = if side == 0 {
++            (
++                asset.a_long,
++                asset.epoch_long,
++                asset.oi_eff_long_q,
++                asset.pending_obligation_count_long,
++                asset.stored_pos_count_long,
++                asset.stale_account_count_long,
++                asset.mode_long,
++            )
++        } else {
++            (
++                asset.a_short,
++                asset.epoch_short,
++                asset.oi_eff_short_q,
++                asset.pending_obligation_count_short,
++                asset.stored_pos_count_short,
++                asset.stale_account_count_short,
++                asset.mode_short,
++            )
++        };
++        if oi != expected_oi {
++            return Err(format!(
++                "deployed aggregate OI {oi} != independent ledger {expected_oi}"
++            ));
++        }
++        if mode == SideModeV16::ResetPending
++            && (oi != 0 || pending != 0 || pending_domain_loss_barrier != 0)
++        {
++            return Err(
++                "reset side retained OI, pending obligation, or domain loss barrier".into(),
++            );
++        }
++        if epoch == self.epoch && a == self.a {
++            if self.reset_confirmation_due && mode != SideModeV16::ResetPending {
++                return Err("unilateral exhaustion did not install its required reset mode".into());
++            }
++            if self.reset_pending != (mode == SideModeV16::ResetPending) {
++                if self.reset_pending
++                    && mode == SideModeV16::Normal
++                    && oi == 0
++                    && pending == 0
++                    && stored == 0
++                    && stale == 0
++                    && pending_domain_loss_barrier == 0
++                {
++                    return Ok(Self {
++                        reset_pending: false,
++                        ..self
++                    });
++                }
++                return Err(
++                    "side reset mode changed without its exact epoch/finalization witness".into(),
++                );
++            }
++            return Ok(Self {
++                reset_confirmation_due: false,
++                ..self
++            });
++        }
++        if !self.reset_pending
++            && self.epoch.checked_add(1) == Some(epoch)
++            && oi == 0
++            && pending == 0
++            && mode == SideModeV16::ResetPending
++            && a == ADL_ONE
++        {
++            return Ok(Self {
++                a: ADL_ONE,
++                epoch,
++                reset_pending: true,
++                reset_confirmation_due: false,
++            });
++        }
++        Err(format!(
++            "deployed A/epoch {a}/{epoch} != independent {}/{} without an exhausted-epoch reset",
++            self.a, self.epoch
++        ))
++    }
++}
++
++// All legs in this public ScenarioRunner are attached/flipped only at unit A;
++// same-side reductions preserve that birth basis. Keep this explicit so a
++// corrupted basis cannot be explained away as rounding.
++fn assert_public_leg_adl_basis(leg: PortfolioLegV16) -> Result<(), String> {
++    if leg.a_basis != ADL_ONE {
++        return Err(format!(
++            "public leg birth A {} != independent unit basis {ADL_ONE}",
++            leg.a_basis
++        ));
++    }
++    Ok(())
++}
++
++fn canonical_resized_raw_basis(
++    old_raw_q: u128,
++    new_effective_q: u128,
++    a_basis: u128,
++    a: u128,
++) -> Result<u128, String> {
++    let old_effective_q = super::reference_math::mul_div_ceil(old_raw_q, a, a_basis)?;
++    let candidate = super::reference_math::mul_div_floor(new_effective_q, a_basis, a)?;
++    Ok(if new_effective_q <= old_effective_q {
++        candidate.min(old_raw_q)
++    } else {
++        candidate
++    })
++}
++
++fn assert_exhausted_reset_quantity(
++    old_effective_q: u128,
++    remaining_before_reset_q: u128,
++    ledger_before_q: u128,
++) -> Result<(), String> {
++    if old_effective_q.checked_sub(remaining_before_reset_q) != Some(ledger_before_q) {
++        return Err(
++            "retained reset residue does not account for the exact exhausted aggregate quantity"
++                .into(),
++        );
++    }
++    Ok(())
++}
++
++#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
++struct EffectiveOiRoundingResidue {
++    // Denominator ADL_ONE. Ceil rounding is nonnegative; repeated index flooring
++    // and capped terminal removals make the index/bookkeeping term signed.
++    leg_ceiling_num: u128,
++    index_bookkeeping_num: i128,
++    census_minus_aggregate_q: i128,
++}
++
++fn reconcile_effective_oi_rounding(
++    a: u128,
++    raw_current_q: u128,
++    current_leg_count: u64,
++    census_q: u128,
++    aggregate_q: u128,
++) -> Result<EffectiveOiRoundingResidue, String> {
++    let exact_num = raw_current_q
++        .checked_mul(a)
++        .ok_or("exact exposure numerator overflow")?;
++    let census_num = census_q
++        .checked_mul(ADL_ONE)
++        .ok_or("census exposure numerator overflow")?;
++    let aggregate_num = aggregate_q
++        .checked_mul(ADL_ONE)
++        .ok_or("aggregate exposure numerator overflow")?;
++    let leg_ceiling_num = census_num
++        .checked_sub(exact_num)
++        .ok_or("leg ceiling residue is negative")?;
++    let ceiling_bound = u128::from(current_leg_count)
++        .checked_mul(ADL_ONE)
++        .ok_or("leg ceiling bound overflow")?;
++    if (current_leg_count == 0 && leg_ceiling_num != 0)
++        || (current_leg_count != 0 && leg_ceiling_num >= ceiling_bound)
++    {
++        return Err("leg ceiling residue violates its exact per-leg bound".into());
++    }
++    let signed = |value| {
++        i128::try_from(value).map_err(|_| "rounding numerator exceeds signed range".to_string())
++    };
++    let index_bookkeeping_num = signed(exact_num)?
++        .checked_sub(signed(aggregate_num)?)
++        .ok_or("index bookkeeping residue overflow")?;
++    let census_minus_aggregate_q = signed(census_q)?
++        .checked_sub(signed(aggregate_q)?)
++        .ok_or("census/aggregate residue overflow")?;
++    if index_bookkeeping_num.checked_add(signed(leg_ceiling_num)?)
++        != census_minus_aggregate_q.checked_mul(signed(ADL_ONE)?)
++    {
++        return Err("effective OI rounding decomposition is not exact".into());
++    }
++    Ok(EffectiveOiRoundingResidue {
++        leg_ceiling_num,
++        index_bookkeeping_num,
++        census_minus_aggregate_q,
++    })
++}
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum DeadLegRemovalWitness {
++    ResolvedExit,
++    RecoveryForfeit,
++    ZeroOiResidue,
++}
++
++impl DeadLegRemovalWitness {
++    fn from_prestate(
++        market_mode: MarketModeV16,
++        state: &AssetStateV16,
++        side: usize,
++    ) -> Result<Self, String> {
++        if market_mode == MarketModeV16::Resolved {
++            Ok(Self::ResolvedExit)
++        } else if state.lifecycle == AssetLifecycleV16::Recovery {
++            Ok(Self::RecoveryForfeit)
++        } else if [state.oi_eff_long_q, state.oi_eff_short_q][side] == 0 {
++            Ok(Self::ZeroOiResidue)
++        } else {
++            Err("dead-leg cap lacks Resolved, Recovery, or zero-OI residue witness".into())
++        }
++    }
++
++    fn removal(self, effective_q: u128, ledger_q: u128) -> Result<u128, String> {
++        if self == Self::ZeroOiResidue && ledger_q != 0 {
++            return Err("zero-OI residue witness retained independent aggregate OI".into());
++        }
++        Ok(effective_q.min(ledger_q))
++    }
++}
++
++fn account_oi_removal(
++    effective_q: u128,
++    ledger_q: u128,
++    dead_leg_witness: Option<DeadLegRemovalWitness>,
++) -> Result<u128, String> {
++    if let Some(witness) = dead_leg_witness {
++        witness.removal(effective_q, ledger_q)
++    } else if effective_q <= ledger_q {
++        Ok(effective_q)
++    } else {
++        Err("ordinary Live leg removal exceeds independent aggregate OI".into())
++    }
++}
++
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+ struct MatchedBookObligationCensus {
+     effective_q: [u128; 2],
+@@ -3062,6 +3347,9 @@ struct MatchedBookObligationCensus {
+     social_loss_remainder_num: [u128; 2],
+     social_loss_dust_num: [u128; 2],
+     explicit_unallocated_loss_num: [u128; 2],
++    current_raw_q: [u128; 2],
++    current_leg_count: [u64; 2],
++    rounding_residue: [EffectiveOiRoundingResidue; 2],
+     terminal_unmatched_effective_q: [u128; 2],
+ }
+ 
+@@ -3069,6 +3357,7 @@ pub struct ScenarioRunner {
+     env: V16Svm,
+     positions: [[i128; ASSET_COUNT]; PRIMARY_ACTOR_COUNT],
+     expected_effective_oi: [[u128; 2]; ASSET_COUNT],
++    expected_adl_indices: Cell<[[IndependentAdlIndex; 2]; ASSET_COUNT]>,
+     liveness_limit: usize,
+     retained: VecDeque<RetainedTrade>,
+     last_trade_rejection: Option<String>,
+@@ -3115,6 +3404,7 @@ impl ScenarioRunner {
+             env,
+             positions: [[0; ASSET_COUNT]; PRIMARY_ACTOR_COUNT],
+             expected_effective_oi: [[0; 2]; ASSET_COUNT],
++            expected_adl_indices: Cell::new([[IndependentAdlIndex::INITIAL; 2]; ASSET_COUNT]),
+             liveness_limit,
+             retained: VecDeque::new(),
+             last_trade_rejection: None,
+@@ -5535,6 +5825,15 @@ impl ScenarioRunner {
+                             .into(),
+                     );
+                 }
++                // Retirement has already been checked against the complete
++                // canonical empty AssetState above. It resets side epochs as
++                // part of retiring the generation, not as an ADL continuation.
++                if self.expected_effective_oi[asset] != [0, 0] {
++                    return Err("asset retirement discarded independent aggregate OI".into());
++                }
++                let mut indices = self.expected_adl_indices.get();
++                indices[asset] = [IndependentAdlIndex::INITIAL; 2];
++                self.expected_adl_indices.set(indices);
+                 self.assert_positions_match()?;
+                 if transitioned {
+                     self.coverage.asset_retirements += 1;
+@@ -6284,7 +6583,18 @@ impl ScenarioRunner {
+                             allow_internal_exhausted_reset,
+                         )?;
+                         let side_index = Self::side_index(old_leg.side);
+-                        if old_effective_q > self.expected_effective_oi[asset][side_index] {
++                        let ledger_q = self.expected_effective_oi[asset][side_index];
++                        let witness = if allow_internal_exhausted_reset {
++                            Some(DeadLegRemovalWitness::from_prestate(
++                                group_before.mode,
++                                &group_before.assets[asset],
++                                side_index,
++                            )?)
++                        } else {
++                            None
++                        };
++                        let removed_q = account_oi_removal(old_effective_q, ledger_q, witness)?;
++                        if removed_q > ledger_q {
+                             return Err(format!(
+                                 "{context} account clear exceeds the independent {:?} OI ledger for asset {asset}: \
+                                  raw={}, effective={old_effective_q}, ledger={}, before_asset={:?}, after_asset={:?}",
+@@ -6295,10 +6605,17 @@ impl ScenarioRunner {
+                                 group_after.assets[asset],
+                             ));
+                         }
+-                        self.replace_expected_oi(asset, old_leg.side, old_effective_q, 0, context)?;
++                        self.replace_expected_oi(asset, old_leg.side, removed_q, 0, context)?;
+                     }
+                 }
+                 (Some(old_leg), Some(new_leg)) if old_leg.side == new_leg.side => {
++                    if old_leg.a_basis != new_leg.a_basis
++                        || old_leg.epoch_snap != new_leg.epoch_snap
++                    {
++                        return Err(format!(
++                            "{context} same-side leg resize changed its A/epoch birth basis"
++                        ));
++                    }
+                     let already_removed = Self::leg_oi_was_removed_by_reset(
+                         group_before,
+                         asset,
+@@ -6312,6 +6629,24 @@ impl ScenarioRunner {
+                         ));
+                     }
+                     if !already_removed && old_leg.basis_pos_q != new_leg.basis_pos_q {
++                        let before_a = match old_leg.side {
++                            SideV16::Long => group_before.assets[asset].a_long,
++                            SideV16::Short => group_before.assets[asset].a_short,
++                        };
++                        let new_effective_before_reset = super::reference_math::mul_div_ceil(
++                            new_leg.basis_pos_q.unsigned_abs(),
++                            before_a,
++                            old_leg.a_basis,
++                        )?;
++                        let canonical_raw = canonical_resized_raw_basis(
++                            old_leg.basis_pos_q.unsigned_abs(),
++                            new_effective_before_reset,
++                            old_leg.a_basis,
++                            before_a,
++                        )?;
++                        if new_leg.basis_pos_q.unsigned_abs() != canonical_raw {
++                            return Err(format!("{context} same-side resized raw basis {} != independent canonical {canonical_raw}", new_leg.basis_pos_q.unsigned_abs()));
++                        }
+                         let old_effective_q = Self::leg_effective_oi(
+                             group_before,
+                             asset,
+@@ -6330,19 +6665,50 @@ impl ScenarioRunner {
+                             SideV16::Long => group_after.assets[asset].oi_eff_long_q,
+                             SideV16::Short => group_after.assets[asset].oi_eff_short_q,
+                         };
+-                        let exhausted_rounding_residue = old_effective_q.checked_sub(ledger_before)
+-                            == Some(1)
+-                            && deployed_before == ledger_before
+-                            && deployed_after == 0
+-                            && new_effective_q == 0
+-                            && new_leg.basis_pos_q != 0
++                        // A unilateral reduction may exhaust the aggregate while
++                        // retaining a rounded leg as prior-epoch residue. The
++                        // witness is the exact reset transition, never an epsilon.
++                        let new_reset_residue = new_leg.basis_pos_q != 0
+                             && Self::leg_oi_was_removed_by_reset(
+                                 &group_after,
+                                 asset,
+                                 new_leg,
+                                 false,
+                             );
+-                        if old_effective_q > ledger_before && !exhausted_rounding_residue {
++                        if new_reset_residue {
++                            if deployed_before != ledger_before || deployed_after != 0 {
++                                return Err("retained reset residue lacks an exact exhausted aggregate ledger".into());
++                            }
++                            assert_exhausted_reset_quantity(
++                                old_effective_q,
++                                new_effective_before_reset,
++                                ledger_before,
++                            )?;
++                        }
++                        let exhausted_rounding_residue = old_effective_q > ledger_before
++                            && deployed_before == ledger_before
++                            && deployed_after == 0
++                            && new_effective_q == 0
++                            && new_reset_residue;
++                        let dead_leg_removed_q = if allow_internal_exhausted_reset
++                            && new_leg.basis_pos_q == 0
++                            && new_effective_q == 0
++                        {
++                            Some(
++                                DeadLegRemovalWitness::from_prestate(
++                                    group_before.mode,
++                                    &group_before.assets[asset],
++                                    side_index,
++                                )?
++                                .removal(old_effective_q, ledger_before)?,
++                            )
++                        } else {
++                            None
++                        };
++                        if old_effective_q > ledger_before
++                            && !exhausted_rounding_residue
++                            && dead_leg_removed_q.is_none()
++                        {
+                             return Err(format!(
+                                 "{context} account resize exceeds the independent {:?} OI ledger for asset {asset}: \
+                                  raw={}->{}, effective={old_effective_q}->{new_effective_q}, ledger={ledger_before}, \
+@@ -6354,7 +6720,9 @@ impl ScenarioRunner {
+                                 group_after.assets[asset],
+                             ));
+                         }
+-                        if exhausted_rounding_residue {
++                        if let Some(removed_q) = dead_leg_removed_q {
++                            self.replace_expected_oi(asset, old_leg.side, removed_q, 0, context)?;
++                        } else if exhausted_rounding_residue {
+                             self.replace_expected_oi(
+                                 asset,
+                                 old_leg.side,
+@@ -6404,6 +6772,11 @@ impl ScenarioRunner {
+         reduce_q: u128,
+         context: &str,
+     ) -> Result<(), String> {
++        let side_index = Self::side_index(Self::opposite_side(closed_side));
++        let mut indices = self.expected_adl_indices.get();
++        indices[asset][side_index] = indices[asset][side_index]
++            .unilateral_reduction(self.expected_effective_oi[asset][side_index], reduce_q)?;
++        self.expected_adl_indices.set(indices);
+         self.replace_expected_oi(
+             asset,
+             Self::opposite_side(closed_side),
+@@ -6472,9 +6845,18 @@ impl ScenarioRunner {
+             }
+             self.positions[actor][asset] = new;
+             if !prior_reset_cleanup {
++                // A full-drain reset makes a retained prior-epoch leg report
++                // zero effective OI. Its residual raw basis still identifies
++                // the exact quantity closed under the pre-reset index; that
++                // quantity, rather than the reset's whole-leg disappearance,
++                // is the matching-side decrement.
++                let remaining_before_reset = new_leg
++                    .map(|leg| Self::leg_effective_oi(group_before, asset, leg, false))
++                    .transpose()?
++                    .unwrap_or(0);
+                 let reduced = old_effective
+                     .unsigned_abs()
+-                    .checked_sub(new_effective.unsigned_abs())
++                    .checked_sub(remaining_before_reset)
+                     .ok_or("liquidation increased effective position")?;
+                 if reduced == 0 {
+                     return Err("liquidation changed raw basis without effective progress".into());
+@@ -7260,6 +7642,7 @@ impl ScenarioRunner {
+         for actor in 0..PRIMARY_ACTOR_COUNT {
+             let account = self.env.primary_portfolio(actor);
+             for leg in decoded_legs(&account).into_iter().filter(|leg| leg.active) {
++                assert_public_leg_adl_basis(leg)?;
+                 let asset = leg.asset_index as usize;
+                 if asset >= ASSET_COUNT {
+                     return Err(format!(
+@@ -7296,6 +7679,14 @@ impl ScenarioRunner {
+                     continue;
+                 }
+                 let effective_q = Self::leg_effective_oi(group, asset, leg, false)?;
++                census[asset].current_raw_q[side] = census[asset].current_raw_q[side]
++                    .checked_add(raw_q)
++                    .ok_or("matched-book current raw quantity overflow")?;
++                if raw_q != 0 {
++                    census[asset].current_leg_count[side] = census[asset].current_leg_count[side]
++                        .checked_add(1)
++                        .ok_or("matched-book current leg count overflow")?;
++                }
+                 let adl_residue_q = raw_q.checked_sub(effective_q).ok_or_else(|| {
+                     format!(
+                         "matched-book actor {actor} asset {asset} effective quantity {effective_q} exceeds raw {raw_q}"
+@@ -7353,13 +7744,23 @@ impl ScenarioRunner {
+                 engine_asset.explicit_unallocated_loss_long,
+                 engine_asset.explicit_unallocated_loss_short,
+             ];
+-            if entry.effective_q[0] >= entry.effective_q[1] {
+-                entry.terminal_unmatched_effective_q[0] = entry.effective_q[0]
+-                    .checked_sub(entry.effective_q[1])
++            let aggregate_q = [engine_asset.oi_eff_long_q, engine_asset.oi_eff_short_q];
++            for side in 0..2 {
++                entry.rounding_residue[side] = reconcile_effective_oi_rounding(
++                    self.expected_adl_indices.get()[asset][side].a,
++                    entry.current_raw_q[side],
++                    entry.current_leg_count[side],
++                    entry.effective_q[side],
++                    self.expected_effective_oi[asset][side],
++                )?;
++            }
++            if aggregate_q[0] >= aggregate_q[1] {
++                entry.terminal_unmatched_effective_q[0] = aggregate_q[0]
++                    .checked_sub(aggregate_q[1])
+                     .ok_or("matched-book long terminal difference underflow")?;
+             } else {
+-                entry.terminal_unmatched_effective_q[1] = entry.effective_q[1]
+-                    .checked_sub(entry.effective_q[0])
++                entry.terminal_unmatched_effective_q[1] = aggregate_q[1]
++                    .checked_sub(aggregate_q[0])
+                     .ok_or("matched-book short terminal difference underflow")?;
+             }
+             let terminal_class = group.mode != MarketModeV16::Live
+@@ -7379,6 +7780,25 @@ impl ScenarioRunner {
+ 
+     fn assert_positions_match(&self) -> Result<(), String> {
+         let (_, group) = self.env.primary_market_state();
++        let mut indices = self.expected_adl_indices.get();
++        for asset in 0..ASSET_COUNT {
++            let (long_domain, short_domain) = v16_domain_pair_for_asset_index(asset)
++                .map_err(|error| format!("asset {asset} reset domain mapping: {error:?}"))?;
++            for side in 0..2 {
++                indices[asset][side] = indices[asset][side]
++                    .reconcile(
++                        &group.assets[asset],
++                        side,
++                        self.expected_effective_oi[asset][side],
++                        *group
++                            .pending_domain_loss_barriers
++                            .get([long_domain, short_domain][side])
++                            .ok_or("independent reset witness missing domain loss barrier")?,
++                    )
++                    .map_err(|error| format!("asset {asset} side {side}: {error}"))?;
++            }
++        }
++        self.expected_adl_indices.set(indices);
+         let obligation_census = self.matched_book_obligation_census(&group)?;
+         let mut observed = [[0i128; ASSET_COUNT]; PRIMARY_ACTOR_COUNT];
+         let mut observed_long_oi = [0u128; ASSET_COUNT];
+@@ -7629,14 +8049,14 @@ impl ScenarioRunner {
+                 ));
+             }
+             let obligations = obligation_census[asset];
+-            if obligations.effective_q != [engine_asset.oi_eff_long_q, engine_asset.oi_eff_short_q]
+-            {
+-                return Err(format!(
+-                    "asset {asset} effective OI is not the sum of independently decoded effective legs: deployed={}/{}, census={:?}",
+-                    engine_asset.oi_eff_long_q,
+-                    engine_asset.oi_eff_short_q,
+-                    obligations.effective_q,
+-                ));
++            for side in 0..2 {
++                let reconstructed_q = i128::try_from(self.expected_effective_oi[asset][side])
++                    .map_err(|_| "independent aggregate OI exceeds signed range")?
++                    .checked_add(obligations.rounding_residue[side].census_minus_aggregate_q)
++                    .ok_or("rounding-adjusted census quantity overflow")?;
++                if u128::try_from(reconstructed_q).ok() != Some(obligations.effective_q[side]) {
++                    return Err(format!("asset {asset} side {side} typed rounding residue does not reconcile aggregate and leg census"));
++                }
+             }
+             if obligations.pending_obligation_count
+                 != [
+@@ -12641,6 +13061,7 @@ struct BoundedReferenceNode {
+     positions: [[i128; ASSET_COUNT]; PRIMARY_ACTOR_COUNT],
+     matched_book_obligations: [MatchedBookObligationCensus; ASSET_COUNT],
+     expected_effective_oi: [[u128; 2]; ASSET_COUNT],
++    expected_adl_indices: [[IndependentAdlIndex; 2]; ASSET_COUNT],
+     capitals: [u128; PRIMARY_ACTOR_COUNT],
+     pnl: [i128; PRIMARY_ACTOR_COUNT],
+     reserved_pnl: [u128; PRIMARY_ACTOR_COUNT],
+@@ -13140,6 +13561,7 @@ impl ScenarioRunner {
+             positions: self.positions,
+             matched_book_obligations,
+             expected_effective_oi: self.expected_effective_oi,
++            expected_adl_indices: self.expected_adl_indices.get(),
+             capitals,
+             pnl,
+             reserved_pnl,
+@@ -13507,10 +13929,15 @@ fn bounded_lien_impairment_actions(
+ 
+ #[derive(Clone, Copy, Debug)]
+ enum BoundedReceiptConflictAction {
+-    Terminal { actor: usize, route: TerminalRoute },
++    Terminal {
++        actor: usize,
++        route: TerminalRoute,
++    },
+     /// Resolved crank naming each asset in turn; the public route that normalizes
+     /// backing lapsed at the seed slot so an open partial receipt can complete.
+-    HintedCrank { actor: usize },
++    HintedCrank {
++        actor: usize,
++    },
+     CloseSlab,
+ }
+ 
+@@ -15191,12 +15618,19 @@ fn finish_close_to_partial_receipt_composition(
+                 .checked_add(fresh)
+                 .ok_or("INV-086 pre-expiry backing sum overflow")?;
+             let reserve = resolved_junior_need
+-                .checked_add(group.source_credit[domain].positive_claim_bound_num.div_ceil(BOUND_SCALE))
++                .checked_add(
++                    group.source_credit[domain]
++                        .positive_claim_bound_num
++                        .div_ceil(BOUND_SCALE),
++                )
+                 .ok_or("INV-086 resolved reserve overflow")?;
+             let surplus = fresh.saturating_sub(reserve);
+             if surplus != 0 {
+-                let destination_before =
+-                    u128::from(runner.env.token_amount(runner.env.provider_destination_token));
++                let destination_before = u128::from(
++                    runner
++                        .env
++                        .token_amount(runner.env.provider_destination_token),
++                );
+                 let withdraw = runner
+                     .env
+                     .withdraw_backing_bucket(domain as u16, surplus)
+@@ -15204,8 +15638,11 @@ fn finish_close_to_partial_receipt_composition(
+                         format!("INV-086 resolved surplus withdrawal domain {domain}: {error}")
+                     })?;
+                 max_compute_units_pre = max_compute_units_pre.max(withdraw.compute_units);
+-                if u128::from(runner.env.token_amount(runner.env.provider_destination_token))
+-                    != destination_before + surplus
++                if u128::from(
++                    runner
++                        .env
++                        .token_amount(runner.env.provider_destination_token),
++                ) != destination_before + surplus
+                 {
+                     return Err(format!(
+                         "INV-086 resolved surplus withdrawal domain {domain} moved the wrong amount"
+@@ -19690,8 +20127,11 @@ fn apply_bounded_receipt_conflict_action(
+                     asset_index,
+                     oracle_accounts: 0,
+                 };
+-                result =
+-                    runner.execute_terminal_route_hinted(actor, TerminalRoute::Crank, vec![hint])?;
++                result = runner.execute_terminal_route_hinted(
++                    actor,
++                    TerminalRoute::Crank,
++                    vec![hint],
++                )?;
+                 if result.landed {
+                     break;
+                 }
+@@ -21235,8 +21675,7 @@ pub fn verify_favorable_funding_claim_bound_route_matrix(seed: [u8; 32]) -> Resu
+     const DEPOSIT: u128 = 1_000_000;
+     const EXPECTED_FUNDING: u128 = Q_LOTS * FUNDING_CAP as u128 * PRICE as u128 / 1_000_000_000;
+     const _: () = assert!(
+-        EXPECTED_FUNDING > 0
+-            && (Q_LOTS * FUNDING_CAP as u128 * PRICE as u128) % 1_000_000_000 == 0
++        EXPECTED_FUNDING > 0 && (Q_LOTS * FUNDING_CAP as u128 * PRICE as u128) % 1_000_000_000 == 0
+     );
+ 
+     let mut world_count = 0u64;
+@@ -36345,3 +36784,204 @@ fn observed_positions(
+     }
+     Ok(out)
+ }
++
++#[cfg(test)]
++mod effective_oi_rounding_regressions {
++    use super::*;
++
++    #[test]
++    fn ceil_leg_sums_reconcile_with_equal_aggregate_oi_without_tolerance() {
++        let index = IndependentAdlIndex::INITIAL
++            .unilateral_reduction(2, 1)
++            .unwrap();
++        assert_eq!(index.a, ADL_ONE / 2);
++        let long = reconcile_effective_oi_rounding(index.a, 2, 2, 2, 1).unwrap();
++        let short = reconcile_effective_oi_rounding(ADL_ONE, 1, 1, 1, 1).unwrap();
++        assert_eq!(long.leg_ceiling_num, ADL_ONE);
++        assert_eq!(long.index_bookkeeping_num, 0);
++        assert_eq!(long.census_minus_aggregate_q, 1);
++        assert_eq!(short, EffectiveOiRoundingResidue::default());
++        assert!(reconcile_effective_oi_rounding(index.a, 2, 2, 3, 1).is_err());
++    }
++
++    #[test]
++    fn repeated_index_flooring_has_signed_residue_larger_than_one_atom_per_leg() {
++        let raw = 70_000_000_000_000u128;
++        let mut aggregate = raw;
++        let mut index = IndependentAdlIndex::INITIAL;
++        for _ in 0..40 {
++            index = index.unilateral_reduction(aggregate, 1).unwrap();
++            aggregate -= 1;
++        }
++        assert_eq!(index.a, 999_999_999_999_400);
++        assert_eq!(aggregate, 69_999_999_999_960);
++        let census = super::super::reference_math::mul_div_ceil(raw, index.a, ADL_ONE).unwrap();
++        assert_eq!(census, 69_999_999_999_958);
++        let residue = reconcile_effective_oi_rounding(index.a, raw, 1, census, aggregate).unwrap();
++        assert_eq!(residue.leg_ceiling_num, 0);
++        assert_eq!(residue.index_bookkeeping_num, -2 * ADL_ONE as i128);
++        assert_eq!(residue.census_minus_aggregate_q, -2);
++    }
++
++    #[test]
++    fn independent_indices_basis_and_aggregate_reject_one_atom_mutations() {
++        let index = IndependentAdlIndex::INITIAL
++            .unilateral_reduction(2, 1)
++            .unwrap();
++        let mut asset = AssetStateV16::default();
++        asset.a_long = index.a;
++        asset.oi_eff_long_q = 1;
++        assert_eq!(index.reconcile(&asset, 0, 1, 0).unwrap(), index);
++        asset.a_long += 1;
++        assert!(
++            index.reconcile(&asset, 0, 1, 0).is_err(),
++            "wrong A must fail independently of census"
++        );
++        asset.a_long = index.a;
++        asset.oi_eff_long_q += 1;
++        assert!(
++            index.reconcile(&asset, 0, 1, 0).is_err(),
++            "wrong aggregate must fail independently of census"
++        );
++        asset.oi_eff_long_q = 1;
++        assert!(
++            index.reconcile(&asset, 0, 2, 0).is_err(),
++            "wrong shadow ledger must fail"
++        );
++        asset.epoch_long = 1;
++        asset.a_long = ADL_ONE;
++        asset.mode_long = SideModeV16::ResetPending;
++        assert!(
++            index.reconcile(&asset, 0, 1, 0).is_err(),
++            "reset with nonzero OI must fail"
++        );
++        asset.oi_eff_long_q = 0;
++        assert_eq!(
++            index.reconcile(&asset, 0, 0, 0).unwrap(),
++            IndependentAdlIndex {
++                a: ADL_ONE,
++                epoch: 1,
++                reset_pending: true,
++                reset_confirmation_due: false,
++            }
++        );
++        asset.pending_obligation_count_long = 1;
++        assert!(
++            index.reconcile(&asset, 0, 0, 0).is_err(),
++            "reset with pending loss must fail"
++        );
++        let mut leg = PortfolioLegV16::EMPTY;
++        leg.a_basis = ADL_ONE;
++        assert_public_leg_adl_basis(leg).unwrap();
++        leg.a_basis -= 1;
++        assert!(
++            assert_public_leg_adl_basis(leg).is_err(),
++            "wrong birth basis must fail"
++        );
++    }
++
++    #[test]
++    fn capped_dead_leg_removal_requires_a_typed_terminal_witness() {
++        assert_eq!(account_oi_removal(2, 3, None).unwrap(), 2);
++        assert!(
++            account_oi_removal(2, 1, None).is_err(),
++            "ordinary Live removals remain strict"
++        );
++        for witness in [
++            DeadLegRemovalWitness::ResolvedExit,
++            DeadLegRemovalWitness::RecoveryForfeit,
++        ] {
++            assert_eq!(account_oi_removal(2, 1, Some(witness)).unwrap(), 1);
++            assert_eq!(account_oi_removal(4, 1, Some(witness)).unwrap(), 1);
++            assert_eq!(account_oi_removal(2, 0, Some(witness)).unwrap(), 0);
++        }
++        assert_eq!(
++            account_oi_removal(2, 0, Some(DeadLegRemovalWitness::ZeroOiResidue)).unwrap(),
++            0
++        );
++        assert!(account_oi_removal(2, 1, Some(DeadLegRemovalWitness::ZeroOiResidue)).is_err());
++        let index = IndependentAdlIndex::INITIAL;
++        assert!(index.unilateral_reduction(1, 2).is_err());
++        let mut asset = AssetStateV16::default();
++        asset.oi_eff_long_q = 1;
++        assert!(DeadLegRemovalWitness::from_prestate(MarketModeV16::Live, &asset, 0).is_err());
++        asset.lifecycle = AssetLifecycleV16::Recovery;
++        assert_eq!(
++            DeadLegRemovalWitness::from_prestate(MarketModeV16::Live, &asset, 0).unwrap(),
++            DeadLegRemovalWitness::RecoveryForfeit
++        );
++    }
++
++    #[test]
++    fn exhausted_unilateral_side_requires_one_reset_and_no_repeated_reset() {
++        let index = IndependentAdlIndex::INITIAL
++            .unilateral_reduction(1, 1)
++            .unwrap();
++        assert_eq!(index.epoch, 1);
++        assert!(index.reset_pending);
++        let mut asset = AssetStateV16::default();
++        assert!(
++            index.reconcile(&asset, 0, 0, 0).is_err(),
++            "missing epoch/reset must fail"
++        );
++        asset.epoch_long = 1;
++        assert!(
++            index.reconcile(&asset, 0, 0, 0).is_err(),
++            "required reset mode must not be skipped"
++        );
++        asset.mode_long = SideModeV16::ResetPending;
++        asset.pending_obligation_count_long = 1;
++        assert!(
++            index.reconcile(&asset, 0, 0, 0).is_err(),
++            "predicted reset must have no pending obligations"
++        );
++        asset.pending_obligation_count_long = 0;
++        assert!(
++            index.reconcile(&asset, 0, 0, 1).is_err(),
++            "predicted reset must have no pending domain loss barrier"
++        );
++        let confirmed = index.reconcile(&asset, 0, 0, 0).unwrap();
++        assert_eq!(
++            confirmed,
++            IndependentAdlIndex {
++                reset_confirmation_due: false,
++                ..index
++            }
++        );
++        asset.epoch_long = 2;
++        assert!(
++            confirmed.reconcile(&asset, 0, 0, 0).is_err(),
++            "already pending side must not reset again"
++        );
++        asset.epoch_long = 1;
++        asset.mode_long = SideModeV16::Normal;
++        assert!(
++            confirmed.reconcile(&asset, 0, 0, 1).is_err(),
++            "reset finalization must have no pending domain loss barrier"
++        );
++    }
++
++    #[test]
++    fn canonical_resize_rejects_a_raw_atom_hidden_by_the_same_ceil_quantity() {
++        let a = ADL_ONE / 2;
++        let effective = |raw| super::super::reference_math::mul_div_ceil(raw, a, ADL_ONE).unwrap();
++        assert_eq!(effective(5), 3);
++        assert_eq!(effective(4), 2);
++        assert_eq!(effective(3), 2);
++        let canonical = canonical_resized_raw_basis(5, 2, ADL_ONE, a).unwrap();
++        assert_eq!(canonical, 4);
++        assert_ne!(
++            canonical, 3,
++            "the same effective delta must not hide noncanonical raw basis"
++        );
++        assert_exhausted_reset_quantity(3, 2, 1).unwrap();
++        assert!(
++            assert_exhausted_reset_quantity(3, 1, 1).is_err(),
++            "reset must not hide an extra quantity closed"
++        );
++        assert!(
++            assert_exhausted_reset_quantity(3, 3, 1).is_err(),
++            "reset must not hide a missing quantity closed"
++        );
++    }
++}

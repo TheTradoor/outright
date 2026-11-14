@@ -1,0 +1,887 @@
+﻿2026-11-13T22:35:10.3663914Z Current runner version: '2.338.2'
+2026-11-13T22:35:10.3683985Z ##[group]Runner Image Provisioner
+2026-11-13T22:35:10.3684748Z Hosted Compute Agent
+2026-11-13T22:35:10.3685261Z Version: 20261103.629
+2026-11-13T22:35:10.3685805Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-13T22:35:10.3686491Z Build Date: 2026-11-03T17:26:59Z
+2026-11-13T22:35:10.3687106Z Worker ID: {ed591f46-c200-4992-9bbf-174cb41891f1}
+2026-11-13T22:35:10.3687712Z Region: westus2
+2026-11-13T22:35:10.3688208Z Cloud: Azure
+2026-11-13T22:35:10.3688681Z ##[endgroup]
+2026-11-13T22:35:10.3690016Z ##[group]Operating System
+2026-11-13T22:35:10.3690592Z Ubuntu
+2026-11-13T22:35:10.3691032Z 24.04.5
+2026-11-13T22:35:10.3691562Z LTS
+2026-11-13T22:35:10.3692021Z ##[endgroup]
+2026-11-13T22:35:10.3692572Z ##[group]Runner Image
+2026-11-13T22:35:10.3693117Z Image: ubuntu-24.04
+2026-11-13T22:35:10.3693588Z Version: 20261111.370.1
+2026-11-13T22:35:10.3694693Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-13T22:35:10.3695975Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+2026-11-13T22:35:10.3696802Z ##[endgroup]
+2026-11-13T22:35:10.3697719Z ##[group]GITHUB_TOKEN Permissions
+2026-11-13T22:35:10.3699423Z Contents: read
+2026-11-13T22:35:10.3699920Z Metadata: read
+2026-11-13T22:35:10.3700522Z ##[endgroup]
+2026-11-13T22:35:10.3702183Z Secret source: Actions
+2026-11-13T22:35:10.3703078Z Cache mode: write
+2026-11-13T22:35:10.3703657Z Prepare workflow directory
+2026-11-13T22:35:10.3961174Z Prepare all required actions
+2026-11-13T22:35:10.3999262Z Getting action download info
+2026-11-13T22:35:10.7141244Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-13T22:35:10.9441328Z Complete job name: Engine (default)
+2026-11-13T22:35:11.0112151Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-13T22:35:11.0112989Z with:
+2026-11-13T22:35:11.0113475Z   persist-credentials: false
+2026-11-13T22:35:11.0113929Z   repository: TheTradoor/outright
+2026-11-13T22:35:11.0117237Z   token: ***
+2026-11-13T22:35:11.0117606Z   ssh-strict: true
+2026-11-13T22:35:11.0117977Z   ssh-user: git
+2026-11-13T22:35:11.0118335Z   clean: true
+2026-11-13T22:35:11.0118714Z   sparse-checkout-cone-mode: true
+2026-11-13T22:35:11.0119348Z   fetch-depth: 1
+2026-11-13T22:35:11.0119717Z   fetch-tags: false
+2026-11-13T22:35:11.0120095Z   show-progress: true
+2026-11-13T22:35:11.0120473Z   lfs: false
+2026-11-13T22:35:11.0120822Z   submodules: false
+2026-11-13T22:35:11.0121206Z   set-safe-directory: true
+2026-11-13T22:35:11.0121629Z   allow-unsafe-pr-checkout: false
+2026-11-13T22:35:11.0122303Z ##[endgroup]
+2026-11-13T22:35:11.2824834Z Syncing repository: TheTradoor/outright
+2026-11-13T22:35:11.2826841Z ##[group]Getting Git version info
+2026-11-13T22:35:11.2827672Z Working directory is '/home/runner/work/outright/outright'
+2026-11-13T22:35:11.2828532Z [command]/usr/bin/git version
+2026-11-13T22:35:11.2918367Z git version 2.56.1
+2026-11-13T22:35:11.2937166Z ##[endgroup]
+2026-11-13T22:35:11.2948473Z Temporarily overriding HOME='/home/runner/work/_temp/17d1ec50-0ffd-48f0-9c34-e7c1510f0fa0' before making global git config changes
+2026-11-13T22:35:11.2950401Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T22:35:11.2952539Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/outright/outright
+2026-11-13T22:35:11.3001650Z Deleting the contents of '/home/runner/work/outright/outright'
+2026-11-13T22:35:11.3006012Z ##[group]Determining repository object format
+2026-11-13T22:35:11.3011833Z ##[endgroup]
+2026-11-13T22:35:11.3012779Z ##[group]Initializing the repository
+2026-11-13T22:35:11.3020198Z [command]/usr/bin/git init /home/runner/work/outright/outright
+2026-11-13T22:35:11.3113709Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-13T22:35:11.3115078Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-13T22:35:11.3116378Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-13T22:35:11.3117308Z hint: call:
+2026-11-13T22:35:11.3117796Z hint:
+2026-11-13T22:35:11.3118362Z hint: 	git config --global init.defaultBranch <name>
+2026-11-13T22:35:11.3119177Z hint:
+2026-11-13T22:35:11.3120109Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-13T22:35:11.3121038Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-13T22:35:11.3121988Z hint:
+2026-11-13T22:35:11.3122717Z hint: 	git branch -m <name>
+2026-11-13T22:35:11.3123508Z hint:
+2026-11-13T22:35:11.3124580Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-13T22:35:11.3125836Z Initialized empty Git repository in /home/runner/work/outright/outright/.git/
+2026-11-13T22:35:11.3140016Z [command]/usr/bin/git remote add origin https://github.com/TheTradoor/outright
+2026-11-13T22:35:11.3184361Z ##[endgroup]
+2026-11-13T22:35:11.3185338Z ##[group]Disabling automatic garbage collection
+2026-11-13T22:35:11.3188245Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-13T22:35:11.3218416Z ##[endgroup]
+2026-11-13T22:35:11.3219760Z ##[group]Setting up auth
+2026-11-13T22:35:11.3220411Z Removing SSH command configuration
+2026-11-13T22:35:11.3226193Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T22:35:11.3261732Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T22:35:11.3644178Z Removing HTTP extra header
+2026-11-13T22:35:11.3652227Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T22:35:11.3687913Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T22:35:11.3884937Z Removing includeIf entries pointing to credentials config files
+2026-11-13T22:35:11.3890889Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T22:35:11.3926990Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T22:35:11.4128169Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-13T22:35:11.4168461Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/outright/outright/.git.path /home/runner/work/_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:11.4211231Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:11.4250844Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:11.4287250Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:11.4320193Z ##[endgroup]
+2026-11-13T22:35:11.4327247Z ##[group]Fetching the repository
+2026-11-13T22:35:11.4328925Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +1a3f222b7452242481b9633e1fc1c4c8fd00abbf:refs/remotes/pull/25/merge
+2026-11-13T22:35:11.9780029Z From https://github.com/TheTradoor/outright
+2026-11-13T22:35:11.9781103Z  * [new ref]         1a3f222b7452242481b9633e1fc1c4c8fd00abbf -> pull/25/merge
+2026-11-13T22:35:11.9790383Z ##[endgroup]
+2026-11-13T22:35:11.9791949Z ##[group]Determining the checkout info
+2026-11-13T22:35:11.9793193Z ##[endgroup]
+2026-11-13T22:35:11.9801280Z [command]/usr/bin/git sparse-checkout disable
+2026-11-13T22:35:11.9864888Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-13T22:35:11.9900215Z ##[group]Checking out the ref
+2026-11-13T22:35:11.9902810Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/25/merge
+2026-11-13T22:35:12.0147391Z Note: switching to 'refs/remotes/pull/25/merge'.
+2026-11-13T22:35:12.0148042Z 
+2026-11-13T22:35:12.0148478Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-13T22:35:12.0149800Z changes and commit them, and you can discard any commits you make in this
+2026-11-13T22:35:12.0151018Z state without impacting any branches by switching back to a branch.
+2026-11-13T22:35:12.0151565Z 
+2026-11-13T22:35:12.0152074Z If you want to create a new branch to retain commits you create, you may
+2026-11-13T22:35:12.0152983Z do so (now or later) by using -c with the switch command. Example:
+2026-11-13T22:35:12.0153555Z 
+2026-11-13T22:35:12.0153864Z   git switch -c <new-branch-name>
+2026-11-13T22:35:12.0154296Z 
+2026-11-13T22:35:12.0154597Z Or undo this operation with:
+2026-11-13T22:35:12.0155004Z 
+2026-11-13T22:35:12.0155259Z   git switch -
+2026-11-13T22:35:12.0155614Z 
+2026-11-13T22:35:12.0156106Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-13T22:35:12.0156809Z 
+2026-11-13T22:35:12.0157625Z HEAD is now at 1a3f222 Merge 9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1 into c3e9246664e1dd2d21519681ff336a4539f52c4e
+2026-11-13T22:35:12.0160976Z ##[endgroup]
+2026-11-13T22:35:12.0198639Z [command]/usr/bin/git log -1 --format=%H
+2026-11-13T22:35:12.0227608Z 1a3f222b7452242481b9633e1fc1c4c8fd00abbf
+2026-11-13T22:35:12.0235733Z ##[group]Removing auth
+2026-11-13T22:35:12.0236730Z Removing SSH command configuration
+2026-11-13T22:35:12.0238578Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T22:35:12.0273632Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T22:35:12.0475656Z Removing HTTP extra header
+2026-11-13T22:35:12.0480490Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T22:35:12.0517789Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T22:35:12.0725153Z Removing includeIf entries pointing to credentials config files
+2026-11-13T22:35:12.0727973Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T22:35:12.0759593Z includeif.gitdir:/home/runner/work/outright/outright/.git.path
+2026-11-13T22:35:12.0762142Z includeif.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path
+2026-11-13T22:35:12.0764453Z includeif.gitdir:/github/workspace/.git.path
+2026-11-13T22:35:12.0766587Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T22:35:12.0771827Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/outright/outright/.git.path
+2026-11-13T22:35:12.0798651Z /home/runner/work/_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:12.0811006Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/outright/outright/.git.path /home/runner/work/_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:12.0849782Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path
+2026-11-13T22:35:12.0877046Z /home/runner/work/_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:12.0885871Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/outright/outright/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:12.0923250Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-13T22:35:12.0951155Z /github/runner_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:12.0958097Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:12.0994589Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-13T22:35:12.1021851Z /github/runner_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:12.1029697Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config
+2026-11-13T22:35:12.1064562Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T22:35:12.1260782Z Removing credentials config '/home/runner/work/_temp/git-credentials-d62cdb42-ca8a-4307-8ba9-c95bd6665891.config'
+2026-11-13T22:35:12.1268086Z ##[endgroup]
+2026-11-13T22:35:12.1479607Z ##[group]Run rustup show active-toolchain
+2026-11-13T22:35:12.1480736Z [36;1mrustup show active-toolchain[0m
+2026-11-13T22:35:12.1502459Z shell: /usr/bin/bash -e {0}
+2026-11-13T22:35:12.1503342Z ##[endgroup]
+2026-11-13T22:35:12.2608101Z info: syncing channel updates for 1.100.0-x86_64-unknown-linux-gnu
+2026-11-13T22:35:12.4020219Z info: latest update on 2026-11-12 for version 1.100.0 (0ef1bc386 2026-11-09)
+2026-11-13T22:35:12.4413804Z info: downloading 3 components
+2026-11-13T22:35:19.5960300Z warn: the missing active toolchain `1.100.0-x86_64-unknown-linux-gnu` has been auto-installed
+2026-11-13T22:35:19.5961132Z warn: auto-installation is deprecated for most `rustup` commands
+2026-11-13T22:35:19.5961837Z warn: scripts relying on this behavior in `rustup` may stop working in the future
+2026-11-13T22:35:19.5962462Z warn: to install the active toolchain, use `rustup install` instead
+2026-11-13T22:35:19.5963138Z warn: see <https://github.com/rust-lang/rustup/issues/4836> for more info
+2026-11-13T22:35:19.5963731Z 1.100.0-x86_64-unknown-linux-gnu (overridden by '/home/runner/work/outright/outright/rust-toolchain.toml')
+2026-11-13T22:35:19.6168440Z ##[group]Run cargo test --locked
+2026-11-13T22:35:19.6168740Z [36;1mcargo test --locked[0m
+2026-11-13T22:35:19.6187035Z shell: /usr/bin/bash -e {0}
+2026-11-13T22:35:19.6187289Z ##[endgroup]
+2026-11-13T22:35:19.6480583Z     Updating crates.io index
+2026-11-13T22:35:19.7780532Z  Downloading crates ...
+2026-11-13T22:35:19.8976244Z   Downloaded unicode-ident v1.0.19
+2026-11-13T22:35:19.8999635Z   Downloaded bit-set v0.8.0
+2026-11-13T22:35:19.9027775Z   Downloaded once_cell v1.21.3
+2026-11-13T22:35:19.9050096Z   Downloaded fnv v1.0.7
+2026-11-13T22:35:19.9057089Z   Downloaded quote v1.0.41
+2026-11-13T22:35:19.9077948Z   Downloaded unarray v0.1.4
+2026-11-13T22:35:19.9088040Z   Downloaded cfg-if v1.0.4
+2026-11-13T22:35:19.9099902Z   Downloaded wait-timeout v0.2.1
+2026-11-13T22:35:19.9110025Z   Downloaded quick-error v1.2.3
+2026-11-13T22:35:19.9129974Z   Downloaded errno v0.3.14
+2026-11-13T22:35:19.9132453Z   Downloaded fastrand v2.3.0
+2026-11-13T22:35:19.9143709Z   Downloaded rand_core v0.9.3
+2026-11-13T22:35:19.9154030Z   Downloaded rusty-fork v0.3.1
+2026-11-13T22:35:19.9166704Z   Downloaded bytemuck_derive v1.10.2
+2026-11-13T22:35:19.9178359Z   Downloaded lazy_static v1.5.0
+2026-11-13T22:35:19.9192705Z   Downloaded rand_xorshift v0.4.0
+2026-11-13T22:35:19.9203212Z   Downloaded autocfg v1.5.0
+2026-11-13T22:35:19.9222899Z   Downloaded bytemuck v1.25.0
+2026-11-13T22:35:19.9256339Z   Downloaded getrandom v0.3.4
+2026-11-13T22:35:19.9293417Z   Downloaded ppv-lite86 v0.2.21
+2026-11-13T22:35:19.9307455Z   Downloaded rand_chacha v0.9.0
+2026-11-13T22:35:19.9321779Z   Downloaded bit-vec v0.8.0
+2026-11-13T22:35:19.9334600Z   Downloaded tempfile v3.23.0
+2026-11-13T22:35:19.9355832Z   Downloaded proc-macro2 v1.0.101
+2026-11-13T22:35:19.9378943Z   Downloaded bitflags v2.9.4
+2026-11-13T22:35:19.9410445Z   Downloaded num-traits v0.2.19
+2026-11-13T22:35:19.9430215Z   Downloaded rand v0.9.2
+2026-11-13T22:35:19.9459664Z   Downloaded proptest v1.8.0
+2026-11-13T22:35:19.9531470Z   Downloaded zerocopy v0.8.27
+2026-11-13T22:35:19.9724685Z   Downloaded syn v2.0.107
+2026-11-13T22:35:19.9804940Z   Downloaded regex-syntax v0.8.8
+2026-11-13T22:35:19.9860493Z   Downloaded rustix v1.1.2
+2026-11-13T22:35:20.0059579Z   Downloaded libc v0.2.177
+2026-11-13T22:35:20.0265013Z   Downloaded linux-raw-sys v0.11.0
+2026-11-13T22:35:20.0940268Z    Compiling libc v0.2.177
+2026-11-13T22:35:20.0940831Z    Compiling getrandom v0.3.4
+2026-11-13T22:35:20.0941158Z    Compiling cfg-if v1.0.4
+2026-11-13T22:35:20.0941482Z    Compiling proc-macro2 v1.0.101
+2026-11-13T22:35:20.1194689Z    Compiling quote v1.0.41
+2026-11-13T22:35:20.2400491Z    Compiling unicode-ident v1.0.19
+2026-11-13T22:35:20.2519275Z    Compiling zerocopy v0.8.27
+2026-11-13T22:35:20.2847988Z    Compiling rustix v1.1.2
+2026-11-13T22:35:20.4560512Z    Compiling bitflags v2.9.4
+2026-11-13T22:35:20.5150006Z    Compiling linux-raw-sys v0.11.0
+2026-11-13T22:35:20.5820154Z    Compiling autocfg v1.5.0
+2026-11-13T22:35:20.8170363Z    Compiling num-traits v0.2.19
+2026-11-13T22:35:20.8950593Z    Compiling syn v2.0.107
+2026-11-13T22:35:21.1197818Z    Compiling rand_core v0.9.3
+2026-11-13T22:35:21.2359963Z    Compiling fastrand v2.3.0
+2026-11-13T22:35:21.3720076Z    Compiling once_cell v1.21.3
+2026-11-13T22:35:21.4770016Z    Compiling wait-timeout v0.2.1
+2026-11-13T22:35:21.7120215Z    Compiling fnv v1.0.7
+2026-11-13T22:35:21.7419981Z    Compiling bit-vec v0.8.0
+2026-11-13T22:35:21.8750044Z    Compiling quick-error v1.2.3
+2026-11-13T22:35:21.9150074Z    Compiling bit-set v0.8.0
+2026-11-13T22:35:22.3101559Z    Compiling ppv-lite86 v0.2.21
+2026-11-13T22:35:22.3290093Z    Compiling tempfile v3.23.0
+2026-11-13T22:35:22.5370169Z    Compiling rusty-fork v0.3.1
+2026-11-13T22:35:22.5770179Z    Compiling rand_chacha v0.9.0
+2026-11-13T22:35:22.6140158Z    Compiling rand_xorshift v0.4.0
+2026-11-13T22:35:22.6720229Z    Compiling rand v0.9.2
+2026-11-13T22:35:22.7340272Z    Compiling unarray v0.1.4
+2026-11-13T22:35:22.7780432Z    Compiling regex-syntax v0.8.8
+2026-11-13T22:35:22.8012772Z    Compiling lazy_static v1.5.0
+2026-11-13T22:35:22.8044827Z    Compiling bytemuck_derive v1.10.2
+2026-11-13T22:35:23.2879204Z    Compiling bytemuck v1.25.0
+2026-11-13T22:35:23.3613590Z    Compiling percolator v0.1.1 (/home/runner/work/outright/outright)
+2026-11-13T22:35:23.7759564Z    Compiling proptest v1.8.0
+2026-11-13T22:35:24.4010415Z warning: associated items `MAX`, `overflowing_add`, `overflowing_sub`, and `saturating_add` are never used
+2026-11-13T22:35:24.4014663Z    --> src/wide_math.rs:245:15
+2026-11-13T22:35:24.4015268Z     |
+2026-11-13T22:35:24.4015560Z 242 | impl U256 {
+2026-11-13T22:35:24.4015912Z     | --------- associated items in this implementation
+2026-11-13T22:35:24.4016320Z ...
+2026-11-13T22:35:24.4022726Z 245 |     pub const MAX: Self = Self([u64::MAX, u64::MAX, u64::MAX, u64::MAX]);
+2026-11-13T22:35:24.4023219Z     |               ^^^
+2026-11-13T22:35:24.4023482Z ...
+2026-11-13T22:35:24.4023822Z 358 |     pub fn overflowing_add(self, rhs: U256) -> (U256, bool) {
+2026-11-13T22:35:24.4024276Z     |            ^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4024566Z ...
+2026-11-13T22:35:24.4024912Z 364 |     pub fn overflowing_sub(self, rhs: U256) -> (U256, bool) {
+2026-11-13T22:35:24.4025325Z     |            ^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4025603Z ...
+2026-11-13T22:35:24.4025873Z 372 |     pub fn saturating_add(self, rhs: U256) -> U256 {
+2026-11-13T22:35:24.4026264Z     |            ^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4026537Z     |
+2026-11-13T22:35:24.4026873Z     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+2026-11-13T22:35:24.4027659Z 
+2026-11-13T22:35:24.4027819Z warning: multiple associated items are never used
+2026-11-13T22:35:24.4028199Z    --> src/wide_math.rs:776:15
+2026-11-13T22:35:24.4028539Z     |
+2026-11-13T22:35:24.4028777Z 775 | impl I256 {
+2026-11-13T22:35:24.4029239Z     | --------- associated items in this implementation
+2026-11-13T22:35:24.4029666Z 776 |     pub const ZERO: Self = Self([0, 0, 0, 0]);
+2026-11-13T22:35:24.4030014Z     |               ^^^^
+2026-11-13T22:35:24.4030332Z 777 |     pub const ONE: Self = Self([1, 0, 0, 0]);
+2026-11-13T22:35:24.4030686Z     |               ^^^
+2026-11-13T22:35:24.4031112Z 778 |     pub const MINUS_ONE: Self = Self([u64::MAX, u64::MAX, u64::MAX, u64::MAX]);
+2026-11-13T22:35:24.4031581Z     |               ^^^^^^^^^
+2026-11-13T22:35:24.4031975Z 779 |     pub const MAX: Self = Self([u64::MAX, u64::MAX, u64::MAX, u64::MAX >> 1]);
+2026-11-13T22:35:24.4032413Z     |               ^^^
+2026-11-13T22:35:24.4032663Z ...
+2026-11-13T22:35:24.4032912Z 788 |     pub fn from_u128(v: u128) -> Self {
+2026-11-13T22:35:24.4033255Z     |            ^^^^^^^^^
+2026-11-13T22:35:24.4033691Z ...
+2026-11-13T22:35:24.4034005Z 792 |     pub fn try_into_i128(&self) -> Option<i128> {
+2026-11-13T22:35:24.4034424Z     |            ^^^^^^^^^^^^^
+2026-11-13T22:35:24.4034694Z ...
+2026-11-13T22:35:24.4034947Z 811 |     pub fn is_positive(&self) -> bool {
+2026-11-13T22:35:24.4035319Z     |            ^^^^^^^^^^^
+2026-11-13T22:35:24.4035596Z ...
+2026-11-13T22:35:24.4035850Z 815 |     pub fn signum(&self) -> i8 {
+2026-11-13T22:35:24.4036172Z     |            ^^^^^^
+2026-11-13T22:35:24.4036419Z ...
+2026-11-13T22:35:24.4036728Z 844 |     pub fn checked_mul_i256(self, rhs: I256) -> Option<I256> {
+2026-11-13T22:35:24.4037141Z     |            ^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4037422Z ...
+2026-11-13T22:35:24.4037697Z 950 |     pub fn saturating_add(self, rhs: I256) -> I256 {
+2026-11-13T22:35:24.4038057Z     |            ^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4038338Z ...
+2026-11-13T22:35:24.4038601Z 980 |     pub fn from_raw_u256(v: U256) -> Self {
+2026-11-13T22:35:24.4038957Z     |            ^^^^^^^^^^^^^
+2026-11-13T22:35:24.4039399Z ...
+2026-11-13T22:35:24.4039699Z 985 |     pub fn from_u256_or_overflow(v: U256) -> Option<Self> {
+2026-11-13T22:35:24.4040095Z     |            ^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4040308Z 
+2026-11-13T22:35:24.4040516Z warning: function `floor_div_signed_conservative` is never used
+2026-11-13T22:35:24.4040938Z     --> src/wide_math.rs:1366:8
+2026-11-13T22:35:24.4041502Z      |
+2026-11-13T22:35:24.4041855Z 1366 | pub fn floor_div_signed_conservative(n: I256, d: U256) -> I256 {
+2026-11-13T22:35:24.4042292Z      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4042511Z 
+2026-11-13T22:35:24.4042707Z warning: function `ceil_div_positive_checked` is never used
+2026-11-13T22:35:24.4043106Z     --> src/wide_math.rs:1453:8
+2026-11-13T22:35:24.4043396Z      |
+2026-11-13T22:35:24.4043696Z 1453 | pub fn ceil_div_positive_checked(n: U256, d: U256) -> U256 {
+2026-11-13T22:35:24.4044130Z      |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4044412Z 
+2026-11-13T22:35:24.4044593Z warning: function `mul_div_ceil_u256` is never used
+2026-11-13T22:35:24.4045001Z     --> src/wide_math.rs:1485:8
+2026-11-13T22:35:24.4045279Z      |
+2026-11-13T22:35:24.4045584Z 1485 | pub fn mul_div_ceil_u256(a: U256, b: U256, d: U256) -> U256 {
+2026-11-13T22:35:24.4045983Z      |        ^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4046155Z 
+2026-11-13T22:35:24.4046343Z warning: function `saturating_mul_u256_u64` is never used
+2026-11-13T22:35:24.4046728Z     --> src/wide_math.rs:1513:8
+2026-11-13T22:35:24.4047006Z      |
+2026-11-13T22:35:24.4047308Z 1513 | pub fn saturating_mul_u256_u64(a: U256, b: u64) -> U256 {
+2026-11-13T22:35:24.4047705Z      |        ^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4047908Z 
+2026-11-13T22:35:24.4048086Z warning: function `fee_debt_u128_checked` is never used
+2026-11-13T22:35:24.4048464Z     --> src/wide_math.rs:1521:8
+2026-11-13T22:35:24.4048730Z      |
+2026-11-13T22:35:24.4049438Z 1521 | pub fn fee_debt_u128_checked(fee_credits: i128) -> u128 {
+2026-11-13T22:35:24.4049846Z      |        ^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4050039Z 
+2026-11-13T22:35:24.4050236Z warning: function `wide_signed_mul_div_floor` is never used
+2026-11-13T22:35:24.4050650Z     --> src/wide_math.rs:1538:8
+2026-11-13T22:35:24.4050929Z      |
+2026-11-13T22:35:24.4051366Z 1538 | pub fn wide_signed_mul_div_floor(abs_basis: U256, k_diff: I256, denominator: U256) -> I256 {
+2026-11-13T22:35:24.4051909Z      |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4052125Z 
+2026-11-13T22:35:24.4052286Z warning: function `mul_div_floor_u128` is never used
+2026-11-13T22:35:24.4052647Z     --> src/wide_math.rs:1600:8
+2026-11-13T22:35:24.4052922Z      |
+2026-11-13T22:35:24.4053233Z 1600 | pub fn mul_div_floor_u128(a: u128, b: u128, d: u128) -> u128 {
+2026-11-13T22:35:24.4053644Z      |        ^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4053844Z 
+2026-11-13T22:35:24.4053995Z warning: function `mul_div_ceil_u128` is never used
+2026-11-13T22:35:24.4054376Z     --> src/wide_math.rs:1607:8
+2026-11-13T22:35:24.4054653Z      |
+2026-11-13T22:35:24.4054966Z 1607 | pub fn mul_div_ceil_u128(a: u128, b: u128, d: u128) -> u128 {
+2026-11-13T22:35:24.4055374Z      |        ^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4055538Z 
+2026-11-13T22:35:24.4055711Z warning: struct `OverI128Magnitude` is never constructed
+2026-11-13T22:35:24.4056110Z     --> src/wide_math.rs:1680:12
+2026-11-13T22:35:24.4056398Z      |
+2026-11-13T22:35:24.4056627Z 1680 | pub struct OverI128Magnitude;
+2026-11-13T22:35:24.4056938Z      |            ^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4057177Z 
+2026-11-13T22:35:24.4057389Z warning: function `wide_mul_div_ceil_u128_or_over_i128max` is never used
+2026-11-13T22:35:24.4057855Z     --> src/wide_math.rs:1684:8
+2026-11-13T22:35:24.4058130Z      |
+2026-11-13T22:35:24.4058390Z 1684 | pub fn wide_mul_div_ceil_u128_or_over_i128max(
+2026-11-13T22:35:24.4058781Z      |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4059016Z 
+2026-11-13T22:35:24.4059369Z warning: function `saturating_mul_u128_u64` is never used
+2026-11-13T22:35:24.4059808Z     --> src/wide_math.rs:1701:8
+2026-11-13T22:35:24.4060105Z      |
+2026-11-13T22:35:24.4060404Z 1701 | pub fn saturating_mul_u128_u64(a: u128, b: u64) -> u128 {
+2026-11-13T22:35:24.4060816Z      |        ^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:24.4061021Z 
+2026-11-13T22:35:24.6947625Z warning: `percolator` (lib) generated 13 warnings
+2026-11-13T22:35:27.2410737Z warning: function `mul_div_floor_u128` is never used
+2026-11-13T22:35:27.2439563Z     --> src/wide_math.rs:1600:8
+2026-11-13T22:35:27.2469480Z      |
+2026-11-13T22:35:27.2479714Z 1600 | pub fn mul_div_floor_u128(a: u128, b: u128, d: u128) -> u128 {
+2026-11-13T22:35:27.2509464Z      |        ^^^^^^^^^^^^^^^^^^
+2026-11-13T22:35:27.2509790Z      |
+2026-11-13T22:35:27.2510150Z      = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+2026-11-13T22:35:27.2510492Z 
+2026-11-13T22:35:27.5116697Z warning: `percolator` (lib test) generated 5 warnings (4 duplicates)
+2026-11-13T22:35:30.9799849Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 11.35s
+2026-11-13T22:35:30.9928408Z      Running unittests src/lib.rs (target/debug/build/percolator/43af4a0ae5f248ef/out/percolator-43af4a0ae5f248ef)
+2026-11-13T22:35:30.9941428Z 
+2026-11-13T22:35:30.9941559Z running 50 tests
+2026-11-13T22:35:30.9944440Z test wide_math::tests::test_fee_debt ... ok
+2026-11-13T22:35:30.9944886Z test wide_math::tests::test_ceil_div_positive ... ok
+2026-11-13T22:35:30.9945398Z test wide_math::tests::test_floor_div_negative_exact ... ok
+2026-11-13T22:35:30.9945923Z test wide_math::tests::test_floor_div_negative_remainder ... ok
+2026-11-13T22:35:30.9946367Z test wide_math::tests::test_i256_abs_u256 ... ok
+2026-11-13T22:35:30.9946847Z test wide_math::tests::test_i256_from_u128 ... ok
+2026-11-13T22:35:30.9947325Z test wide_math::tests::test_floor_div_positive ... ok
+2026-11-13T22:35:30.9947738Z test wide_math::tests::test_i256_add ... ok
+2026-11-13T22:35:30.9948418Z test wide_math::tests::test_i256_from_i128 ... ok
+2026-11-13T22:35:30.9948892Z test wide_math::tests::test_i256_mul_negative_above_i128_magnitude ... ok
+2026-11-13T22:35:30.9949507Z test wide_math::tests::test_i256_ordering ... ok
+2026-11-13T22:35:30.9949895Z test wide_math::tests::test_i256_sub ... ok
+2026-11-13T22:35:30.9950691Z test wide_math::tests::test_i256_neg ... ok
+2026-11-13T22:35:30.9951057Z test wide_math::tests::test_i256_overflow ... ok
+2026-11-13T22:35:30.9951470Z test wide_math::tests::test_i256_saturating_add ... ok
+2026-11-13T22:35:30.9951885Z test wide_math::tests::test_i256_sub_min ... ok
+2026-11-13T22:35:30.9952277Z test wide_math::tests::test_mul_div_exact ... ok
+2026-11-13T22:35:30.9952693Z test wide_math::tests::test_i256_zero_one_minusone ... ok
+2026-11-13T22:35:30.9953109Z test wide_math::tests::test_mul_div_ceil ... ok
+2026-11-13T22:35:30.9953485Z test wide_math::tests::test_mul_div_floor ... ok
+2026-11-13T22:35:30.9953862Z test wide_math::tests::test_mul_div_large ... ok
+2026-11-13T22:35:30.9954344Z test wide_math::tests::test_u256_add_overflow ... ok
+2026-11-13T22:35:30.9958014Z test wide_math::tests::test_mul_div_max ... ok
+2026-11-13T22:35:30.9958514Z test wide_math::tests::test_saturating_mul_u256_u64 ... ok
+2026-11-13T22:35:30.9959233Z test wide_math::tests::test_u256_add_op_panic - should panic ... ok
+2026-11-13T22:35:30.9959777Z test wide_math::tests::test_u256_add_with_carry ... ok
+2026-11-13T22:35:30.9960299Z test wide_math::tests::test_u256_bitand_bitor ... ok
+2026-11-13T22:35:30.9960771Z test wide_math::tests::test_u256_checked_mul_cross ... ok
+2026-11-13T22:35:30.9961250Z test wide_math::tests::test_u256_checked_sub ... ok
+2026-11-13T22:35:30.9961705Z test wide_math::tests::test_u256_assign_ops ... ok
+2026-11-13T22:35:30.9962150Z test wide_math::tests::test_u256_checked_add ... ok
+2026-11-13T22:35:30.9962614Z test wide_math::tests::test_u256_checked_mul_small ... ok
+2026-11-13T22:35:30.9963083Z test wide_math::tests::test_u256_div_basic ... ok
+2026-11-13T22:35:30.9963564Z test wide_math::tests::test_u256_div_by_zero ... ok
+2026-11-13T22:35:30.9964002Z test wide_math::tests::test_u256_div_large ... ok
+2026-11-13T22:35:30.9968129Z test wide_math::tests::test_u256_mul_overflow ... ok
+2026-11-13T22:35:30.9972563Z test wide_math::tests::test_u256_from_u128 ... ok
+2026-11-13T22:35:30.9973002Z test wide_math::tests::test_u256_ordering ... ok
+2026-11-13T22:35:30.9973414Z test wide_math::tests::test_u256_overflowing ... ok
+2026-11-13T22:35:30.9974095Z test wide_math::tests::test_u256_saturating_add ... ok
+2026-11-13T22:35:30.9974586Z test wide_math::tests::test_u256_sub_op_panic - should panic ... ok
+2026-11-13T22:35:30.9975129Z test wide_math::tests::test_u256_try_into_u128_overflow ... ok
+2026-11-13T22:35:30.9975602Z test wide_math::tests::test_u256_zero_one_max ... ok
+2026-11-13T22:35:30.9976013Z test wide_math::tests::test_u256_shl_shr ... ok
+2026-11-13T22:35:30.9976447Z test wide_math::tests::test_u256_sub_underflow ... ok
+2026-11-13T22:35:30.9976935Z test wide_math::tests::test_wide_signed_mul_div_floor_zero ... ok
+2026-11-13T22:35:30.9977520Z test wide_math::tests::test_wide_signed_mul_div_floor_exact_negative ... ok
+2026-11-13T22:35:30.9978102Z test wide_math::tests::test_wide_signed_mul_div_floor_negative ... ok
+2026-11-13T22:35:30.9978672Z test wide_math::tests::test_wide_signed_mul_div_floor_positive ... ok
+2026-11-13T22:35:30.9979385Z test wide_math::tests::test_widening_mul_u128 ... ok
+2026-11-13T22:35:30.9979650Z 
+2026-11-13T22:35:30.9979950Z test result: ok. 50 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-13T22:35:30.9980347Z 
+2026-11-13T22:35:30.9980859Z      Running tests/backing_double_claim_fuzz.rs (target/debug/build/percolator/c9e379e33d7c805d/out/backing_double_claim_fuzz-c9e379e33d7c805d)
+2026-11-13T22:35:30.9990288Z 
+2026-11-13T22:35:30.9990505Z running 14 tests
+2026-11-13T22:35:31.0019875Z test bounded_terminal_source_realization_preserves_intermediate_attribution ... ok
+2026-11-13T22:35:31.0369744Z test random_flat_sequence_never_extracts_excess ... ok
+2026-11-13T22:35:31.0389656Z test realization_after_snapshot_refines_unreceipted_bound ... ok
+2026-11-13T22:35:31.0390572Z test resolved_close_prepares_lapsed_backing_before_pending_k_loss ... ok
+2026-11-13T22:35:31.0426085Z test backing_withdraw_fails_closed_on_lapsed_bucket ... ok
+2026-11-13T22:35:31.0750256Z test backed_winner_close_conserves_across_all_backing_levels ... ok
+2026-11-13T22:35:31.0879637Z test second_resolved_close_is_value_neutral ... ok
+2026-11-13T22:35:31.0950167Z test terminal_claim_free_overlap_recredit_is_capped_without_value_drift ... ok
+2026-11-13T22:35:31.0989610Z test terminal_close_with_expired_backing_does_not_strand ... ok
+2026-11-13T22:35:31.1019589Z test terminal_source_realization_recredits_paired_insurance_overlap ... ok
+2026-11-13T22:35:31.1069642Z test close_order_does_not_redistribute ... ok
+2026-11-13T22:35:31.1426162Z test terminal_close_realizes_backed_source_claim ... ok
+2026-11-13T22:35:31.1428949Z test terminal_close_realizes_liened_backed_source_claim ... ok
+2026-11-13T22:35:31.1591621Z test winner_payout_and_provider_principal_never_overlap ... ok
+2026-11-13T22:35:31.1591964Z 
+2026-11-13T22:35:31.1592262Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+2026-11-13T22:35:31.1592592Z 
+2026-11-13T22:35:31.1595431Z      Running tests/independent_backing_payout_properties.rs (target/debug/build/percolator/cfd692b0b16af03e/out/independent_backing_payout_properties-cfd692b0b16af03e)
+2026-11-13T22:35:31.1605279Z 
+2026-11-13T22:35:31.1605389Z running 0 tests
+2026-11-13T22:35:31.1605623Z 
+2026-11-13T22:35:31.1606016Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-13T22:35:31.1606456Z 
+2026-11-13T22:35:31.1607894Z      Running tests/independent_kani.rs (target/debug/build/percolator/660fecd45a60f3dd/out/independent_kani-660fecd45a60f3dd)
+2026-11-13T22:35:31.1615862Z 
+2026-11-13T22:35:31.1615985Z running 0 tests
+2026-11-13T22:35:31.1617197Z 
+2026-11-13T22:35:31.1617494Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-13T22:35:31.1617785Z 
+2026-11-13T22:35:31.1619266Z      Running tests/issue132_resolved_close_after_adl.rs (target/debug/build/percolator/1d2b8e7020dbc9b6/out/issue132_resolved_close_after_adl-1d2b8e7020dbc9b6)
+2026-11-13T22:35:31.1626114Z 
+2026-11-13T22:35:31.1626231Z running 10 tests
+2026-11-13T22:35:31.1670370Z test control_resolved_close_after_bankrupt_full_liquidation ... ok
+2026-11-13T22:35:31.1690805Z test control_resolved_close_after_partial_liquidation ... ok
+2026-11-13T22:35:31.1699525Z test control_resolved_close_after_owner_rebalance ... ok
+2026-11-13T22:35:31.1725742Z test issue132_recovery_forfeit_removes_only_the_remaining_side_effective_oi ... ok
+2026-11-13T22:35:31.1750120Z test issue132_recovery_forfeit_detaches_a_leg_whose_side_has_no_effective_oi_left ... ok
+2026-11-13T22:35:31.1750801Z test issue132_resolved_close_of_an_exhausted_leg_does_not_wait_for_other_accounts ... ok
+2026-11-13T22:35:31.1751385Z test control_winner_leaves_no_raw_residue_after_social_loss_and_bilateral_close ... ok
+2026-11-13T22:35:31.1925327Z test control_resolved_close_with_rounded_up_legs_in_every_order ... ok
+2026-11-13T22:35:31.2008097Z test issue132_resolved_close_detaches_exhausted_legs_behind_pending_obligations ... ok
+2026-11-13T22:35:31.9299674Z test issue132_sweep_every_account_leaves_a_resolved_market_after_adl ... ok
+2026-11-13T22:35:31.9300161Z 
+2026-11-13T22:35:31.9300442Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.77s
+2026-11-13T22:35:31.9300905Z 
+2026-11-13T22:35:31.9303435Z      Running tests/issue172_kf_pnl_writeoff.rs (target/debug/build/percolator/52df3a418672fefb/out/issue172_kf_pnl_writeoff-52df3a418672fefb)
+2026-11-13T22:35:31.9314025Z 
+2026-11-13T22:35:31.9314133Z running 3 tests
+2026-11-13T22:35:31.9409627Z test control_monotonic_paths_are_exact ... ok
+2026-11-13T22:35:31.9458169Z test issue172_site1_zero_net_price_churn_is_value_neutral ... ok
+2026-11-13T22:35:31.9476139Z test issue172_site2_exhausted_lp_recovers_on_reversal ... ok
+2026-11-13T22:35:31.9476432Z 
+2026-11-13T22:35:31.9476638Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-11-13T22:35:31.9476927Z 
+2026-11-13T22:35:31.9478581Z      Running tests/proofs_v16.rs (target/debug/build/percolator/e7363ce1ec8a2801/out/proofs_v16-e7363ce1ec8a2801)
+2026-11-13T22:35:31.9486505Z 
+2026-11-13T22:35:31.9486662Z running 0 tests
+2026-11-13T22:35:31.9486844Z 
+2026-11-13T22:35:31.9487159Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-13T22:35:31.9487425Z 
+2026-11-13T22:35:31.9489263Z      Running tests/proofs_v16_arithmetic.rs (target/debug/build/percolator/3f2df0c62f115aca/out/proofs_v16_arithmetic-3f2df0c62f115aca)
+2026-11-13T22:35:31.9496513Z 
+2026-11-13T22:35:31.9496631Z running 0 tests
+2026-11-13T22:35:31.9497905Z 
+2026-11-13T22:35:31.9498329Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-13T22:35:31.9499390Z      Running tests/resolved_insolvent_fuzz.rs (target/debug/build/percolator/206576f15a4a9453/out/resolved_insolvent_fuzz-206576f15a4a9453)
+2026-11-13T22:35:31.9499808Z 
+2026-11-13T22:35:31.9507118Z 
+2026-11-13T22:35:31.9507217Z running 2 tests
+2026-11-13T22:35:31.9719931Z test topup_does_not_clear_while_rate_nonterminal ... ok
+2026-11-13T22:35:31.9852929Z test close_resolved_insolvent_winner_dematerializes ... ok
+2026-11-13T22:35:31.9853280Z 
+2026-11-13T22:35:31.9853573Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+2026-11-13T22:35:31.9854023Z 
+2026-11-13T22:35:31.9855720Z      Running tests/v16_impaired_lien_reconcile.rs (target/debug/build/percolator/79c772f191c35b6c/out/v16_impaired_lien_reconcile-79c772f191c35b6c)
+2026-11-13T22:35:31.9864707Z 
+2026-11-13T22:35:31.9864845Z running 3 tests
+2026-11-13T22:35:31.9875992Z test lien_holder_recovery_paths_settle_after_loss ... ok
+2026-11-13T22:35:31.9881154Z test losing_side_settles_and_liquidates_while_lien_holder_is_open ... ok
+2026-11-13T22:35:31.9883630Z test lien_holder_reports_true_equity_and_settles_after_loss ... ok
+2026-11-13T22:35:31.9883975Z 
+2026-11-13T22:35:31.9884301Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-13T22:35:31.9884632Z 
+2026-11-13T22:35:31.9885748Z      Running tests/v16_kf_loss_domain_attribution.rs (target/debug/build/percolator/012ffda3d672e7e8/out/v16_kf_loss_domain_attribution-012ffda3d672e7e8)
+2026-11-13T22:35:31.9894217Z 
+2026-11-13T22:35:31.9894341Z running 11 tests
+2026-11-13T22:35:31.9939831Z test live_loss_beyond_free_capital_books_its_consumed_support_for_the_loss_domain ... ok
+2026-11-13T22:35:32.0870335Z test live_cross_asset_loss_against_prior_face_backs_the_loss_domain ... ok
+2026-11-13T22:35:32.1370208Z test resolved_cross_asset_funding_loss_against_prior_face_repays_the_loss_domain_provider ... ok
+2026-11-13T22:35:32.1709974Z test resolved_cross_asset_loss_against_prior_face_repays_the_loss_domain_provider ... ok
+2026-11-13T22:35:32.1759768Z test resolved_cross_asset_loss_larger_or_smaller_than_the_face ... ok
+2026-11-13T22:35:32.2093565Z test resolved_same_leg_reversal_against_loser_paid_twin_face_backs_the_regain ... ok
+2026-11-13T22:35:32.2280015Z test same_refresh_gain_and_loss_legs_back_each_loss_domain_in_any_leg_order ... ok
+2026-11-13T22:35:32.2289889Z test resolved_loss_against_own_face_in_the_loss_domain_repays_the_provider ... ok
+2026-11-13T22:35:32.2328524Z test same_refresh_legs_that_consume_the_whole_deposit_leave_both_gains_backed ... ok
+2026-11-13T22:35:32.2668209Z test resolved_loss_against_liened_face_repays_the_loss_domain_provider ... ok
+2026-11-13T22:35:33.4987898Z test funded_markets_wind_down_fairly_wherever_the_last_losses_crystallize ... ok
+2026-11-13T22:35:33.4988217Z 
+2026-11-13T22:35:33.4988425Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.51s
+2026-11-13T22:35:33.4989314Z 
+2026-11-13T22:35:33.4990857Z      Running tests/v16_kf_loss_same_domain_face.rs (target/debug/build/percolator/f8d770a59af856f6/out/v16_kf_loss_same_domain_face-f8d770a59af856f6)
+2026-11-13T22:35:33.5001655Z 
+2026-11-13T22:35:33.5001764Z running 12 tests
+2026-11-13T22:35:33.5029755Z test control_lapsed_loss_domain_backing_is_not_netted_at_its_stale_rate ... ok
+2026-11-13T22:35:33.5053111Z test control_converting_the_face_before_the_loss_settles_exactly ... ok
+2026-11-13T22:35:33.5079634Z test cancelling_the_own_face_ends_where_converting_it_first_does ... ok
+2026-11-13T22:35:33.5109633Z test control_own_face_below_rate_one_is_kept_and_the_loss_paid_from_capital ... ok
+2026-11-13T22:35:33.5139501Z test control_liened_own_face_is_unwound_in_place ... ok
+2026-11-13T22:35:33.5349630Z test kf_loss_cancels_the_accounts_own_face_in_the_loss_domain ... ok
+2026-11-13T22:35:33.5379544Z test funding_loss_cancels_the_accounts_own_face_in_the_loss_domain ... ok
+2026-11-13T22:35:33.5399768Z test control_face_in_another_domain_moves_its_backing_to_the_loss_domain ... ok
+2026-11-13T22:35:33.5609809Z test kf_loss_larger_than_the_own_face_pays_only_the_rest_from_capital ... ok
+2026-11-13T22:35:33.5632011Z test kf_loss_cancels_the_accounts_own_face_through_the_permissionless_crank ... ok
+2026-11-13T22:35:33.5648856Z test kf_loss_smaller_than_the_own_face_keeps_the_rest_of_the_claim ... ok
+2026-11-13T22:35:35.9906053Z test fully_cranked_markets_keep_every_domain_exactly_backed ... ok
+2026-11-13T22:35:35.9906371Z 
+2026-11-13T22:35:35.9906622Z test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.49s
+2026-11-13T22:35:35.9906895Z 
+2026-11-13T22:35:35.9909214Z      Running tests/v16_lien_claim_rate.rs (target/debug/build/percolator/0decfbff3fceb9e2/out/v16_lien_claim_rate-0decfbff3fceb9e2)
+2026-11-13T22:35:35.9920838Z 
+2026-11-13T22:35:35.9920982Z running 10 tests
+2026-11-13T22:35:35.9940542Z test expiry_with_a_live_lien_never_raises_the_rate_and_matches_the_lien_free_world ... ok
+2026-11-13T22:35:35.9948232Z test a_loss_on_the_lien_holder_does_not_cut_the_other_claimant ... ok
+2026-11-13T22:35:35.9957490Z test lien_on_an_under_backed_domain_stays_conservative_and_is_full_once_backed ... ok
+2026-11-13T22:35:35.9959273Z test lien_on_a_fully_backed_domain_leaves_the_other_claimant_at_full_rate ... ok
+2026-11-13T22:35:35.9979812Z test conversion_beside_a_live_lien_pays_the_full_backed_claim ... ok
+2026-11-13T22:35:35.9998212Z test random_trading::random_trading_alphabet_reaches_a_live_lien ... ok
+2026-11-13T22:35:35.9998937Z test provider_withdrawal_watermark_is_unchanged_beside_a_lien ... ok
+2026-11-13T22:35:35.9999834Z test resolved_close_beside_a_flat_holders_lien_pays_the_full_backed_claim_at_once ... ok
+2026-11-13T22:35:36.0010682Z test resolved_close_pays_every_claimant_in_full_in_either_order ... ok
+2026-11-13T22:35:36.8729736Z test random_trading::random_trading_never_over_credits_and_liens_never_cut_a_backed_domain ... ok
+2026-11-13T22:35:36.8730218Z 
+2026-11-13T22:35:36.8730568Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.88s
+2026-11-13T22:35:36.8731032Z 
+2026-11-13T22:35:36.8734524Z      Running tests/v16_live_lapsed_latent_source_backing.rs (target/debug/build/percolator/c7b3658c1014950e/out/v16_live_lapsed_latent_source_backing-c7b3658c1014950e)
+2026-11-13T22:35:36.8745599Z 
+2026-11-13T22:35:36.8745740Z running 18 tests
+2026-11-13T22:35:36.8754608Z test lapsed_buckets_outside_the_accounts_read_set_are_left_alone ... ok
+2026-11-13T22:35:36.8755424Z test drain_only_leg_first_claim_on_lapsed_backing_is_crankable ... ok
+2026-11-13T22:35:36.8759939Z test insolvent_account_gain_on_lapsed_latent_backing_is_crankable ... ok
+2026-11-13T22:35:36.8769161Z test accounts_that_would_unwedge_each_other_both_settle ... ok
+2026-11-13T22:35:36.8783918Z test lapsed_latent_backing_is_actionable_with_a_current_certificate ... ok
+2026-11-13T22:35:36.8784539Z test lapsed_latent_backing_does_not_block_liquidation ... ok
+2026-11-13T22:35:36.8785501Z test liquidation_with_a_current_certificate_does_not_wait_for_latent_expiry ... ok
+2026-11-13T22:35:36.8786127Z test own_side_lapsed_bucket_is_normalized_by_the_loss_itself ... ok
+2026-11-13T22:35:36.8786650Z test latent_expiry_impairs_another_accounts_lien ... ok
+2026-11-13T22:35:36.8787183Z test one_expiry_per_crank_roster_first_then_legs_in_slot_order ... ok
+2026-11-13T22:35:36.8787775Z test provider_funded_lapsed_bucket_settles_in_either_crank_order ... ok
+2026-11-13T22:35:36.8799784Z test owner_paths_still_fail_closed_on_lapsed_latent_backing ... ok
+2026-11-13T22:35:36.8800506Z test recovery_leg_expires_latent_backing_at_the_authenticated_slot ... ok
+2026-11-13T22:35:36.8801096Z test recovery_leg_first_claim_on_lapsed_backing_is_crankable ... ok
+2026-11-13T22:35:36.8801642Z test short_winner_first_claim_on_lapsed_backing_is_crankable ... ok
+2026-11-13T22:35:36.8802144Z test unexpired_latent_backing_is_left_alone ... ok
+2026-11-13T22:35:36.8802610Z test winner_first_claim_on_lapsed_backing_is_crankable ... ok
+2026-11-13T22:35:39.5415850Z test random_live_histories_leave_every_account_crankable ... ok
+2026-11-13T22:35:39.5416184Z 
+2026-11-13T22:35:39.5416464Z test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.67s
+2026-11-13T22:35:39.5416881Z 
+2026-11-13T22:35:39.5420634Z      Running tests/v16_provider_withdraw_reserve.rs (target/debug/build/percolator/6c77d550b7c9844e/out/v16_provider_withdraw_reserve-6c77d550b7c9844e)
+2026-11-13T22:35:39.5432003Z 
+2026-11-13T22:35:39.5432148Z running 4 tests
+2026-11-13T22:35:39.5436618Z test ordinary_withdraw_preserves_live_behavior ... ok
+2026-11-13T22:35:39.5437192Z test ordinary_withdraw_rejects_unready_and_halted_resolved_pools ... ok
+2026-11-13T22:35:39.5437778Z test sanctioned_path_pays_the_claimant_in_full ... ok
+2026-11-13T22:35:39.5438202Z test ordinary_withdraw_preserves_the_resolved_junior_need ... ok
+2026-11-13T22:35:39.5438500Z 
+2026-11-13T22:35:39.5438781Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-13T22:35:39.5439256Z 
+2026-11-13T22:35:39.5439679Z      Running tests/v16_resolved_loss_provider_domain.rs (target/debug/build/percolator/15ff62559253525f/out/v16_resolved_loss_provider_domain-15ff62559253525f)
+2026-11-13T22:35:39.5447624Z 
+2026-11-13T22:35:39.5447746Z running 8 tests
+2026-11-13T22:35:39.5489687Z test s2_past_horizon_bucket_keeps_loss_in_junior_residual ... ok
+2026-11-13T22:35:39.5491705Z test s2_expired_bucket_loss_refills_provider_receivable_only ... ok
+2026-11-13T22:35:39.5503899Z test s2_impaired_bucket_keeps_loss_in_junior_residual ... ok
+2026-11-13T22:35:39.5504239Z test s2_resolved_loss_credits_provider_domain_exactly ... ok
+2026-11-13T22:35:39.5504757Z test s2_resolved_surplus_withdrawal_midway_keeps_provider_whole ... ok
+2026-11-13T22:35:39.5505351Z test s2_resolved_loser_loss_repays_provider_in_every_live_refresh_variant ... ok
+2026-11-13T22:35:39.5522059Z test s2_resolved_close_order_does_not_change_provider_recovery ... ok
+2026-11-13T22:35:39.5989358Z test s2_late_debt_beyond_gap_still_reaches_underpaid_receipt_holders ... ok
+2026-11-13T22:35:39.5989787Z 
+2026-11-13T22:35:39.5990109Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+2026-11-13T22:35:39.5990533Z 
+2026-11-13T22:35:39.5991748Z      Running tests/v16_resolved_zero_conversion_wait.rs (target/debug/build/percolator/cdc24dad91b3cab6/out/v16_resolved_zero_conversion_wait-cdc24dad91b3cab6)
+2026-11-13T22:35:39.6002050Z 
+2026-11-13T22:35:39.6002181Z running 17 tests
+2026-11-13T22:35:39.6029626Z test a_single_atom_of_backing_does_not_make_every_claimant_wait ... ok
+2026-11-13T22:35:39.6079628Z test control_convertible_claim_on_the_last_stored_leg ... ok
+2026-11-13T22:35:39.6099564Z test control_dust_claim_detached_before_the_last_leg ... ok
+2026-11-13T22:35:39.6129927Z test control_seniority_world_honest_order ... ok
+2026-11-13T22:35:39.6130609Z test control_lapsed_backing_pays_backed_winners_the_junior_rate ... ok
+2026-11-13T22:35:39.6162912Z test control_waiting_claim_keeps_its_share_of_pledged_backing ... ok
+2026-11-13T22:35:39.6164506Z test dust_claim_does_not_wait_for_a_lien_holder ... ok
+2026-11-13T22:35:39.6165315Z test dust_claim_on_the_last_stored_leg_does_not_freeze_resolved_payouts ... ok
+2026-11-13T22:35:39.6176555Z test dust_claim_on_the_last_stored_leg_settles_through_the_public_crank ... ok
+2026-11-13T22:35:39.6239639Z test dust_claim_in_one_domain_does_not_hold_the_accounts_other_claims ... ok
+2026-11-13T22:35:39.6290529Z test dust_leg_last_does_not_cost_backed_winners_their_seniority ... ok
+2026-11-13T22:35:39.6349776Z test flat_waiting_claim_reports_progress_only_for_a_committed_step ... ok
+2026-11-13T22:35:39.6439759Z test two_dust_claims_do_not_wait_for_each_other ... ok
+2026-11-13T22:35:39.6480025Z test waiting_claim_on_the_last_stored_leg_keeps_its_share_of_pledged_backing ... ok
+2026-11-13T22:35:39.6600077Z test waiting_lien_holder_commits_its_lien_release ... ok
+2026-11-13T22:35:40.9732556Z test every_close_order::backed_winner_keeps_its_seniority ... ok
+2026-11-13T22:35:41.8843812Z test every_close_order::settles_in_the_resolved_slot_and_pays_exactly ... ok
+2026-11-13T22:35:41.8844146Z 
+2026-11-13T22:35:41.8844365Z test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.28s
+2026-11-13T22:35:41.8844645Z 
+2026-11-13T22:35:41.8848800Z      Running tests/v16_spec_tests.rs (target/debug/build/percolator/2c1ce7715071c46c/out/v16_spec_tests-2c1ce7715071c46c)
+2026-11-13T22:35:41.8861425Z 
+2026-11-13T22:35:41.8861536Z running 204 tests
+2026-11-13T22:35:41.8874719Z test issue105_expired_trade_created_lien_does_not_prevent_liquidation ... ok
+2026-11-13T22:35:41.8875497Z test issue170_matched_spent_history_blocks_restart_until_canonicalized ... ok
+2026-11-13T22:35:41.8876277Z test issue170_canonicalization_rejects_live_asset_and_live_principal ... ok
+2026-11-13T22:35:41.8877198Z test issue176_liquidation_selects_same_leg_for_any_slot_order ... ok
+2026-11-13T22:35:41.8881197Z test issue204_deposit_frames_the_close_episode_until_booking ... ok
+2026-11-13T22:35:41.8899915Z test issue204_full_principal_cure_releases_the_domain_barrier ... ok
+2026-11-13T22:35:41.8900534Z test issue205_forfeit_rejects_drain_only_leg_on_active_asset ... ok
+2026-11-13T22:35:41.8901124Z test issue204_live_advance_close_charges_only_the_post_deposit_residual ... ok
+2026-11-13T22:35:41.8901745Z test issue204_resolved_close_charges_only_the_post_deposit_residual ... ok
+2026-11-13T22:35:41.8902707Z test issue206_live_loss_on_lapsed_lien_impairs_and_stays_crankable ... ok
+2026-11-13T22:35:41.8903344Z test v16_activate_rejects_disabled_slot_insurance_budget_without_mutation ... ok
+2026-11-13T22:35:41.8903756Z test lapsed_backing_bucket_does_not_block_loss_reservation ... ok
+2026-11-13T22:35:41.8904395Z test issue206_resolved_close_impairs_lapsed_lien_in_either_order ... ok
+2026-11-13T22:35:41.8905033Z test v16_adl_reduced_basis_caps_exit_to_effective_oi_then_detaches_residue ... ok
+2026-11-13T22:35:41.8905620Z test v16_asset_local_committed_accrual_can_trail_global_clock ... ok
+2026-11-13T22:35:41.8906030Z test v16_auto_crank_classifies_fresh_account_stale_then_refreshes_to_clean ... ok
+2026-11-13T22:35:41.8911735Z test v16_auto_crank_clears_released_recovery_obligation_with_finalized_close ... ok
+2026-11-13T22:35:41.8912523Z test v16_auto_crank_classifies_lapsed_source_backing_with_current_certificate ... ok
+2026-11-13T22:35:41.8913218Z test v16_auto_crank_classifies_payout_ready_resolved_winner_without_snapshot ... ok
+2026-11-13T22:35:41.8920599Z test v16_auto_crank_declares_recovery_for_expired_live_close ... ok
+2026-11-13T22:35:41.8927971Z test v16_auto_crank_commits_recovery_for_uncovered_cross_margin_liquidation ... ok
+2026-11-13T22:35:41.8928587Z test v16_auto_crank_converges_in_a_moving_market ... ok
+2026-11-13T22:35:41.8929545Z test v16_auto_crank_detaches_prior_reset_obligation_after_asset_recovery ... ok
+2026-11-13T22:35:41.8930218Z test v16_auto_crank_migrates_legacy_normal_adl_residue_into_reset_cleanup ... ok
+2026-11-13T22:35:41.8931261Z test v16_auto_crank_expires_one_lapsed_live_source_domain_per_step ... ok
+2026-11-13T22:35:41.8932107Z test v16_auto_crank_drives_stale_underwater_account_to_derisked_fixed_point ... ok
+2026-11-13T22:35:41.8933056Z test v16_auto_crank_liquidates_current_account_without_observation ... ok
+2026-11-13T22:35:41.8935563Z test v16_auto_crank_missing_observation_is_clean_nonprogress_no_mutation ... ok
+2026-11-13T22:35:41.8936460Z test v16_auto_crank_normalizes_empty_resolved_account_fee_anchor ... ok
+2026-11-13T22:35:41.8937266Z test v16_auto_crank_refresh_leaves_a_current_certificate_in_a_moving_market ... ok
+2026-11-13T22:35:41.8938144Z test v16_auto_crank_reaches_liquidation_in_a_persistently_moving_market ... ok
+2026-11-13T22:35:41.8939002Z test v16_auto_crank_normalizes_impaired_flat_lien_before_releasing_fresh_sibling ... ok
+2026-11-13T22:35:41.8940056Z test v16_auto_crank_refreshes_recovery_kf_without_forfeiting_position ... ok
+2026-11-13T22:35:41.8940964Z test v16_auto_crank_releases_current_flat_pending_obligations_on_both_sides ... ok
+2026-11-13T22:35:41.8941704Z test v16_auto_crank_settles_b_stale_leg ... ok
+2026-11-13T22:35:41.8942356Z test v16_auto_crank_releases_flat_source_credit_lien_for_conversion ... ok
+2026-11-13T22:35:41.8943188Z test v16_auto_crank_settles_latent_b_delta_on_recovery_leg ... ok
+2026-11-13T22:35:41.8943954Z test v16_auto_crank_skips_prior_reset_obligation_for_live_liquidation ... ok
+2026-11-13T22:35:41.8944745Z test v16_auto_crank_releases_source_liens_in_strict_chunks ... ok
+2026-11-13T22:35:41.8945485Z test v16_auto_crank_skips_recovery_first_leg_for_live_refresh ... ok
+2026-11-13T22:35:41.8946266Z test v16_backing_provider_earnings_credit_and_withdraw_are_engine_accounted ... ok
+2026-11-13T22:35:41.8947127Z test v16_backing_provider_earnings_credit_rejects_without_vault_slack ... ok
+2026-11-13T22:35:41.8948860Z test v16_backing_withdraw_after_expiry_keeps_forfeited_principal ... ok
+2026-11-13T22:35:41.8949745Z test v16_backing_withdraw_before_expiry_still_releases_principal ... ok
+2026-11-13T22:35:41.8950597Z test v16_backing_withdraw_rejects_lapsed_fresh_bucket_without_mutation ... ok
+2026-11-13T22:35:41.8952350Z test v16_batch_trade_is_bounded_by_configured_portfolio_asset_cap ... ok
+2026-11-13T22:35:41.8958534Z test v16_batch_trade_applies_multiple_fills_after_inline_refresh ... ok
+2026-11-13T22:35:41.8959512Z test v16_batch_trade_rejects_loss_stale_risk_increase_after_inline_settlement ... ok
+2026-11-13T22:35:41.8962755Z test v16_batch_trade_checks_initial_margin_on_final_portfolio ... ok
+2026-11-13T22:35:41.8963449Z test v16_batch_trade_supports_mixed_signed_spread_legs ... ok
+2026-11-13T22:35:41.8967445Z test v16_batch_trade_self_settles_stale_certificates_once_before_fills ... ok
+2026-11-13T22:35:41.8990009Z test v16_auto_crank_progress_realizable_without_observation_for_every_class ... ok
+2026-11-13T22:35:41.9019850Z test v16_canonical_accrual_path_bounds_long_gap_work_and_remains_actionable ... ok
+2026-11-13T22:35:41.9031513Z test v16_canonical_accrual_path_carries_sub_atom_price_progress_across_calls ... ok
+2026-11-13T22:35:41.9032387Z test v16_batch_trade_starts_terminal_residual_only_at_final_fill ... ok
+2026-11-13T22:35:41.9033167Z test v16_canonical_accrual_path_rejects_discontinuous_remainder_before_mutation ... ok
+2026-11-13T22:35:41.9034091Z test v16_canonical_accrual_path_matches_every_complete_transaction_partition ... ok
+2026-11-13T22:35:41.9034874Z test v16_canonical_accrual_path_requires_the_complete_bounded_prefix ... ok
+2026-11-13T22:35:41.9035647Z test v16_canonical_accrual_path_scales_indices_after_quantity_adl ... ok
+2026-11-13T22:35:41.9036427Z test v16_canonicalize_retired_empty_asset_slot_clears_inert_domain_state ... ok
+2026-11-13T22:35:41.9037243Z test v16_credit_account_from_insurance_uses_unbudgeted_surplus_only ... ok
+2026-11-13T22:35:41.9038038Z test v16_crossed_trade_cannot_spend_same_call_addition_as_preexisting_oi ... ok
+2026-11-13T22:35:41.9038895Z test v16_domain_insurance_bulk_credit_accumulates_duplicates_with_one_exact_delta ... ok
+2026-11-13T22:35:41.9040259Z test v16_domain_insurance_deposit_and_withdraw_use_engine_budget_accounting ... ok
+2026-11-13T22:35:41.9041011Z test v16_exact_oi_cross_starts_reset_for_adl_basis_residue ... ok
+2026-11-13T22:35:41.9041714Z test v16_exact_oi_unilateral_reduce_starts_reset_for_adl_basis_residue ... ok
+2026-11-13T22:35:41.9042506Z test v16_fee_sync_on_nonflat_account_settles_hidden_k_loss_before_fee ... ok
+2026-11-13T22:35:41.9043279Z test v16_finalize_side_reset_is_public_value_neutral_and_epoch_bumping ... ok
+2026-11-13T22:35:41.9044127Z test v16_cross_asset_loss_beyond_partially_backed_face_is_paid_once ... ok
+2026-11-13T22:35:41.9044916Z test v16_finalize_side_reset_rejects_blocked_pending_side ... ok
+2026-11-13T22:35:41.9045575Z test v16_cross_asset_loss_does_not_burn_a_partially_backed_gain_beyond_the_loss ... ok
+2026-11-13T22:35:41.9046327Z test v16_funding_counters_ignore_inactive_accounts_when_market_funding_moves ... ok
+2026-11-13T22:35:41.9047039Z test v16_fully_accrued_kf_cohort_blocks_fresh_risk_until_every_side_settles ... ok
+2026-11-13T22:35:41.9047721Z test v16_funding_counter_layout_canary_places_fields_before_fee_state ... ok
+2026-11-13T22:35:41.9048362Z test v16_funding_counters_record_short_pays_long_on_negative_funding ... ok
+2026-11-13T22:35:41.9048978Z test v16_funding_counters_record_long_pays_short_once_on_refresh ... ok
+2026-11-13T22:35:41.9049719Z test v16_funding_counters_record_forfeited_dead_leg_settlement ... ok
+2026-11-13T22:35:41.9059712Z test v16_funding_counters_settle_before_same_side_resize ... ok
+2026-11-13T22:35:41.9081604Z test v16_funding_counters_settle_before_trade_close_clears_leg ... ok
+2026-11-13T22:35:41.9111982Z test v16_gain_reversal_does_not_burn_gain_when_only_winners_were_settled_at_the_peak ... ok
+2026-11-13T22:35:41.9112930Z test v16_grant_source_positive_pnl_attributes_claims_and_aggregates_in_lockstep ... ok
+2026-11-13T22:35:41.9125978Z test v16_issue289_forfeited_bankruptcy_claim_recredits_paired_insurance_at_terminal ... ok
+2026-11-13T22:35:41.9133580Z test v16_kf_epoch_clears_exact_index_reversal_without_duplicate_discharge ... ok
+2026-11-13T22:35:41.9142914Z test v16_lapsed_backing_cannot_be_withdrawn_from_under_a_haircut_receipt ... ok
+2026-11-13T22:35:41.9159389Z test v16_legless_asset_after_bankrupt_liquidation_of_last_leg_resets ... ok
+2026-11-13T22:35:41.9166242Z test v16_legless_asset_after_crank_release_resets ... ok
+2026-11-13T22:35:41.9176676Z test v16_legless_asset_after_recovery_forfeits_retires_after_resolution ... ok
+2026-11-13T22:35:41.9209526Z test v16_legless_asset_after_recovery_forfeits_with_residue_retires ... ok
+2026-11-13T22:35:41.9226413Z test v16_legless_asset_after_recovery_forfeits_without_residue_retires ... ok
+2026-11-13T22:35:41.9238029Z test v16_gain_reversal_with_a_bankrupt_peak_loser_never_pays_the_settler ... ok
+2026-11-13T22:35:41.9248844Z test v16_legless_asset_after_recovery_pair_close_retires ... ok
+2026-11-13T22:35:41.9257647Z test v16_legless_asset_after_two_sided_trade_out_resets_and_trades_again ... ok
+2026-11-13T22:35:41.9266677Z test v16_legless_asset_after_unequal_residues_resets_on_last_rebalance ... ok
+2026-11-13T22:35:41.9288787Z test v16_legless_asset_with_one_barrier_side_keeps_live_oi_until_barrier_clears ... ok
+2026-11-13T22:35:41.9305592Z test v16_legless_side_absent_when_legs_exceed_oi ... ok
+2026-11-13T22:35:41.9322685Z test v16_legless_side_dropped_when_last_long_closes_after_resolution ... ok
+2026-11-13T22:35:41.9330085Z test v16_legless_side_from_live_trade_out_dropped_by_other_sides_close ... ok
+2026-11-13T22:35:41.9330895Z test v16_legless_side_dropped_when_last_short_closes_after_resolution ... ok
+2026-11-13T22:35:41.9331626Z test v16_legless_side_kept_with_loss_barrier ... ok
+2026-11-13T22:35:41.9332311Z test v16_legless_side_of_released_obligation_dropped ... ok
+2026-11-13T22:35:41.9333002Z test v16_legless_side_residue_above_last_leg_raw_basis_dropped ... ok
+2026-11-13T22:35:41.9352235Z test v16_legless_side_residue_from_partial_liquidations_dropped ... ok
+2026-11-13T22:35:41.9367775Z test v16_legless_side_residue_kept_until_last_long_leaves ... ok
+2026-11-13T22:35:41.9382635Z test v16_liquidation_engine_selects_full_close_and_allows_dust_min_fee ... ok
+2026-11-13T22:35:41.9387379Z test v16_gain_reversal_is_independent_of_who_was_settled_at_the_peak ... ok
+2026-11-13T22:35:41.9409858Z test v16_liquidation_engine_selects_healthy_partial_before_margin_floor ... ok
+2026-11-13T22:35:41.9435439Z test v16_live_unbounded_backing_expiry_is_not_capped ... ok
+2026-11-13T22:35:41.9450073Z test v16_live_mark_reversal_unwinds_counterparty_lien_before_claim_burn ... ok
+2026-11-13T22:35:41.9450865Z test v16_low_price_funding_remainder_is_not_revalued_by_a_resize ... ok
+2026-11-13T22:35:41.9451669Z test v16_low_price_moving_path_funding_is_settlement_partition_invariant ... ok
+2026-11-13T22:35:41.9452536Z test v16_cross_asset_funding_loss_does_not_burn_a_partially_backed_gain ... ok
+2026-11-13T22:35:41.9453369Z test v16_loss_paid_from_a_booked_gain_backs_the_counterparty_gain ... ok
+2026-11-13T22:35:41.9461007Z test v16_mutable_view_canonicalizes_persisted_source_domain_order ... ok
+2026-11-13T22:35:41.9471433Z test v16_mutable_view_compacts_persisted_domain_indexed_source_claim_before_deposit ... ok
+2026-11-13T22:35:41.9473448Z test v16_low_price_positive_funding_accrues_exact_amount_at_every_cadence ... ok
+2026-11-13T22:35:41.9474247Z test v16_low_price_negative_funding_respects_the_configured_cap_at_every_cadence ... ok
+2026-11-13T22:35:41.9480135Z test v16_owner_can_still_exit_while_the_crank_is_stuck_in_a_moving_market ... ok
+2026-11-13T22:35:41.9480963Z test v16_post_quantity_adl_bankrupt_effective_full_close_stays_live ... ok
+2026-11-13T22:35:41.9499890Z test v16_post_quantity_adl_recovery_forfeit_retires_only_effective_oi ... ok
+2026-11-13T22:35:41.9500527Z test v16_principal_loss_crystallizes_residual_budget_monotonically ... ok
+2026-11-13T22:35:41.9502936Z test v16_public_account_backing_fee_rejects_if_post_fee_im_would_fail ... ok
+2026-11-13T22:35:41.9504026Z test v16_public_account_backing_fee_routes_provider_and_insurance_splits_atomically ... ok
+2026-11-13T22:35:41.9504765Z test v16_public_backing_principal_deposit_and_withdraw_move_vault_and_source_state ... ok
+2026-11-13T22:35:41.9507981Z test v16_public_domain_insurance_spent_setter_preserves_budget_total ... ok
+2026-11-13T22:35:41.9509782Z test v16_public_domain_insurance_spent_setter_rejects_unbacked_clear ... ok
+2026-11-13T22:35:41.9530610Z test v16_public_empty_asset_oracle_anchor_reset_is_value_neutral ... ok
+2026-11-13T22:35:41.9531538Z test v16_public_empty_asset_oracle_anchor_reset_rejects_any_group_position_state ... ok
+2026-11-13T22:35:41.9545726Z test v16_public_force_asset_recovery_freezes_mark_and_is_idempotent ... ok
+2026-11-13T22:35:41.9549747Z test v16_public_fund_validator_accepts_nontrivial_exact_solvency_profile ... ok
+2026-11-13T22:35:41.9550470Z test v16_netting_never_rounds_a_fractional_source_claim_past_its_slot ... ok
+2026-11-13T22:35:41.9551123Z test v16_public_raw_oracle_target_batch_updates_distinct_assets_with_one_epoch ... ok
+2026-11-13T22:35:41.9551835Z test v16_public_liquidation_on_unfunded_domain_cannot_drain_shared_insurance ... ok
+2026-11-13T22:35:41.9552589Z test v16_public_raw_oracle_target_update_is_value_neutral_and_lifecycle_gated ... ok
+2026-11-13T22:35:41.9553238Z test v16_public_scoped_trade_preserves_unrelated_loss_stale_summary ... ok
+2026-11-13T22:35:41.9553856Z test v16_quantity_adl_blocks_fresh_basis_reissue_across_split_trades ... ok
+2026-11-13T22:35:41.9554521Z test v16_reactivate_rejects_remaining_insurance_budget_without_mutation ... ok
+2026-11-13T22:35:41.9555133Z test v16_quantity_adl_price_and_funding_accrual_remain_zero_sum ... ok
+2026-11-13T22:35:41.9555770Z test v16_recovery_forfeit_migrates_legacy_normal_adl_residue_before_detach ... ok
+2026-11-13T22:35:41.9556475Z test v16_recovery_forfeit_retains_loss_weight_until_opposite_positions_settle ... ok
+2026-11-13T22:35:41.9557224Z test v16_recovery_forfeit_commits_terminal_recovery_when_absorbing_side_is_empty ... ok
+2026-11-13T22:35:41.9557931Z test v16_rejected_reactivation_keeps_terminal_insurance_retirement_live ... ok
+2026-11-13T22:35:41.9558811Z test v16_released_pnl_conversion_consumes_the_backed_source_claim_exactly_once ... ok
+2026-11-13T22:35:41.9559641Z test v16_recovery_pair_close_clamps_stale_work_to_dual_adl_effective_oi ... ok
+2026-11-13T22:35:41.9560271Z test v16_residual_reward_credit_uses_real_principal_not_notional ... ok
+2026-11-13T22:35:41.9560821Z test v16_resolved_auto_crank_closes_capital_only_account ... ok
+2026-11-13T22:35:41.9561226Z test v16_resolved_backing_expiry_inside_horizon_is_unchanged ... ok
+2026-11-13T22:35:41.9561635Z test v16_residual_reward_credit_is_capped_by_available_crystallized_loss ... ok
+2026-11-13T22:35:41.9562049Z test v16_resolved_backing_horizon_bounds_direct_expiry_and_terminal_slab ... ok
+2026-11-13T22:35:41.9562414Z test v16_resolved_backing_surplus_keeps_exact_junior_need ... ok
+2026-11-13T22:35:41.9562767Z test v16_resolved_backing_surplus_reserve_matches_whole_bucket_expiry ... ok
+2026-11-13T22:35:41.9575842Z test v16_resolved_backing_surplus_rejects_live_halted_and_unready_pools ... ok
+2026-11-13T22:35:41.9589170Z test v16_resolved_close_caps_adl_reduced_basis_before_reset_detach ... ok
+2026-11-13T22:35:41.9590015Z test v16_resolved_clock_advance_is_monotonic_and_value_neutral ... ok
+2026-11-13T22:35:41.9591277Z test v16_resolved_close_migrates_legacy_normal_adl_residue_before_detach ... ok
+2026-11-13T22:35:41.9592391Z test v16_resolved_close_detaches_one_solvent_leg_per_call ... ok
+2026-11-13T22:35:41.9593079Z test v16_resolved_close_normalizes_prospective_lapsed_source_before_settlement ... ok
+2026-11-13T22:35:41.9593829Z test v16_recovery_forfeit_credits_unsettled_funding_loss_to_payer_source_domain ... ok
+2026-11-13T22:35:41.9594510Z test v16_resolved_impaired_source_accepts_prospective_terminal_loss ... ok
+2026-11-13T22:35:41.9595148Z test v16_resolved_loser_backing_past_horizon_routes_to_residual ... ok
+2026-11-13T22:35:41.9595751Z test v16_resolved_payout_topup_finishes_receipt_without_overpaying ... ok
+2026-11-13T22:35:41.9596398Z test v16_resolved_unbounded_backing_expiry_lapses_at_resolution_horizon ... ok
+2026-11-13T22:35:41.9597064Z test v16_restart_empty_asset_preserves_domain_budget_for_nonzero_asset ... ok
+2026-11-13T22:35:41.9599909Z test v16_resolved_zero_conversion_coclaimants_on_empty_bucket_both_close ... ok
+2026-11-13T22:35:41.9600751Z test v16_restart_keeps_domain_budget_through_terminal_retirement ... ok
+2026-11-13T22:35:41.9603766Z test v16_restart_normalizes_only_inert_terminal_history ... ok
+2026-11-13T22:35:41.9605287Z test v16_resolved_foreign_expiry_impairs_account_lien_before_release ... ok
+2026-11-13T22:35:41.9606065Z test v16_restart_rejects_active_asset ... ok
+2026-11-13T22:35:41.9606747Z test v16_retire_normalizes_only_inert_social_loss_audit_state ... ok
+2026-11-13T22:35:41.9607929Z test v16_retire_normalizes_unreferenced_lapsed_backing ... ok
+2026-11-13T22:35:41.9608916Z test v16_retire_rejects_live_provider_receivable_without_mutation ... ok
+2026-11-13T22:35:41.9616524Z test v16_restart_rejects_remaining_insurance_budget_without_mutation ... ok
+2026-11-13T22:35:41.9617473Z test v16_retire_and_reactivate_empty_asset_after_source_credit_epoch_bump ... ok
+2026-11-13T22:35:41.9618252Z test v16_reused_market_slot_rejects_old_market_id_leg ... ok
+2026-11-13T22:35:41.9620273Z test v16_risk_increasing_trade_creates_source_credit_lien_for_im ... ok
+2026-11-13T22:35:41.9621165Z test v16_same_side_resize_requires_b_settlement_before_shrinking_loss_weight ... ok
+2026-11-13T22:35:41.9634818Z test v16_side_oi_cap_admits_oi_neutral_handoff_at_cap_in_both_directions ... ok
+2026-11-13T22:35:41.9637956Z test v16_side_oi_cap_admits_reducing_trade_from_over_cap_state ... ok
+2026-11-13T22:35:41.9643015Z test v16_side_oi_cap_growth_to_exact_cap_admitted_past_cap_rejected ... ok
+2026-11-13T22:35:41.9648699Z test v16_side_oi_cap_rejects_growth_from_over_cap_state ... ok
+2026-11-13T22:35:41.9649299Z test v16_single_trade_matches_batch_of_one_state ... ok
+2026-11-13T22:35:41.9649782Z test v16_side_oi_cap_rejects_net_increase_over_cap_via_resize ... ok
+2026-11-13T22:35:41.9650849Z test v16_sparse_source_domains_reject_unoccupied_tagged_slot ... ok
+2026-11-13T22:35:41.9656937Z test v16_source_backed_conversion_ignores_unrelated_historical_bankruptcy ... ok
+2026-11-13T22:35:41.9669998Z test v16_stale_opposite_cohort_does_not_block_bounded_owner_reduction ... ok
+2026-11-13T22:35:41.9670648Z test v16_sub_minimum_drain_only_adl_leg_refreshes_and_exits ... ok
+2026-11-13T22:35:41.9671216Z test v16_terminal_retirement_includes_claim_free_protocol_surplus ... ok
+2026-11-13T22:35:41.9671765Z test v16_subatom_trade_charges_fee_on_ceil_fee_notional ... ok
+2026-11-13T22:35:41.9672349Z test v16_terminal_slab_chunk_cursor_finds_last_asset_recredit_before_retirement ... ok
+2026-11-13T22:35:41.9675184Z test v16_terminal_slab_progress_expires_one_domain_before_retiring_residual ... ok
+2026-11-13T22:35:41.9676179Z test v16_terminal_slab_progress_restores_insurance_before_retiring_surplus ... ok
+2026-11-13T22:35:41.9676961Z test v16_terminal_slab_cursor_stops_at_unexpired_backing_across_slots ... ok
+2026-11-13T22:35:41.9677711Z test v16_terminal_unbudgeted_insurance_retirement_is_claim_free_and_exact ... ok
+2026-11-13T22:35:41.9679636Z test v16_trade_created_parked_source_claim_survives_later_deposit ... ok
+2026-11-13T22:35:41.9686422Z test v16_trade_final_leg_residual_routes_through_close_without_forcing_market_recovery ... ok
+2026-11-13T22:35:41.9687526Z test v16_legless_side_residue_grown_by_repeated_reduces_dropped ... ok
+2026-11-13T22:35:41.9700421Z test v16_trade_does_not_charge_prior_multi_asset_deficit_or_force_market_recovery ... ok
+2026-11-13T22:35:41.9701173Z test v16_under_margin_owner_can_transfer_risk_to_margin_healthy_counterparty ... ok
+2026-11-13T22:35:41.9701835Z test v16_trade_rejects_fresh_risk_when_either_side_is_recovering ... ok
+2026-11-13T22:35:41.9702387Z test v16_view_fee_sync_settles_flat_loss_before_fee ... ok
+2026-11-13T22:35:41.9702943Z test v16_trade_keeps_two_sided_risk_reduction_open_during_side_recovery ... ok
+2026-11-13T22:35:41.9703476Z test v16_view_rejects_overwithdraw ... ok
+2026-11-13T22:35:41.9711565Z test v16_view_dynamic_market_slots_can_be_activated_without_runtime_vec_engine ... ok
+2026-11-13T22:35:41.9712431Z test v16_view_deposit_and_withdraw_are_the_tested_paths ... ok
+2026-11-13T22:35:41.9830407Z test v16_whole_account_kf_settlement_is_leg_and_account_order_independent ... ok
+2026-11-13T22:35:41.9830990Z 
+2026-11-13T22:35:41.9831667Z test result: ok. 204 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+2026-11-13T22:35:41.9832120Z 
+2026-11-13T22:35:41.9834174Z      Running tests/v16_twin_netting_provider_backing.rs (target/debug/build/percolator/2c234d08ef050fcb/out/v16_twin_netting_provider_backing-2c234d08ef050fcb)
+2026-11-13T22:35:41.9844151Z 
+2026-11-13T22:35:41.9844293Z running 5 tests
+2026-11-13T22:35:41.9860184Z test twin_netting_does_not_move_provider_fronted_backing_at_rate_one ... ok
+2026-11-13T22:35:41.9860950Z test twin_netting_does_not_move_provider_fronted_backing_at_a_partial_rate ... ok
+2026-11-13T22:35:41.9867920Z test twin_netting_moves_loser_paid_backing_for_the_regain ... ok
+2026-11-13T22:35:41.9924732Z test twin_netting_with_provider_and_loser_backing_moves_only_the_loser_part ... ok
+2026-11-13T22:35:41.9943645Z test twin_netting_partial_reversal_keeps_provider_whole ... ok
+2026-11-13T22:35:41.9943993Z 
+2026-11-13T22:35:41.9944303Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-11-13T22:35:41.9944756Z 
+2026-11-13T22:35:41.9945560Z    Doc-tests percolator
+2026-11-13T22:35:42.1625660Z 
+2026-11-13T22:35:42.1628089Z running 0 tests
+2026-11-13T22:35:42.1628305Z 
+2026-11-13T22:35:42.1628636Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-13T22:35:42.1628967Z 
+2026-11-13T22:35:42.2332592Z Post job cleanup.
+2026-11-13T22:35:42.3021185Z [command]/usr/bin/git version
+2026-11-13T22:35:42.3058749Z git version 2.56.1
+2026-11-13T22:35:42.3123552Z Temporarily overriding HOME='/home/runner/work/_temp/3da499f1-22a2-45e5-acbf-2040dd0e54e5' before making global git config changes
+2026-11-13T22:35:42.3124515Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-13T22:35:42.3127945Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/outright/outright
+2026-11-13T22:35:42.3450076Z Removing SSH command configuration
+2026-11-13T22:35:42.3451119Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-13T22:35:42.3481738Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-13T22:35:42.3727070Z Removing HTTP extra header
+2026-11-13T22:35:42.3733873Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-13T22:35:42.3790637Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-13T22:35:42.4027429Z Removing includeIf entries pointing to credentials config files
+2026-11-13T22:35:42.4035689Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-13T22:35:42.4077345Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-13T22:35:42.4431009Z Cleaning up orphan processes

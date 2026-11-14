@@ -1,0 +1,339 @@
+{
+  "schema": 1,
+  "wrapper": {
+    "repository": "aeyakovenko/percolator-prog",
+    "ref": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+    "upstream": "aeyakovenko/percolator-prog"
+  },
+  "engine_ref": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "matcher": {
+    "repository": "aeyakovenko/percolator-match",
+    "ref": "60aac3a996d0264c47fbefe9a2625d6ee6fb6a47"
+  },
+  "host_rust": "1.95.0",
+  "cargo_build_sbf": "4.6.0",
+  "platform_tools": "v1.52",
+  "sbf_arch": "v0",
+  "host_profile": {
+    "opt_level": 1,
+    "debug": 0,
+    "debug_assertions": true,
+    "overflow_checks": true,
+    "codegen_units": 256,
+    "incremental": false
+  },
+  "suites": {
+    "v16_cu": {
+      "shards": 16,
+      "minimum_tests": 1566
+    },
+    "v16_program_stateful_fuzz": {
+      "shards": 12,
+      "minimum_tests": 336
+    },
+    "v16_program_fuzz_regressions": {
+      "shards": 4,
+      "minimum_tests": 148
+    },
+    "outright_native_lifecycle": {
+      "shards": 1,
+      "minimum_tests": 17
+    },
+    "anchor_v2_realloc_probe": {
+      "shards": 1,
+      "minimum_tests": 7
+    },
+    "listing_oracle_scope": {
+      "shards": 1,
+      "minimum_tests": 8
+    },
+    "open_issue_regressions": {
+      "shards": 1,
+      "minimum_tests": 9
+    },
+    "percolator_prog_lib": {
+      "kind": "lib",
+      "target": "percolator_prog",
+      "shards": 1,
+      "minimum_tests": 8
+    }
+  },
+  "test_timeout_seconds": 1800,
+  "compile_timeout_seconds": 5400,
+  "cu_dependencies": {
+    "inv_005_authority_incarnation_binding": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_008_intent_uniqueness_and_bounded_replay": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_009_partial_fill_and_retry_accounting": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_012_capability_and_delegate_scope": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_013_destructive_consent_scope": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_014_delayed_policy_and_policy_epoch_safety": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_017_signer_writable_role_and_account_alias_safety": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_065_reset_recovery_and_retired_state_isolation",
+      "inv_067_terminal_payout_completeness_and_exact_once_settlement"
+    ],
+    "inv_018_quote_mint_vault_token_program_and_authority_integrity": [
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_019_cpi_invocation_and_return_data_binding": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_020_authenticated_clock_slot_and_oracle_provenance": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_021_account_creation_reallocation_close_rent_and_lamport_safety": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_023_caller_input_confinement_for_derived_safety_state": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_024_attributed_quote_value_conservation": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_025_exact_stock_reconciliation": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_027_protected_principal_seniority": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_028_source_domain_realizability_cap": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_028_consumed_backing_cap": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_033_insurance_backed_lien_single_classification": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_036_fee_destination_and_policy_version_integrity": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_039_pending_loss_obligation_durability": [
+      "inv_073_no_permanent_user_lock",
+      "inv_082_state_indexed_liveness_theorem"
+    ],
+    "inv_041_deterministic_allocation_and_caller_order_independence": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_045_no_free_mark_movement": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_046_trade_availability_without_unsafe_mark_admission": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_051_canonical_adl_effective_quantity": [
+      "inv_073_no_permanent_user_lock"
+    ],
+    "inv_054_certificate_epoch_completeness": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_055_state_indexed_admission": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_056_hints_are_discovery_only_favorable_actions_fully_refresh": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_057_risk_reduction_availability": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_058_cumulative_position_oi_notional_and_rate_limit_integrity": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_061_deterministic_bounded_liquidation": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_063_backing_expiry_normalization": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_064_insurance_withdrawal_policy_equivalence": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_066_resolved_payout_fairness_and_order_independence": [
+      "inv_067_terminal_payout_completeness_and_exact_once_settlement"
+    ],
+    "inv_067_terminal_payout_completeness_and_exact_once_settlement": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_068_receipt_uniqueness_and_monotonic_topups": [
+      "inv_067_terminal_payout_completeness_and_exact_once_settlement"
+    ],
+    "inv_069_terminal_normalization_and_retirement": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_070_zero_unattributed_terminal_residue_and_close_slab": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_071_crank_progress",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_071_crank_progress": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_073_no_permanent_user_lock": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_024_attributed_quote_value_conservation",
+      "inv_071_crank_progress",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_074_scope_locality": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_075_close_priority_ownership_and_episode_integrity": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_077_bounded_work_and_maximum_shape_compute": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_080_error_propagation_and_exact_rollback": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_081_success_state_validity_over_complete_public_routes"
+    ],
+    "inv_081_success_state_validity_over_complete_public_routes": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_082_state_indexed_liveness_theorem": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity",
+      "inv_067_terminal_payout_completeness_and_exact_once_settlement"
+    ],
+    "inv_083_boundary_completeness": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_084_proof_assumptions_are_reachable_and_nonvacuous": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_085_proven_arithmetic_equals_deployed_arithmetic": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_088_global_summaries_are_not_account_local_proofs": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_089_activation_reactivation_and_initialization_equivalence": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ],
+    "inv_070_issue289_bankruptcy_residual_recredit": [
+      "inv_018_quote_mint_vault_token_program_and_authority_integrity"
+    ]
+  },
+  "cu_balance_weights": {
+    "inv_002_asset_generation_binding": 3,
+    "inv_003_portfolio_incarnation_binding": 2,
+    "inv_004_position_episode_binding": 2,
+    "inv_005_authority_incarnation_binding": 73,
+    "inv_007_no_aba_reuse": 1,
+    "inv_008_intent_uniqueness_and_bounded_replay": 26,
+    "inv_009_partial_fill_and_retry_accounting": 12,
+    "inv_010_out_of_order_safety": 4,
+    "inv_011_signed_aggregate_economic_bounds": 8,
+    "inv_012_capability_and_delegate_scope": 49,
+    "inv_013_destructive_consent_scope": 4,
+    "inv_014_delayed_policy_and_policy_epoch_safety": 34,
+    "inv_015_account_ownership_layout_discriminator_and_length_validity": 8,
+    "inv_016_canonical_pda_and_seed_binding": 7,
+    "inv_017_signer_writable_role_and_account_alias_safety": 44,
+    "inv_018_quote_mint_vault_token_program_and_authority_integrity": 50,
+    "inv_019_cpi_invocation_and_return_data_binding": 22,
+    "inv_020_authenticated_clock_slot_and_oracle_provenance": 85,
+    "inv_021_account_creation_reallocation_close_rent_and_lamport_safety": 30,
+    "inv_022_instruction_decoding_and_schema_upgrade_safety": 7,
+    "inv_023_caller_input_confinement_for_derived_safety_state": 8,
+    "inv_024_attributed_quote_value_conservation": 83,
+    "inv_025_exact_stock_reconciliation": 8,
+    "inv_026_reservation_and_encumbrance_conservation_is_separate_from_token_value": 1,
+    "inv_027_protected_principal_seniority": 31,
+    "inv_028_source_domain_realizability_cap": 37,
+    "inv_028_consumed_backing_cap": 1,
+    "inv_029_positive_claim_bounds_never_understate": 4,
+    "inv_030_credit_rate_determinism_and_fail_closed_behavior": 4,
+    "inv_031_no_double_use_of_claim_backing_or_insurance_atoms": 6,
+    "inv_032_exact_counterparty_lien_lifecycle": 2,
+    "inv_033_insurance_backed_lien_single_classification": 2,
+    "inv_034_domain_and_instance_isolation": 30,
+    "inv_035_no_global_b_pool_residuals_remain_local": 1,
+    "inv_036_fee_destination_and_policy_version_integrity": 14,
+    "inv_037_exact_residual_partition": 7,
+    "inv_038_rounding_and_ratio_conservation": 14,
+    "inv_039_pending_loss_obligation_durability": 36,
+    "inv_040_no_fee_seniority": 5,
+    "inv_041_deterministic_allocation_and_caller_order_independence": 4,
+    "inv_042_recovery_fallback_envelope": 5,
+    "inv_043_hedge_and_correlation_credit_envelope": 2,
+    "inv_044_no_phantom_value_from_indices_certificates_or_labels": 4,
+    "inv_045_no_free_mark_movement": 70,
+    "inv_046_trade_availability_without_unsafe_mark_admission": 6,
+    "inv_047_equivalent_route_semantics": 25,
+    "inv_048_matched_trade_and_open_interest_coherence": 3,
+    "inv_049_canonical_single_net_leg_per_asset_generation": 2,
+    "inv_050_cross_zero_decomposition": 9,
+    "inv_051_canonical_adl_effective_quantity": 8,
+    "inv_052_split_merge_invariance": 19,
+    "inv_053_full_health_recertification_equivalence": 8,
+    "inv_054_certificate_epoch_completeness": 12,
+    "inv_055_state_indexed_admission": 15,
+    "inv_056_hints_are_discovery_only_favorable_actions_fully_refresh": 10,
+    "inv_057_risk_reduction_availability": 25,
+    "inv_058_cumulative_position_oi_notional_and_rate_limit_integrity": 28,
+    "inv_059_fee_fragmentation_bound": 9,
+    "inv_060_single_sided_margin_and_penalty_accounting": 8,
+    "inv_061_deterministic_bounded_liquidation": 21,
+    "inv_062_no_identity_assumptions_self_trade_containment": 8,
+    "inv_063_backing_expiry_normalization": 9,
+    "inv_064_insurance_withdrawal_policy_equivalence": 15,
+    "inv_065_reset_recovery_and_retired_state_isolation": 7,
+    "inv_066_resolved_payout_fairness_and_order_independence": 10,
+    "inv_067_terminal_payout_completeness_and_exact_once_settlement": 48,
+    "inv_068_receipt_uniqueness_and_monotonic_topups": 10,
+    "inv_069_terminal_normalization_and_retirement": 11,
+    "inv_070_zero_unattributed_terminal_residue_and_close_slab": 37,
+    "inv_071_crank_progress": 29,
+    "inv_072_order_robust_crankability": 11,
+    "inv_073_no_permanent_user_lock": 74,
+    "inv_074_scope_locality": 15,
+    "inv_075_close_priority_ownership_and_episode_integrity": 10,
+    "inv_076_close_drift_residual_durability_and_finalization_atomicity": 5,
+    "inv_077_bounded_work_and_maximum_shape_compute": 76,
+    "inv_078_permissionless_recovery_coverage": 7,
+    "inv_080_error_propagation_and_exact_rollback": 34,
+    "inv_081_success_state_validity_over_complete_public_routes": 4,
+    "inv_082_state_indexed_liveness_theorem": 7,
+    "inv_083_boundary_completeness": 13,
+    "inv_084_proof_assumptions_are_reachable_and_nonvacuous": 4,
+    "inv_085_proven_arithmetic_equals_deployed_arithmetic": 18,
+    "inv_087_no_phantom_controls_or_dead_security_fields": 10,
+    "inv_088_global_summaries_are_not_account_local_proofs": 15,
+    "inv_089_activation_reactivation_and_initialization_equivalence": 19,
+    "inv_070_issue289_bankruptcy_residual_recredit": 2
+  },
+  "overlay": {
+    "path": "qualification/program-repair.patch",
+    "sha256": "031848cbccf8dd971ba3fc16b4c39db56093a24cbbc527aaf6e8182d71c061c6",
+    "tree": "8b54b827082b2b838beacd88d4d99bd12878d2ca"
+  },
+  "separate_targets": [
+    {
+      "kind": "bin",
+      "target": "v16-kani",
+      "required_features": [
+        "kani"
+      ],
+      "reason": "Kani proof harness; separate proof runner"
+    }
+  ]
+}

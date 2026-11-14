@@ -1,0 +1,14 @@
+{
+  "scope": "integrated qualification and candidate-validator verifier checks",
+  "command": "python3 -m unittest discover -s scripts/tests -p test_*.py -v",
+  "passed": 49,
+  "failed": 0,
+  "seconds": 6.629,
+  "exit_code": 0,
+  "native_protocol_files_equal_to_commit": "3372660fc4d76b47b6cdb1a12a239bce4dcb84f5",
+  "native_protocol_file_count": 61,
+  "program_patch_sha256": "031848cbccf8dd971ba3fc16b4c39db56093a24cbbc527aaf6e8182d71c061c6",
+  "note": "Local prepublication checks; CI of the final combined source is a separate required result.",
+  "log": "integrated-verifier-final.log",
+  "attestation": "integrated-qualification-attestation.json"
+}

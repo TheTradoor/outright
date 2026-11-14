@@ -1,0 +1,59 @@
+{
+  "worktree": "/workspace/scratch/31e010aaee78/terminal-freshness-repair",
+  "branch": "fix/terminal-freshness",
+  "base_commit": "9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1",
+  "status": "ready for root integration; uncommitted and not pushed",
+  "behavior": "Trade-review controls mirror the existing client oracle predicate and explain why trading is unavailable. Fresh state restores review. Deposit and exit admission are unchanged. No elapsed-time slot estimation or new oracle policy.",
+  "shared_predicate": "Nonzero effective price; oracle slot <= snapshot slot; snapshot slot - oracle slot <= configured maxOracleAgeSlots (inclusive). Client prepare and post-sign revalidation retain the same check.",
+  "changed_files": {
+    "docs/MAINNET_RELEASE.md": "cf61d190f83865aaa96d546df1558ef3c289d0476064ccf358baa92adb31d901",
+    "protocol/src/client.mjs": "d632c84447d652457beb6136e1096653285f63ad563f940425a78d22bd64a4a0",
+    "protocol/terminal/index.html": "6540ecd7f6a1291a2e377d412212947c43871e54789d67e3cec2a06a30dc5c8a",
+    "protocol/terminal/terminal.mjs": "4e9bf4f67eb2cc929253481f92cfd72505f86b3a881e03b9e0fe67bcf23d9c13",
+    "protocol/tests/client.test.mjs": "9f38751170ce99a231005a7bec41b57d752de9d0d824bff88749fbe960fd58cc",
+    "protocol/tests/terminal.test.mjs": "28f96f617c09423b091b123e23e333480c1903fa2212df225d2eaae493028978"
+  },
+  "patch": {
+    "path": "/workspace/scratch/31e010aaee78/terminal-freshness.patch",
+    "sha256": "251d49ceeb502b622a7a47b65c1ed4fbe8451230cbc1f6b97c6248f80e0234cd"
+  },
+  "regressions": [
+    {
+      "scope": "original implementation with new UI regressions",
+      "command": "node --test protocol/tests/terminal.test.mjs",
+      "result": "Three new stale/future/zero-price control assertions fail: Review trade was enabled. Runner total 57 includes 53 pass, 3 failing children and 1 failed parent.",
+      "log": "/workspace/scratch/31e010aaee78/terminal-freshness-before.log"
+    },
+    {
+      "scope": "client, terminal, onboarding, wallet adapters after patch",
+      "command": "node --test protocol/tests/client.test.mjs protocol/tests/terminal.test.mjs protocol/tests/onboarding.test.mjs protocol/tests/wallet-adapters.test.mjs",
+      "tests": 165,
+      "passed": 165,
+      "failed": 0,
+      "duration_ms": 2635.725765,
+      "log": "/workspace/scratch/31e010aaee78/terminal-freshness-after.log"
+    },
+    {
+      "scope": "terminal bundle",
+      "command": "npm run build --prefix protocol",
+      "exit_code": 0,
+      "log": "/workspace/scratch/31e010aaee78/terminal-freshness-build.log"
+    }
+  ],
+  "review": "Independent read-only child terminal_readiness_review found no blocking findings: exact predicate equivalence, safe no-snapshot/no-asset branches, unchanged deposit/exit controls, meaningful wire-fixture tests and inclusive age boundary.",
+  "test_coverage": [
+    "Expired, future-slot and zero-price data disable trade review with visible accessible reason.",
+    "Fresh refresh hides the reason and enables review.",
+    "Deposit remains enabled and its client preparation still runs simulation.",
+    "Direct form-event dispatch cannot bypass client preparation guard; no review/signature/broadcast is created.",
+    "Client rejects bad oracle data before simulation; exact age-limit boundary remains accepted."
+  ],
+  "limitations": [
+    "DOM and synthetic RPC coverage, not physical-wallet/mobile-browser testing.",
+    "Mainnet gating and deployment-profile trust policy unchanged.",
+    "No changes to program source, PR25 head, source pins, or publication."
+  ],
+  "checks": {
+    "git_diff_check": "pass"
+  }
+}

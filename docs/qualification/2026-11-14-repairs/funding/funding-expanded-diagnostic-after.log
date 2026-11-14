@@ -1,0 +1,425 @@
+
+running 4 tests
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_fixed_report_history_preserves_funding_across_counterparty_settlement_cadence_at_partial_catchup ... DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=false slot=6 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=false slot=8 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=63041 cap_per_instruction=400000
+cadence liquidation: endpoint=8 eager=false settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=141910 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113062 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=303161 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=274497 cap_per_instruction=400000
+cadence settlement: endpoint=8 eager=false settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113299 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=115564 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113130 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=98669 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56311 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114627 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99588 cap_per_instruction=400000
+funding=1000 endpoint=8 eager=false settle_counterparties=false: price=992800, liquidation=(30093516, 14939, 0, [4364961, 100000000, 9229964, 9229964, 1000], 1555011), payout=1000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=true slot=6 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=true slot=7 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=true slot=8 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence liquidation: endpoint=8 eager=true settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=141825 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=112977 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=303147 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=274483 cap_per_instruction=400000
+cadence settlement: endpoint=8 eager=true settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113380 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=115429 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113266 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=98671 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56311 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114627 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99584 cap_per_instruction=400000
+funded normalization: endpoint=8, exact residual equality; one-atom funding/value mutations rejected
+funding=1000 endpoint=8 eager=true settle_counterparties=false: price=992800, liquidation=(30090311, 14937, 0, [4365162, 100000000, 9229964, 9229964, 1000], 1555009), payout=1000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=false slot=6 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=false slot=14 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=83762 cap_per_instruction=400000
+cadence liquidation: endpoint=14 eager=false settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=142097 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113248 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=354636 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=325971 cap_per_instruction=400000
+cadence settlement: endpoint=14 eager=false settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113488 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=115942 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113560 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=98674 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56289 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114631 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99588 cap_per_instruction=400000
+funding=1000 endpoint=14 eager=false settle_counterparties=false: price=980000, liquidation=(37119980, 18189, 6062, [3081121, 100000000, 9229964, 9229964, 7062], 1552199), payout=7062
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=6 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=7 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=8 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=9 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=10 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=11 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=12 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=13 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=14 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58580 cap_per_instruction=400000
+cadence liquidation: endpoint=14 eager=true settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=142018 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113169 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=354670 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=326005 cap_per_instruction=400000
+cadence settlement: endpoint=14 eager=true settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113573 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=115621 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113458 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=98674 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56289 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114631 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99586 cap_per_instruction=400000
+funded normalization: endpoint=14, exact residual equality; one-atom funding/value mutations rejected
+funding=1000 endpoint=14 eager=true settle_counterparties=false: price=980000, liquidation=(37103715, 18181, 6059, [3081918, 100000000, 9229964, 9229964, 7059], 1552194), payout=7059
+paid-price cadence: liquidations=4, exact rollbacks=8, peak CU=354670
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=false slot=6 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=109827 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=118035 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=117122 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=false slot=8 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=63344 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125396 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119342 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125683 cap_per_instruction=400000
+cadence liquidation: endpoint=8 eager=false settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=146048 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=117200 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=303208 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=274544 cap_per_instruction=400000
+cadence settlement: endpoint=8 eager=false settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114627 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99588 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114549 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56311 cap_per_instruction=400000
+funding=1000 endpoint=8 eager=false settle_counterparties=true: price=992800, liquidation=(30093516, 14939, 0, [4364961, 100720099, 9222763, 9237164, 1000], 1555011), payout=1000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=true slot=6 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=109827 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=118035 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=117122 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=true slot=7 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58904 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125354 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119279 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125473 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=true slot=8 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58904 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125345 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119263 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125462 cap_per_instruction=400000
+cadence liquidation: endpoint=8 eager=true settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=145968 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=117120 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=303194 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=274530 cap_per_instruction=400000
+cadence settlement: endpoint=8 eager=true settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114627 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99584 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114553 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56311 cap_per_instruction=400000
+funded normalization: endpoint=8, exact residual equality; one-atom funding/value mutations rejected
+funding=1000 endpoint=8 eager=true settle_counterparties=true: price=992800, liquidation=(30090311, 14937, 0, [4365162, 100719900, 9222764, 9237163, 1000], 1555009), payout=1000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=false slot=6 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=109827 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=118035 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=117122 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=false slot=14 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=84065 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125396 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119530 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125661 cap_per_instruction=400000
+cadence liquidation: endpoint=14 eager=false settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=146228 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=117379 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=354824 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=326159 cap_per_instruction=400000
+cadence settlement: endpoint=14 eager=false settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114631 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99588 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114552 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56289 cap_per_instruction=400000
+funding=1000 endpoint=14 eager=false settle_counterparties=true: price=980000, liquidation=(37119980, 18189, 6062, [3081121, 102000689, 9209957, 9249970, 7062], 1552199), payout=7062
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=6 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=109827 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=118035 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=117122 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=7 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58904 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125354 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119279 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125473 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=8 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58904 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125345 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119263 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125462 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=9 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58904 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125395 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119290 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125455 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=10 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58904 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125336 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119270 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125450 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=11 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58904 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125407 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119288 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125462 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=12 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58904 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125396 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119290 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125456 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=13 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58904 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125374 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119287 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125454 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=14 settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58883 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125401 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=119289 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=125449 cap_per_instruction=400000
+cadence liquidation: endpoint=14 eager=true settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=146155 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=117306 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=354858 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=326193 cap_per_instruction=400000
+cadence settlement: endpoint=14 eager=true settle_counterparties=true
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114631 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99586 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114556 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56289 cap_per_instruction=400000
+funded normalization: endpoint=14, exact residual equality; one-atom funding/value mutations rejected
+funding=1000 endpoint=14 eager=true settle_counterparties=true: price=980000, liquidation=(37103715, 18181, 6059, [3081918, 101999900, 9209964, 9249963, 7059], 1552194), payout=7059
+paid-price cadence: liquidations=4, exact rollbacks=8, peak CU=354858
+ok
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_funded_report_cadence_preserves_partial_liquidation_reward_and_custody ... DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=false slot=6 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=false slot=8 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=63041 cap_per_instruction=400000
+cadence liquidation: endpoint=8 eager=false settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=141910 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113062 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=303161 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=274497 cap_per_instruction=400000
+cadence settlement: endpoint=8 eager=false settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113299 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=115564 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113130 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=98669 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56311 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114627 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99588 cap_per_instruction=400000
+funding=1000 endpoint=8 eager=false settle_counterparties=false: price=992800, liquidation=(30093516, 14939, 0, [4364961, 100000000, 9229964, 9229964, 1000], 1555011), payout=1000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=true slot=6 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=true slot=7 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=8 eager=true slot=8 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence liquidation: endpoint=8 eager=true settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=141825 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=112977 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=303147 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=274483 cap_per_instruction=400000
+cadence settlement: endpoint=8 eager=true settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113380 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=115429 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113266 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=98671 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56311 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114627 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99584 cap_per_instruction=400000
+funded normalization: endpoint=8, exact residual equality; one-atom funding/value mutations rejected
+funding=1000 endpoint=8 eager=true settle_counterparties=false: price=992800, liquidation=(30090311, 14937, 0, [4365162, 100000000, 9229964, 9229964, 1000], 1555009), payout=1000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=false slot=6 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=false slot=14 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=83762 cap_per_instruction=400000
+cadence liquidation: endpoint=14 eager=false settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=142097 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113248 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=354636 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=325971 cap_per_instruction=400000
+cadence settlement: endpoint=14 eager=false settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113488 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=115942 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113560 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=98674 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56289 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114631 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99588 cap_per_instruction=400000
+funding=1000 endpoint=14 eager=false settle_counterparties=false: price=980000, liquidation=(37119980, 18189, 6062, [3081121, 100000000, 9229964, 9229964, 7062], 1552199), payout=7062
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=62834 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=6 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=59420 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=7 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=8 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=9 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=10 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=11 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=12 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=13 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58601 cap_per_instruction=400000
+cadence publication: endpoint=14 eager=true slot=14 settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=58580 cap_per_instruction=400000
+cadence liquidation: endpoint=14 eager=true settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=142018 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113169 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=2 rejection=Some((3, Custom(27))) CU=354670 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=326005 cap_per_instruction=400000
+cadence settlement: endpoint=14 eager=true settle_counterparties=false
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113573 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=115621 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=113458 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=98674 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=56289 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=114631 cap_per_instruction=400000
+DIAGNOSTIC funded=1000 instructions=1 rejection=None CU=99586 cap_per_instruction=400000
+funded normalization: endpoint=14, exact residual equality; one-atom funding/value mutations rejected
+funding=1000 endpoint=14 eager=true settle_counterparties=false: price=980000, liquidation=(37103715, 18181, 6059, [3081918, 100000000, 9229964, 9229964, 7059], 1552194), payout=7059
+paid-price cadence: liquidations=4, exact rollbacks=8, peak CU=354670
+ok
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_paid_price_catchup_report_cadence_preserves_reward_and_rejects_regression ... DIAGNOSTIC funded=0 instructions=1 rejection=None CU=62702 cap_per_instruction=325000
+cadence publication: endpoint=8 eager=false slot=6 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58120 cap_per_instruction=325000
+cadence publication: endpoint=8 eager=false slot=8 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=60745 cap_per_instruction=325000
+cadence liquidation: endpoint=8 eager=false settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=2 rejection=Some((3, Custom(27))) CU=140629 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=111777 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=2 rejection=Some((3, Custom(27))) CU=300905 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=272237 cap_per_instruction=325000
+cadence settlement: endpoint=8 eager=false settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=112097 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=114468 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=112167 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=98624 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=56264 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=113665 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=98623 cap_per_instruction=325000
+funding=0 endpoint=8 eager=false settle_counterparties=false: price=992800, liquidation=(30091902, 14938, 0, [4365062, 100000000, 9229964, 9229964, 1000], 1555010), payout=1000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=62702 cap_per_instruction=325000
+cadence publication: endpoint=8 eager=true slot=6 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58120 cap_per_instruction=325000
+cadence publication: endpoint=8 eager=true slot=7 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58293 cap_per_instruction=325000
+cadence publication: endpoint=8 eager=true slot=8 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58293 cap_per_instruction=325000
+cadence liquidation: endpoint=8 eager=true settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=2 rejection=Some((3, Custom(27))) CU=140629 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=111777 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=2 rejection=Some((3, Custom(27))) CU=300905 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=272237 cap_per_instruction=325000
+cadence settlement: endpoint=8 eager=true settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=112097 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=114468 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=112167 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=98624 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=56264 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=113665 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=98623 cap_per_instruction=325000
+funding=0 endpoint=8 eager=true settle_counterparties=false: price=992800, liquidation=(30091902, 14938, 0, [4365062, 100000000, 9229964, 9229964, 1000], 1555010), payout=1000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=62702 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=false slot=6 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58120 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=false slot=14 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=75436 cap_per_instruction=325000
+cadence liquidation: endpoint=14 eager=false settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=2 rejection=Some((3, Custom(27))) CU=140822 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=111969 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=2 rejection=Some((3, Custom(27))) CU=352337 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=323668 cap_per_instruction=325000
+cadence settlement: endpoint=14 eager=false settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=112291 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=114660 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=112360 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=98627 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=56242 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=113670 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=98625 cap_per_instruction=325000
+funding=0 endpoint=14 eager=false settle_counterparties=false: price=980000, liquidation=(37105756, 18182, 6060, [3081818, 100000000, 9229964, 9229964, 7060], 1552194), payout=7060
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=62702 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=true slot=6 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58120 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=true slot=7 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58293 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=true slot=8 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58293 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=true slot=9 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58293 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=true slot=10 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58293 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=true slot=11 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58293 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=true slot=12 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58293 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=true slot=13 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58293 cap_per_instruction=325000
+cadence publication: endpoint=14 eager=true slot=14 settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=58272 cap_per_instruction=325000
+cadence liquidation: endpoint=14 eager=true settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=2 rejection=Some((3, Custom(27))) CU=140822 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=111969 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=2 rejection=Some((3, Custom(27))) CU=352337 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=323668 cap_per_instruction=325000
+cadence settlement: endpoint=14 eager=true settle_counterparties=false
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=112291 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=114660 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=112360 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=98627 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=56242 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=113670 cap_per_instruction=325000
+DIAGNOSTIC funded=0 instructions=1 rejection=None CU=98625 cap_per_instruction=325000
+funding=0 endpoint=14 eager=true settle_counterparties=false: price=980000, liquidation=(37105756, 18182, 6060, [3081818, 100000000, 9229964, 9229964, 7060], 1552194), payout=7060
+paid-price cadence: liquidations=4, exact rollbacks=8, peak CU=352337
+ok
+test inv_045_no_free_mark_movement::trade_origin_catchup::authenticated_reward_handoff::report_cadence_rewards::v16_program_paid_rediscovery_revokes_prior_reward_authentication_until_recatchup ... rediscovery publish_first=false: [(992320, 12817640, 6360, 2119, [4325640, 100000000, 9229864, 9229864, 3119], 1544513), (989939, 18047030, 8933, 0, [4109125, 100768000, 7651842, 7713282, 3119], 4648050), (960000, 26919497, 12922, 4306, [2026360, 100768000, 7651842, 7713282, 7425], 4656666)], payout=7425, peak=349800 CU
+rediscovery publish_first=true: [(992320, 12817640, 6360, 2119, [4325640, 100000000, 9229864, 9229864, 3119], 1544513), (989939, 18047030, 8933, 0, [4109125, 100768000, 7651842, 7713282, 3119], 4648050), (960000, 26919497, 12922, 4306, [2026360, 100768000, 7651842, 7713282, 7425], 4656666)], payout=7425, peak=349800 CU
+ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 208 filtered out; finished in 31.54s
+

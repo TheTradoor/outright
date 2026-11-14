@@ -1,0 +1,40 @@
+
+running 17 tests
+test javascript_adapter_executes_init_deposit_open_reduce_close_and_withdraw ... Native SBF lifecycle CU: init=27874, deposit=38098, open=126785, reduce=138387, close=123274, withdraw=38986
+ok
+test javascript_cpi_enforces_price_limit_and_revoked_maker_consent ... ok
+test javascript_crank_preserves_fractional_funding_across_settlement_cadence ... funding premium=-1 step=12 slot=14: payer capital=99999998 pnl=0, receiver capital=100000000 pnl=1
+funding premium=-1 step=12 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+funding premium=-1 step=24 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+funding premium=1 step=12 slot=14: payer capital=99999998 pnl=0, receiver capital=100000000 pnl=1
+funding premium=1 step=12 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+funding premium=1 step=24 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+ok
+test javascript_failed_deposit_needs_a_new_blockhash_after_source_is_funded ... ok
+test javascript_instructions_reject_invalid_identity_authority_and_market_bindings ... ok
+test javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_once ... JS teardown: all primary portfolios removed, seven surplus atoms swept, vault closed, exact rent refund and persistent tombstone
+JS resolved receipt: keeper=false, initial=1250, topup=500, total=1750
+ok
+test keeper_oracle_failures_roll_back_market_portfolio_and_custody ... ok
+test keeper_planner_advances_authenticated_oracle_without_portfolio_owner_signature ... ok
+test keeper_planner_liquidates_unhealthy_positions_and_preserves_custody ... liquidation direction=-1 step=1 remaining=1000000 capital=5000000 pnl=0 insurance=0
+liquidation direction=-1 step=2 remaining=556451 capital=4312499 pnl=0 insurance=687501
+liquidation direction=1 step=1 remaining=1000000 capital=5000000 pnl=0 insurance=0
+liquidation direction=1 step=2 remaining=612068 capital=4437498 pnl=0 insurance=562502
+ok
+test keeper_resolved_planner_expires_backing_and_pays_owner_without_owner_signature ... JS teardown: all primary portfolios removed, seven surplus atoms swept, vault closed, exact rent refund and persistent tombstone
+JS resolved receipt: keeper=true, initial=1250, topup=500, total=1750
+ok
+test later_rejection_rolls_back_an_earlier_spl_transfer_and_sequence_update ... ok
+test recovery_obligation_survives_wallet_refresh_and_keeper_finalization_to_exact_payout ... JS Recovery continuation: direction=1, obligation cleaned, authenticated finalization, exactly 1000 atoms paid, rent returned to market
+JS Recovery continuation: direction=-1, obligation cleaned, authenticated finalization, exactly 1000 atoms paid, rent returned to market
+ok
+test wallet_planner_accounts_for_nonzero_fees_and_atomic_rejections ... ok
+test wallet_planner_creates_seeded_portfolio_and_withdrawal_token_account ... ok
+test wallet_planner_recovers_prefunded_addresses_with_atomic_allocation ... ok
+test wallet_planner_resolved_close_creates_ata_and_rolls_back_atomically ... ok
+test wallet_recovery_exit_forfeits_unbooked_gain_applies_loss_and_rejects_stale_consent ... JS Recovery exit: 50 atoms forfeited, 50 atoms charged, one-atom B budget; custody unchanged
+ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 102.17s
+

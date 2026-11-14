@@ -1,0 +1,27 @@
+Engine source matches a712af767eeb217876a3d3c50e3849b60ea54462.
++ set -euo pipefail
++++ dirname /workspace/scratch/31e010aaee78/pin-migration/protocol/svm/run.sh
+++ cd /workspace/scratch/31e010aaee78/pin-migration/protocol/svm/../..
+++ pwd
++ native_root=/workspace/scratch/31e010aaee78/pin-migration
++ upstream_checkout=/workspace/scratch/31e010aaee78/svm-provenance-fixture
+++ cd /workspace/scratch/31e010aaee78/svm-provenance-fixture
+++ pwd
++ upstream_checkout=/workspace/scratch/31e010aaee78/svm-provenance-fixture
++ expected_commit=357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
++ test_path=/workspace/scratch/31e010aaee78/svm-provenance-fixture/tests/outright_native_lifecycle.rs
++ node /workspace/scratch/31e010aaee78/pin-migration/protocol/check-source.mjs
+++ git -C /workspace/scratch/31e010aaee78/svm-provenance-fixture rev-parse HEAD
++ test 357157e6e14d1d10ce78a995d5d50bb3c1f2ae13 = 357157e6e14d1d10ce78a995d5d50bb3c1f2ae13
++ git -C /workspace/scratch/31e010aaee78/svm-provenance-fixture diff --quiet HEAD
+++ git -C /workspace/scratch/31e010aaee78/svm-provenance-fixture ls-files --others --exclude-standard -- src Cargo.toml Cargo.lock .cargo build.rs tests/fixtures/auth_matcher
++ test -z ''
++ test '!' -e /workspace/scratch/31e010aaee78/svm-provenance-fixture/tests/outright_native_lifecycle.rs
++ test -z ''
++ test -z ''
++ test -z ''
++ case "$(cargo build-sbf --version)" in
+++ cargo build-sbf --version
++ echo 'Use cargo-build-sbf 4.6.0 for this local fixture'
+Use cargo-build-sbf 4.6.0 for this local fixture
++ exit 1

@@ -20,7 +20,7 @@ it is not a promise that the application has no other bugs.
 Checked boxes mean the scoped row is complete. They do not imply completion of
 other rows or permission to accept public funds.
 
-## Recorded source baseline
+## Original client source baseline
 
 | Component | Exact identity |
 | --- | --- |
@@ -116,16 +116,152 @@ wallet or mainnet acceptance count. The preserved [before-fix failures](qualific
 | [x] | Native protocol | Source and Rust conformance, 471 native tests and terminal build passed | [Native run](https://github.com/TheTradoor/outright/actions/runs/43511981328) |
 | [x] | Application SBF integration | 17 passed, no failed, ignored or filtered tests | [SBF run](https://github.com/TheTradoor/outright/actions/runs/43511981234) |
 | [x] | Current-validator RPC lifecycle | Seven transactions; collateral starts and ends at 1,000,000,000 atoms, final portfolio capital zero | [Validator run](https://github.com/TheTradoor/outright/actions/runs/43511981276), [retained report](qualification/2026-11-14/validator-report.json) |
-| [ ] | Browser visual review of this revision | Unverified: browser CDP attachment timed out twice, and the native accessibility provider was unavailable | DOM tests and build checks passed; neither substitutes for visual or real-wallet acceptance |
+| [x] | Browser visual review of the corrected client | A fresh Chromium tab verified the terminal, retry state, home/docs navigation, checklist anchors and search; no desktop horizontal overflow | Website version 26; no physical wallet or phone acceptance is implied. The previous browser attachment failure was recovered. |
 
-## Upstream-wide failures: current investigation
+### PR #25 client and provenance verification
+
+[PR #25](https://github.com/TheTradoor/outright/pull/25) has source head
+`9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1`. Its five PR jobs checked out
+GitHub's merge commit `1a3f222b7452242481b9633e1fc1c4c8fd00abbf`, combining that
+head with base `c3e9246664e1dd2d21519681ff336a4539f52c4e`. All five jobs and the
+four duplicate push workflows succeeded. These application checks still use
+wrapper `357157e6e14d1d10ce78a995d5d50bb3c1f2ae13`; they do not establish that the
+candidate wrapper below passed its complete qualification gate.
+
+| Done | Check | Observed result | Evidence |
+| --- | --- | --- | --- |
+| [x] | Default engine | 371 passed; zero failed, ignored or filtered | [Engine run](https://github.com/TheTradoor/outright/actions/runs/43520469023), job `132213134856` |
+| [x] | Fuzz-feature engine | 439 passed; zero failed, ignored or filtered; overlaps the default suite | Same engine run, job `132213134483` |
+| [x] | Native protocol | 471 passed; zero failed, skipped or cancelled; source check, Rust exporter comparison and terminal build passed | [Native run](https://github.com/TheTradoor/outright/actions/runs/43520468868), job `132213133849` |
+| [x] | Application SBF integration | 17 passed; zero failed, ignored or filtered; 36.41 seconds | [SBF run](https://github.com/TheTradoor/outright/actions/runs/43520468869), job `132213133348` |
+| [x] | Current-validator RPC lifecycle | Seven client transactions; collateral remained 1,000,000,000 atoms, final trader portfolio capital zero, maker capital 10,000,000,000 atoms | [Validator run](https://github.com/TheTradoor/outright/actions/runs/43520468858), job `132213133291`; [retained report](qualification/2026-11-14-repairs/pr25-native-ci/validator-report.json) |
+
+The [CI evidence record](qualification/2026-11-14-repairs/pr25-native-ci/README.md)
+retains complete logs, source identities, job IDs, counts and hashes. Compiler
+warnings remain, including the SBF post-processing warning `Invalid syscall code 9`
+in the validator build; deployment and the recorded RPC lifecycle nevertheless
+completed. Passing checks are not a claim of warning-free builds.
+
+### Trader price availability follow-up
+
+At client revision `3372660fc4d76b47b6cdb1a12a239bce4dcb84f5` (tree
+`77f802229d2eba0c90d6cf57c4834078d9f9c383`), trade review now uses the same
+oracle-freshness predicate as transaction preparation. Expired observations,
+future-slot observations and zero effective prices disable review and show a
+refresh/wait message. A fresh snapshot restores review; deposit and exit policy
+remain unchanged. Three UI regressions failed before the correction. The
+[local before/after manifest](qualification/2026-11-14-repairs/freshness/terminal-freshness-manifest.json)
+records 165 passing targeted checks and the inclusive age-boundary control.
+Its preparation-stage status predates publication of the revision above.
+
+All four push workflows passed for that exact client revision: engine 371/439
+(overlapping suites), native client **477**, baseline-wrapper SBF **17**, and
+seven current-validator transactions. [Complete CI evidence](qualification/2026-11-14-repairs/freshness-native-ci/README.md).
+The current client also passed **17/17** integration cases against the patched
+SBF, with zero ignored or filtered tests and 102.17 seconds of test time.
+[Candidate result and hashes](qualification/2026-11-14-repairs/freshness/freshness-candidate-native.json).
+An initial isolated-worktree run lacked locked Node dependencies; that setup
+failure and the successful run after `npm ci` are retained separately.
+
+## Repair candidate: scope and evidence
+
+The complete reviewable change is [`qualification/program-repair.patch`](../qualification/program-repair.patch). It applies to upstream wrapper `357157e6e14d1d10ce78a995d5d50bb3c1f2ae13` and produces Git tree `8b54b827082b2b838beacd88d4d99bd12878d2ca`. Its SHA-256 is `031848cbccf8dd971ba3fc16b4c39db56093a24cbbc527aaf6e8182d71c061c6`. The Percolator engine stays at `a712af767eeb217876a3d3c50e3849b60ea54462`.
+
+Only eight added lines change production program behavior: Recovery assets may use their frozen committed state after oracle-profile validation. The remaining changes repair test fixtures and the independent model. Existing Live and DrainOnly oracle checks, engine accounting, ABI and original maximum-shape compute limits remain in place.
+
+| Done | Case | Cause and correction | Verified scope |
+| --- | --- | --- | --- |
+| [x] | CASE-01 through CASE-05 | Reward fixtures expected authenticated receipts while the effective price still carried trade-origin provenance. The positive cases now authenticate through a public crank; stale and paid-origin negative controls still require zero unauthorized rewards. | All five repaired tests plus four unchanged controls passed. [Results](qualification/2026-11-14-repairs/reward/reward-final-results.json). This is a fixture correction, not a new accounting implementation. |
+| [x] | CASE-06 | Different oracle-observation histories accrue different funding. Compare their exact independently calculated funding and retain strict equality for identical observation histories with different account-settlement timing. | Four module tests passed on both original and patched SBF. One-atom negative controls, custody, fees, payouts and exact rollback remain. [Manifest](qualification/2026-11-14-repairs/funding/funding-final350-manifest.json). |
+| [x] | CASE-07 | Fixture setup attempted health progress with a stale Live Hybrid leg. Establish valid setup and explicitly test stale rejection, rollback and successful current-slot authentication. | Complete INV-072 module: 11 passed. Live freshness was not relaxed. |
+| [x] | CASE-08 | A later-slot Recovery refresh was incorrectly required to supply a current Live oracle report even though Recovery settles frozen committed state. Add a Recovery-only exemption after profile validation. | The identical delayed-Recovery test fails on the old SBF and passes on the patch. Stale, malformed, foreign-owner, wrong-feed and omitted Live evidence remain guarded; custody and finite progress are checked. |
+| [x] | CASE-09 | The model incorrectly equated sums of rounded per-leg exposure with aggregate OI. Track exact signed rounding residue together with independent A/epoch history and canonical raw-position transitions. | Nine final checks passed against the original SBF, including default public-sequence fuzz. The combined-candidate run passed six host controls and the saved replay against the patched SBF; the separate public-sequence fuzz run was interrupted without a final result. No arbitrary tolerance. [Original-SBF manifest](qualification/2026-11-14-repairs/model/model-repair-manifest.json); [combined-candidate manifest](qualification/2026-11-14-repairs/model/model-combined-candidate-manifest.json). |
+| [x] | PROV-01 | Build qualification could omit ignored or untracked source/configuration; the client identity test did not compare the repository URL. | Both SVM and validator runners reject ordinary and ignored `.cargo/config.toml` inputs while allowing matcher `target/` outputs. A wrong Cargo repository URL is rejected. [Negative controls](qualification/2026-11-14-repairs/provenance/ignored-source-results.json) and the PR #25 native checks above passed. |
+| [x] | INT-01 | Verify the current application's JavaScript instructions against the repaired program. | 17 SBF integration tests passed, zero failed/ignored/filtered, 54.83 seconds. [Log](qualification/2026-11-14-repairs/candidate-native-final.log). |
+| [x] | CASE-10 | The first broad run exposed an INV048 source-contract assertion still expecting the old exact-sum diagnostic. Retain the 13 existing ownership entries, add the typed rounding-residue lifecycle witness and require all six behavioral controls. | Full INV048 changed from 2 passed / 1 failed to **3/3 passed**; the six unchanged arithmetic/mutation controls also passed. No model arithmetic or production source changed. [Final evidence](qualification/2026-11-14-repairs/source-contract/final/manifest.json); [original CI failure](qualification/2026-11-14-repairs/source-contract/before-ci-failure.log). |
+| [x] | PROV-02 | The first gate omitted three default integration targets/library and did not bind exported native results to client bytes. | Expanded to 37 shards with Cargo target inventory, protocol content identity, canonical harness/driver checks and host-executable hashes. **49** combined verifier checks passed locally; final workflow execution remains QUAL-01. [Local checks](qualification/2026-11-14-repairs/qualification-followup/integrated-local-checks.json). |
+| [ ] | QUAL-01 | Complete repaired-wrapper qualification across every configured default unit/integration target and native lifecycle. | The [current PR checks](https://github.com/TheTradoor/outright/pull/25/checks) require 37 complete shard reports and the final aggregate. The earlier 33-shard run exposed CASE-10 and is not a passing final gate. |
+| [ ] | ADOPT-01 | Publish the candidate program revision and migrate the application's source pin. | Fork created at [TheTradoor/outright-program](https://github.com/TheTradoor/outright-program), but GitHub integration writes return `403: Resource not accessible by integration`. The patch is retained in the existing Outright repository. Runtime pin remains the previously verified upstream revision. |
+
+The GitHub installation uses **selected repositories**. Its accessible repository
+inventory includes `TheTradoor/outright` but not the newly created
+`TheTradoor/outright-program`. The account owner can add that exact repository in
+[the existing installation settings](https://github.com/settings/installations/156871870).
+Repository creation and public read access do not grant the integration write access.
+
+A separate target inventory review identified three default integration targets
+and library tests outside the initial 33-shard manifest. Their unchanged tests
+all passed against the original combined candidate: realloc **7/7**, listing
+**8/8**, open-issue regressions **9/9**, library **8/8**. These **32 executions**
+include six shared model controls in each integration target; the newly covered
+target-local cases total six, plus eight library tests.
+[Exact inventories and results](qualification/2026-11-14-repairs/supplemental/summary.json)
+and [complete raw evidence](qualification/2026-11-14-repairs/supplemental/complete-evidence.tar.gz)
+are retained. The three open-issue tests are ordinary regressions, not expected
+failures; some use injected internal states and do not establish public attack
+reachability. The expanded gate requires **37 shards** and checks the Cargo
+target inventory so future default unit/integration targets cannot be silently
+omitted. Rustdoc and feature-gated Kani proofs remain explicitly separate.
+
+The combined candidate was also executed directly: all eight original CU failures plus the new delayed-Recovery regression passed **9/9** against the patched SBF and final combined source. [Exact results and hashes](qualification/2026-11-14-repairs/candidate-focused-results.json). This remains focused evidence.
+
+### Interrupted local runs and complete-gate status
+
+Two additional local runs did not emit a terminal result. They are recorded as
+**interrupted/incomplete**, without inferring either a passing suite or an assertion
+failure from the missing process session:
+
+| Run | Completed evidence | Remaining uncertainty |
+| --- | --- | --- |
+| Full INV-077 module on the patched SBF | Nine of 77 cases completed successfully; no failed case was recorded. [Interruption status](qualification/2026-11-14-repairs/oracle/inv077-interrupted-status.json) and [partial log](qualification/2026-11-14-repairs/oracle/after-inv077-module-interrupted.log). | One case started without a result; 67 were not started. No complete-module pass, duration or exit code is claimed. The separately completed targeted Recovery tests, compute controls and INV-072 11/11 remain valid. |
+| Combined-candidate model run | Six host math/mutation controls passed, and the retained scenario replay passed against the patched SBF. [Manifest and log hashes](qualification/2026-11-14-repairs/model/model-combined-candidate-manifest.json). | The unchanged default public-sequence fuzz run was interrupted after starting one test, without a completion result. Its passing original-SBF run is separate evidence. |
+
+The initial 33-shard [run 43520468937](https://github.com/TheTradoor/outright/actions/runs/43520468937)
+uses source `9a5d13b…` and original candidate tree
+`6621d5edd799f68ce0864f740ddc6da22e01c701`. CU14 completed 98 cases with
+97 passes and the one CASE-10 source-contract failure. Its other completed
+shards remain scoped preliminary evidence; no complete passing aggregate is
+claimed. The [initial build record](qualification/2026-11-14-repairs/ci-artifacts-43520468937.json)
+identifies wrapper SBF `527b000d…` and all three matcher artifacts. The final
+candidate adds only the test ownership correction to that source; the model,
+production program and engine code are unchanged. The final 37-shard gate
+requires its own matching source/artifact records and complete aggregate.
+
+### Current-validator candidate evidence
+
+[Candidate run 43523148675](https://github.com/TheTradoor/outright/actions/runs/43523148675)
+passed for PR #26 source `0c44c9bd9363939ed4fe73501ccd93ec5d475dbc`, tested merge
+`f056fb20b2928c446e0b67e806b8ad3996e79730` and tree
+`900fb80a9462e36b207d83bf113a8ad5de61f57a`. The repaired program built with
+platform-tools v1.58 / SBPF v3 and executed seven confirmed RPC transactions
+on Agave 4.4.1. Collateral started and ended at 1,000,000,000 atoms; trader
+capital ended at zero and maker capital remained 10,000,000,000 atoms.
+The oversized deposit was rejected, deployed bytes were checked before and
+after, and both test upgrade authorities were revoked. No deployment profile
+was exported. [Full evidence](qualification/2026-11-14-repairs/candidate-validator-ci/README.md).
+
+The current-validator wrapper SHA-256 is
+`1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e`.
+This is distinct from the legacy v0 hash below. The record applies to that
+exact preliminary source; the final integrated revision requires its own CI.
+It does not close physical-wallet, real-oracle, independent-review or mainnet
+enrollment requirements.
+
+### Compute evidence, including the changed test budget
+
+CASE-06 exposed a previously unreached funded liquidation path. The transaction **succeeded** under the existing 1,400,000-CU runtime budget, then failed a 325,000-CU host-test performance assertion. Four measured funded paths consumed 325,971–326,193 CU. The repair gives only this funded report-cadence fixture a named 350,000-CU per-instruction measured guard (700,000 for its two-instruction rollback bundle). The global and zero-funding guard remain 325,000, and the runtime budget remains 1,400,000. This is an explicitly documented benchmark-budget correction, not a production performance improvement.
+
+For the production Recovery correction, the strict all-Live maximum-shape refresh measured 949,929 → 949,971 CU. Its original 950,000-CU guard remains unchanged, leaving only 29 CU of margin. That small margin is retained as a release concern and must be rerun with every artifact/toolchain change. Delayed Recovery remains within the original 1,375,000-CU bound.
+
+The original local wrapper SBF hash is `51b159ed4e9bb79903c9406029f3ea079089ab5564204a3ce51a88af8d8744c2`; the patched local SBF hash is `527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180`. Both use platform-tools v1.52 and SBPF v0 for the legacy LiteSVM harness. These are distinct from the current-validator v1.58 / v3 release artifacts. The candidate has not been deployed to mainnet.
+
+## Original upstream failures and repair disposition
 
 The pinned wrapper's
 [commit report](https://github.com/aeyakovenko/percolator-prog/commit/357157e6e14d1d10ce78a995d5d50bb3c1f2ae13)
 records eight failures in `v16_cu` and one in
 `v16_program_stateful_fuzz`. All eight CU failures and the focused INV-086 stateful failure have now been
-directly reproduced against the rebuilt artifacts: **nine confirmed failures
-remain open**. The eight CU tests each exited with code 101 after an assertion
+directly reproduced against the rebuilt baseline artifacts. **All nine now have scoped repairs and passing targeted evidence**, as recorded below. The complete repaired-wrapper qualification gate remains separate and is not yet claimed green. The eight CU tests each exited with code 101 after an assertion
 or program error, without a compute-resource exhaustion failure. Full-suite
 qualification remains incomplete.
 
@@ -137,14 +273,14 @@ suite passes.
 
 | Done | ID | Gate | Status | Reported baseline | Evidence needed to close |
 | --- | --- | --- | --- | --- | --- |
-| [ ] | UP-CU | Full `v16_cu` gate | Reproduced / open; full target environment blocked | All eight CU failures reproduced in the focused harness. Current full-target compilation was killed twice by SIGKILL before assertions ran. | Repair the observed failures and run the complete target in a suitable environment. Focused execution cannot be presented as a full-gate pass. |
-| [ ] | UP-STATE | Full `v16_program_stateful_fuzz` gate | Reproduced / open | The focused INV-086 case failed with an effective-exposure imbalance. The full 336-test run is still in progress. | Explain and repair the divergence, retain the exact scenario, and rerun focused and full gates. |
+| [ ] | UP-CU | Full `v16_cu` gate | Candidate gate pending | Eight baseline failures reproduced and repaired in focused checks. The original monolithic compilation was killed twice by SIGKILL; the later 77-case local INV-077 module was interrupted after nine completed cases. | Complete the CU shards and exact-coverage aggregate in the [final PR checks](https://github.com/TheTradoor/outright/pull/25/checks). |
+| [ ] | UP-STATE | Full `v16_program_stateful_fuzz` gate | Candidate gate pending | The original full run was interrupted after 50 passing results. The model correction has scoped passing evidence, but the later combined-candidate public-sequence fuzz run also lacks a terminal result. | Complete the stateful shards and exact-coverage aggregate in the final 37-shard gate. |
 | [x] | UP-REG | Full `v16_program_fuzz_regressions` gate | Verified passing | **148 passed**, zero failed, ignored or filtered; 501.17 seconds, exit 0. | [Complete run log](qualification/2026-11-14/regressions.log). This does not close the nine failures in the other gates. |
-| [ ] | UP-MAP | Reconcile test failures with invariant metadata | Exact failure inventory mapped; causes unresolved | Eight exact CU failures and one stateful failure are confirmed below; ten counterexample IDs remain a separate inventory. | Complete the cause-level mapping and distinguish policy conflicts, harness faults and production defects. |
+| [x] | UP-MAP | Reconcile the nine test failures with their causes | Completed for the nine observed tests | Seven fixture corrections, one independent-model correction and one production Recovery guard correction are distinguished above. Ten upstream counterexample IDs remain a separate inventory. | No claim is made that the nine tests discharge every upstream finding. |
 
 ### Confirmed failing-test inventory
 
-All nine rows below are **Reproduced / open**. The focused CU harness registers
+The following table preserves the **original failing baseline**, not the status of the repair candidate. The focused baseline CU harness registers
 211 cases; eight selected cases were run individually with the original
 assertions retained and each failed with exit code 101. These are targeted
 reproductions, not a run of all 211 cases or the full CU gate. The
@@ -170,7 +306,7 @@ The error labels above are corrected against the pinned wrapper enum: code
 misnamed code 22. The raw transaction logs are unchanged. These two cases fail
 the same-slot authenticated-observation progress guard.
 
-The observed groups are five reward-policy/accounting failures, one
+The original observed groups are five reward-policy/accounting failures, one
 cadence-equivalence failure, two stale-oracle policy conflicts, and one
 exposure-invariant failure. These groups describe the failing checks; they do
 not establish that all failures have independent production causes. The
@@ -199,22 +335,22 @@ rounding residue and preserve the actual accounting invariants. Adding a
 one-atom tolerance without proving that the exposure/accounting invariant is
 preserved would hide the failure rather than repair it.
 
-### Current reproduction record
+### Preserved baseline reproduction record
 
-| Field | Current run |
+| Field | Preserved baseline observation |
 | --- | --- |
-| Wrapper revision | `357157e6e14d1d10ce78a995d5d50bb3c1f2ae13`; no production wrapper fix is claimed in this checklist. |
+| Wrapper revision | `357157e6e14d1d10ce78a995d5d50bb3c1f2ae13`; this original baseline did not include the candidate Recovery correction. |
 | Engine revision | `a712af767eeb217876a3d3c50e3849b60ea54462`, using locked dependencies. |
 | External matcher revision | `60aac3a996d0264c47fbefe9a2625d6ee6fb6a47` |
 | Toolchain | Rust 1.95.0 host; cargo-build-sbf 4.6.0; explicitly selected platform-tools v1.52 and SBPF v0. |
 | Program and matcher builds | Wrapper, authenticated matcher, hostile matcher and external matcher builds all completed. Build logs record warnings; successful build does not mean warning-free output. |
 | Full CU compilation | Two attempts were killed by signal 9: ordinary debug build, then a single-job attempt with `-C debuginfo=0 -C codegen-units=256`. This is an environment/resource termination, not an observed assertion failure. |
 | Focused CU harness | Compiled with unchanged original assertion sources; 211 registered cases, eight selected executions, eight observed failures with exit code 101. This is not full-suite qualification. |
-| Focused stateful result | INV-086 failed as recorded above; cause unresolved. |
+| Focused stateful result | INV-086 failed as recorded above; subsequent model reconciliation is documented separately in CASE-09. |
 | Full stateful result | Not completed in this evidence record; the focused failure is confirmed separately. |
 | Full regression result | 148 passed, zero failed/ignored/filtered; 501.17 seconds, exit 0. |
 | Corrective commit for current client fixes | `6966fbf55689e09a4ff928fec2805958095c13de`; local final native run passed 471 tests. |
-| Corrective commit for upstream-wide failures | None claimed. |
+| Corrective commit for upstream-wide failures | None was applied to this baseline. The later candidate is identified above by its upstream base, patch digest and resulting tree. |
 
 Focused harness provenance: original harness SHA-256
 `105a5bf1734ac36ac68fab23f0a429c4f192c9e9ea97567b75d0708378ef5f1a`;
@@ -250,7 +386,7 @@ or weakening an invariant does not count as repairing the underlying behavior.
 
 | Done | ID | Requirement | Status | Completion evidence |
 | --- | --- | --- | --- | --- |
-| [ ] | QUAL-01 | Full current-wrapper qualification after repairs | Unverified | Exact source/artifact report, all failing cases addressed, applicable complete suites rerun, no unresolved production-impacting findings. |
+| [ ] | QUAL-01 | Full current-wrapper qualification after repairs | Aggregate pending | [Final PR checks](https://github.com/TheTradoor/outright/pull/25/checks): require all 37 shard reports, exact registered/executed coverage, matching source/artifact identities and a passing aggregate. The initial 33-shard source-contract failure and interrupted local runs do not satisfy this gate. |
 | [ ] | QUAL-02 | Broader risk scenarios | Unverified | Live Hybrid funding, mark-movement/backing fees, broader insolvency stress, payout-halt repair and additional teardown configurations exercised with exact accounting and rollback checks. |
 | [ ] | WAL-02 | Real desktop wallet acceptance | Unverified | Supported wallet/version/browser through connect, approve/reject, account/network changes, signing, interruption and receipt recovery. |
 | [ ] | WAL-03 | Physical iPhone/mobile wallet acceptance | Unverified | Actual supported mobile wallet browser, responsive layout and complete transaction/recovery path; DOM fixtures cannot close this row. |

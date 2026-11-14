@@ -1,0 +1,84 @@
+{
+  "sourceHead": "9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1",
+  "sourceBase": "c3e9246664e1dd2d21519681ff336a4539f52c4e",
+  "engineCommit": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "wrapperCommit": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "testedMergeCommit": "1a3f222b7452242481b9633e1fc1c4c8fd00abbf",
+  "scope": "Existing Outright client and unchanged pinned wrapper. Does not qualify the candidate wrapper patch.",
+  "countsAreNotDisjoint": true,
+  "results": {
+    "engine-default": {
+      "status": "passed",
+      "counts": {
+        "passed": 371,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      },
+      "testGroups": 20
+    },
+    "engine-fuzz": {
+      "status": "passed",
+      "counts": {
+        "passed": 439,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      },
+      "testGroups": 23
+    },
+    "native-protocol": {
+      "status": "passed",
+      "counts": {
+        "tests": 471,
+        "pass": 471,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "sourceCheck": "passed",
+      "rustExporterComparison": "passed",
+      "terminalBuild": "passed"
+    },
+    "native-validator": {
+      "status": "passed",
+      "actions": 7,
+      "beforeTokenAtoms": "1000000000",
+      "afterTokenAtoms": "1000000000",
+      "finalPortfolioCapital": "0",
+      "makerCapital": "10000000000",
+      "report": "validator-report.json",
+      "at": "2026-11-13T22:39:36.336Z"
+    },
+    "native-svm": {
+      "status": "passed",
+      "counts": {
+        "passed": 17,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      },
+      "durationSeconds": 36.41,
+      "runId": 43520468869,
+      "jobId": 132213133348
+    }
+  },
+  "warnings": [
+    "Rust unused/dead-code warnings remain in upstream engine builds.",
+    "Current-validator SBF post-processing logs \"Invalid syscall code 9\"; the built programs deployed and the RPC lifecycle passed.",
+    "Engine default/fuzz counts overlap; do not sum them into a unique test count."
+  ],
+  "logHashes": {
+    "engine-default.log": "2628e67a529551d089b4686e3a4121cab7a5b40c654b07188380fd8591654db5",
+    "engine-fuzz.log": "d54bdef3f1fcdff7171e8f8e2dd8157d8fed7a42ce84b5365d13521e93545bc1",
+    "native-protocol.log": "a3d90b0b7069a0ae3b866c377c29ca2ea1298f0364fcff09f62b421656fea794",
+    "native-svm.log": "31c3a88c997df17ad1d25211d4801a202ef4e8ed8a3d3f3085953fa973e4d251",
+    "native-validator.log": "78489a81c8b3245b960b7852c5d1052e38eff3a5d87d4b0331114f8a0f2b51c0"
+  },
+  "allRequestedPrJobsSucceeded": true,
+  "allPushDuplicatesSucceeded": true
+}

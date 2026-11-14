@@ -1,0 +1,267 @@
+diff --git a/tests/invariants/cu/inv_072_order_robust_crankability.rs b/tests/invariants/cu/inv_072_order_robust_crankability.rs
+index 21dd0366..291852b5 100644
+--- a/tests/invariants/cu/inv_072_order_robust_crankability.rs
++++ b/tests/invariants/cu/inv_072_order_robust_crankability.rs
+@@ -887,8 +887,9 @@ fn v16_program_budgeted_out_of_order_crank_refreshes_without_unearned_reward() {
+     );
+ }
+ 
+-// user's economics, aggregate engine state, or custody.
+-
++// A first-asset report is dispensable only after its authenticated observation has
++// already been committed in this slot. An unrelated asset's progress cannot make
++// an old Hybrid observation current, and caller-supplied stale tails must roll back.
+ #[test]
+ fn v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle() {
+     const MARK: u64 = 1_000_000;
+@@ -918,50 +919,43 @@ fn v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle() {
+ 
+     let owner_a = Keypair::new();
+     let owner_b = Keypair::new();
++    let observer_owner = Keypair::new();
+     let account_a = env.create_portfolio(&owner_a);
+     let account_b = env.create_portfolio(&owner_b);
+-    env.deposit(&owner_a, account_a, 10_000_000);
+-    env.deposit(&owner_b, account_b, 10_000_000);
+-    env.trade_asset_with_cu(
+-        0,
+-        &owner_a,
+-        account_a,
+-        &owner_b,
+-        account_b,
+-        POS_SCALE as i128,
+-        MARK,
+-        0,
+-    );
+-    env.trade_asset_with_cu(
+-        1,
+-        &owner_a,
+-        account_a,
+-        &owner_b,
+-        account_b,
+-        POS_SCALE as i128,
+-        MARK,
+-        0,
+-    );
++    let observer = env.create_portfolio(&observer_owner);
++    let token_a = env.deposit(&owner_a, account_a, 10_000_000);
++    let token_b = env.deposit(&owner_b, account_b, 10_000_000);
++    for asset_index in [0, 1] {
++        env.trade_asset_with_cu(
++            asset_index,
++            &owner_a,
++            account_a,
++            &owner_b,
++            account_b,
++            POS_SCALE as i128,
++            MARK,
++            0,
++        );
++    }
+     let a_before_update = env.portfolio_state(account_a);
+     assert!(
+         health_cert(&a_before_update).valid,
+         "setup starts from a current multi-asset account"
+     );
+-    assert_eq!(
+-        active_leg_for_asset(&a_before_update, 0).asset_index,
+-        0,
+-        "asset 0 is active"
+-    );
+-    assert_eq!(
+-        active_leg_for_asset(&a_before_update, 1).asset_index,
+-        1,
+-        "asset 1 is active"
+-    );
++    for asset_index in [0, 1] {
++        assert_eq!(
++            active_leg_for_asset(&a_before_update, asset_index).asset_index,
++            asset_index as u32,
++            "both price-taking legs are active"
++        );
++    }
+ 
+     set_test_clock(&mut env, REFRESH_SLOT, 200);
+     env.push_auth_mark_for_asset_as_admin(1, REFRESH_SLOT, MARK + 10_000);
++    // A flat observer may advance the selected asset without certifying either
++    // two-leg trader from a previous-slot Hybrid observation.
+     env.crank(
+-        account_b,
++        observer,
+         ProgInstruction::PermissionlessCrank {
+             now_slot: REFRESH_SLOT,
+             observations: crank_observations(1),
+@@ -973,48 +967,144 @@ fn v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle() {
+             < group_after_asset1.oracle_epoch,
+         "asset-1 progress makes account A stale"
+     );
++    let current0 = env.set_pyth_price_with_conf(&stale_feed0, MARK as i64, -6, 0, 200);
++    // All protocol, provider and token accounts are framed. The network fee
++    // payer is excluded; transaction rejection still charges its signature fee.
++    let tracked = [
++        env.market, account_a, account_b, observer, env.vault, env.mint, token_a, token_b,
++        initial0, current0,
++    ];
++    let before = tracked.map(|key| env.svm.get_account(&key).unwrap());
++    for (observations, tail, expected, label) in [
++        (
++            vec![],
++            vec![],
++            PercolatorError::EngineNonProgress,
++            "omitting the active Hybrid leg before its current-slot report",
++        ),
++        (
++            crank_observations_with_accounts(0, 1),
++            vec![AccountMeta::new_readonly(initial0, false)],
++            PercolatorError::OracleStale,
++            "supplying a stale first-asset report",
++        ),
++    ] {
++        let mut accounts = vec![
++            AccountMeta::new(env.payer.pubkey(), true),
++            AccountMeta::new(env.market, false),
++            AccountMeta::new(account_a, false),
++        ];
++        accounts.extend(tail);
++        env.svm.expire_blockhash();
++        let error = env
++            .send(
++                ProgInstruction::PermissionlessCrank {
++                    now_slot: REFRESH_SLOT,
++                    observations,
++                },
++                accounts,
++                &[],
++            )
++            .expect_err(label);
++        assert!(
++            error.contains(&format!("InstructionError(2, Custom({}))", expected as u32)),
++            "{label}: {error}"
++        );
++        assert_eq!(
++            tracked.map(|key| env.svm.get_account(&key).unwrap()),
++            before,
++            "{label}: exact account and custody rollback"
++        );
++    }
+ 
+-    env.svm.expire_blockhash();
+-    let stale_asset0_attempt = env.send(
++    // Authenticate asset 0 at the same price through a public bounded crank.
++    // The selected account is still stale; only market evidence is advanced.
++    let observer_cu = env.crank_with_oracle_tail(
++        observer,
+         ProgInstruction::PermissionlessCrank {
+             now_slot: REFRESH_SLOT,
+             observations: crank_observations_with_accounts(0, 1),
+         },
+-        vec![
+-            AccountMeta::new(env.payer.pubkey(), true),
+-            AccountMeta::new(env.market, false),
+-            AccountMeta::new(account_a, false),
+-            AccountMeta::new_readonly(initial0, false),
+-        ],
+-        &[],
++        &[current0],
++    );
++    assert_cu_within(
++        "authenticate unchanged first-asset price",
++        observer_cu,
++        CRANK_CU_LIMIT,
+     );
++    let market_before_refresh = env.svm.get_account(&env.market).unwrap();
++    let profile0 = state::read_asset_oracle_profile(&market_before_refresh.data, 0).unwrap();
++    assert_eq!(profile0.last_good_oracle_slot, REFRESH_SLOT);
+     assert!(
+-        stale_asset0_attempt.is_err(),
+-        "asset-0 oracle is stale; the refresh must not depend on it"
++        health_cert(&env.portfolio_state(account_a)).cert_oracle_epoch
++            < env.market_state().1.oracle_epoch
+     );
++    let peer_before = env.svm.get_account(&account_b).unwrap();
++    let custody = [env.vault, env.mint, token_a, token_b, initial0, current0];
++    let custody_before = custody.map(|key| env.svm.get_account(&key).unwrap());
++    let group_before_refresh = env.market_state().1;
+ 
+     env.svm.expire_blockhash();
+-    let refresh = env.send(
+-        ProgInstruction::PermissionlessCrank {
+-            now_slot: REFRESH_SLOT,
+-            observations: vec![],
+-        },
+-        vec![
+-            AccountMeta::new(env.payer.pubkey(), true),
+-            AccountMeta::new(env.market, false),
+-            AccountMeta::new(account_a, false),
+-        ],
+-        &[],
++    let refresh_cu = env
++        .send(
++            ProgInstruction::PermissionlessCrank {
++                now_slot: REFRESH_SLOT,
++                observations: vec![],
++            },
++            vec![
++                AccountMeta::new(env.payer.pubkey(), true),
++                AccountMeta::new(env.market, false),
++                AccountMeta::new(account_a, false),
++            ],
++            &[],
++        )
++        .expect(
++            "already-current authenticated market evidence needs no duplicate first-asset tail",
++        );
++    assert_cu_within(
++        "no-tail refresh after current first-asset evidence",
++        refresh_cu,
++        CRANK_CU_LIMIT,
+     );
+-    assert!(
+-        refresh.is_ok(),
+-        "account refresh should use already-current market state, not require an unneeded first-asset oracle: {refresh:?}"
++    let refreshed = env.portfolio_state(account_a);
++    let group_after_refresh = env.market_state().1;
++    assert!(health_cert(&refreshed).valid);
++    assert_eq!(
++        health_cert(&refreshed).cert_oracle_epoch,
++        group_after_refresh.oracle_epoch
+     );
+-    assert!(
+-        health_cert(&env.portfolio_state(account_a)).cert_oracle_epoch
+-            >= env.market_state().1.oracle_epoch,
+-        "refresh makes the stale account current"
++    assert_eq!(
++        health_cert(&refreshed).cert_funding_epoch,
++        group_after_refresh.funding_epoch
++    );
++    assert_eq!(
++        health_cert(&refreshed).cert_risk_epoch,
++        group_after_refresh.risk_epoch
++    );
++    for asset_index in [0, 1] {
++        assert_eq!(
++            active_leg_for_asset(&refreshed, asset_index).basis_pos_q,
++            active_leg_for_asset(&a_before_update, asset_index).basis_pos_q,
++            "refresh does not reduce either position"
++        );
++        assert_eq!(
++            (
++                group_after_refresh.assets[asset_index].oi_eff_long_q,
++                group_after_refresh.assets[asset_index].oi_eff_short_q
++            ),
++            (
++                group_before_refresh.assets[asset_index].oi_eff_long_q,
++                group_before_refresh.assets[asset_index].oi_eff_short_q
++            ),
++            "refresh does not change aggregate open interest"
++        );
++    }
++    assert_eq!(env.svm.get_account(&account_b).unwrap(), peer_before);
++    assert_eq!(
++        custody.map(|key| env.svm.get_account(&key).unwrap()),
++        custody_before
+     );
++    eprintln!("INV-072 current-evidence then no-tail refresh CU: authenticate={observer_cu}, refresh={refresh_cu}");
+ }
+ 
+ // repeatedly landing no-observation refreshes first.

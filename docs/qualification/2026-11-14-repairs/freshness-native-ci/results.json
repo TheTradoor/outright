@@ -1,0 +1,92 @@
+{
+  "sourceHead": "3372660fc4d76b47b6cdb1a12a239bce4dcb84f5",
+  "sourceTree": "77f802229d2eba0c90d6cf57c4834078d9f9c383",
+  "sourceBranch": "fix/terminal-freshness",
+  "engineCommit": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "wrapperCommit": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "scope": "Freshness client changes against the unchanged pinned wrapper; separate from candidate-wrapper qualification.",
+  "countsAreNotDisjoint": true,
+  "results": {
+    "engine-default": {
+      "status": "passed",
+      "counts": {
+        "passed": 371,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      },
+      "testGroups": 20
+    },
+    "engine-fuzz": {
+      "status": "passed",
+      "counts": {
+        "passed": 439,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      },
+      "testGroups": 23
+    },
+    "native-protocol": {
+      "status": "passed",
+      "counts": {
+        "tests": 477,
+        "pass": 477,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "sourceCheck": "passed",
+      "rustExporterComparison": "passed",
+      "terminalBuild": "passed"
+    },
+    "native-svm": {
+      "status": "passed",
+      "counts": {
+        "passed": 17,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      },
+      "durationSeconds": 36.51,
+      "runId": 43523301002,
+      "jobId": 132222694207
+    },
+    "native-validator": {
+      "status": "passed",
+      "actions": 7,
+      "beforeTokenAtoms": "1000000000",
+      "afterTokenAtoms": "1000000000",
+      "finalPortfolioCapital": "0",
+      "makerCapital": "10000000000",
+      "report": "validator-report.json",
+      "at": "2026-11-13T23:00:53.038Z",
+      "runId": 43523300920,
+      "jobId": 132222694277
+    }
+  },
+  "checkedOutCommits": {
+    "engine-fuzz.log": "3372660fc4d76b47b6cdb1a12a239bce4dcb84f5",
+    "native-protocol.log": "3372660fc4d76b47b6cdb1a12a239bce4dcb84f5",
+    "engine-default.log": "3372660fc4d76b47b6cdb1a12a239bce4dcb84f5",
+    "native-validator.log": "3372660fc4d76b47b6cdb1a12a239bce4dcb84f5",
+    "native-svm.log": "3372660fc4d76b47b6cdb1a12a239bce4dcb84f5"
+  },
+  "logHashes": {
+    "engine-default.log": "a4bd3f5783829b468389fa39690662bb9e545d90e906a59d42a1f6eeb3416592",
+    "engine-fuzz.log": "b57e78443637b4486d3cdbec38cea0bef86188f4de27916b12aea42231c95dbf",
+    "native-protocol.log": "ae8090d9af1500ac752a093d2e9c3659451f981cfd8174c7d234aa4757262045",
+    "native-svm.log": "b3b7de71a85e2fab1c2a84840c62b575439264c6c29f6e30eee8c162a3bb5cde",
+    "native-validator.log": "bb85017a997f2a90f92b9bf3f9a2ad99387cfb2af7c8477b728c03e8cc7f0d67"
+  },
+  "warnings": [
+    "Upstream Rust unused/dead-code diagnostics remain.",
+    "Current-validator SBF post-processing logs \"Invalid syscall code 9\"; built programs deployed and the recorded RPC lifecycle passed.",
+    "Engine default/fuzz test counts overlap."
+  ],
+  "allRequestedPushJobsSucceeded": true
+}

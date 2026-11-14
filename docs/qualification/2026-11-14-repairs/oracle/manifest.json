@@ -1,0 +1,195 @@
+{
+  "status": "Scoped repair validation complete; broad INV077 module interrupted/incomplete after 9 completed cases, with no terminal summary.",
+  "base_wrapper_commit": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "engine_commit": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "production_change": {
+    "file": "src/v16_program.rs",
+    "function": "reject_incomplete_asset_health_observation_view",
+    "change": "After existing asset bounds and oracle-profile validation, exempt exactly engine-encoded lifecycle 5 (Recovery) from Live observation freshness requirements. All other lifecycle paths are unchanged.",
+    "rationale": "Asset Recovery settles already-committed K/F/B against frozen price/funding state. The observation loop already ignores external oracle tails for Recovery and preserves its frozen observation, so requiring a same-slot external report strands delayed committed-state work.",
+    "basis": [
+      "engine spec.md lines 926-933",
+      "wrapper observation loop src/v16_program.rs:14131-14149",
+      "engine lifecycle encode/decode src/v16.rs:23021-23043"
+    ],
+    "review": "Independent read-only agent inv077_fixture confirmed exact-Recovery exemption after profile validation, unchanged Active/DrainOnly requirements, and no withdrawal/trade bypass. It separately identified and reviewed the one-slot market-catch-up boundary used in the omission regression."
+  },
+  "changed_files": {
+    "src/v16_program.rs": "2bca67be3e548f0244bf989a2dbe51fc8d7f8b6ff1db1546a8efba4498a4ebb0",
+    "tests/invariants/cu/inv_072_order_robust_crankability.rs": "b5a38d229d3ea53471be15a876db9898e1e0fffed55342185a720be4eefaf751",
+    "tests/invariants/cu/inv_077_bounded_work_and_maximum_shape_compute.rs": "ba78772fc603989368eac29c6d8cd7a9c71a1767bd6decd23875299c6a8b10c0"
+  },
+  "artifacts": {
+    "before_sbf": {
+      "path": "/workspace/scratch/31e010aaee78/oracle-repair-before.so",
+      "sha256": "51b159ed4e9bb79903c9406029f3ea079089ab5564204a3ce51a88af8d8744c2"
+    },
+    "after_sbf": {
+      "path": "/workspace/scratch/31e010aaee78/oracle-repair-after.so",
+      "sha256": "527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180"
+    },
+    "host_binary": {
+      "path": "/workspace/scratch/31e010aaee78/oracle-repair/target/debug/deps/outright_qualification_cu-ab011dbb6bf54ffe",
+      "sha256": "b8e41329dbdd760d0bb002375a6584962b1949e53d5cf1a4614c89785aaea11c"
+    },
+    "focused_harness_sha256": "efdc138f84e61a6b4cd956b3beb00aba7f8bc3d8e79d3d60ca58e8df192b2f37"
+  },
+  "build_commands": {
+    "sbf": "PATH=/home/agent/.cargo/bin:$PATH cargo build-sbf --tools-version v1.52 --arch v0 -- --locked",
+    "host": "PATH=/home/agent/.cargo/bin:$PATH CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 flock /workspace/scratch/31e010aaee78/qualification-compile.lock cargo +1.95.0 rustc --locked --test outright_qualification_cu -- -C debuginfo=0 -C codegen-units=256",
+    "run": "target/debug/deps/outright_qualification_cu-ab011dbb6bf54ffe <test-or-module-filter> --nocapture --test-threads=1",
+    "cwd": "/workspace/scratch/31e010aaee78/oracle-repair",
+    "program_resolution": "PERCOLATOR_FUZZ_SBF and CARGO_TARGET_DIR unset; harness reads its compiled CARGO_MANIFEST_DIR/target/deploy/percolator_prog.so.",
+    "explicit_before_program_override": "PERCOLATOR_FUZZ_SBF=/workspace/scratch/31e010aaee78/oracle-repair-before.so"
+  },
+  "original_failures": [
+    {
+      "test": "v16_program_auto_crank_refresh_not_blocked_by_unneeded_first_asset_oracle",
+      "error": "InstructionError(2, Custom(22)) = EngineNonProgress",
+      "cu": 45319,
+      "log": "original-inv072.log",
+      "classification": "Stale Hybrid fixture conflicted with required current-slot evidence. Production freshness guard preserved."
+    },
+    {
+      "test": "v16_attack_public_recovery_kf_progress_survives_stale_42_feed_tail_at_max_shape",
+      "error": "InstructionError(2, Custom(22)) = EngineNonProgress",
+      "cu": 108190,
+      "log": "original-inv077.log",
+      "classification": "Setup attempted account refresh with current evidence for only one of fourteen required Hybrid legs. Fixture corrected with public flat-observer staging and exact rejection controls."
+    }
+  ],
+  "same_final_test_source_before_after": [
+    {
+      "test": "delayed asset Recovery, one slot after freeze",
+      "before": "FAIL, exact EngineNonProgress 22 at 255,818 CU despite fresh evidence for all thirteen Live legs",
+      "after": "PASS: two market-only catch-up calls with one omitted Live hint, then three complete fresh-Live continuation calls ending in committed Recovery K/F progress; peak 995,684 CU",
+      "before_log": "before-delayed-final-source.log",
+      "after_log": "after-delayed.log"
+    },
+    {
+      "test": "same-slot asset Recovery",
+      "before": "PASS: one omitted-hint catch-up, then two complete fresh-Live continuation calls ending in committed Recovery K/F progress; peak 995,739 CU",
+      "after": "PASS: one omitted-hint catch-up, then two complete fresh-Live continuation calls ending in committed Recovery K/F progress; peak 995,684 CU",
+      "before_log": "before-same-slot-final-source.log",
+      "after_log": "after-same-slot.log"
+    },
+    {
+      "test": "INV072 current evidence then no-tail refresh",
+      "before": "PASS: authentication 32,729 CU, refresh 130,380 CU",
+      "after": "PASS: authentication 32,729 CU, refresh 130,435 CU",
+      "before_log": "before-inv072-final-source.log",
+      "after_log": "after-inv072.log"
+    }
+  ],
+  "negative_controls": [
+    "INV072: missing current Hybrid evidence -> exact EngineNonProgress 22; expired evidence -> exact OracleStale 27; complete protocol/custody/provider Account rollback.",
+    "INV077, each independent same-slot and delayed world: original single-fresh-leg incomplete evidence -> exact 22; expired complete tail -> exact27, with full relevant rollback.",
+    "INV077 Live asset 12, after assets 0-11 have consumed valid inputs: expired report ->27, wrong feed ID ->29, unsupported owner ->IllegalOwner, truncated report ->InvalidAccountData. All 21 tracked protocol/custody/provider Accounts roll back exactly.",
+    "INV077 omitted Live asset 12: only bounded market-slot catch-up may succeed; all portfolio/custody/provider Accounts and omitted/frozen assets and oracle profiles remain exact. Once supplied legs would reach the execution slot, exact 22 and full rollback are required. Restore the missing authenticated fresh hint for the positive continuation."
+  ],
+  "positive_invariants": [
+    "Recovery frozen raw/effective price, slot, K/F indexes and entire oracle profile unchanged.",
+    "Committed Recovery K/F cohort decrements exactly once and leg epoch catches up; active bitmap unchanged.",
+    "Every required Live Hybrid profile ends at authenticated current slot and unchanged effective price 100.",
+    "Provider accounts unchanged; full vault/mint Accounts and engine/SPL custody totals unchanged.",
+    "Every accepted bounded catch-up/progress step mutates allowed state; combined progress remains within original 46-call finite bound and unchanged 1,375,000 CU ceiling."
+  ],
+  "completed_regressions": [
+    {
+      "module": "INV072",
+      "passed": 11,
+      "failed": 0,
+      "seconds": 59.06,
+      "log": "after-inv072-module.log"
+    },
+    {
+      "test": "all-Live 14-leg 42-reference refresh",
+      "cu": 949971,
+      "limit": 950000,
+      "log": "after-live-950k.log",
+      "before_cu": 949929,
+      "before_log": "before-live-950k.log",
+      "cu_increase": 42,
+      "remaining_margin": 29
+    },
+    {
+      "test": "full 14-leg refresh",
+      "cu": 151350,
+      "log": "after-refresh-14.log"
+    },
+    {
+      "test": "full 14-leg liquidation",
+      "cu": 1213495,
+      "log": "after-liquidation-14.log"
+    },
+    {
+      "test": "full 14-leg composite liquidation",
+      "cu": 1301820,
+      "log": "after-composite-liquidation.log"
+    }
+  ],
+  "pending_validation": [],
+  "limitations": [
+    "Local synthetic SBF/LiteSVM evidence only; no mainnet transactions or deployment.",
+    "This is not whole-project or independent-security qualification.",
+    "All-Live 950,000 CU bound is unchanged and has only 29 CU margin on this exact compiler/artifact.",
+    "No commit/push performed; original shared repository and SBF remain unchanged.",
+    "The local full 77-case INV077 run was interrupted: only 9 completed cases are recorded; no 77-case pass, total duration, or exit status is claimed."
+  ],
+  "evidence_sha256": {
+    "after-composite-liquidation.log": "57d0fe4d62161ba04e5dde50b4925e63b995fd1983ba0cae2ee9bff5e101edd9",
+    "after-delayed.log": "6f14d1facfb8806375d94e2a4fe21e6699e3ae325946f357e622627a62c17e04",
+    "after-inv072-module.log": "46ede5c7c269cd367920579b2f718e3b4a7a22c9402ffd544da39926ae488f76",
+    "after-inv072.log": "043b73a49fee5352de0c70c7f750ce4fbf17cfce3d87c5acd3d67f56abce1e81",
+    "after-inv077-module-interrupted.log": "4cd0c8c3eb47f417b5c079791de2af2f29562b38723e6087f8ca3a22b959bceb",
+    "after-liquidation-14.log": "54e0111de4b5a4314dd0d7c77980e41eb619f3449198c22e81b67e802c6526b7",
+    "after-live-950k.log": "4eaee04647a6207a0708a8357e540da82989b292a32145852a22298350b6a24d",
+    "after-refresh-14.log": "99b2d9519d8b87445e9601df96710fa065de4aaada1b1f5ed7ee72a19f6e6960",
+    "after-same-slot.log": "bc538fc77ea0ee160e14b1a0c65ba393517481f034e74cacb497268dddbe67c2",
+    "before-delayed-final-source.log": "bc2f783d5e4dcb83234b289048a3f674f772d845606c699eec5a2139d0526452",
+    "before-inv072-final-source.log": "631d4acfa4142e04dc7a0bc241485f8647fc1b4394283e13014e56c61a3b87f5",
+    "before-live-950k.log": "3a9570719b333a1d1bc7082f354821a8ea10728e942878276f57df611785e6df",
+    "before-same-slot-final-source.log": "0b0613e7c11266397dd9d2ad8293e54955d2d6851a06b271537de32ebfe78c28",
+    "host-build.log": "7c109c4b2001889830d77c43eaf124c1af719af47993c3ef5ed04f46b5df5457",
+    "inv072-fixture-only.patch": "6a712d2542c970da8a8fe983d040a66ac5de948a59249f7a8032c4c4a8d9b4f8",
+    "inv077-interrupted-status.json": "ebbf7572b7fc49e7c04e7a1a387cb3a088dba60dd557c082b384d761bde62525",
+    "oracle-repair-complete.patch": "d476f64d1690c294276b997b634b005c51767b729aabf3911abce950611e3122",
+    "original-inv072.log": "5921d323f3ac9a116c39736f525d3b74d49bb802f3b40551a3d09988404c7a8a",
+    "original-inv077.log": "9a12b7fc3260d7cd67fe0b0c0e52ce335ca2c27cc8a860d5b22baf08807a2ecb",
+    "recovery-production-and-inv077.patch": "a20cb13a0d74de0b0f48c8a34ab71a96856c1515b32c3cf2122dcfd4914cc56e",
+    "reproduce-focused-cu-harness.py": "be95e6bb7aec56be7c6255e4b897a2e9745a378aaae570a56455d8eed6b058ae",
+    "sbf-build.log": "0dec62fd8a5f57e6d0733a21c00ddcd4a01745f910e7bbb1ab2914a3ad22745b"
+  },
+  "incomplete_validation": [
+    {
+      "status": "interrupted/incomplete",
+      "reason": "Local unified-exec session 48501 is unavailable: write_stdin returned Unknown process id 48501. The captured test log has no terminal module summary.",
+      "recorded_at_utc": "2026-11-13T22:45:08.332283+00:00",
+      "planned_cases": 77,
+      "completed_ok_cases": 9,
+      "observed_failed_cases": 0,
+      "started_without_result": [
+        "inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_max_market_dense_backing_expiry_has_bounded_terminal_progress"
+      ],
+      "not_started_cases": 67,
+      "completed_cases": [
+        "inv_077_bounded_work_and_maximum_shape_compute::native_insurance_exit::v16_program_native_insurance_partial_redemption_reaches_bounded_terminal_exit",
+        "inv_077_bounded_work_and_maximum_shape_compute::native_insurance_exit::v16_program_native_multisig_insurance_recreation_preserves_unsigned_retirement",
+        "inv_077_bounded_work_and_maximum_shape_compute::public_native_insurance_capacity::v16_program_public_max_market_native_partial_insurance_ledgers_complete_in_both_orders",
+        "inv_077_bounded_work_and_maximum_shape_compute::retired_sibling_recovery::v16_program_max_market_retired_siblings_preserve_oversized_force_close_and_owner_exit",
+        "inv_077_bounded_work_and_maximum_shape_compute::secondary_quote_completion::v16_program_secondary_quote_repair_after_expiry_has_atomic_bounded_disposition",
+        "inv_077_bounded_work_and_maximum_shape_compute::short_side_b_budget::v16_program_max_shape_short_b_budget_has_exact_public_progress",
+        "inv_077_bounded_work_and_maximum_shape_compute::terminal_destination_variants::v16_program_terminal_sweep_preserves_destination_authorities_and_exact_disposal",
+        "inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_dual_quote_provider_expiry_has_bounded_terminal_disposition",
+        "inv_077_bounded_work_and_maximum_shape_compute::terminal_quote_variants::v16_program_freezable_quote_terminal_retry_preserves_retirement_and_rent"
+      ],
+      "duration_seconds": null,
+      "exit_code": null,
+      "duration_note": "No terminal result was emitted, so no completed-suite duration or exit status is claimed.",
+      "log": "after-inv077-module-interrupted.log",
+      "log_sha256": "4cd0c8c3eb47f417b5c079791de2af2f29562b38723e6087f8ca3a22b959bceb",
+      "restart": "No automatic broad restart; root reports complete source-shard GitHub CI 43520468937 running separately.",
+      "targeted_evidence": "The separately completed delayed/same-slot Recovery tests, four compute controls, and full INV072 11/11 are unaffected."
+    }
+  ]
+}

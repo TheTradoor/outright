@@ -1,0 +1,8 @@
+
+running 3 tests
+test inv_048_matched_trade_and_open_interest_coherence::v16_program_all_trade_routes_keep_oi_equal_to_active_leg_scan ... ok
+test inv_048_matched_trade_and_open_interest_coherence::v16_program_position_mutation_composition_is_source_complete ... ok
+test inv_048_matched_trade_and_open_interest_coherence::v16_program_typed_matched_book_obligation_oracle_is_source_complete ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 60 filtered out; finished in 4.55s
+
