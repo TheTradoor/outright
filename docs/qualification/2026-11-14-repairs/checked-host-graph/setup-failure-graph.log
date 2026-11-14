@@ -1,0 +1,39 @@
+
+running 1 test
+test inv_086_reference_model_and_deployed_transition_equivalence::v16_program_bounded_reference_graph_exhausts_public_action_words ... 
+thread '<unnamed>' (3469) panicked at tests/support/v16_svm.rs:605:43:
+read production percolator SBF artifact: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread '<unnamed>' (3471) panicked at tests/support/v16_svm.rs:605:43:
+read production percolator SBF artifact: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+thread '<unnamed>' (3474) panicked at tests/support/v16_svm.rs:605:43:
+read production percolator SBF artifact: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+thread '<unnamed>' (3473) panicked at tests/support/v16_svm.rs:605:43:
+read production percolator SBF artifact: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+thread '<unnamed>' (3476) panicked at tests/support/v16_svm.rs:605:43:
+read production percolator SBF artifact: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+thread '<unnamed>' (3470) panicked at tests/support/v16_svm.rs:605:43:
+read production percolator SBF artifact: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+thread '<unnamed>' (3472) panicked at tests/support/v16_svm.rs:605:43:
+read production percolator SBF artifact: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+thread '<unnamed>' (3475) panicked at tests/support/v16_svm.rs:605:43:
+read production percolator SBF artifact: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+
+thread 'inv_086_reference_model_and_deployed_transition_equivalence::v16_program_bounded_reference_graph_exhausts_public_action_words' (3468) panicked at tests/support/fuzz_model.rs:18162:9:
+a scoped thread panicked
+FAILED
+
+failures:
+
+failures:
+    inv_086_reference_model_and_deployed_transition_equivalence::v16_program_bounded_reference_graph_exhausts_public_action_words
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 342 filtered out; finished in 0.18s
+

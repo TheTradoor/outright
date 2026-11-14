@@ -53,8 +53,12 @@ old unoptimized host cache.
 The first complete 37-shard run, `43526782149`, recorded a timeout in
 `v16_program_bounded_reference_graph_exhausts_public_action_words` after exactly
 1,800 seconds. Its graph replays 11,727 action words and 44,330 transitions. That
-execution remains a failure; optimization must pass the same original assertions
-and the full aggregate before qualification is complete.
+execution remains a failed historical attempt. The checked-host follow-up
+[run 43563227621](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md)
+passed the same graph in 457.375 seconds and completed all 37 shards, 2,120
+executions and the aggregate at source `9191c881…`. Exact coverage and identities
+were independently reverified. This finite source-specific result does not
+substitute for production or physical-wallet acceptance.
 
 The library and three additional integration targets
 each have their own shard, for thirty-seven jobs total. At most twelve matrix jobs run concurrently. Host

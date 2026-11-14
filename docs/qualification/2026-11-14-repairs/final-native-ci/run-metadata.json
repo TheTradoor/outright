@@ -1,0 +1,428 @@
+{
+  "sourceHead": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+  "sourceTree": "e63c1049c06b0f1ca3a62dde3ec65a6e1c85efff",
+  "testedMergeCommit": "07e88e6d6cf5c0af5c1b736bd0976aa6e9c91de3",
+  "sourceBase": "c3e9246664e1dd2d21519681ff336a4539f52c4e",
+  "engineCommit": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "wrapperCommit": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "runs": [
+    {
+      "id": 43526783773,
+      "name": "Engine tests",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+      "head_branch": "fix/program-qualification",
+      "created_at": "2026-11-13T23:23:42Z",
+      "updated_at": "2026-11-13T23:24:29Z",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43526783773",
+      "jobs": [
+        {
+          "id": 132234396587,
+          "name": "Engine (default)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43526783773,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Check out source",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Install pinned Rust toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run default tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run property and reference-model tests",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 5
+            },
+            {
+              "name": "Post Check out source",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        },
+        {
+          "id": 132234396972,
+          "name": "Engine (fuzz)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43526783773,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Check out source",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Install pinned Rust toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run default tests",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 4
+            },
+            {
+              "name": "Run property and reference-model tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Check out source",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 43526781978,
+      "name": "Native SVM",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+      "head_branch": "fix/program-qualification",
+      "created_at": "2026-11-13T23:23:41Z",
+      "updated_at": "2026-11-13T23:29:31Z",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43526781978",
+      "jobs": [
+        {
+          "id": 132234390957,
+          "name": "lifecycle",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43526781978,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Check out source and engine baseline",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Node.js",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Install the pinned host and SBF toolchains",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install locked client dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch the pinned wrapper",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Execute client instructions against the SBF program",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Set up Node.js",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Check out source and engine baseline",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 43526782095,
+      "name": "Native protocol",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+      "head_branch": "fix/program-qualification",
+      "created_at": "2026-11-13T23:23:41Z",
+      "updated_at": "2026-11-13T23:25:13Z",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43526782095",
+      "jobs": [
+        {
+          "id": 132234392998,
+          "name": "contract",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43526782095,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Check out source and engine baseline",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Node.js",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Install pinned Rust toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install locked client dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Check source, Rust conformance, and client regressions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Build the wallet terminal",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Set up Node.js",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Check out source and engine baseline",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 43526782038,
+      "name": "Native validator",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+      "head_branch": "fix/program-qualification",
+      "created_at": "2026-11-13T23:23:41Z",
+      "updated_at": "2026-11-13T23:28:03Z",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43526782038",
+      "jobs": [
+        {
+          "id": 132234391027,
+          "name": "lifecycle",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 43526782038,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Check out source and engine baseline",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up Node.js",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Install pinned SBF builder and current validator",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Install locked client dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Fetch pinned wrapper",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Bootstrap market and execute both trade directions through RPC",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Show validator diagnostics on failure",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Post Set up Node.js",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Check out source and engine baseline",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "pushRuns": [
+    {
+      "id": 43526776744,
+      "name": "Native protocol",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43526776744",
+      "updated_at": "2026-11-13T23:25:09Z"
+    },
+    {
+      "id": 43526776695,
+      "name": "Native SVM",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43526776695",
+      "updated_at": "2026-11-13T23:31:39Z"
+    },
+    {
+      "id": 43526776669,
+      "name": "Engine tests",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43526776669",
+      "updated_at": "2026-11-13T23:24:35Z"
+    },
+    {
+      "id": 43526776784,
+      "name": "Native validator",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43526776784",
+      "updated_at": "2026-11-13T23:28:03Z"
+    }
+  ]
+}

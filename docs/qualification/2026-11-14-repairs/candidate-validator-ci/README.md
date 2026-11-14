@@ -29,7 +29,9 @@ after execution. Source identity was checked before and after execution.
 
 Artifact 14083468332, ZIP SHA-256 (verified against GitHub metadata):
 `6cd797c898a5dbdcd718ad83b07b519f52cd80dcd9704bc82de1d9a0df05ad24`.
-The complete ZIP, selected extracted reports/build logs, complete job log and metadata are retained here. The larger `validator.log` remains inside the ZIP; extract it before checking that member against `sha256.json`.
+The complete ZIP, selected extracted reports/build logs, complete job log and metadata are retained here. The larger `validator.log` remains inside the ZIP; extract it to `artifact/validator.log` before checking that member against `sha256.json`. Its retained historical SHA-256 is `1967b91aea874f4f39166fe391764c330a0789ab213aa268168598c90ed22db2`.
+The README checksum was refreshed when this explanatory documentation changed;
+all original log, artifact and source hashes remain unchanged.
 Compiler warnings remain visible in the raw build/job logs.
 
 This is preliminary evidence for the exact PR #26 source. It does not cover a

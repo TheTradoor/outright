@@ -20,6 +20,61 @@ it is not a promise that the application has no other bugs.
 Checked boxes mean the scoped row is complete. They do not imply completion of
 other rows or permission to accept public funds.
 
+## Integrated baseline evidence and current qualification
+
+The earlier integrated baseline is `f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c`, tree
+`e63c1049c06b0f1ca3a62dde3ec65a6e1c85efff`. PR #25 checks executed GitHub's merge
+`07e88e6d6cf5c0af5c1b736bd0976aa6e9c91de3`. The runtime wrapper pin remains
+`357157e6e14d1d10ce78a995d5d50bb3c1f2ae13`; the repaired candidate is tested as the
+separately identified base-plus-patch source below.
+
+The checked-host follow-up at `9191c8819ad683a7d8ffa49f831df5d90b99adb1`, tested
+merge `43ee48081321b5607de58c991ca5c5ae3af7a024`, passed the complete **37-shard,
+2,120-execution wrapper gate**, including its aggregate. The five separate
+engine/native workflows also passed. [Complete retained evidence](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md)
+binds this result to its exact source and artifacts; later client changes require
+their own affected release checks. Earlier rows below retain their original
+source-specific evidence.
+
+| Done | Current check | Result | Evidence and limit |
+| --- | --- | --- | --- |
+| [x] | Default and fuzz-feature engine | 371 and 439 passed; zero failed, ignored or filtered | [Engine run](https://github.com/TheTradoor/outright/actions/runs/43526783773), jobs `132234396587` / `132234396972`; the two suites overlap. |
+| [x] | Native client, source identity and Rust conformance | 477 passed; zero failed, skipped or cancelled; terminal build passed | [Native run](https://github.com/TheTradoor/outright/actions/runs/43526782095), job `132234392998`. |
+| [x] | Baseline-wrapper application SBF integration | 17 passed; zero failed, ignored or filtered; 27.45 seconds | [SBF run](https://github.com/TheTradoor/outright/actions/runs/43526781978), job `132234390957`. |
+| [x] | Repaired-candidate application integration, SBPF v0 | 17 passed; zero failed, ignored or filtered | [Freshness candidate result](qualification/2026-11-14-repairs/freshness/freshness-candidate-native.json). Recorded at source `3372660…` against the original candidate; all 61 protocol files match the final source, whose extra ownership-test correction does not change production binary bytes. This earlier run is not relabeled as a final-head run. |
+| [x] | Baseline-wrapper current-validator lifecycle | Seven RPC transactions passed; collateral 1,000,000,000 atoms before and after; final trader capital zero; maker capital 10,000,000,000 atoms | [Validator run](https://github.com/TheTradoor/outright/actions/runs/43526782038), job `132234391027`; [report](qualification/2026-11-14-repairs/final-native-ci/validator-report.json). |
+| [x] | Repaired-candidate current-validator lifecycle | Seven confirmed RPC transactions passed on platform-tools v1.58 / SBPF v3 / Agave 4.4.1; 25.765 seconds; the same exact balance reconciliation | [Candidate run](https://github.com/TheTradoor/outright/actions/runs/43526782070), job `132234392500`; [full source and artifact evidence](qualification/2026-11-14-repairs/candidate-validator-final-ci/README.md). Synthetic fixed-price market only. |
+| [x] | Website version 28 deployment and shipping checks | Deployment succeeded; 17 routes, 750 local links/assets, four mechanics tests and 477 client tests passed; all 61 protocol files match the final source | [Shipping record](qualification/2026-11-14-repairs/site-v28.json). Archive has 55 entries with no unexpected dependency, Git, keypair or environment paths. Hosted deployment profile remains `null`. |
+| [x] | Fresh desktop browser onboarding | Passed on the unchanged version-28 client | [Browser record](qualification/2026-11-14-repairs/browser-2026-11-14.json): terminal navigation, unavailable state, retry and operator separation verified. This does not cover a configured market or physical wallet. |
+| [ ] | Physical-wallet acceptance | Not completed | Desktop extension and iPhone wallet connection/signing/recovery remain open. |
+| [x] | Checked-host exhaustive graph, supplemental | Passed in 540.362 seconds; original 1,800-second limit and all 11,727 action words retained | [Complete local graph evidence](qualification/2026-11-14-repairs/checked-host-graph/README.md). Debug assertions and overflow checks enabled; deployed SBF artifacts unchanged. This one-test result does not close the 37-shard aggregate. |
+| [x] | Complete 37-shard wrapper qualification | 2,120 passed, zero failed; aggregate passed | [Complete checked-host run](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md), source `9191c881…`, tested merge `43ee4808…`. All reports, exact execution coverage and source/artifact identities independently verified. The graph passed in 457.375 seconds with its original 1,800-second limit. The earlier timeout remains historical evidence. |
+| [ ] | Live market and mainnet | Not implemented or enabled | The client accepts only localnet/devnet profiles; mainnet enrollment, wallet-chain/signing, explorer handling and fresh acceptance checks remain open under PROD-06. The hosted deployment profile remains `null`. |
+| [ ] | Fork publication and runtime-pin adoption | Blocked by GitHub integration write access (`403`) | Installation [156871870](https://github.com/settings/installations/156871870) has selected-repository access that omits `TheTradoor/outright-program`. Add that repository to the installation before publishing the candidate and migrating the pin; see ADOPT-01 below. |
+
+All five final native PR jobs and all four duplicate push workflows passed.
+[Complete native CI logs and hashes](qualification/2026-11-14-repairs/final-native-ci/README.md)
+retain the exact source and checkout identities. The candidate-validator source
+identity independently matches the final source, protocol bytes, runner, manifest
+and patch. Neither result substitutes for the complete wrapper aggregate.
+Existing compiler warnings, including `Invalid syscall code 9` during SBF
+post-processing, remain visible in the raw logs; actual deployment and the scoped
+RPC lifecycles succeeded.
+
+A bounded independent review of the freshness correction found no actionable
+issue within its reviewed scope. This review is not counted as additional tests
+or proof that unreviewed behavior is correct.
+
+Website version 28 uses source `aee5ba3fc4fb55aabaab415c758ef0201c653830` and
+successfully deployed at `2026-11-13T23:33:01.912572Z`. The released archive hash is
+`0679f999fce51181f7ce0efc7d1f1384c29cd240b081b42acdd37a835fa85910`. This publishes
+the client and documentation while keeping mainnet deposits disabled. Fork
+write access and runtime source-pin migration remain open under ADOPT-01.
+
+The sections below preserve earlier snapshots and the original failures. Their
+counts and source identities are historical evidence, not replacements for the
+final-source results above.
+
 ## Original client source baseline
 
 | Component | Exact identity |
@@ -107,7 +162,7 @@ failures, skips or cancellations**, with engine source verification and Rust
 conformance. This count includes test harness parents and is not a physical
 wallet or mainnet acceptance count. The preserved [before-fix failures](qualification/2026-11-14/wallet-before.log) and [after-fix passing run](qualification/2026-11-14/wallet-after.log) provide the adapter regression comparison. All ten GitHub push/PR checks passed for the exact client revision before [PR #22](https://github.com/TheTradoor/outright/pull/22) merged as `77691cb3084ca9f8f0190aafd934fb6c4518f625`. The merge tree equals the tested tree.
 
-### CI for the current client correction
+### Historical CI for the PR #22 client correction
 
 | Done | Check | Result | Evidence |
 | --- | --- | --- | --- |
@@ -118,10 +173,10 @@ wallet or mainnet acceptance count. The preserved [before-fix failures](qualific
 | [x] | Current-validator RPC lifecycle | Seven transactions; collateral starts and ends at 1,000,000,000 atoms, final portfolio capital zero | [Validator run](https://github.com/TheTradoor/outright/actions/runs/43511981276), [retained report](qualification/2026-11-14/validator-report.json) |
 | [x] | Browser visual review of the corrected client | A fresh Chromium tab verified the terminal, retry state, home/docs navigation, checklist anchors and search; no desktop horizontal overflow | Website version 26; no physical wallet or phone acceptance is implied. The previous browser attachment failure was recovered. |
 
-### PR #25 client and provenance verification
+### Earlier PR #25 snapshot: client and provenance verification
 
-[PR #25](https://github.com/TheTradoor/outright/pull/25) has source head
-`9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1`. Its five PR jobs checked out
+At the earlier [PR #25](https://github.com/TheTradoor/outright/pull/25) source head
+`9a5d13b27ab77a1a927e0f41d15bc6f6da6606d1`, its five PR jobs checked out
 GitHub's merge commit `1a3f222b7452242481b9633e1fc1c4c8fd00abbf`, combining that
 head with base `c3e9246664e1dd2d21519681ff336a4539f52c4e`. All five jobs and the
 four duplicate push workflows succeeded. These application checks still use
@@ -177,10 +232,11 @@ Only eight added lines change production program behavior: Recovery assets may u
 | [x] | CASE-08 | A later-slot Recovery refresh was incorrectly required to supply a current Live oracle report even though Recovery settles frozen committed state. Add a Recovery-only exemption after profile validation. | The identical delayed-Recovery test fails on the old SBF and passes on the patch. Stale, malformed, foreign-owner, wrong-feed and omitted Live evidence remain guarded; custody and finite progress are checked. |
 | [x] | CASE-09 | The model incorrectly equated sums of rounded per-leg exposure with aggregate OI. Track exact signed rounding residue together with independent A/epoch history and canonical raw-position transitions. | Nine final checks passed against the original SBF, including default public-sequence fuzz. The combined-candidate run passed six host controls and the saved replay against the patched SBF; the separate public-sequence fuzz run was interrupted without a final result. No arbitrary tolerance. [Original-SBF manifest](qualification/2026-11-14-repairs/model/model-repair-manifest.json); [combined-candidate manifest](qualification/2026-11-14-repairs/model/model-combined-candidate-manifest.json). |
 | [x] | PROV-01 | Build qualification could omit ignored or untracked source/configuration; the client identity test did not compare the repository URL. | Both SVM and validator runners reject ordinary and ignored `.cargo/config.toml` inputs while allowing matcher `target/` outputs. A wrong Cargo repository URL is rejected. [Negative controls](qualification/2026-11-14-repairs/provenance/ignored-source-results.json) and the PR #25 native checks above passed. |
-| [x] | INT-01 | Verify the current application's JavaScript instructions against the repaired program. | 17 SBF integration tests passed, zero failed/ignored/filtered, 54.83 seconds. [Log](qualification/2026-11-14-repairs/candidate-native-final.log). |
+| [x] | INT-01 | Verify the initial application snapshot's JavaScript instructions against the repaired program. | Historical candidate check: 17 SBF integration tests passed, zero failed/ignored/filtered, 54.83 seconds. [Log](qualification/2026-11-14-repairs/candidate-native-final.log). Later freshness and final integrated checks are recorded separately. |
+| [x] | INT-02 | Execute the repaired candidate with the final integrated client on a current validator. | Exact source `f6fd6e0…`, tested merge `07e88e6d…`: seven successful confirmed RPC transactions, exact token/capital reconciliation, immutable test programs and before/after source/binary verification. [Final candidate-validator evidence](qualification/2026-11-14-repairs/candidate-validator-final-ci/README.md). This scoped local lifecycle does not close the complete wrapper gate. |
 | [x] | CASE-10 | The first broad run exposed an INV048 source-contract assertion still expecting the old exact-sum diagnostic. Retain the 13 existing ownership entries, add the typed rounding-residue lifecycle witness and require all six behavioral controls. | Full INV048 changed from 2 passed / 1 failed to **3/3 passed**; the six unchanged arithmetic/mutation controls also passed. No model arithmetic or production source changed. [Final evidence](qualification/2026-11-14-repairs/source-contract/final/manifest.json); [original CI failure](qualification/2026-11-14-repairs/source-contract/before-ci-failure.log). |
 | [x] | PROV-02 | The first gate omitted three default integration targets/library and did not bind exported native results to client bytes. | Expanded to 37 shards with Cargo target inventory, protocol content identity, canonical harness/driver checks and host-executable hashes. **49** combined verifier checks passed locally; final workflow execution remains QUAL-01. [Local checks](qualification/2026-11-14-repairs/qualification-followup/integrated-local-checks.json). |
-| [ ] | QUAL-01 | Complete repaired-wrapper qualification across every configured default unit/integration target and native lifecycle. | The [current PR checks](https://github.com/TheTradoor/outright/pull/25/checks) require 37 complete shard reports and the final aggregate. The earlier 33-shard run exposed CASE-10 and is not a passing final gate. |
+| [ ] | QUAL-01 | Complete repaired-wrapper qualification across every configured default unit/integration target and native lifecycle. | [Final run 43526782149](https://github.com/TheTradoor/outright/actions/runs/43526782149) requires 37 complete shard reports and a passing exact-coverage aggregate. Its [final-result placeholder](qualification/2026-11-14-repairs/final-qualification-status.json) remains pending. The earlier 33-shard run exposed CASE-10 and is not a passing final gate. |
 | [ ] | ADOPT-01 | Publish the candidate program revision and migrate the application's source pin. | Fork created at [TheTradoor/outright-program](https://github.com/TheTradoor/outright-program), but GitHub integration writes return `403: Resource not accessible by integration`. The patch is retained in the existing Outright repository. Runtime pin remains the previously verified upstream revision. |
 
 The GitHub installation uses **selected repositories**. Its accessible repository
@@ -217,17 +273,21 @@ failure from the missing process session:
 | Combined-candidate model run | Six host math/mutation controls passed, and the retained scenario replay passed against the patched SBF. [Manifest and log hashes](qualification/2026-11-14-repairs/model/model-combined-candidate-manifest.json). | The unchanged default public-sequence fuzz run was interrupted after starting one test, without a completion result. Its passing original-SBF run is separate evidence. |
 
 The initial 33-shard [run 43520468937](https://github.com/TheTradoor/outright/actions/runs/43520468937)
-uses source `9a5d13b…` and original candidate tree
+used source `9a5d13b…` and original candidate tree
 `6621d5edd799f68ce0864f740ddc6da22e01c701`. CU14 completed 98 cases with
-97 passes and the one CASE-10 source-contract failure. Its other completed
-shards remain scoped preliminary evidence; no complete passing aggregate is
-claimed. The [initial build record](qualification/2026-11-14-repairs/ci-artifacts-43520468937.json)
+97 passes and the one CASE-10 source-contract failure. The frozen run is
+**cancelled and superseded**, with **2,038 recorded passing executions, one
+failure and four incomplete shards**; its aggregate job failed. The
+[retained archive and index](qualification/2026-11-14-repairs/superseded-run-43520468937/README.md)
+preserve all 34 original artifact ZIPs, 35 complete job logs and root metadata.
+Completed cases remain scoped preliminary evidence, not a full passing gate.
+The [initial build record](qualification/2026-11-14-repairs/ci-artifacts-43520468937.json)
 identifies wrapper SBF `527b000d…` and all three matcher artifacts. The final
 candidate adds only the test ownership correction to that source; the model,
 production program and engine code are unchanged. The final 37-shard gate
 requires its own matching source/artifact records and complete aggregate.
 
-### Current-validator candidate evidence
+### Preliminary current-validator candidate evidence
 
 [Candidate run 43523148675](https://github.com/TheTradoor/outright/actions/runs/43523148675)
 passed for PR #26 source `0c44c9bd9363939ed4fe73501ccd93ec5d475dbc`, tested merge
@@ -242,8 +302,12 @@ was exported. [Full evidence](qualification/2026-11-14-repairs/candidate-validat
 
 The current-validator wrapper SHA-256 is
 `1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e`.
-This is distinct from the legacy v0 hash below. The record applies to that
-exact preliminary source; the final integrated revision requires its own CI.
+This is distinct from the legacy v0 hash below. This historical record applies
+to that exact preliminary source. The final integrated revision now has its own
+passing [candidate-validator run](https://github.com/TheTradoor/outright/actions/runs/43526782070)
+and [retained evidence](qualification/2026-11-14-repairs/candidate-validator-final-ci/README.md).
+Its raw wrapper and matcher hashes match the preliminary artifacts; the final
+test-ownership correction changed no production binary bytes.
 It does not close physical-wallet, real-oracle, independent-review or mainnet
 enrollment requirements.
 
@@ -261,9 +325,8 @@ The pinned wrapper's
 [commit report](https://github.com/aeyakovenko/percolator-prog/commit/357157e6e14d1d10ce78a995d5d50bb3c1f2ae13)
 records eight failures in `v16_cu` and one in
 `v16_program_stateful_fuzz`. All eight CU failures and the focused INV-086 stateful failure have now been
-directly reproduced against the rebuilt baseline artifacts. **All nine now have scoped repairs and passing targeted evidence**, as recorded below. The complete repaired-wrapper qualification gate remains separate and is not yet claimed green. The eight CU tests each exited with code 101 after an assertion
-or program error, without a compute-resource exhaustion failure. Full-suite
-qualification remains incomplete.
+directly reproduced against the rebuilt baseline artifacts. **All nine have scoped repairs and passing targeted evidence**, as recorded below. The complete repaired-wrapper gate subsequently passed at source `9191c881…`; its [2,120-execution evidence](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md) is separate from the original failures. The eight original CU tests each exited with code 101 after an assertion
+or program error, without a compute-resource exhaustion failure.
 
 Upstream metadata lists ten counterexample identifiers. That is a different
 inventory from nine failing tests: one finding can affect multiple tests, and
@@ -273,9 +336,9 @@ suite passes.
 
 | Done | ID | Gate | Status | Reported baseline | Evidence needed to close |
 | --- | --- | --- | --- | --- | --- |
-| [ ] | UP-CU | Full `v16_cu` gate | Candidate gate pending | Eight baseline failures reproduced and repaired in focused checks. The original monolithic compilation was killed twice by SIGKILL; the later 77-case local INV-077 module was interrupted after nine completed cases. | Complete the CU shards and exact-coverage aggregate in the [final PR checks](https://github.com/TheTradoor/outright/pull/25/checks). |
-| [ ] | UP-STATE | Full `v16_program_stateful_fuzz` gate | Candidate gate pending | The original full run was interrupted after 50 passing results. The model correction has scoped passing evidence, but the later combined-candidate public-sequence fuzz run also lacks a terminal result. | Complete the stateful shards and exact-coverage aggregate in the final 37-shard gate. |
-| [x] | UP-REG | Full `v16_program_fuzz_regressions` gate | Verified passing | **148 passed**, zero failed, ignored or filtered; 501.17 seconds, exit 0. | [Complete run log](qualification/2026-11-14/regressions.log). This does not close the nine failures in the other gates. |
+| [x] | UP-CU | Full `v16_cu` target | Verified passing for source `9191c881…` | All 16 shards: 1,574 passed, exact coverage verified. The earlier local interruptions remain historical. | [Complete checked-host run](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md). |
+| [x] | UP-STATE | Full `v16_program_stateful_fuzz` gate | Verified passing for source `9191c881…` | All 12 shards: 343 passed, zero failed. The bounded graph passed in 457.375 seconds without reducing its coverage or deadline. | [Complete checked-host run](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md); the [earlier timeout](qualification/2026-11-14-repairs/host-timeout-run-43526782149/README.md) remains retained. |
+| [x] | UP-REG | Full `v16_program_fuzz_regressions` gate | Verified passing for source `9191c881…` | All four shards: **154 passed**, zero failed, exact coverage verified. | [Complete checked-host run](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md). The earlier 148-case source retains its separate [run log](qualification/2026-11-14/regressions.log). |
 | [x] | UP-MAP | Reconcile the nine test failures with their causes | Completed for the nine observed tests | Seven fixture corrections, one independent-model correction and one production Recovery guard correction are distinguished above. Ten upstream counterexample IDs remain a separate inventory. | No claim is made that the nine tests discharge every upstream finding. |
 
 ### Confirmed failing-test inventory
@@ -386,10 +449,10 @@ or weakening an invariant does not count as repairing the underlying behavior.
 
 | Done | ID | Requirement | Status | Completion evidence |
 | --- | --- | --- | --- | --- |
-| [ ] | QUAL-01 | Full current-wrapper qualification after repairs | Aggregate pending | [Final PR checks](https://github.com/TheTradoor/outright/pull/25/checks): require all 37 shard reports, exact registered/executed coverage, matching source/artifact identities and a passing aggregate. The initial 33-shard source-contract failure and interrupted local runs do not satisfy this gate. |
+| [x] | QUAL-01 | Full candidate-wrapper qualification after repairs | Verified passing at source `9191c881…` | [Complete evidence](qualification/2026-11-14-repairs/checked-host-run-43563227621/README.md): 37 passing reports, 2,120 passing executions, exact registered/executed coverage, matching source/artifact identities and a passing aggregate independently reproduced. Future source or client changes require affected requalification; runtime-pin adoption and release acceptance remain separate. |
 | [ ] | QUAL-02 | Broader risk scenarios | Unverified | Live Hybrid funding, mark-movement/backing fees, broader insolvency stress, payout-halt repair and additional teardown configurations exercised with exact accounting and rollback checks. |
-| [ ] | WAL-02 | Real desktop wallet acceptance | Unverified | Supported wallet/version/browser through connect, approve/reject, account/network changes, signing, interruption and receipt recovery. |
-| [ ] | WAL-03 | Physical iPhone/mobile wallet acceptance | Unverified | Actual supported mobile wallet browser, responsive layout and complete transaction/recovery path; DOM fixtures cannot close this row. |
+| [ ] | WAL-02 | Real desktop wallet acceptance | Unverified | Supported wallet/version/browser through connect, approve/reject, account/network changes, signing, interruption and receipt recovery. Follow the [real-wallet acceptance runbook](WALLET_ACCEPTANCE.md); its cases are not yet executed. |
+| [ ] | WAL-03 | Physical iPhone/mobile wallet acceptance | Unverified | Actual supported mobile wallet browser, responsive layout and complete transaction/recovery path. The [runbook](WALLET_ACCEPTANCE.md) requires separate physical-phone evidence; DOM fixtures cannot close this row. |
 | [ ] | OPS-01 | Live oracle integration | Unverified | Correct feed identity, authenticated observations, freshness/confidence rejection, interruption and resumed operation with the production configuration. |
 | [ ] | OPS-02 | Hosted keeper and indexing recovery | Unverified | Restart/outage exercises, bounded progress, fee budgets, RPC failure handling, monitoring and preservation of unresolved receipts. |
 | [ ] | PROD-01 | Independent security review | External prerequisite | Independent review of the exact engine, wrapper, matcher, oracle integration, client and operations; verified disposition of findings. |
@@ -397,7 +460,14 @@ or weakening an invariant does not count as repairing the underlying behavior.
 | [ ] | PROD-03 | Funded execution and backing | External prerequisite | Committed real collateral, maker authorization, executable liquidity, inventory/capital limits and insurance policy. The 10,000 TEST fixture is not production liquidity. |
 | [ ] | PROD-04 | Reviewed market risk parameters | External prerequisite | Approved collateral/feed identity, margins, leverage, OI and position limits, fees/funding and exit delays supported by stress results. |
 | [ ] | PROD-05 | Operational ownership and incident response | External prerequisite | Responsible operators, alerts, authority rotation, provider/RPC failure procedures and tested permissionless user exit instructions. |
-| [ ] | PROD-06 | Final release enrollment | Unverified | Exact approved source, binaries, policy, addresses and services enrolled together; end-to-end acceptance completed before public deposits. |
+| [ ] | PROD-06 | Mainnet client support and final release enrollment | Not implemented / not enabled | Implement approved mainnet enrollment with verified genesis, source pins, program bytes, profile, addresses and policy; complete wallet-chain filtering/signing and explorer handling with fresh negative and acceptance tests. Enroll the approved oracle, keeper and services together, then satisfy the [acceptance completion requirements](WALLET_ACCEPTANCE.md#completion-record) before public deposits. Fork access alone does not complete this work. |
+
+The current [profile validator](../protocol/src/client.mjs) deliberately permits
+only `localnet` and `devnet`. The [terminal](../protocol/terminal/terminal.mjs)
+requires `solana:devnet` in wallet account chains outside localnet and only sets
+the signing-chain field for devnet. Mainnet support therefore requires reviewed
+client changes and fresh verification; publishing a fork or changing a profile
+cannot enable a complete mainnet flow.
 
 The normal trader interface must continue to load the official market
 automatically and explain unavailable state. None of the open operator or

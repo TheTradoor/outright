@@ -1,0 +1,90 @@
+{
+  "run_id": 43563227621,
+  "run_url": "https://github.com/TheTradoor/outright/actions/runs/43563227621",
+  "head_sha": "9191c8819ad683a7d8ffa49f831df5d90b99adb1",
+  "tested_merge_sha": "43ee48081321b5607de58c991ca5c5ae3af7a024",
+  "conclusion": "success",
+  "qualified": true,
+  "shards_complete": 37,
+  "shards_passed": 37,
+  "executed": 2120,
+  "passed": 2120,
+  "failed": [],
+  "suites": {
+    "anchor_v2_realloc_probe": {
+      "executed": 7,
+      "passed": 7,
+      "failed": 0,
+      "shards": 1
+    },
+    "listing_oracle_scope": {
+      "executed": 8,
+      "passed": 8,
+      "failed": 0,
+      "shards": 1
+    },
+    "open_issue_regressions": {
+      "executed": 9,
+      "passed": 9,
+      "failed": 0,
+      "shards": 1
+    },
+    "outright_native_lifecycle": {
+      "executed": 17,
+      "passed": 17,
+      "failed": 0,
+      "shards": 1
+    },
+    "percolator_prog_lib": {
+      "executed": 8,
+      "passed": 8,
+      "failed": 0,
+      "shards": 1
+    },
+    "v16_cu": {
+      "executed": 1574,
+      "passed": 1574,
+      "failed": 0,
+      "shards": 16
+    },
+    "v16_program_fuzz_regressions": {
+      "executed": 154,
+      "passed": 154,
+      "failed": 0,
+      "shards": 4
+    },
+    "v16_program_stateful_fuzz": {
+      "executed": 343,
+      "passed": 343,
+      "failed": 0,
+      "shards": 12
+    }
+  },
+  "exact_coverage_verified": true,
+  "local_aggregate_matches_ci": true,
+  "evidence": "checked-host-run-43563227621/README.md",
+  "previous_attempt": {
+    "run_id": 43526782149,
+    "head_sha": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+    "conclusion": "failure",
+    "passed": 2119,
+    "failed": [
+      {
+        "shard": "v16_program_stateful_fuzz-08",
+        "exit_code": 124,
+        "log": "test-0026.log",
+        "log_sha256": "335535594e22ac3a2f8ee0778d57cf6c0cc6de5d23e5ce8765a13063bad887dd",
+        "name": "inv_086_reference_model_and_deployed_transition_equivalence::v16_program_bounded_reference_graph_exhausts_public_action_words",
+        "passed": false,
+        "seconds": 1800.06
+      }
+    ],
+    "evidence": "host-timeout-run-43526782149/README.md"
+  },
+  "limits": [
+    "Counts are executions across targets with overlapping controls, not independent production scenarios",
+    "This run binds the original 9191c881 qualification source and 43ee4808 tested merge",
+    "Later mainnet client bytes require their own affected release checks",
+    "No fork pin adoption, physical-wallet acceptance, independent security review or mainnet deployment is implied"
+  ]
+}
