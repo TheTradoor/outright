@@ -1,0 +1,50 @@
+{
+  "deployment": {
+    "id": "appgdep_6af86cd0e8088191a42d55bdf96a5b33",
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "title": "Outright",
+    "version_id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_d9dfcb5a60108191b4fc07b67e44003d",
+    "type": "publish",
+    "status": "succeeded",
+    "url": "https://outright.bollish-eth.chatgpt.site",
+    "has_mcp": false,
+    "screenshot_asset_pointer": null,
+    "provider_deployment_id": "site---6af62e70597c81919970ed21213d7718",
+    "failure_message": null,
+    "env_set_revision": 0,
+    "updated_at": "2026-11-14T14:14:55.920097+00:00"
+  },
+  "version": {
+    "id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_d9dfcb5a60108191b4fc07b67e44003d",
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "version_number": 31,
+    "source": {
+      "commit_sha": "1517db4e58f0fb51ceedb3e7d8ffed5577e6e32f"
+    },
+    "archive_storage": {
+      "archive_format": "tar",
+      "sediment_file_id": "file_00000000cbfc8207975cf562bc2b82b2",
+      "content_hash": "sha256:81a5413efcd7824f9874ea72749943fbd7cb9f12dded11dfb7ed391001bee6fe",
+      "size_bytes": 2058240,
+      "file_count": 36
+    },
+    "screenshot_url": null,
+    "deployment_id": "appgdep_6af86cd0e8088191a42d55bdf96a5b33"
+  },
+  "prepared_source": {
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "checkout_path": "/workspace/scratch/6dbb147e3e23/outright-site",
+    "commit_sha": "1517db4e58f0fb51ceedb3e7d8ffed5577e6e32f",
+    "archive": "/workspace/scratch/6dbb147e3e23/outright-site-release.tar.gz"
+  },
+  "checks": {
+    "routes": 17,
+    "local_links_assets": 754,
+    "mechanics_tests": 4,
+    "client_tests": 525,
+    "canonical_protocol_files": 67,
+    "browser_visual_check_this_update": false,
+    "physical_wallet_acceptance": false,
+    "deployment_profile": null
+  }
+}

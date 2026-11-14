@@ -3,7 +3,7 @@
 **Status: not executed; desktop and physical-mobile acceptance remain unverified.**
 This runbook originated at client revision `f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c`.
 The hosted profile is `null`, so its wallet and transaction flow is currently
-blocked by unavailable-market state. The pending [mainnet client transport](MAINNET_CLIENT.md)
+blocked by unavailable-market state. The implemented [mainnet client transport](MAINNET_CLIENT.md)
 adds mainnet network and signing support; production enrollment and actual
 mainnet wallet acceptance remain incomplete.
 Automated DOM, generated-signer and validator results do not count as the

@@ -1,0 +1,385 @@
+{
+  "binary_sha256": {
+    "matcher": "042f7cc2e6a7b343da58d511f72abf56f57e044f70f7b695a52aec2cb9d70190",
+    "program": "1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e"
+  },
+  "candidate_harness_sha256": "de92fc662a7f9301ec475c29a217963658a1ff3c3f8f9c21441348b59dc6f8b4",
+  "candidate_runner_sha256": "237425359b154e42db6adadc3a3c353b6ead91e3a8767dbe7b1c01054e6ca96c",
+  "client_commit": "450f51442a3bfc953b09b51f62c9c3607c2f5d92",
+  "client_tree": "6414a9f1f80faed6f06f261e81b6867070d4c928",
+  "reported_builder": "cargo-build-sbf 4.6.0\nDefault platform-tools: v1.58\nDefault Rust: 1.95.0",
+  "reported_validator": "solana-test-validator 4.4.1 (src:5bb30402; feat:9fd5a0b5, client:Agave)",
+  "scope": "candidate-current-validator",
+  "source": {
+    "engine_ref": "a712af767eeb217876a3d3c50e3849b60ea54462",
+    "host_profile": {
+      "codegen_units": 256,
+      "debug": 0,
+      "debug_assertions": true,
+      "incremental": false,
+      "opt_level": 1,
+      "overflow_checks": true
+    },
+    "manifest_sha256": "35e392d25be9eb6f6e21ebc5476a8593947a6a3275676a68f11108faaa73aa5b",
+    "matcher": {
+      "ref": "60aac3a996d0264c47fbefe9a2625d6ee6fb6a47",
+      "repository": "aeyakovenko/percolator-match"
+    },
+    "overlay": null,
+    "protocol_source": {
+      "files": [
+        {
+          "bytes": 20,
+          "path": "protocol/.npmrc",
+          "sha256": "b962362ebe7560b534e834c2ede51186c2e3fceb94e12cc434a11180f22391f2"
+        },
+        {
+          "bytes": 7915,
+          "path": "protocol/README.md",
+          "sha256": "52b67b6f4ec2eb3dc6eef2270471ede258a99bf8ea886e64f48270a6bcfcb1f6"
+        },
+        {
+          "bytes": 1975,
+          "path": "protocol/check-source.mjs",
+          "sha256": "783b2e1ba81a5dd6d376a62f59a34f04fb54e0975f0d7e5adffb62e7c23bac7c"
+        },
+        {
+          "bytes": 397,
+          "path": "protocol/check.sh",
+          "sha256": "fb3cadd063e96383951e5bb399c49da440ae42da821927780aaa6ef6e281db4c"
+        },
+        {
+          "bytes": 80087,
+          "path": "protocol/conformance/Cargo.lock",
+          "sha256": "bcb4229090c595cc16076a6603577c6e5e8b8119054b203fa2b66ee26f9f415f"
+        },
+        {
+          "bytes": 643,
+          "path": "protocol/conformance/Cargo.toml",
+          "sha256": "bb929df5e072fdae8efa612991830452e19fe642ee40aeb4cf1543c4c20f75e1"
+        },
+        {
+          "bytes": 7196,
+          "path": "protocol/conformance/src/layouts.rs",
+          "sha256": "b735c0ddb2c4ef3a75e98e161d6efc173a5d6c4640b4ba162ffe1e6dfc111dd7"
+        },
+        {
+          "bytes": 3125,
+          "path": "protocol/conformance/src/localnet.rs",
+          "sha256": "dd65e4a07f573613100b33410f118de4decc96f697e16232cf754a15c5d2055f"
+        },
+        {
+          "bytes": 8757,
+          "path": "protocol/conformance/src/main.rs",
+          "sha256": "7363e2418843feaa8471a4fc8dd0dbe3eae566493f55bdd52b371e0ab7f47bb1"
+        },
+        {
+          "bytes": 3540,
+          "path": "protocol/conformance/src/token.rs",
+          "sha256": "a8bed760fc469df92fd51c422740445c018f9f069b24156e45da03faf925fd8f"
+        },
+        {
+          "bytes": 2302,
+          "path": "protocol/inspect.mjs",
+          "sha256": "20508e44231106191c04b8ae6371771d10d689165a96d06e0a972d5ef8ca3c1c"
+        },
+        {
+          "bytes": 8118,
+          "path": "protocol/localnet/cli.mjs",
+          "sha256": "c85410a87a97d066eb142d920125255551caeeadf56897f79386ad3ee46a2984"
+        },
+        {
+          "bytes": 4070,
+          "path": "protocol/localnet/instructions.mjs",
+          "sha256": "916cb9e3a125296384622a5250f4b75a301783601562f4ca28d3669e316c0878"
+        },
+        {
+          "bytes": 10054,
+          "path": "protocol/localnet/market.mjs",
+          "sha256": "ac648a27228e724f3e9441608878de61c4a147a3fded55ccf0b9404922c3475b"
+        },
+        {
+          "bytes": 1551,
+          "path": "protocol/localnet/run.sh",
+          "sha256": "752a95d7d5c982e5501b9a2d4573db4f6e5e629e60dc05575db57e5f8e669c2f"
+        },
+        {
+          "bytes": 9163,
+          "path": "protocol/localnet/runtime.mjs",
+          "sha256": "cb207ba40c7f7b55350a76d3393c04a03c22691edac18e0012dc050f1f476487"
+        },
+        {
+          "bytes": 4443,
+          "path": "protocol/localnet/smoke.mjs",
+          "sha256": "76fd2cda8bdb2ef619c6cfcfd73f0216c9e588a9ca3e69209f249940980a9479"
+        },
+        {
+          "bytes": 3090,
+          "path": "protocol/operator/journal.mjs",
+          "sha256": "e7346d0e2486717957ee074c88fb227720b04330c330e7db7c7b27d26fa22acb"
+        },
+        {
+          "bytes": 4401,
+          "path": "protocol/operator/keeper.mjs",
+          "sha256": "3ea1f08f4e0a49d0578ca7167e6521db63d88eb6330b3d9843010bff0ff18ad6"
+        },
+        {
+          "bytes": 1396,
+          "path": "protocol/operator/rpc.mjs",
+          "sha256": "294d8215705ce366400718bcaf495b99c2f44fef49e3cbb66f25e9e689941eaa"
+        },
+        {
+          "bytes": 73901,
+          "path": "protocol/package-lock.json",
+          "sha256": "11fbf96d369afe55a86f245710270a0e05ddcf9d576a62f9e7217a4dc3601152"
+        },
+        {
+          "bytes": 577,
+          "path": "protocol/package.json",
+          "sha256": "e87bbede3d6b8453160bb4b2c32b4f6e1e75bea91b8dc21116ae3766f60bb1dc"
+        },
+        {
+          "bytes": 5566,
+          "path": "protocol/profile.mjs",
+          "sha256": "459d956e43e71b0611241452168090d86ba3d7b191bfc8dbf8ab2e302aa75eab"
+        },
+        {
+          "bytes": 543,
+          "path": "protocol/source-lock.json",
+          "sha256": "576c05e88fe964b95c84731fafd5e1f8e637c9223fc03252ef934cdb9295215e"
+        },
+        {
+          "bytes": 5396,
+          "path": "protocol/src/accounts.mjs",
+          "sha256": "49458815db72205a5b4010e5cf9e25a72818adce4e16e4d6dfd6b41b0b238ba6"
+        },
+        {
+          "bytes": 39048,
+          "path": "protocol/src/client.mjs",
+          "sha256": "ee0295dab76e298c7befd14845b318003ac6da97d3a2d6af7faedf7f41a36e63"
+        },
+        {
+          "bytes": 4371,
+          "path": "protocol/src/discovery.mjs",
+          "sha256": "0f21304a00197b8a13043d022513f958fe2285a80b7d3fcaba257b3664d0e420"
+        },
+        {
+          "bytes": 11994,
+          "path": "protocol/src/instructions.mjs",
+          "sha256": "eecae1e89a1d3dfa7fe46a39e9bc27a13c39dfdcf7084b39ca8d0608cf862695"
+        },
+        {
+          "bytes": 26057,
+          "path": "protocol/src/keeper.mjs",
+          "sha256": "41d8249b415faf9daf2b66c34d394814e89c39eb99b483a39aad1c80752dd181"
+        },
+        {
+          "bytes": 2474,
+          "path": "protocol/src/layout.mjs",
+          "sha256": "97e28479ce0a7e8146d8e9bd595d45637b03de24035eaa8f8a0c1c15cf6c8815"
+        },
+        {
+          "bytes": 4351,
+          "path": "protocol/src/market.mjs",
+          "sha256": "e928835c77853e296e06052216bdf20ca9e676ecd448c76ca8fda1f74ed52c65"
+        },
+        {
+          "bytes": 2626,
+          "path": "protocol/src/network.mjs",
+          "sha256": "2973b409ab3eeee2628ffbd3339d8346591d5449b8a61eae726df29f05f40736"
+        },
+        {
+          "bytes": 1038,
+          "path": "protocol/src/recovery.mjs",
+          "sha256": "e1c86cd53aa99ae54d1e6eaff537e2067074c312e8dbf7148ba4330ee4e28db6"
+        },
+        {
+          "bytes": 1818,
+          "path": "protocol/src/settlement.mjs",
+          "sha256": "91856c754b102c2bdc3a9765e6da7205b1daa893059ab12436ac396c27990d33"
+        },
+        {
+          "bytes": 3644,
+          "path": "protocol/src/token.mjs",
+          "sha256": "152b547daeec442474461da63d4ad8f6cd713d488827c13494d0df214978d655"
+        },
+        {
+          "bytes": 9279,
+          "path": "protocol/svm/README.md",
+          "sha256": "baf4df9217e3914334fb4d3fb05ab27047869b36145c97a3e26f355dd33c1784"
+        },
+        {
+          "bytes": 4986,
+          "path": "protocol/svm/driver.mjs",
+          "sha256": "fdfb568a54ad26dba02f2e614d5c731903c216e7c6ffa556ec208d36fd3b0351"
+        },
+        {
+          "bytes": 97012,
+          "path": "protocol/svm/lifecycle.rs",
+          "sha256": "6dca2d4812a44fb31f70eddb154ef55f5a9c68cd4c7a82c97deb1e6be2bf87f8"
+        },
+        {
+          "bytes": 2092,
+          "path": "protocol/svm/run.sh",
+          "sha256": "925f1bd6f43a70516336ca886c6023ccf61e16cff7263cc1eafa0f86b25f6caf"
+        },
+        {
+          "bytes": 342,
+          "path": "protocol/terminal/assets/mark.svg",
+          "sha256": "3b248ef185986ed0cc4ce2aa00f9d46d69af486e946fe6c14c2661a4e777e3c6"
+        },
+        {
+          "bytes": 1784,
+          "path": "protocol/terminal/assets/outright-grid.woff",
+          "sha256": "ecf7baec02d9c36a90dc13b9eb0b453a2ae290646d3b791c8a3dc63a30f26c2b"
+        },
+        {
+          "bytes": 33,
+          "path": "protocol/terminal/buffer-shim.mjs",
+          "sha256": "539d1d86a53bf9bd3726ec1ca3fd839dfe20cbef0d8d3ae462d2170265e693bc"
+        },
+        {
+          "bytes": 855,
+          "path": "protocol/terminal/build.mjs",
+          "sha256": "9c93fb42ea7731bb9ec95126e12984b7af51e5b73dad3b6a03af4bcf1444df13"
+        },
+        {
+          "bytes": 5,
+          "path": "protocol/terminal/deployment.json",
+          "sha256": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+        },
+        {
+          "bytes": 20828,
+          "path": "protocol/terminal/index.html",
+          "sha256": "df9c63d27d63ae64fce621a9f22489b781801a963973f309d62eb6cf5cc6a11c"
+        },
+        {
+          "bytes": 15679,
+          "path": "protocol/terminal/terminal.css",
+          "sha256": "652b087ab759305ba12d46d80da8f549976c7037f4ac6d8edf0c8ea1dde0a903"
+        },
+        {
+          "bytes": 38373,
+          "path": "protocol/terminal/terminal.mjs",
+          "sha256": "0f3abb4413cfd649f53ce2eabd4b7eb976ffb885b6e75bed2c4fd9eebc1815b4"
+        },
+        {
+          "bytes": 32136,
+          "path": "protocol/tests/client.test.mjs",
+          "sha256": "7abef213f1e8bdd8c9ecc20f9800917dff567fb6a539d6e6a57bc4841a793f81"
+        },
+        {
+          "bytes": 10007,
+          "path": "protocol/tests/closure.test.mjs",
+          "sha256": "65bcb3a47aef3ee499c58923221f25a65228dfdccf165912a680d7568152bdc5"
+        },
+        {
+          "bytes": 9113,
+          "path": "protocol/tests/instructions.test.mjs",
+          "sha256": "2fb7609a64f828f5867117b8bcf0c3da0542df156fe40dc7bc06f682da2e826c"
+        },
+        {
+          "bytes": 65306,
+          "path": "protocol/tests/keeper.test.mjs",
+          "sha256": "d32ba8fdc834a57608b23b8ff376c882d12a1509e3756d4078e36c3f2ef38a2f"
+        },
+        {
+          "bytes": 8048,
+          "path": "protocol/tests/localnet.test.mjs",
+          "sha256": "0f1b560c9c48d2e56f0a76f6b10210e46e479c90ae027d69cc989ada9f57ae72"
+        },
+        {
+          "bytes": 8131,
+          "path": "protocol/tests/network.test.mjs",
+          "sha256": "7caea1a67c09471ac394385782ccedd53dfa4659af7fbeb2b13b8ca00d553f72"
+        },
+        {
+          "bytes": 7956,
+          "path": "protocol/tests/onboarding.test.mjs",
+          "sha256": "60ca86386fce1ce946fac268c3a623fa944387d48c79dcdf75c32d0dab6e0751"
+        },
+        {
+          "bytes": 8974,
+          "path": "protocol/tests/recovery.test.mjs",
+          "sha256": "097471f1990377304878345d4b92be34436642cd25adbb24b0d37a07872b8c0d"
+        },
+        {
+          "bytes": 5100,
+          "path": "protocol/tests/replay.test.mjs",
+          "sha256": "76421c79c4693b59431254f56238812df06a503a18a650c5a06fc03b23a1c6f4"
+        },
+        {
+          "bytes": 10739,
+          "path": "protocol/tests/settlement.test.mjs",
+          "sha256": "7cf1a915ae713a0706813e6647cb080188ccbfe5d5a96b2012cc4c3b5e99359d"
+        },
+        {
+          "bytes": 2819,
+          "path": "protocol/tests/source-qualification.test.mjs",
+          "sha256": "bada58b9796748cb901b16729971b8b21531b594f49706f0c4eb9763893989d8"
+        },
+        {
+          "bytes": 7629,
+          "path": "protocol/tests/support/client-fixture.mjs",
+          "sha256": "d34aa63e717c847c309a5ad49c69faf18b496f34cfcb578799606253e2b5f2a2"
+        },
+        {
+          "bytes": 1743,
+          "path": "protocol/tests/support/recovery-fixture.mjs",
+          "sha256": "77978942c85aa7b52f8e5b6f5b1ba927929117e2813cb6e9e8ae4802dbeb5954"
+        },
+        {
+          "bytes": 1698,
+          "path": "protocol/tests/support/settlement-fixture.mjs",
+          "sha256": "d31c3126ba87faf2c2927dae2b34dd1a4d146b02d6d41f58300a80ee57e90d91"
+        },
+        {
+          "bytes": 5619,
+          "path": "protocol/tests/support/token-addresses.json",
+          "sha256": "cc9dadc819a4abc85c564314c820184dd978a6dccc51892a98a8b46642cdbe01"
+        },
+        {
+          "bytes": 7533,
+          "path": "protocol/tests/terminal-networks.test.mjs",
+          "sha256": "96658cb5560ba7964abaea369c2bba4ec650cee9adead0bc8e5eeaec706b8253"
+        },
+        {
+          "bytes": 72763,
+          "path": "protocol/tests/terminal.test.mjs",
+          "sha256": "28f96f617c09423b091b123e23e333480c1903fa2212df225d2eaae493028978"
+        },
+        {
+          "bytes": 4602,
+          "path": "protocol/tests/token.test.mjs",
+          "sha256": "918b74c609c0b3913681b245faf746d10b3867b662a63b1b238261cdf352c4c5"
+        },
+        {
+          "bytes": 13673,
+          "path": "protocol/tests/wallet-adapters.test.mjs",
+          "sha256": "1078e208fde5b153ea140c7df85defa6515c9d7e7f19d08eb66d314b8aed31f6"
+        },
+        {
+          "bytes": 45454,
+          "path": "protocol/upstream-contract.json",
+          "sha256": "f61efde51ee8ddb5983c896a231a28c367e227a96787859f06473dcc5cd9e311"
+        }
+      ],
+      "sha256": "02ec7b4fc6e791dc61ab6ac05c68618a382bf002fdf90a74772fa6c6293eaf57"
+    },
+    "runner_sha256": "ff7ac5ab14be141283cb5b8644620ed968cd8b16af4197c83b426193fe2b232a",
+    "wrapper": {
+      "ref": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+      "repository": "TheTradoor/outright-program",
+      "tree": "8b54b827082b2b838beacd88d4d99bd12878d2ca",
+      "upstream": "aeyakovenko/percolator-prog",
+      "upstream_ref": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13"
+    }
+  },
+  "toolchain": {
+    "cargo_build_sbf": "4.6.0",
+    "host_rust": "1.95.0",
+    "platform_tools": "v1.58",
+    "sbf_arch": "v3",
+    "validator": "4.4.1"
+  }
+}
