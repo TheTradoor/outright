@@ -1,0 +1,23 @@
+{
+  "observed_at_utc": "2026-11-14T05:49:31Z",
+  "source_repository_revision": "aee5ba3fc4fb55aabaab415c758ef0201c653830",
+  "environment": "Managed local static preview, Chrome desktop browser",
+  "checks": [
+    "Landing-page terminal link opens /trade/",
+    "Null official profile renders Trading is not open yet",
+    "Wallet, trade, portfolio, deposit and withdrawal controls remain disabled",
+    "Market retry completes and returns to the same recoverable unavailable state",
+    "Normal trader page has no operator import dialog or settings control",
+    "Explicit operator=1 mode displays a separate operator banner and settings button",
+    "Operator dialog opens and closes; normal navigation removes operator controls",
+    "Desktop terminal screenshot has readable text and no overlapping panels"
+  ],
+  "result": "passed within the stated unconfigured-market scope",
+  "console": "Captured errors originated from the browser extension metadata content script; no application error was present in the captured warning/error log",
+  "not_tested": [
+    "Physical desktop wallet connection and transaction signing",
+    "iPhone or other physical mobile wallet",
+    "Live market or mainnet transaction",
+    "Configured-market behavior or live price freshness"
+  ]
+}

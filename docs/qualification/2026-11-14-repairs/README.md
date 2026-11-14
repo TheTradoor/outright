@@ -12,19 +12,26 @@ The complete candidate is [`qualification/program-repair.patch`](../../../qualif
 | [Combined-candidate model manifest](model/model-combined-candidate-manifest.json) | Six host controls passed and saved public replay passed against the patched SBF; the separate default public-sequence fuzz run was interrupted without a completion result |
 | [Oracle manifest](oracle/manifest.json) | Original failures, identical delayed-Recovery before/after comparison, Live rejection controls and compute comparisons; the full 77-case local INV-077 module was interrupted after nine completed cases |
 | [Combined candidate focused tests](candidate-focused-results.json) | Eight original CU failures plus the new delayed-Recovery regression; 9/9 passed against final combined source and patched SBF |
-| [Candidate application integration](candidate-native-final.log) | 17 tests passed against the patched SBF and current JavaScript driver; zero failed/ignored/filtered |
-| [Current client verification](current-client-provenance-check.log) | Source identity, Rust conformance and 471 tests passed; runtime wrapper pin unchanged |
+| [Initial candidate application integration](candidate-native-final.log) | Historical initial snapshot: 17 tests passed against the patched SBF and its JavaScript driver; zero failed/ignored/filtered |
+| [Earlier client verification](current-client-provenance-check.log) | Historical snapshot: source identity, Rust conformance and 471 tests passed; runtime wrapper pin unchanged |
 | [Build](current-client-provenance-build.log) | Terminal bundle build completed |
 | [Provenance checks](provenance/results.json) and [ignored-input controls](provenance/ignored-source-results.json) | Repository-URL mismatch plus ordinary and ignored build-configuration rejection; legitimate matcher build outputs permitted by both runners |
-| [PR #25 native CI](pr25-native-ci/README.md) | Exact-head PR and push workflows succeeded: engine 371/439, native client 471, baseline-wrapper application SBF 17, and seven current-validator RPC lifecycle transactions |
+| [Earlier PR #25 native CI](pr25-native-ci/README.md) | Historical source `9a5d13b…`: PR and push workflows succeeded; engine 371/439, native client 471, baseline-wrapper application SBF 17, and seven current-validator RPC lifecycle transactions |
 | [Initial CI build identity](ci-artifacts-43520468937.json) | Original candidate program and all matcher SBF hashes match local builds; exact original source and runner are recorded |
+| [Frozen superseded run](superseded-run-43520468937/README.md) | Run `43520468937` was cancelled: 2,038 recorded passing executions, one INV048 failure and four incomplete shards; aggregate failed. Deterministic archive retains 34 original artifact ZIPs, 35 complete job logs and all root metadata; not a full pass |
 | [Trader freshness correction](freshness/terminal-freshness-manifest.json) | Three before-fix UI failures; 165 passing targeted checks after the shared freshness guard; preparation-stage manifest predates publication |
 | [Freshness CI](freshness-native-ci/README.md) | Source `3372660…`: engine 371/439, client 477, baseline SBF 17 and seven validator transactions all passed |
 | [Freshness client against candidate](freshness/freshness-candidate-native.json) | 17/17 passed against candidate SBF527b; initial missing-dependency setup failure retained separately |
 | [Supplemental default targets](supplemental/summary.json) | Realloc7, listing8, open-issue9 and library8 passed; shared controls overlap. [Complete evidence archive](supplemental/complete-evidence.tar.gz) |
-| [Candidate current validator](candidate-validator-ci/README.md) | Exact PR26 source passed seven confirmed RPC transactions on SBPF v3 / Agave4.4.1; ZIP contains complete raw validator log |
+| [Preliminary candidate current validator](candidate-validator-ci/README.md) | Historical PR26 source passed seven confirmed RPC transactions on SBPF v3 / Agave4.4.1; ZIP contains complete raw validator log |
 | [Qualification verifier checks](qualification-followup/integrated-local-checks.json) | 49 combined negative/positive checks passed locally; protocol bytes match the tested freshness revision |
 | [Original CU14 source-contract failure](source-contract/before-ci-failure.log) and [final repair](source-contract/final/manifest.json) | Initial broad gate exposed one obsolete exact-sum source assertion; final INV048 3/3 and six behavioral controls pass without changing model arithmetic |
+| [Final native CI](final-native-ci/README.md) | Source `f6fd6e0…`, tested merge `07e88e6d…`: engine 371/439 (overlapping), client 477, baseline SBF 17, and seven baseline-validator RPC transactions passed; all four push duplicates passed |
+| [Final candidate current validator](candidate-validator-final-ci/README.md) | Same final source and merge: seven confirmed RPC transactions passed in 25.765 seconds on SBPF v3 / Agave 4.4.1; exact source, protocol, deployed bytes and balances verified; complete validator log retained in the verified ZIP |
+| [Site v28 deployment and shipping](site-v28.json) | Source `aee5ba3…` deployed successfully; 17 routes, 750 links/assets, four mechanics tests and 477 client tests passed; all 61 protocol files match `f6fd6e0…`; 55-entry archive verified; profile remains `null`; fresh browser and physical-wallet acceptance incomplete |
+| [Complete wrapper attempt](host-timeout-run-43526782149/README.md) | Run `43526782149`: all 37 reports and exact coverage verified; 2,119 passes, one host timeout, aggregate failed; complete archive retained |
+| [Fresh browser onboarding](browser-2026-11-14.json) | Unchanged version-28 desktop client: terminal, retry, unavailable state and explicit operator separation passed; no physical-wallet or mainnet acceptance |
+| [Current qualification status](final-qualification-status.json) | Checked host optimization at `9191c881…` is under verification in run `43563227621`; all original test coverage, assertions, SBF bytes and time limits retained |
 
 Manifest paths preserve the original local run locations. The corresponding logs and individual patches are retained beside each manifest under their basenames. Hashes identify the exact files and binaries; absolute scratch paths are not deployment locations.
 
@@ -33,15 +40,28 @@ Manifest paths preserve the original local run locations. The corresponding logs
 The initial 33-shard [qualification run](https://github.com/TheTradoor/outright/actions/runs/43520468937)
 covers the three large wrapper targets and native integration. CU14 reported one
 source-contract failure after the model correction removed its old exact-sum
-diagnostic. Other completed shards retain their recorded results; this run is
-not claimed as a complete passing gate. The scoped ownership correction now passes, and the final integrated gate must still complete. Its host executable hash was not recorded
-by that runner, so no retrospective binary hash is invented.
+diagnostic. It is now frozen as **cancelled and superseded**, recording 2,038
+passing executions, one failure and four incomplete shards; its aggregate job
+failed. The [retention index and deterministic archive](superseded-run-43520468937/README.md)
+preserve every original artifact ZIP and root job log with verified hashes.
+Completed cases retain their scoped results; this is not a full passing gate.
+The scoped ownership correction now passes, and the final integrated gate must
+still complete. The initial runner did not record its host executable hash, so
+no retrospective binary hash is invented.
 
-The final gate expands coverage to 37 shards and checks the actual Cargo default
+The final [gate, run 43526782149](https://github.com/TheTradoor/outright/actions/runs/43526782149),
+expands coverage to 37 shards and checks the actual Cargo default
 target inventory, complete protocol bytes, canonical harness/driver identities,
-and host executable digests. Its [current PR checks](https://github.com/TheTradoor/outright/pull/25/checks)
-are the release-candidate gate. Preliminary CI and local checks do not establish
-that the final combined revision passed those checks.
+and host executable digests. It targets source `f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c`,
+tree `e63c1049c06b0f1ca3a62dde3ec65a6e1c85efff`, through tested merge
+`07e88e6d6cf5c0af5c1b736bd0976aa6e9c91de3`. Its
+[complete retained attempt](host-timeout-run-43526782149/README.md) records all 37
+shards: 2,119 passes and one 1,800-second host reference-graph timeout. Exact
+coverage and identities were independently verified, and the original verifier
+correctly rejected the aggregate. Checked host optimization is under verification
+at source `9191c8819ad683a7d8ffa49f831df5d90b99adb1` in run `43563227621`; it does
+not alter the wrapper candidate or graph coverage. Final native and candidate-validator
+checks at the earlier source remain valid within their recorded scope.
 
 The [INV-077 interruption record](oracle/inv077-interrupted-status.json) accounts
 for nine completed cases, one started case without a result and 67 not started.
@@ -52,11 +72,14 @@ has no completion result. Missing process sessions establish incomplete evidence
 not a test pass or assertion failure. Separately completed tests retain their
 stated scope; these partial runs are not restarted or counted as full passes.
 
-The patched local wrapper SBF is `527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180`, built with cargo-build-sbf 4.6.0, platform-tools v1.52 and SBPF v0. Current-validator v1.58/v3 evidence for the preliminary candidate is recorded above; final combined-source CI and production enrollment remain separate. There has been no mainnet transaction or change to the hosted deployment profile.
+The patched local wrapper SBF is `527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180`, built with cargo-build-sbf 4.6.0, platform-tools v1.52 and SBPF v0. The [final current-validator evidence](candidate-validator-final-ci/README.md) independently records the v1.58/v3 wrapper and matcher hashes, before/after source and deployed-byte verification, seven successful RPC transactions and exact balance reconciliation. Production enrollment remains separate. There has been no mainnet transaction or change to the hosted deployment profile.
 
 The GitHub fork exists, but its connected-app write permission is unavailable. This evidence therefore identifies the candidate as **upstream base + reviewed patch + resulting Git tree**, not an invented public fork commit. Publishing the fork commit and migrating runtime source pins remain explicit adoption steps.
 
 The [checksum inventory](sha256.json) covers every retained file in this directory
-except the inventory itself. Raw logs are preserved byte for byte, including
+except the inventory itself, including nested inventories. The preliminary
+candidate inventory also preserves the historical `artifact/validator.log` hash
+for that member inside its ZIP; its README checksum was refreshed to match the
+explanatory documentation. Raw logs are preserved byte for byte, including
 original whitespace. The original baseline evidence in `../2026-11-14/` remains
 unchanged.

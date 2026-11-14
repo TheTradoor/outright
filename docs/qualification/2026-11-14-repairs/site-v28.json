@@ -1,0 +1,29 @@
+{
+  "site_version": 28,
+  "site_source_commit": "aee5ba3fc4fb55aabaab415c758ef0201c653830",
+  "application_source_commit": "f6fd6e0bb8a66fc947d4b760dc4ce94dec57df2c",
+  "application_source_tree": "e63c1049c06b0f1ca3a62dde3ec65a6e1c85efff",
+  "deployment_id": "appgdep_6af79e1ab1b88191b3a31f44a954ea79",
+  "saved_version_id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_8204c109372c8191b65ce0b99875b050",
+  "deployment_status": "succeeded",
+  "deployed_at_utc": "2026-11-13T23:33:01.912572Z",
+  "checks": {
+    "html_routes": 17,
+    "local_links_and_assets": 750,
+    "mechanics_tests_passed": 4,
+    "client_tests_passed": 477,
+    "tracked_protocol_files_byte_identical": 61,
+    "archive_entries": 55,
+    "unexpected_dependency_git_keypair_or_env_paths": []
+  },
+  "archive_sha256": "0679f999fce51181f7ce0efc7d1f1384c29cd240b081b42acdd37a835fa85910",
+  "hosted_profile_path": "dist/trade/deployment.json",
+  "hosted_profile_value": null,
+  "runtime_wrapper_commit": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13",
+  "fresh_browser_verification": "incomplete: browser URL policy rejected the preview reload; no alternate route was used",
+  "physical_wallet_acceptance": "not performed",
+  "physical_mobile_acceptance": "not performed",
+  "historical_browser_evidence": "version 26 only; not verification of version 28",
+  "mainnet_deployment": false,
+  "source_verification_record": "review/VERIFICATION.md at site_source_commit"
+}
