@@ -1,0 +1,483 @@
+{
+  "pull_request": 34,
+  "head": "c101229d38b495011b610d0a2f44f0725b4f7281",
+  "tested_merge": "73f1a7aebea9c537779ef2a35c0192f5a01b8195",
+  "published_merge": "e3d5308c2320de0c0b715be0cc0d3730b6a4e869",
+  "tested_and_published_tree": "27f13783393dbd45d8e0ccad50b400ae5eaf780d",
+  "checked_on": "2026-11-15 (Asia/Jakarta)",
+  "artifacts": [
+    {
+      "id": 14129819313,
+      "name": "candidate-current-validator",
+      "size_in_bytes": 188895,
+      "url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14129819313",
+      "archive_download_url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14129819313/zip",
+      "expired": false,
+      "created_at": "2026-11-14T20:15:34Z",
+      "expires_at": "2026-11-28T20:15:33Z",
+      "updated_at": "2026-11-14T20:15:34Z",
+      "digest": "sha256:c3250041674efae110a6987d2fcb5a3546041acf44922662b162f7406e3d6353",
+      "workflow_run": {
+        "id": 43635639124,
+        "repository_id": 1455787988,
+        "head_repository_id": 1455787988,
+        "head_branch": "feat/pyth-oracle-inspection",
+        "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281"
+      },
+      "file": "candidate-current-validator.zip"
+    },
+    {
+      "id": 14130391033,
+      "name": "wrapper-programs",
+      "size_in_bytes": 500567,
+      "url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14130391033",
+      "archive_download_url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14130391033/zip",
+      "expired": false,
+      "created_at": "2026-11-14T20:15:16Z",
+      "expires_at": "2026-11-28T20:15:15Z",
+      "updated_at": "2026-11-14T20:15:16Z",
+      "digest": "sha256:83556c31638bb59d1a16effb33a1d7303a5958dea9b085f16ad877513fa6f475",
+      "workflow_run": {
+        "id": 43635639169,
+        "repository_id": 1455787988,
+        "head_repository_id": 1455787988,
+        "head_branch": "feat/pyth-oracle-inspection",
+        "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281"
+      },
+      "file": "wrapper-programs.zip"
+    },
+    {
+      "id": 14131236638,
+      "name": "wrapper-qualification-summary",
+      "size_in_bytes": 54364,
+      "url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14131236638",
+      "archive_download_url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14131236638/zip",
+      "expired": false,
+      "created_at": "2026-11-14T20:40:28Z",
+      "expires_at": "2026-11-28T20:40:27Z",
+      "updated_at": "2026-11-14T20:40:28Z",
+      "digest": "sha256:1051c44d93dd5dc43c5ffad9dac5644736baf470a3f3575d3aac0257f31fce9e",
+      "workflow_run": {
+        "id": 43635639169,
+        "repository_id": 1455787988,
+        "head_repository_id": 1455787988,
+        "head_branch": "feat/pyth-oracle-inspection",
+        "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281"
+      },
+      "file": "wrapper-qualification-summary.zip"
+    }
+  ],
+  "checks": [
+    {
+      "id": 132581147533,
+      "name": "Complete wrapper qualification",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132581147533"
+    },
+    {
+      "id": 132574377265,
+      "name": "qualify (open_issue_regressions-00, open_issue_regressions, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574377265"
+    },
+    {
+      "id": 132574377247,
+      "name": "qualify (percolator_prog_lib-00, percolator_prog_lib, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574377247"
+    },
+    {
+      "id": 132574377192,
+      "name": "qualify (listing_oracle_scope-00, listing_oracle_scope, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574377192"
+    },
+    {
+      "id": 132574377129,
+      "name": "qualify (outright_native_lifecycle-00, outright_native_lifecycle, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574377129"
+    },
+    {
+      "id": 132574377108,
+      "name": "qualify (anchor_v2_realloc_probe-00, anchor_v2_realloc_probe, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574377108"
+    },
+    {
+      "id": 132574376055,
+      "name": "qualify (v16_program_fuzz_regressions-03, v16_program_fuzz_regressions, 3)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574376055"
+    },
+    {
+      "id": 132574376016,
+      "name": "qualify (v16_program_fuzz_regressions-02, v16_program_fuzz_regressions, 2)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574376016"
+    },
+    {
+      "id": 132574376013,
+      "name": "qualify (v16_program_fuzz_regressions-00, v16_program_fuzz_regressions, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574376013"
+    },
+    {
+      "id": 132574375989,
+      "name": "qualify (v16_program_fuzz_regressions-01, v16_program_fuzz_regressions, 1)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574375989"
+    },
+    {
+      "id": 132574375968,
+      "name": "qualify (v16_program_stateful_fuzz-10, v16_program_stateful_fuzz, 10)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574375968"
+    },
+    {
+      "id": 132574375946,
+      "name": "qualify (v16_program_stateful_fuzz-11, v16_program_stateful_fuzz, 11)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574375946"
+    },
+    {
+      "id": 132574375852,
+      "name": "qualify (v16_program_stateful_fuzz-09, v16_program_stateful_fuzz, 9)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574375852"
+    },
+    {
+      "id": 132574375848,
+      "name": "qualify (v16_program_stateful_fuzz-08, v16_program_stateful_fuzz, 8)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574375848"
+    },
+    {
+      "id": 132574375809,
+      "name": "qualify (v16_program_stateful_fuzz-06, v16_program_stateful_fuzz, 6)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574375809"
+    },
+    {
+      "id": 132574375778,
+      "name": "qualify (v16_program_stateful_fuzz-07, v16_program_stateful_fuzz, 7)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574375778"
+    },
+    {
+      "id": 132574374893,
+      "name": "qualify (v16_program_stateful_fuzz-03, v16_program_stateful_fuzz, 3)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374893"
+    },
+    {
+      "id": 132574374781,
+      "name": "qualify (v16_cu-02, v16_cu, 2)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374781"
+    },
+    {
+      "id": 132574374745,
+      "name": "qualify (v16_cu-13, v16_cu, 13)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374745"
+    },
+    {
+      "id": 132574374738,
+      "name": "qualify (v16_program_stateful_fuzz-02, v16_program_stateful_fuzz, 2)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374738"
+    },
+    {
+      "id": 132574374730,
+      "name": "qualify (v16_program_stateful_fuzz-04, v16_program_stateful_fuzz, 4)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374730"
+    },
+    {
+      "id": 132574374727,
+      "name": "qualify (v16_program_stateful_fuzz-00, v16_program_stateful_fuzz, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374727"
+    },
+    {
+      "id": 132574374716,
+      "name": "qualify (v16_program_stateful_fuzz-05, v16_program_stateful_fuzz, 5)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374716"
+    },
+    {
+      "id": 132574374711,
+      "name": "qualify (v16_program_stateful_fuzz-01, v16_program_stateful_fuzz, 1)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374711"
+    },
+    {
+      "id": 132574374704,
+      "name": "qualify (v16_cu-14, v16_cu, 14)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374704"
+    },
+    {
+      "id": 132574374692,
+      "name": "qualify (v16_cu-12, v16_cu, 12)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374692"
+    },
+    {
+      "id": 132574374672,
+      "name": "qualify (v16_cu-15, v16_cu, 15)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374672"
+    },
+    {
+      "id": 132574374637,
+      "name": "qualify (v16_cu-08, v16_cu, 8)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374637"
+    },
+    {
+      "id": 132574374625,
+      "name": "qualify (v16_cu-11, v16_cu, 11)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374625"
+    },
+    {
+      "id": 132574374620,
+      "name": "qualify (v16_cu-00, v16_cu, 0)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374620"
+    },
+    {
+      "id": 132574374611,
+      "name": "qualify (v16_cu-10, v16_cu, 10)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374611"
+    },
+    {
+      "id": 132574374609,
+      "name": "qualify (v16_cu-09, v16_cu, 9)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374609"
+    },
+    {
+      "id": 132574374600,
+      "name": "qualify (v16_cu-04, v16_cu, 4)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374600"
+    },
+    {
+      "id": 132574374599,
+      "name": "qualify (v16_cu-03, v16_cu, 3)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374599"
+    },
+    {
+      "id": 132574374595,
+      "name": "qualify (v16_cu-07, v16_cu, 7)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374595"
+    },
+    {
+      "id": 132574374576,
+      "name": "qualify (v16_cu-06, v16_cu, 6)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374576"
+    },
+    {
+      "id": 132574374573,
+      "name": "qualify (v16_cu-05, v16_cu, 5)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374573"
+    },
+    {
+      "id": 132574374568,
+      "name": "qualify (v16_cu-01, v16_cu, 1)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132574374568"
+    },
+    {
+      "id": 132571793339,
+      "name": "programs",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132571793339"
+    },
+    {
+      "id": 132571704543,
+      "name": "contract",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639352/job/132571704543"
+    },
+    {
+      "id": 132571704366,
+      "name": "Engine (fuzz)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639096/job/132571704366"
+    },
+    {
+      "id": 132571704213,
+      "name": "plan",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639169/job/132571704213"
+    },
+    {
+      "id": 132571704118,
+      "name": "lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639164/job/132571704118"
+    },
+    {
+      "id": 132571703993,
+      "name": "Candidate current-validator lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639124/job/132571703993"
+    },
+    {
+      "id": 132571703985,
+      "name": "Engine (default)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639096/job/132571703985"
+    },
+    {
+      "id": 132571703748,
+      "name": "lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635639097/job/132571703748"
+    },
+    {
+      "id": 132571631981,
+      "name": "Engine (default)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635616152/job/132571631981"
+    },
+    {
+      "id": 132571631960,
+      "name": "lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635616169/job/132571631960"
+    },
+    {
+      "id": 132571631812,
+      "name": "contract",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635616125/job/132571631812"
+    },
+    {
+      "id": 132571631787,
+      "name": "lifecycle",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635616121/job/132571631787"
+    },
+    {
+      "id": 132571631742,
+      "name": "Engine (fuzz)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c101229d38b495011b610d0a2f44f0725b4f7281",
+      "html_url": "https://github.com/TheTradoor/outright/actions/runs/43635616152/job/132571631742"
+    }
+  ],
+  "raw_wrapper_logs_independently_verified": false,
+  "production_service_installed": false,
+  "mainnet_trading_enabled": false
+}

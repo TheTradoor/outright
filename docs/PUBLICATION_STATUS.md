@@ -16,18 +16,19 @@ source publication and the program PR merge succeeded after that change.
 | Published release evidence | [PR #30](https://github.com/TheTradoor/outright/pull/30), merged as `33f6af7b0fa7632a5c679aa456e676dd7213cd87` | All four engine checks passed. Every file in the retained packet's checksum manifest was rechecked before merge. |
 | Keeper portfolio discovery | [PR #31](https://github.com/TheTradoor/outright/pull/31), merged as `1161b54094498ce23a287d2d2340e52d8cae68a3` | All 51 checks passed. The merge has tested tree `6414a9f1f80faed6f06f261e81b6867070d4c928`. Source pins and program bytes are unchanged. [Retained evidence](qualification/2026-11-14-keeper-discovery/README.md) includes 39 verified artifacts and all 2,120 test logs. |
 | Keeper health and host templates | [PR #32](https://github.com/TheTradoor/outright/pull/32), merged as `9ea27452e3be6e141727d205f4a5aae8b028bedb` | All 51 checks passed. The merge has tested tree `a53736b0d8a6282d16267832ef00b5006809faf8`. [Retained evidence](qualification/2026-11-14-keeper-health/README.md#remote-results) binds 540 client tests, 17 SBF cases, both validator paths and the 2,120-execution wrapper aggregate to this source. |
+| Pyth Core feed inspection | [PR #34](https://github.com/TheTradoor/outright/pull/34), merged as `e3d5308c2320de0c0b715be0cc0d3730b6a4e869` | All 51 checks passed. The merge has tested tree `27f13783393dbd45d8e0ccad50b400ae5eaf780d`. [Retained evidence](qualification/2026-11-15-pyth-inspection/README.md#remote-results) includes 594 client tests, 31 shared Rust/JavaScript oracle vectors, 17 SBF cases, both validator paths and 2,120 wrapper executions. |
 
 The current client uses the published program directly in its runtime source
 lock, Rust dependency, generated contract and both SBF build paths. Qualification
 must identify that same commit and source tree. The upstream Percolator engine
 remains `a712af767eeb217876a3d3c50e3849b60ea54462` with exact source equivalence.
 
-Current PR #32 evidence includes **2,120 wrapper executions**, **540 client tests**,
+Current PR #34 evidence includes **2,120 wrapper executions**, **594 client tests**,
 **17 application SBF cases** and two separately executed **seven-transaction
 validator paths**. The validator paths use a synthetic fixed-price market and
 reconcile exact collateral balances. Counts overlap in scope and are not a
 count of independent production scenarios. See the [complete current validation
-record](qualification/2026-11-14-keeper-health/README.md#remote-results).
+record](qualification/2026-11-15-pyth-inspection/README.md#remote-results).
 
 The initial PR #28 publication was `5c8373ce…`, tree `609b5042…`, with its
 495-client/51-verifier local results and earlier 17-case candidate evidence.
@@ -51,7 +52,7 @@ tree. The [host guide](KEEPER_HOSTING.md) defines the operational scope. Engine
 and program pins are unchanged. The published website remains version 31; this
 operator change does not alter the terminal or enroll a production deployment.
 
-The checked PR #32 tree is merged. The remaining production requirements are
+The checked PR #34 tree is merged. The remaining production requirements are
 listed in [REPAIR_CHECKLIST.md](REPAIR_CHECKLIST.md): approved market
 parameters, authority custody and fee funding, funded execution/backing, live
 oracle and keeper/indexing operations, independent security review, physical
