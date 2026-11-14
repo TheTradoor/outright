@@ -6,10 +6,11 @@ target. The engine selects the maintenance action, which can include accrual,
 portfolio refresh, liquidation or recovery work. The operator cannot choose a
 replacement price or bypass the engine's risk rules.
 
-The client includes pending mainnet transport support as well as localnet/devnet
+The client includes mainnet transport support as well as localnet/devnet
 operation. [Transport validation](MAINNET_CLIENT.md) is not production enrollment.
 No public Outright market or hosted
-keeper is configured. It is not an oracle publisher, a portfolio indexer, a
+keeper is configured. The worker can discover portfolios in its enrolled market;
+it is not an oracle publisher, a historical transaction indexer, a
 market deployment tool, or a source of liquidity.
 
 ## Before running
@@ -22,7 +23,7 @@ An operator needs an initialized deployment enrolled with
 and the on-chain oracle accounts for each asset. The deployment profile pins
 the source revisions, network, program bytecode and upgrade authority.
 
-Use a dedicated test-network fee payer. Keep its keypair outside the repository,
+Use a dedicated fee payer for the enrolled network. Keep its keypair outside the repository,
 with file mode `0600`. Do not use a trader, maker, oracle-authority or
 upgrade-authority wallet. The keeper signs only the transaction fee payer; the
 target portfolio owner does not sign a permissionless crank.
@@ -86,8 +87,9 @@ publisher must keep the configured oracle accounts current.
 
 Configure every asset held by the target portfolios. The current bound is
 256 portfolio targets and 16 assets. In a live market each cycle includes the
-target's active legs plus one rotating discovery asset. Newly created portfolios
-are not discovered automatically. Global recovery uses committed state without
+target's active legs plus one rotating discovery asset. Static configurations
+service only their listed targets. The optional portfolio discovery mode below
+admits new targets between complete sweeps. Global recovery uses committed state without
 oracle accounts; it does not implement every recovery or wind-down instruction.
 
 An owner forfeiture may leave a zero-exposure leg with retained loss weight.
@@ -97,6 +99,64 @@ take separate transactions. A local two-asset SBF trace covers that transition,
 the new authenticated owner-delay window and one exact principal payout through
 the resolved planner. This does not establish settlement of every portfolio or
 complete market teardown.
+
+## Automatic portfolio discovery
+
+An operator can replace the explicit target list with these two fields in the
+same configuration. All deployment, oracle, fee-payer and budget fields remain
+required:
+
+```json
+{
+  "targets": [],
+  "discovery": { "mode": "programAccounts", "maxTargets": 256 }
+}
+```
+
+Discovery is opt-in and scoped to the enrolled program and market. The RPC must
+support `getProgramAccounts` with context, filters, zero-length data slices and
+`minContextSlot`. The worker filters by the generated portfolio length, header
+and market address. It then reads complete accounts in batches of at most 64,
+with the pinned program, ProgramData and market in each batch. It verifies
+program bytes and authority, market identity, portfolio ownership, owner
+provenance and nonzero portfolio ID. RPC filters alone cannot admit an account.
+Malformed accounts, duplicate addresses or IDs, changed program bytes, stale
+banks and an overflow above `maxTargets` stop the worker before signing.
+The worker never silently enrolls the first part of an oversized result.
+
+The validated targets are sorted and saved in the existing durable journal.
+Each target is visited for every configured discovery asset before the next
+scan. Restart resumes that saved sweep. An unresolved transaction is reconciled
+before any scan, even if the enumeration endpoint is unavailable. New targets
+do not reset reserved fees, the last submitted blockhash or the receipt.
+Existing static configurations retain their previous configuration hash and
+behavior when `discovery` is omitted.
+
+An empty verified scan returns `noTargets` and spends no transaction fee. An
+account that closes between enumeration and its full read is omitted. An
+account that disappears during a saved sweep returns `portfolioMissing`; a
+changed owner or portfolio ID during that sweep stops the worker. A later scan
+may enroll a newly created incarnation after full verification. Missing accounts
+and empty scans do not establish payout, settlement or completeness.
+
+The scan is not an atomic snapshot across all batches, and RPC enumeration is
+not a cryptographic proof that every portfolio was returned. Returned banks
+must advance monotonically, and the usual fresh account/program checks still
+run before each signature. New accounts wait for the next complete sweep; its
+duration depends on target and asset counts, polling, RPC latency and receipt
+confirmation. Size and monitor those bounds for the market's maintenance
+requirements. This worker does not provide a latency or availability guarantee.
+
+The CLI limits each decoded HTTP response to 16 MiB and each request to 15
+seconds. It cancels oversized responses and does not print provider error bodies.
+An RPC that cannot serve the filtered scan stops discovery; the worker does not
+switch providers or reuse an unverified partial response.
+
+Enabling discovery changes the configuration identity. Follow the configuration
+change procedure below after resolving all pending receipts. Do not delete the
+old journal or use a new budget merely to bypass a pending transaction or spent
+fee cap. Hosted operation, provider completeness monitoring, response-time
+targets and production outage acceptance remain open under OPS-02.
 
 ## Missing portfolio targets
 
@@ -177,7 +237,7 @@ This command reads and simulates one crank. It does not load a keypair, sign or
 broadcast. Add `--watch` to poll the configured targets. A successful simulation
 does not establish that the same transaction will succeed later.
 
-After reviewing the configuration and simulated results, run the test-network
+After reviewing the enrolled configuration and simulated results, run the
 worker with an explicit send flag:
 
 ```sh
@@ -197,6 +257,7 @@ then stop; they do not interrupt a durable write halfway through.
 | `simulated` | Valid simulation; default mode signed nothing |
 | `idle` | SBF returned its exact non-progress error; no fee was spent |
 | `deferred` | Missing portfolio, owner delay, missing payout ATA or payout halt; inspect `reason` |
+| `noTargets` | Verified discovery returned no current targets; no signature or transaction fee, not proof of settlement |
 | `waitingForBlockhash` | RPC returned the last submitted blockhash; no new signature or fee |
 | `simulationRejected` | SBF rejected this attempt; inspect the error and oracle publisher |
 | `submitted` | RPC returned the saved transaction signature |
@@ -279,6 +340,16 @@ live Pyth publishing, public-cluster compatibility or hosted-service uptime.
 Public release still requires reproducible deployment, a running provider
 publisher, funded maker liquidity, portfolio discovery/indexing, monitoring,
 broader recovery and stress coverage, additional teardown configurations and independent security review.
+
+Discovery regressions cover account addition between sweeps, restart fairness,
+pending-receipt recovery during enumeration failure, fee-budget and duplicate
+protection, malformed and stale responses, incarnation changes, overflow,
+bounded batches, journal failure and corruption. Live and resolved CLI tests
+exercise discovery through HTTP and recover the signed receipt in a second
+process without another broadcast. The current-validator lifecycle also requires
+the real RPC to find the maker before trader initialization, find both accounts
+after the lifecycle, and reject an undersized discovery limit. This remains a
+synthetic local market; production oracle and host acceptance are separate.
 
 ## Terminal account and market closure
 

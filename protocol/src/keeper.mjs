@@ -19,6 +19,7 @@ import { readMarket } from "./market.mjs";
 import { readPortfolio } from "./accounts.mjs";
 import { buildInstruction, vaultAuthority } from "./instructions.mjs";
 import { getAssociatedTokenAddressSync } from "./token.mjs";
+import { discoverPortfolios } from "./discovery.mjs";
 
 class DeferredTarget extends Error {
   constructor(reason) {
@@ -61,12 +62,23 @@ export function validateKeeperConfig(input) {
     typeof input.settleResolved !== "boolean"
   )
     throw new Error("Invalid settleResolved: use a boolean");
+  let discovery;
+  if (input.discovery !== undefined) {
+    if (!input.discovery || input.discovery.mode !== "programAccounts")
+      throw new Error("Unsupported keeper discovery mode");
+    discovery = Object.freeze({
+      mode: "programAccounts",
+      maxTargets: count(input.discovery.maxTargets, 1, 256, "discovery target limit"),
+    });
+  }
   if (
     !Array.isArray(input.targets) ||
-    input.targets.length < 1 ||
+    (discovery ? input.targets.length !== 0 : input.targets.length < 1) ||
     input.targets.length > 256
   )
-    throw new Error("Configure between 1 and 256 portfolio targets");
+    throw new Error(discovery
+      ? "Configure an empty targets array when discovery is enabled"
+      : "Configure between 1 and 256 portfolio targets");
   const targets = input.targets.map((t) =>
     Object.freeze({
       address: address(t.address),
@@ -136,6 +148,7 @@ export function validateKeeperConfig(input) {
     reserveLamports: u64(input.reserveLamports, "SOL reserve"),
     // Omit the default so existing journal configuration hashes stay valid.
     ...(input.settleResolved ? { settleResolved: true } : {}),
+    ...(discovery ? { discovery } : {}),
   });
 }
 
@@ -371,7 +384,7 @@ export function emptyKeeperState(configHash) {
   };
 }
 
-function validateState(state, configHash) {
+function validateState(state, configHash, config) {
   if (
     !state ||
     state.version !== 1 ||
@@ -384,6 +397,33 @@ function validateState(state, configHash) {
     count(state[k], 0, Number.MAX_SAFE_INTEGER, k);
   if (state.lastSubmittedBlockhash != null)
     blockhash(state.lastSubmittedBlockhash);
+  if (config.discovery) {
+    const scan = state.discovery;
+    if (scan != null) {
+      count(scan.scanSlot, 0, state.minimumSlot, "discovery scan slot");
+      count(scan.slot, scan.scanSlot, state.minimumSlot, "discovery snapshot slot");
+      if (!Array.isArray(scan.targets) || !scan.targets.length ||
+          scan.targets.length > config.discovery.maxTargets)
+        throw new Error("Invalid keeper discovery journal targets");
+      const addresses = [], ids = [];
+      for (const target of scan.targets) {
+        if (address(target.address) !== target.address ||
+            address(target.owner) !== target.owner)
+          throw new Error("Invalid keeper discovery journal identity");
+        addresses.push(target.address);
+        ids.push(u64(target.portfolioId, "discovered portfolio ID"));
+      }
+      unique(addresses, "discovered portfolio address");
+      unique(ids, "discovered portfolio ID");
+      if (addresses.some((a, i) => i > 0 && addresses[i - 1] >= a))
+        throw new Error("Invalid keeper discovery journal order");
+      count(state.cursor, 0, scan.targets.length * config.assets.length - 1, "discovery cursor");
+    } else if (state.cursor !== 0) {
+      throw new Error("Keeper discovery journal lost its active sweep");
+    }
+  } else if (state.discovery != null) {
+    throw new Error("Keeper discovery journal does not match static configuration");
+  }
   if (
     state.pending &&
     (!/^[1-9A-HJ-NP-Za-km-z]{64,88}$/.test(state.pending.signature) ||
@@ -417,14 +457,15 @@ export class OutrightKeeper {
         new TextEncoder().encode(JSON.stringify(this.config)),
       );
       const state = (await this.journal.read()) ?? emptyKeeperState(configHash);
-      validateState(state, configHash);
+      validateState(state, configHash, this.config);
       // Preserve the last submitted blockhash when reading an older v1 journal,
       // before a deferred or simulation result can replace lastResult.
       const previousBlockhash =
         state.pending?.blockhash ?? state.lastResult?.blockhash;
       if (!state.lastSubmittedBlockhash && previousBlockhash != null)
         state.lastSubmittedBlockhash = blockhash(previousBlockhash);
-      const { config: c, connection: rpc } = this;
+      let c = this.config;
+      const rpc = this.connection;
       if ((await rpc.getGenesisHash()) !== c.deployment.genesisHash)
         throw new Error("Keeper RPC network changed");
       if (state.pending) {
@@ -461,12 +502,34 @@ export class OutrightKeeper {
           error: receipt.error ?? null,
         };
       }
+      if (c.discovery) {
+        if (!state.discovery) {
+          const scan = await discoverPortfolios(rpc, c.deployment, {
+            maxTargets: c.discovery.maxTargets,
+            minimumSlot: state.minimumSlot,
+          });
+          state.minimumSlot = scan.slot;
+          state.discovery = scan.targets.length ? scan : null;
+          if (!scan.targets.length) {
+            state.lastResult = { status: "noTargets", slot: scan.slot };
+            await this.journal.write(state);
+            return state.lastResult;
+          }
+          // Persist the sweep before any simulation/signing. Resuming it cannot
+          // reset fees, lose a pending receipt or repeatedly skip later targets.
+          await this.journal.write(state);
+        }
+        c = { ...c, targets: state.discovery.targets };
+      }
+      const advance = () => {
+        state.cursor = (state.cursor + 1) % (c.targets.length * c.assets.length);
+        if (c.discovery && state.cursor === 0) state.discovery = null;
+      };
       const target = c.targets[state.cursor % c.targets.length];
       const asset =
         c.assets[Math.floor(state.cursor / c.targets.length) % c.assets.length];
       const deferTarget = async (reason, slot) => {
-        state.cursor =
-          (state.cursor + 1) % (c.targets.length * c.assets.length);
+        advance();
         state.minimumSlot = slot;
         state.lastResult = {
           status: "deferred",
@@ -550,8 +613,7 @@ export class OutrightKeeper {
           });
         // Failure on one target must not starve every other target. No signature
         // or fee is created. The next poll revisits the bounded target list.
-        state.cursor =
-          (state.cursor + 1) % (c.targets.length * c.assets.length);
+        advance();
         state.minimumSlot = simulated.context.slot;
         state.lastResult = {
           status: noProgress ? "idle" : "simulationRejected",
@@ -590,8 +652,7 @@ export class OutrightKeeper {
         computeUnits: simulated.value.unitsConsumed ?? null,
       };
       if (!send) {
-        state.cursor =
-          (state.cursor + 1) % (c.targets.length * c.assets.length);
+        advance();
         state.minimumSlot = fee.context.slot;
         state.lastResult = result;
         await this.journal.write(state);
@@ -665,7 +726,7 @@ export class OutrightKeeper {
         BigInt(state.reservedFees) + BigInt(fee.value)
       ).toString();
       state.attempts += 1;
-      state.cursor = (state.cursor + 1) % (c.targets.length * c.assets.length);
+      advance();
       state.minimumSlot = fresh.slot;
       await this.journal.write(state); // Must complete durably before broadcast.
       try {
