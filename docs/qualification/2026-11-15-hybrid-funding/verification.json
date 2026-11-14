@@ -1,0 +1,23 @@
+{
+  "baseline": "0537e4ed7defd99ae766794d55c1465acdfef208",
+  "engine": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "program": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+  "client_tests": 594,
+  "svm_tests": 19,
+  "qualification_verifier_tests": 41,
+  "candidate_verifier_tests": 12,
+  "hybrid_funding_traces": 4,
+  "mainnet_transactions_submitted": 0,
+  "local_sbf_source": "Retained PR #34 wrapper-programs artifact, SHA256 verified; no local SBF rebuild in this follow-up",
+  "sbf_sha256": {
+    "program": "527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180",
+    "matcher": "50e532267926e180f013200c1799e26127dd23dc150866cffd491424629ddf93"
+  },
+  "source_sha256": {
+    "protocol/svm/lifecycle.rs": "4c98fb4f9c3ccb559117e8fd6f4c284429095f46378bbc71ab75ea6c509e0a9e",
+    "protocol/svm/driver.mjs": "fdfb568a54ad26dba02f2e614d5c731903c216e7c6ffa556ec208d36fd3b0351",
+    "qualification/wrapper-source.json": "0c24a2679804ebb0a9ab6b8ca4634c75d02d58dd42e5c1aec0e64e5362fcbe21",
+    "protocol/source-lock.json": "576c05e88fe964b95c84731fafd5e1f8e637c9223fc03252ef934cdb9295215e",
+    "protocol/package-lock.json": "11fbf96d369afe55a86f245710270a0e05ddcf9d576a62f9e7217a4dc3601152"
+  }
+}

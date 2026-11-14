@@ -1,19 +1,18 @@
 # Native integration verification
 
-Latest local verification completed on 14 November 2026 (UTC+7): the source and Rust
-contract checks and terminal build passed. The client now has 452 JavaScript
-tests, including 61 terminal DOM scenarios, and 17 SBF tests. A clean dependency install and
-audit at the preceding revision reported zero vulnerabilities; this change
-does not modify dependencies. These results do not come from a public market
-or an independent audit. The preceding funding and liquidation work was merged
-in [pull request #5](https://github.com/TheTradoor/outright/pull/5).
+Current results and source identities are tracked in the
+[repair checklist](REPAIR_CHECKLIST.md). This document retains the initial
+12 November baseline and subsequent integration work. Each section's counts
+and pins belong to that revision, not automatically to the current source.
+These fixtures do not establish a public market or independent security review.
 
-The sections below record the initial 12 November baseline and each subsequent
-extension. Earlier test counts describe those revisions. See
-[Trader onboarding](#trader-onboarding)
-for the latest coverage. Earlier sections record settlement and dependency changes.
+The 15 November Hybrid funding follow-up passes 19 local SBF cases and 594
+client tests. It adds public-keeper execution through stale-feed fallback and
+recovery, in both funding directions and at two settlement cadences. Local
+binary provenance, exact accounting, rejected setup and remaining scope are
+recorded in [Hybrid funding verification](qualification/2026-11-15-hybrid-funding/README.md).
 
-## Sources and toolchains
+## Initial sources and toolchains
 
 | Item | Revision or version |
 | --- | --- |

@@ -39,7 +39,7 @@
     },
     "outright_native_lifecycle": {
       "shards": 1,
-      "minimum_tests": 17
+      "minimum_tests": 19
     },
     "anchor_v2_realloc_probe": {
       "shards": 1,

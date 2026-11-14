@@ -1,0 +1,51 @@
+   Compiling percolator-prog v0.1.0 (/workspace/scratch/8fe88917ca62/percolator-prog)
+    Finished `test` profile [unoptimized] target(s) in 2.56s
+warning: the following packages contain code that will be rejected by a future version of Rust: solana-client v1.18.26
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running tests/outright_native_lifecycle.rs (/workspace/scratch/8fe88917ca62/percolator-prog/target/debug/deps/outright_native_lifecycle-ad48b61ed5170c8a)
+
+running 19 tests
+test javascript_failed_deposit_needs_a_new_blockhash_after_source_is_funded ... ok
+test javascript_cpi_enforces_price_limit_and_revoked_maker_consent ... ok
+funding premium=-1 step=12 slot=14: payer capital=99999998 pnl=0, receiver capital=100000000 pnl=1
+test javascript_instructions_reject_invalid_identity_authority_and_market_bindings ... ok
+test keeper_planner_advances_authenticated_oracle_without_portfolio_owner_signature ... ok
+funding premium=-1 step=12 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+liquidation direction=-1 step=1 remaining=1000000 capital=5000000 pnl=0 insurance=0
+test keeper_oracle_failures_roll_back_market_portfolio_and_custody ... ok
+liquidation direction=-1 step=2 remaining=556451 capital=4312499 pnl=0 insurance=687501
+test later_rejection_rolls_back_an_earlier_spl_transfer_and_sequence_update ... ok
+Native SBF lifecycle CU: init=27874, deposit=38098, open=126785, reduce=138387, close=123274, withdraw=38986
+test javascript_adapter_executes_init_deposit_open_reduce_close_and_withdraw ... ok
+JS Hybrid funding premium=-1 step=12: payer=3 receiver=2, resumed funding=0, custody conserved
+funding premium=-1 step=24 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+JS teardown: all primary portfolios removed, seven surplus atoms swept, vault closed, exact rent refund and persistent tombstone
+JS resolved receipt: keeper=false, initial=1250, topup=500, total=1750
+test javascript_resolved_receipt_survives_haircut_and_pays_late_backing_exactly_once ... ok
+liquidation direction=1 step=1 remaining=1000000 capital=5000000 pnl=0 insurance=0
+test wallet_planner_creates_seeded_portfolio_and_withdrawal_token_account ... ok
+liquidation direction=1 step=2 remaining=612068 capital=4437498 pnl=0 insurance=562502
+test keeper_planner_liquidates_unhealthy_positions_and_preserves_custody ... ok
+JS Recovery continuation: direction=1, obligation cleaned, authenticated finalization, exactly 1000 atoms paid, rent returned to market
+funding premium=1 step=12 slot=14: payer capital=99999998 pnl=0, receiver capital=100000000 pnl=1
+JS teardown: all primary portfolios removed, seven surplus atoms swept, vault closed, exact rent refund and persistent tombstone
+JS resolved receipt: keeper=true, initial=1250, topup=500, total=1750
+test keeper_resolved_planner_expires_backing_and_pays_owner_without_owner_signature ... ok
+test wallet_planner_resolved_close_creates_ata_and_rolls_back_atomically ... ok
+funding premium=1 step=12 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+JS Recovery exit: 50 atoms forfeited, 50 atoms charged, one-atom B budget; custody unchanged
+test wallet_recovery_exit_forfeits_unbooked_gain_applies_loss_and_rejects_stale_consent ... ok
+JS Hybrid funding premium=-1 step=24: payer=3 receiver=2, resumed funding=0, custody conserved
+test wallet_planner_recovers_prefunded_addresses_with_atomic_allocation ... ok
+JS Recovery continuation: direction=-1, obligation cleaned, authenticated finalization, exactly 1000 atoms paid, rent returned to market
+test recovery_obligation_survives_wallet_refresh_and_keeper_finalization_to_exact_payout ... ok
+funding premium=1 step=24 slot=26: payer capital=99999997 pnl=0, receiver capital=100000000 pnl=2
+test javascript_crank_preserves_fractional_funding_across_settlement_cadence ... ok
+test keeper_hybrid_fallback_requires_delay_and_trusted_feed ... ok
+JS Hybrid funding premium=1 step=12: payer=3 receiver=2, resumed funding=0, custody conserved
+JS Hybrid funding premium=1 step=24: payer=3 receiver=2, resumed funding=0, custody conserved
+test keeper_hybrid_funding_survives_feed_outage_and_settlement_cadence ... ok
+test wallet_planner_accounts_for_nonzero_fees_and_atomic_rejections ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 24.66s
+
