@@ -11,6 +11,8 @@ client tests. It adds public-keeper execution through stale-feed fallback and
 recovery, in both funding directions and at two settlement cadences. Local
 binary provenance, exact accounting, rejected setup and remaining scope are
 recorded in [Hybrid funding verification](qualification/2026-11-15-hybrid-funding/README.md).
+Remote qualification also passed all 51 checks and 2,122 wrapper executions;
+the published merge has the identical tested tree.
 
 ## Initial sources and toolchains
 
