@@ -6,14 +6,36 @@ Its engine baseline is recorded below.
 
 | Source | Revision | Role |
 | --- | --- | --- |
-| [Percolator](https://github.com/aeyakovenko/percolator/tree/a712af767eeb217876a3d3c50e3849b60ea54462) | `a712af767eeb217876a3d3c50e3849b60ea54462` | Risk engine present in this repository |
-| [Published program fork](https://github.com/TheTradoor/outright-program/tree/72dd8948b116e9e16a85c830e1e2a7915f12d542) | `72dd8948b116e9e16a85c830e1e2a7915f12d542` | Runtime, conformance, SBF and qualification source; exact tree `8b54b827082b2b838beacd88d4d99bd12878d2ca` |
-| [Percolator program upstream base](https://github.com/aeyakovenko/percolator-prog/tree/357157e6e14d1d10ce78a995d5d50bb3c1f2ae13) | `357157e6e14d1d10ce78a995d5d50bb3c1f2ae13` | Original source and history retained by the program fork |
+| [Percolator](https://github.com/aeyakovenko/percolator/tree/5e3af0710ec7e9b7077393012f8a94a31b2f07ef) | `5e3af0710ec7e9b7077393012f8a94a31b2f07ef` | Risk engine present in this repository |
+| [Published program fork](https://github.com/TheTradoor/outright-program/tree/cfcc3f7b005faea0ff2caeb39bc87a48f75d8761) | `cfcc3f7b005faea0ff2caeb39bc87a48f75d8761` | Runtime, conformance, SBF and qualification source; exact tree `49f987d4963083b9befb3f92cf813fc656dcd02c` |
+| [Percolator program upstream base](https://github.com/aeyakovenko/percolator-prog/tree/7b11091328de23cded2e4afe96592bbd060a6828) | `7b11091328de23cded2e4afe96592bbd060a6828` | Latest upstream program merged with the retained Outright repairs |
 
 The normative engine contract is [spec.md](../spec.md), v16.9.1, together with
 the pinned source and tests. The wrapper is retained in a separate program fork;
 the native client depends on its published pinned revision. No public Outright program
 has been deployed.
+
+## November 15 source update
+
+The candidate merges nine engine commits through `5e3af071` and eleven program
+commits through `7b110913`, preserving their authors and history. The program
+candidate is [PR #2](https://github.com/TheTradoor/outright-program/pull/2).
+The engine implementation, specification and upstream tests match the pinned
+engine exactly. The program retains Outright's Recovery observation correction
+and fixture/model repairs.
+
+The update addresses resolved-close ledgers after repaid or later losses,
+liquidation behind lapsed backing, backing transfers for losses paid by liened
+claims, and repayment of provider principal after a late resolved loss. Live
+provider withdrawals cannot take a loser's payment before a winner settles.
+The wrapper also checks unsettled positions on the exit's own asset and limits
+trade admission by the work required to refresh liened claims, including batches.
+
+No account-layout or instruction-encoding change was found in the source diff.
+The conformance export is updated only in its source identities; CI must compare
+it byte for byte with the Rust exporter. Full qualification, SBF lifecycle and
+both validator paths must run on the new source and binaries. The PR #39 results
+remain evidence for the earlier source only. No deployment profile is enrolled.
 
 ## November 14 source update
 
@@ -82,7 +104,7 @@ fixtures only after reviewing the source change that requires them.
 Compare the engine with the baseline from the repository root:
 
 ```sh
-git diff a712af767eeb217876a3d3c50e3849b60ea54462 -- \
+git diff 5e3af0710ec7e9b7077393012f8a94a31b2f07ef -- \
   src tests spec.md Cargo.toml Cargo.lock LICENSE .cargo build.rs kani-list.json
 ```
 

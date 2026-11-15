@@ -2,12 +2,12 @@
   "schema": 1,
   "wrapper": {
     "repository": "TheTradoor/outright-program",
-    "ref": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
-    "tree": "8b54b827082b2b838beacd88d4d99bd12878d2ca",
+    "ref": "cfcc3f7b005faea0ff2caeb39bc87a48f75d8761",
+    "tree": "49f987d4963083b9befb3f92cf813fc656dcd02c",
     "upstream": "aeyakovenko/percolator-prog",
-    "upstream_ref": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13"
+    "upstream_ref": "7b11091328de23cded2e4afe96592bbd060a6828"
   },
-  "engine_ref": "a712af767eeb217876a3d3c50e3849b60ea54462",
+  "engine_ref": "5e3af0710ec7e9b7077393012f8a94a31b2f07ef",
   "matcher": {
     "repository": "aeyakovenko/percolator-match",
     "ref": "60aac3a996d0264c47fbefe9a2625d6ee6fb6a47"
@@ -27,7 +27,7 @@
   "suites": {
     "v16_cu": {
       "shards": 16,
-      "minimum_tests": 1566
+      "minimum_tests": 1581
     },
     "v16_program_stateful_fuzz": {
       "shards": 12,
@@ -264,7 +264,7 @@
     "inv_028_consumed_backing_cap": 1,
     "inv_029_positive_claim_bounds_never_understate": 4,
     "inv_030_credit_rate_determinism_and_fail_closed_behavior": 4,
-    "inv_031_no_double_use_of_claim_backing_or_insurance_atoms": 6,
+    "inv_031_no_double_use_of_claim_backing_or_insurance_atoms": 9,
     "inv_032_exact_counterparty_lien_lifecycle": 2,
     "inv_033_insurance_backed_lien_single_classification": 2,
     "inv_034_domain_and_instance_isolation": 30,
@@ -310,7 +310,7 @@
     "inv_074_scope_locality": 15,
     "inv_075_close_priority_ownership_and_episode_integrity": 10,
     "inv_076_close_drift_residual_durability_and_finalization_atomicity": 5,
-    "inv_077_bounded_work_and_maximum_shape_compute": 76,
+    "inv_077_bounded_work_and_maximum_shape_compute": 88,
     "inv_078_permissionless_recovery_coverage": 7,
     "inv_080_error_propagation_and_exact_rollback": 34,
     "inv_081_success_state_validity_over_complete_public_routes": 4,

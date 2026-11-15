@@ -2,16 +2,16 @@
   "schemaVersion": 1,
   "engine": {
     "repository": "https://github.com/aeyakovenko/percolator",
-    "revision": "a712af767eeb217876a3d3c50e3849b60ea54462",
+    "revision": "5e3af0710ec7e9b7077393012f8a94a31b2f07ef",
     "path": ".."
   },
   "program": {
     "repository": "https://github.com/TheTradoor/outright-program",
-    "revision": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
-    "tree": "8b54b827082b2b838beacd88d4d99bd12878d2ca",
+    "revision": "cfcc3f7b005faea0ff2caeb39bc87a48f75d8761",
+    "tree": "49f987d4963083b9befb3f92cf813fc656dcd02c",
     "upstream": {
       "repository": "https://github.com/aeyakovenko/percolator-prog",
-      "revision": "357157e6e14d1d10ce78a995d5d50bb3c1f2ae13"
+      "revision": "7b11091328de23cded2e4afe96592bbd060a6828"
     }
   }
 }

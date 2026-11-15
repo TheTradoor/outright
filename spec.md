@@ -330,6 +330,8 @@ Creating a lien MUST NOT raise `credit_rate_num`.
 
 The provider exit gate does not follow the lien-aware rate. A withdrawal of unliened counterparty backing MUST leave `available_backing_num >= positive_claim_bound_num`: the unliened backing left behind covers the whole claim bound, lien-covered face included. With no lien outstanding this is exactly "the rate stays full". With liens it is stricter (the rate is already full once total backing covers the claims), so a provider's surplus stays in place by the pledged amount until the liens are released. The gate has always had this watermark; the rate change alters how claims are credited, not what a provider may take out.
 
+The watermark counts registered claims, and a gain becomes a claim only when its account is refreshed. In Live mode, while any stored position on the domain's asset has not settled the asset's latest K/F change (`stale_account_count_long` or `stale_account_count_short` nonzero), a withdrawal of counterparty backing MUST NOT exceed the domain's provider principal: its deposits, less earlier withdrawals and forfeits, which take provider principal first. Fresh backing beyond that principal was paid in by the domain's losers, and in that window some of it may be owed to a gain the watermark cannot see yet; without the cap the provider could take a loser's payment between the loser's refresh and the winner's and leave the gain to be registered against no backing. Once every position is settled every gain is a registered claim, the watermark is exact, and backing above it may leave whether or not a loser paid it in. After resolution the resolved-surplus rule governs alone: it is defined only once no claim can still appear or grow.
+
 `fresh_reserved_backing_num` is actual account equity already locked for that source domain and still inside Fresh backing buckets. It is not an optimistic estimate. It cannot be withdrawn, pledged to another domain, used by another instance, or released without a full account refresh and source-credit recomputation. Expired, impaired, or consumed backing is not available for new credit.
 
 `spent_backing_num` is cumulative audit state paired with consumed liens and reduced claims. It MUST NOT be subtracted from `available_backing_num` because consumed backing is already removed from `fresh_reserved_backing_num`. Counting spent backing as both removed from fresh backing and as a live subtrahend is forbidden.
@@ -484,6 +486,8 @@ Unliened backing in an expired bucket contributes zero. Liened backing in an exp
 The expiry/impairment transition is aggregate and bounded by bucket id. Individual liens referencing an impaired bucket become impaired by bucket status and settle later through bounded cranks. Impaired lien backing is not available for new credit and does not count toward `available_backing_num`.
 
 The credit-rate reads of a full account refresh are not limited to the source domains the account already holds claims in. A favorable K/F delta on an active leg is credited to that leg's source domain `(asset, opposing_side)`, and the same refresh then reads that domain's rate although the account did not reference the domain before. In Live, the permissionless refresh MUST therefore treat the source domain of every active leg, together with every domain the account holds claims in, as a domain it reads. If the bucket of any of them is still Fresh at or past its expiry slot, the refresh MUST apply rule 2 to it before settlement instead of failing on it, and the account MUST classify as refresh work while such a bucket exists, whether or not its certificate is otherwise current. The discovery is bounded by `N` plus the account's bounded claim set (the reference implementation expires one bucket per call and returns before valuation). It MUST NOT expire a bucket before its expiry slot and MUST NOT select a bucket outside those domains. Owner-initiated operations MAY keep failing closed on such a bucket, because one permissionless crank on the same account removes it. Without this rule an account about to receive its first claim in a lapsed domain can be neither refreshed nor liquidated through any permissionless route.
+
+Liquidation re-values the account against the domains it holds claims in and fails closed on such a bucket without expiring it, and it is selected ahead of the refresh that does expire it. A certificate that stays current, as it does while no price, funding or risk epoch moves, would then leave the account un-liquidatable. The permissionless crank therefore MUST NOT dispatch a certified liquidation deficit as liquidation while the bucket of any domain the account holds claims in is still Fresh at or past its expiry slot, judged at the authenticated slot: it MUST select the refresh continuation, and liquidation follows on the recertified account. The deferral is bounded by one expiry step per lapsed bucket the refresh reads plus one recertification. It MUST NOT extend to buckets liquidation does not read: a current certificate leaves nothing pending on any leg, so a lapsed bucket in the source domain of an active leg in which the account holds no claim does not defer liquidation.
 
 The instruction MUST prove after expiry by independent recomputation from bucket state:
 ```text
@@ -1508,7 +1512,12 @@ never burned afterwards by the same loss. Burning it instead
 would spend `x / rate` face for `x` of loss and strand the difference in the
 source domain once its losers book. Health is unchanged either way (`C - x +
 P*r` equals `C + (P - x/r)*r`). Only a loss beyond free capital, or one met by
-liened face, takes the support-and-burn path.
+liened face, takes the support-and-burn path. The backing that (a) and the twin
+transfer move to `L` and the capital that (b) pays into `L` are payments of one
+loss at one expiry, and MAY be booked in a single update of `L`'s ledger. The
+state it leaves MUST be the one separate bookings leave, `L`'s credit epoch and
+the risk epoch included (one step per payment), so the number of ledger updates
+is not observable.
 
 Loss-domain booking of consumed support. A K/F loss is owed to `L` whether the
 account pays it from capital or by giving up claims. Counterparty backing that
@@ -1520,8 +1529,14 @@ domain books it exactly as ordinary support consumption (spent /
 provider-receivable / consumed lockstep), and the consumed atoms are booked
 for `L` by the same rule that books the capital-paid part of the same loss:
 in Live all of it joins `L` as loser-paid principal (refilling `L`'s provider
-receivable first) unless `L`'s bucket is Impaired; in Resolved mode nothing is
-booked for a terminal domain (Impaired, or no claim and no creditor leg left),
+receivable first) unless `L`'s bucket is Impaired; in Resolved mode a terminal
+domain (Impaired, or no claim and no creditor leg left) is booked nothing,
+except that one that is not Impaired is booked what repays its provider until
+the payout snapshot is captured: `min(provider receivable, provider principal -
+fresh reserved backing)`, the principal the provider fronted and has not been
+repaid (the receivable alone also counts consumed backing that losers paid in).
+What a provider fronted is owed to it whichever of the winner and the loser
+closes first;
 otherwise `L` takes what the resolved loss-backing capacity allows (the whole
 amount while `L`'s bucket is Fresh, unlapsed and funded; otherwise its support
 gap plus the provider receivable already advanced). Whatever that rule does
@@ -1533,6 +1548,32 @@ captured. Without this a provider in `L` pays the opposite side's gain from
 its principal and is never repaid, and the consumed backing is retired at
 terminal. The face burned by that path, and the rate it is burned at, are
 unchanged.
+
+Liened face that a Live K/F loss burns. The support-and-burn path burns liened
+face after unliened face. The counterparty backing behind burned liened face is
+reserved for the account alone and is what the account pays that part of its
+loss with, so it MUST leave with the loss: instead of being un-pledged into its
+bucket it is consumed from the lien (valid liened to consumed, with spent /
+provider-receivable / consumed in lockstep as above) and booked for `L` by the
+same rule as the paragraph above. The account-side effect is unchanged: the same
+face is burned and the lien shrinks by the same amounts. Only whole atoms are
+consumed; a fraction of an atom is un-pledged in place. The exceptions are those
+of the netting above. Face held in `L` itself moves nothing: its backing already
+sits where the loss is owed. For face in the twin domain `T` only the share its
+losers paid in follows, `burned face * loser_paid_T / claims_T`, rounded up to a
+whole atom and never more than the lien's backing or `T`'s loser-paid backing,
+so what a provider fronted stays with the provider. Nothing is consumed while
+either side of either asset has a pending domain-loss barrier, while the face's
+bucket is not Fresh and unlapsed, or while `L`'s bucket cannot accept fresh
+principal; the lien is then un-pledged in place (or retired, for an impaired
+lien) as before. Insurance-backed liens are released as before. In Resolved mode
+and on every other path that burns liened face (forfeit, conversion, close) the
+lien is un-pledged in place. Without this rule the backing stays in a domain
+that no longer has a claim on it while the opposite side's gain is unbacked, or
+is paid by a provider in `L` that is never repaid. Under the lien-aware credit
+rate (section 2) a partial lien does not lower its domain's rate, so rule (b)
+does not shield a partly liened account: every loss beyond its unliened face
+reaches liened face.
 
 If full B settlement is too large, partial settlement is allowed. While `B_remaining > 0`, no user-favorable action may continue.
 
@@ -1668,6 +1709,30 @@ remaining_residual =
 Every continuation first checks owner cure-and-cancel after any cancel escrow. New deposits intended for cancel MUST NOT be consumed as support before this check. Continuation must strictly reduce close progress after worst-case drift; otherwise route to recovery.
 
 Cure-and-cancel is allowed only if the account is initial-healthy after all reserves and no irreversible B booking, ADL, insurance spend, explicit loss, support consumption, pulled-forward obligation, or consumed credit lien has occurred.
+
+A close MUST NOT charge the opposite side for loss its account has paid. Loss the
+account pays itself after the close began (principal, or any credit that lowers
+its negative PnL) lowers `gross_loss_at_close_start` and the remaining residual
+together, so the partition equality above holds and no category is charged for
+it. Every continuation applies this before it books, in Live and in resolved
+close alike. A resolved close applies it also when the account owes nothing any
+more: the remaining residual is then zero, the close finalizes if it had booked
+progress and is canceled if it had none, and its domain barrier is released in
+that call, before the account's legs detach or it is paid out. A resolved close
+MUST NOT pay out an account whose close still has residual pending: that
+account's barrier could never be released afterwards, and it holds every leg of
+the barrier side and every positive payout of the group.
+
+A finalized close is complete: it holds no barrier and its ledger is inert. A
+loss that reaches the account afterwards is a new close with a new `close_id`,
+in resolved close as in Live liquidation. This happens when the account's leg
+had to stay attached for a barrier on its own side and the close holding that
+barrier then books onto it. The finalized ledger MUST NOT absorb that loss and
+MUST NOT keep the new close from beginning: an account left negative under a
+finalized ledger can never detach its leg, and it holds every positive payout
+of the group. The new close begins under the usual conditions (no other close
+pending on its domain), draws domain insurance first, and books and finalizes
+like a first close.
 
 -------------------------------------------------------------------------------
 11. User operations
@@ -1893,6 +1958,9 @@ resolved-claim, and rebalance-on-touch routes required for user exits.
 106. `lien_and_unliened_source_support_sum_capped_by_shared_backing` (a lien holder's reserve plus every other claimant's soft credit fit in the domain backing; in a fully backed domain the lien cuts no other claimant).
 107. `lien_create_release_never_cuts_fully_backed_domain_rate` (creating a lien never raises `credit_rate_num` and leaves it full when the domain's backing covers its claims; releasing it restores the pre-lien state and rate).
 108. `counterparty_backing_withdraw_beside_lien_cannot_underback_claims` (a backing debit that leaves the full rate leaves total backing >= total claims; the provider gate itself keeps `available_backing_num >= positive_claim_bound_num`).
+109. `lapsed_backing_in_account_claim_domain_defers_certified_liquidation_to_refresh` (while a domain the account holds claims in has a Fresh bucket at or past expiry, a current certificate with a deficit is refresh work and not liquidation work; liquidation is reached after one expiry step per lapsed bucket the refresh reads and one recertification; a lapsed bucket in a leg's source domain without a claim of the account, on the leg's own side or on another asset does not defer liquidation).
+110. `live_kf_loss_met_by_liened_face_books_lien_backing_for_loss_domain` (in Live, the counterparty backing behind liened face that a K/F loss burns is consumed and booked for the domain the loss is owed to; twin-domain face moves only its loser-paid share and face in the loss domain moves nothing; after every account is refreshed each source domain holds exactly its claims plus provider principal).
+111. `live_provider_backing_withdrawal_is_capped_at_principal_while_a_position_is_unsettled` (in Live, with a stored position on the asset that has not settled the latest K/F change, the provider exit refuses, before any state changes, a withdrawal above the domain's provider principal even when no claim is registered; a withdrawal within it debits principal and reserved backing alike and leaves the loser-paid part exactly as it was).
 -------------------------------------------------------------------------------
 15. Audit summary and intended tradeoff
 -------------------------------------------------------------------------------
