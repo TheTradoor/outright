@@ -6,6 +6,7 @@ import { getAssociatedTokenAddressSync, unpackMint } from "./src/token.mjs";
 import { readMarket } from "./src/market.mjs";
 import { validateProfile, readSnapshot, sha256 } from "./src/client.mjs";
 import { validateNetwork, validateRpcUrl } from "./src/network.mjs";
+import { boundedRpcFetch } from "./src/transport.mjs";
 import {
   ENGINE_COMMIT,
   WRAPPER_COMMIT,
@@ -71,8 +72,7 @@ for (const required of [
 const rpc = new Connection(validateRpcUrl(args.cluster, args.rpc), {
   commitment: "confirmed",
   disableRetryOnRateLimit: true,
-  fetch: (input, init) =>
-    fetch(input, { ...init, signal: AbortSignal.timeout(15_000) }),
+  fetch: boundedRpcFetch(),
 });
 const network = validateNetwork({
   cluster: args.cluster,
