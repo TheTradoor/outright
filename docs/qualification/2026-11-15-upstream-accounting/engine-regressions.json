@@ -1,0 +1,48 @@
+{
+  "engine": "5e3af0710ec7e9b7077393012f8a94a31b2f07ef",
+  "scope": "new upstream regression files, executed by fuzz-feature CI",
+  "results": [
+    {
+      "file": "tests/resolved_close_ledger_locks.rs",
+      "passed": 11,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0
+    },
+    {
+      "file": "tests/v16_kf_loss_liened_face.rs",
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0
+    },
+    {
+      "file": "tests/v16_kf_loss_single_backing_credit.rs",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0
+    },
+    {
+      "file": "tests/v16_liquidation_lapsed_roster_backing.rs",
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0
+    },
+    {
+      "file": "tests/v16_provider_withdraw_principal_cap.rs",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0
+    },
+    {
+      "file": "tests/v16_resolved_late_loss_refills_provider.rs",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0
+    }
+  ]
+}

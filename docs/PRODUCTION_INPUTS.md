@@ -4,10 +4,11 @@ Checked on **14 November 2026, 20:39 WIB**. No production wallet was loaded,
 no transaction was signed and no mainnet funds were moved.
 
 The current terminal has no enrolled deployment. The website was updated to
-[version 33](qualification/2026-11-15-response-limits/README.md#website-publication) on 15 November 2026,
+[version 34](qualification/2026-11-15-upstream-accounting/README.md#website-publication) on 15 November 2026,
 with owner-only access and the unchanged runtime environment revision. The
-qualified program binary exists; production authorities, market parameters,
-maker funding and operating services are not established by that artifact.
+updated program passed current-validator qualification; its independent binary
+reproduction and final allocation remain open. Production authorities, market
+parameters, maker funding and operating services are not established by that result.
 
 On 15 November 2026, [Pyth Core inspection](ORACLE_OPERATIONS.md) was added and
 verified against a real mainnet SOL/USD observation and the published wrapper.
@@ -55,6 +56,13 @@ The measured program is 1,270,936 bytes with SHA-256
 `1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e`.
 Its [build record](qualification/2026-11-14-published-program/program-build-verification.json)
 binds it to the published wrapper and unchanged Percolator engine.
+
+These figures belong to that earlier program. The November 15 upstream update
+produces a different candidate binary, SHA-256
+`93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4`.
+Its independent build reproduction and final account allocation must be checked
+before calculating a new deployment budget. The earlier rent figures must not
+be treated as the cost of the updated program.
 
 RPC references:
 [account rent](https://solana.com/docs/rpc/http/getminimumbalanceforrentexemption)

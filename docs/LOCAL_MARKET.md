@@ -29,7 +29,7 @@ From the Outright checkout:
 npm ci --prefix protocol --ignore-scripts --no-audit --no-fund
 cargo install cargo-build-sbf --version 4.6.0 --locked
 git clone https://github.com/TheTradoor/outright-program.git ../percolator-prog
-git -C ../percolator-prog checkout --detach 72dd8948b116e9e16a85c830e1e2a7915f12d542
+git -C ../percolator-prog checkout --detach cfcc3f7b005faea0ff2caeb39bc87a48f75d8761
 bash protocol/localnet/run.sh ../percolator-prog \
   --validator "$(command -v solana-test-validator)" \
   --state-dir "$PWD/protocol/localnet-state"

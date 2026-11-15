@@ -1,0 +1,21 @@
+{
+  "environment": "Managed Chromium preview",
+  "preview_origin": "http://127.0.0.1:4173",
+  "specification_link": "https://github.com/TheTradoor/outright/blob/5e3af0710ec7e9b7077393012f8a94a31b2f07ef/spec.md",
+  "engine_page_rendered": true,
+  "updates_navigation_passed": true,
+  "terminal_status_after_retry": "Trading is not open yet. This page will connect to the official market automatically when it opens.",
+  "review_trade_enabled": false,
+  "deposit_enabled": false,
+  "site_console_errors_observed": [],
+  "browser_extension_metadata_errors_excluded": true,
+  "physical_wallet_acceptance": false,
+  "production_transaction_executed": false,
+  "search": {
+    "query": "liened claims",
+    "results": 2,
+    "selected": "/docs/updates/#upstream-accounting",
+    "heading_visible_after_navigation": true,
+    "dialog_closed_after_navigation": true
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "candidate_source_identity_verified": true,
+  "client_tree": "315c274942622526cb0e9d644f13f0aa4bd44861",
+  "program_sha256": "93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4",
+  "lifecycle_seconds": 25.762,
+  "native_transactions": 7,
+  "exact_collateral_reconciliation": true
+}

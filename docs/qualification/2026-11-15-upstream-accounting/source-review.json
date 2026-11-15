@@ -1,0 +1,47 @@
+{
+  "scope": "upstream-integration-source-review",
+  "client_head": "7fef978012ca24fee7468c8d35416f4b3d9f10a7",
+  "client_tree": "315c274942622526cb0e9d644f13f0aa4bd44861",
+  "engine": {
+    "previous": "a712af767eeb217876a3d3c50e3849b60ea54462",
+    "current": "5e3af0710ec7e9b7077393012f8a94a31b2f07ef",
+    "new_commits": 9,
+    "local_engine_changes": false
+  },
+  "program": {
+    "previous": "72dd8948b116e9e16a85c830e1e2a7915f12d542",
+    "current": "cfcc3f7b005faea0ff2caeb39bc87a48f75d8761",
+    "tree": "49f987d4963083b9befb3f92cf813fc656dcd02c",
+    "upstream": "7b11091328de23cded2e4afe96592bbd060a6828",
+    "new_upstream_commits": 11,
+    "recovery_correction_lines": 8
+  },
+  "local_checks": {
+    "client_tests": 607,
+    "verifier_tests": 53,
+    "terminal_build": "passed",
+    "exact_engine_equivalence": "passed"
+  },
+  "remote_engine_checks": {
+    "default": 406,
+    "fuzz": 474,
+    "failed": 0,
+    "ignored": 0,
+    "filtered": 0,
+    "counts_overlap": true
+  },
+  "remote_contract_check": {
+    "client_tests": 607,
+    "shared_oracle_vectors": 31,
+    "instruction_and_layout_diff": "source identity fields only"
+  },
+  "new_program_cu_tests": 15,
+  "mainnet_deployment": false,
+  "site_source_link_regression": {
+    "before": "Engine documentation linked to 51c54ee2 instead of its recorded engine revision",
+    "fix": "Render the specification URL from ENGINE_REV; validate it against the client source lock and protocol snapshot",
+    "before_check": "failed as expected",
+    "after_check": "passed, 20 routes and 994 local links/assets"
+  },
+  "independent_current_binary_reproduction": "not yet established; prior BUILD-01 evidence belongs to the earlier engine"
+}

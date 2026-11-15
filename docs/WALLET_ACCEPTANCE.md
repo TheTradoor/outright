@@ -22,8 +22,8 @@ No wallet brand or version is claimed supported by this document.
 | Mainnet release | Blocked by [PROD-06](REPAIR_CHECKLIST.md#remaining-release-and-acceptance-work) and the [mainnet release requirements](MAINNET_RELEASE.md). Repeat acceptance on the exact enrolled production release after those requirements are satisfied. |
 
 The ordinary local-market runner now requires the published repaired wrapper
-`72dd8948b116e9e16a85c830e1e2a7915f12d542`, tree
-`8b54b827082b2b838beacd88d4d99bd12878d2ca`. Rebuild and enroll this exact source
+`cfcc3f7b005faea0ff2caeb39bc87a48f75d8761`, tree
+`49f987d4963083b9befb3f92cf813fc656dcd02c`. Rebuild and enroll this exact source
 before attributing wallet results to it. Profiles built for the original upstream
 revision are deliberately incompatible with the new client source pin. The
 candidate-validator CI deliberately exports no deployment profile. Never relabel

@@ -3,7 +3,7 @@
 `Complete wrapper qualification` is the aggregate gate for the exact source commit in
 `qualification/wrapper-source.json`. It requires every default-feature library unit
 and integration test, plus the native client lifecycle tests, to execute successfully.
-The initial baseline contains 1,566 CU, 336 stateful, 148 regression, 17 native lifecycle,
+The current minimum inventory contains 1,581 CU, 336 stateful, 148 regression, 19 native lifecycle,
 8 library, 7 Anchor probe, 8 listing/oracle scope, and 9 open-issue regression executions;
 those numbers are minimum inventory checks, not a selection of tests. Added tests
 are discovered and executed automatically. Known failures remain failures.
@@ -11,8 +11,8 @@ Some integration binaries include the same shared controls. These counts measure
 test executions in each Cargo target, not distinct production scenarios.
 
 The manifest pins the published `TheTradoor/outright-program` commit
-`72dd8948b116e9e16a85c830e1e2a7915f12d542` and source tree
-`8b54b827082b2b838beacd88d4d99bd12878d2ca`, alongside the unchanged upstream engine,
+`cfcc3f7b005faea0ff2caeb39bc87a48f75d8761` and source tree
+`49f987d4963083b9befb3f92cf813fc656dcd02c`, alongside the adopted upstream engine,
 matcher and toolchains. Runtime, conformance and qualification use that same
 published source. Every job checks the commit, tree and unchanged working copy
 before and after execution. The original upstream revision and repair patch remain
