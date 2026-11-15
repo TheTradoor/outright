@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 
@@ -35,10 +36,16 @@ def check_report(report, attestation):
     assert report["beforeTokenAtoms"] == report["afterTokenAtoms"] == "1000000000"
     assert report["finalPortfolioCapital"] == "0" and report["makerCapital"] == "10000000000"
     assert report["genesisHash"]
+    expected_hashes = attestation.get("binary_sha256")
+    assert isinstance(expected_hashes, dict) and set(expected_hashes) == set(BINARIES), "Incomplete build binary identity"
+    assert set(report["deployed"]) == set(BINARIES), "Unexpected deployed binary inventory"
     for name in BINARIES:
+        expected = expected_hashes[name]
+        assert isinstance(expected, str) and re.fullmatch(r"[0-9a-f]{64}", expected), f"Invalid {name} build SHA-256"
         pin = report["deployed"][name]
         assert pin["upgradeAuthority"] is None, "Test program authority was not finalized"
-        assert len(pin["sha256"]) == 64 and pin["address"] and pin["programData"]
+        assert pin["sha256"] == expected, f"Deployed {name} does not match the build artifact"
+        assert pin["address"] and pin["programData"]
 
 
 def main():
