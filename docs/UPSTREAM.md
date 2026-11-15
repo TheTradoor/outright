@@ -17,9 +17,9 @@ has been deployed.
 
 ## November 15 source update
 
-The candidate merges nine engine commits through `5e3af071` and eleven program
+The update merges nine engine commits through `5e3af071` and eleven program
 commits through `7b110913`, preserving their authors and history. The program
-candidate is [PR #2](https://github.com/TheTradoor/outright-program/pull/2).
+merge is [PR #2](https://github.com/TheTradoor/outright-program/pull/2).
 The engine implementation, specification and upstream tests match the pinned
 engine exactly. The program retains Outright's Recovery observation correction
 and fixture/model repairs.
@@ -32,10 +32,13 @@ The wrapper also checks unsettled positions on the exit's own asset and limits
 trade admission by the work required to refresh liened claims, including batches.
 
 No account-layout or instruction-encoding change was found in the source diff.
-The conformance export is updated only in its source identities; CI must compare
-it byte for byte with the Rust exporter. Full qualification, SBF lifecycle and
-both validator paths must run on the new source and binaries. The PR #39 results
-remain evidence for the earlier source only. No deployment profile is enrolled.
+The conformance export changes only its source identities and matches the Rust
+exporter byte for byte. Application PR #41 passed all 51 checks before merge,
+including 2,137 wrapper executions, 607 client tests, 19 SBF cases and both
+seven-transaction validator paths. Published trees match the qualified sources.
+The complete artifact and raw-log packet is retained in
+[the November 15 integration record](qualification/2026-11-15-upstream-accounting/README.md).
+No deployment profile is enrolled.
 
 ## November 14 source update
 

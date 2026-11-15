@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/8fe88917ca62/outright-site/.sites-checkout/scripts/check.py", line 67, in <module>
+    assert spec_url in engine_page.links, "Engine documentation must link to the current pinned specification"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Engine documentation must link to the current pinned specification

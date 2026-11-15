@@ -28,20 +28,19 @@ remains single-use and must be prepared again.
 ## Verification scope
 
 The runtime source lock, Rust conformance dependency, generated contract and both
-SBF/validator build paths now use published program commit
-`72dd8948b116e9e16a85c830e1e2a7915f12d542`, tree
-`8b54b827082b2b838beacd88d4d99bd12878d2ca`. The engine remains exactly
-`a712af767eeb217876a3d3c50e3849b60ea54462`. Rust regeneration changed only the
-wrapper commit metadata: all instruction encodings, account layouts and other
-exported contract values were identical. The qualification manifest uses the same
-published revision without an overlay; its source guard rejects mismatched runtime
-and qualification pins, missing tree identity and staged program modifications.
-Fresh CI for this revision passes 496 client tests, 17 application SBF cases
-and both seven-transaction current-validator paths. The 53-test verifier suite
-also passes locally. Complete wrapper qualification passed 37 shards and 2,120
-executions, with verified coverage and a matching independent aggregate.
-All 51 PR checks passed before merge. The complete evidence is retained in the
-[current validation record](qualification/2026-11-14-published-program/README.md).
+SBF/validator build paths use published program commit
+`cfcc3f7b005faea0ff2caeb39bc87a48f75d8761`, tree
+`49f987d4963083b9befb3f92cf813fc656dcd02c`, with unchanged upstream engine
+`5e3af0710ec7e9b7077393012f8a94a31b2f07ef`. The Rust exporter matches the
+client contract; only source identities changed in the adoption. Qualification
+requires the same published revision and tree without an overlay. Its source guard
+rejects mismatched pins, missing tree identity and staged program modifications.
+
+PR #41 passed all 51 checks before merge: 607 client tests, 19 application SBF
+cases, both seven-transaction current-validator paths and 2,137 wrapper executions
+across 37 shards. The 53-test verifier suite passes locally. All 39 wrapper
+archives and 2,137 raw logs are retained and independently checked. See the
+[current validation record](qualification/2026-11-15-upstream-accounting/README.md).
 The results below describe the earlier mainnet-client snapshot and retain their
 original scope.
 

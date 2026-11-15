@@ -23,7 +23,7 @@ substitute a price simulator or a different exchange's execution engine.
 The source check requires exact engine-source equivalence.
 
 The upstream [engine guide](../ENGINE.md), [specification](../spec.md) and
-[wrapper product specification](https://github.com/aeyakovenko/percolator-prog/blob/357157e6e14d1d10ce78a995d5d50bb3c1f2ae13/README.md)
+[wrapper product specification](https://github.com/aeyakovenko/percolator-prog/blob/7b11091328de23cded2e4afe96592bbd060a6828/README.md)
 define the implementation constraints:
 
 | Requirement | Application consequence |
@@ -44,7 +44,7 @@ repositories continue to say the software is unaudited and not production ready.
 
 | Release requirement | Current evidence and remaining work |
 | --- | --- |
-| Qualified engine and wrapper | Engine `a712af76` and published wrapper `72dd8948` are unchanged. PR #36 passed all 51 checks, including 594 client tests, 31 oracle vectors checked against the actual Rust wrapper, 19 SBF cases, both current-validator paths and the 37-shard, 2,122-execution wrapper qualification. The merged tree equals the tested tree. Independent security review remains open. See the [repair checklist](REPAIR_CHECKLIST.md) for exact sources and results. |
+| Qualified engine and wrapper | Engine `5e3af071` and published program `cfcc3f7b` passed all 51 PR #41 checks: 607 client tests, 31 shared Rust oracle vectors, 19 SBF cases, both current-validator paths and 37 shards with 2,137 wrapper executions. The published trees equal their qualified trees. All raw wrapper logs are retained. Independent binary reproduction for this update and security review remain open. See the [repair checklist](REPAIR_CHECKLIST.md). |
 | Independent security review | No Outright audit is recorded. Review must cover the exact engine, wrapper, matcher, oracle integration and application release, including custody and exit paths. |
 | Production deployment and authority custody | No mainnet program/market is enrolled. A verifiable build, actual program-data hash, authority policy and operator-controlled signing arrangement are required. Disposable local keys must never become production authorities. |
 | Funded maker and insurance | The 10,000 TEST fixture is synthetic. Actual collateral, maker consent, capital limits, inventory policy and insurance funding are not established. A matcher alone supplies no capital. |

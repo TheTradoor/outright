@@ -87,7 +87,7 @@ enlarge the market's risk limits merely to make an inspection pass.
 
 Sources checked on 15 November 2026 (Asia/Jakarta):
 
-- [Pinned wrapper oracle implementation](https://github.com/TheTradoor/outright-program/blob/72dd8948b116e9e16a85c830e1e2a7915f12d542/src/v16_program.rs)
+- [Pinned wrapper oracle implementation](https://github.com/TheTradoor/outright-program/blob/cfcc3f7b005faea0ff2caeb39bc87a48f75d8761/src/v16_program.rs)
 - [Pyth Solana integration](https://docs.pyth.network/pro/use-prices-on-blockchain/solana)
 - [Pyth contract addresses](https://docs.pyth.network/pro/contract-addresses)
 - [Sponsored feeds and price-pusher requirements](https://docs.pyth.network/pro/sponsored-feeds)

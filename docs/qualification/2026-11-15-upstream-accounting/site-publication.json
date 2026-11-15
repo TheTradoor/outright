@@ -1,0 +1,68 @@
+{
+  "deployment": {
+    "id": "appgdep_6af9a55d51d081918cefbf182ac4c0c1",
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "title": "Outright",
+    "version_id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_a3cd2c5dc02c81918c37bc6a5053e840",
+    "type": "publish",
+    "status": "succeeded",
+    "url": "https://outright.bollish-eth.chatgpt.site",
+    "has_mcp": false,
+    "screenshot_asset_pointer": null,
+    "provider_deployment_id": "site---6af62e70597c81919970ed21213d7718",
+    "failure_message": null,
+    "env_set_revision": 0,
+    "updated_at": "2026-11-15T12:28:32.975354+00:00"
+  },
+  "version": {
+    "id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_a3cd2c5dc02c81918c37bc6a5053e840",
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "version_number": 34,
+    "source": {
+      "commit_sha": "aee9c4a111f0713066b11fc61cbb21a0861b54cb"
+    },
+    "archive_storage": {
+      "archive_format": "tar",
+      "sediment_file_id": "file_00000000f814821194c8259bf3c62774",
+      "content_hash": "sha256:d6623ba31f00c2c1cdf5031c6eae014630fdeafc64707625fa00772c2b52ff0b",
+      "size_bytes": 2129920,
+      "file_count": 39
+    },
+    "deployment_id": "appgdep_6af9a55d51d081918cefbf182ac4c0c1"
+  },
+  "prepared_source": {
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "checkout_path": "/workspace/scratch/8fe88917ca62/outright-site/.sites-checkout",
+    "commit_sha": "aee9c4a111f0713066b11fc61cbb21a0861b54cb",
+    "archive": "/workspace/scratch/8fe88917ca62/outright-site-v34.tar.gz"
+  },
+  "canonical_source": "518eb3acfb9667aaa899eeb86835d0cd4f1020a5",
+  "checks": {
+    "routes": 20,
+    "local_links_assets": 994,
+    "client_tests": 607,
+    "mechanics_tests": 4,
+    "canonical_protocol_files": 81,
+    "official_deployment_profile": null
+  },
+  "verification_scope": "Native deployment success for the exact pushed source; live Chromium page shows the new update. Preview verified specification link, documentation search and terminal unavailable/retry state. No physical wallet or production market acceptance.",
+  "live_browser": {
+    "url": "https://outright.bollish-eth.chatgpt.site/docs/updates/#upstream-accounting",
+    "update_visible": true,
+    "screenshot": "site-update-v34.jpg"
+  },
+  "audience_before_publication": {
+    "role": "owner",
+    "access_mode": "custom",
+    "access_revision": 1,
+    "external_visitor_count": 0,
+    "latest_version": 33,
+    "url": "https://outright.bollish-eth.chatgpt.site"
+  },
+  "local_archive": {
+    "bytes": 1168643,
+    "sha256": "7910b94c453fd604c28919d5c6eadbf751477c68395640eef09063a383bf0d76",
+    "regular_files": 39
+  },
+  "archive_note": "Local upload bytes and native stored archive metadata are separate records; their digests are not asserted equal."
+}

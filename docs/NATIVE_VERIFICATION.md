@@ -14,6 +14,12 @@ recorded in [Hybrid funding verification](qualification/2026-11-15-hybrid-fundin
 Remote qualification also passed all 51 checks and 2,122 wrapper executions;
 the published merge has the identical tested tree.
 
+The later November 15 engine/program adoption passed all 51 PR #41 checks,
+607 client tests, 19 SBF cases, both validator paths and 2,137 wrapper executions.
+The [upstream integration packet](qualification/2026-11-15-upstream-accounting/README.md)
+retains all raw wrapper logs and binds the results to engine `5e3af071` and
+program `cfcc3f7b`. Earlier sections below retain their original identities.
+
 ## Initial sources and toolchains
 
 | Item | Revision or version |
