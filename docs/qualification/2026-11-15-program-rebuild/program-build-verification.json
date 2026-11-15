@@ -1,0 +1,56 @@
+{
+  "scope": "independent-program-build",
+  "status": "matched-validator-artifact",
+  "verifiedAt": "2026-11-15T14:59:14.764149+00:00",
+  "source_repository": "https://github.com/TheTradoor/outright-program",
+  "source_commit": "cfcc3f7b005faea0ff2caeb39bc87a48f75d8761",
+  "source_tree": "49f987d4963083b9befb3f92cf813fc656dcd02c",
+  "published_merge": "162e73edb4f411d18907a9516e8c2808879935bc",
+  "tracked_worktree_dirty_before": false,
+  "tracked_worktree_dirty_after": false,
+  "engine_commit": "5e3af0710ec7e9b7077393012f8a94a31b2f07ef",
+  "build_exit_code": 0,
+  "command": [
+    "cargo",
+    "+1.95.0",
+    "build-sbf",
+    "--tools-version",
+    "v1.58",
+    "--arch",
+    "v3",
+    "--sbf-out-dir",
+    "target/release-candidate",
+    "--",
+    "--locked"
+  ],
+  "toolchain": {
+    "cargo_build_sbf": "4.6.0",
+    "host_rust": "1.95.0",
+    "platform_tools": "v1.58",
+    "sbf_arch": "v3",
+    "validator": "4.4.1"
+  },
+  "reported_host_rust": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "reported_sbf_rust": "rustc 1.95.0-dev (1e20dd0d5 2026-10-05)",
+  "binary": {
+    "path": "percolator_prog-sbpf-v3.so.gz",
+    "encoding": "gzip; SHA-256 and bytes describe the decompressed ELF",
+    "bytes": 1283424,
+    "sha256": "93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4"
+  },
+  "build_log_sha256": "0dc82465857a1de4f92da2ea1c9aac017b338f0e1d7d7688858ea6d327252450",
+  "source_inputs_sha256": {
+    "Cargo.toml": "c617e26cdd09596152333a47ef29402e65250495d725cf918563dd77d39fe730",
+    "Cargo.lock": "0bf8b766e67907c95c77cab24b16b167d43c5be9758ac4e87b824ab784ebaf5d"
+  },
+  "validator_artifact": "../2026-11-15-upstream-accounting/candidate-current-validator.zip",
+  "qualified_ci_run": "https://github.com/TheTradoor/outright/actions/runs/43710363793",
+  "program_binary_hash_matches_qualified_ci": true,
+  "build_warnings": [
+    "Both cdylib and lib crate types disable LTO.",
+    "cargo-build-sbf post-processing reported Invalid syscall code 9. The retained qualified CI build emitted the same warning; its exact resulting binary passed the Agave 4.4.1 lifecycle. This rebuild is not evidence of production-cluster deployment acceptance."
+  ],
+  "deployment": null,
+  "signing_keys_included": false,
+  "production_approval": false
+}

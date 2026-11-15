@@ -1,0 +1,43 @@
+{
+  "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+  "version_number": 35,
+  "version_id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_5613c19930148191ae7bd56eac23837b",
+  "source_commit": "f7cc00a0d872053d221234f6b469532844438118",
+  "deployment_id": "appgdep_6af9cadd046c8191988889ad0fbcc7bd",
+  "deployment_status": "succeeded",
+  "published_at": "2026-11-15T15:08:31.470522+00:00",
+  "url": "https://outright.bollish-eth.chatgpt.site",
+  "environment_revision": 0,
+  "access": {
+    "mode": "custom",
+    "owner_only": true,
+    "external_visitor_count": 0
+  },
+  "deployment_profile": null,
+  "archive_storage": {
+    "format": "tar",
+    "content_hash": "sha256:951d28641fd28b09d4da9ccbdd49d6d9686a9a6e2c852032ff41e15a4d2b15a2",
+    "size_bytes": 2140160,
+    "file_count": 39
+  },
+  "canonical_client_commit": "518eb3acfb9667aaa899eeb86835d0cd4f1020a5",
+  "canonical_protocol_files": 81,
+  "engine_commit": "5e3af0710ec7e9b7077393012f8a94a31b2f07ef",
+  "program_commit": "cfcc3f7b005faea0ff2caeb39bc87a48f75d8761",
+  "documentation_snapshot_commit": "b23469dc9864a5943167ecca70b061619a717d19",
+  "browser": {
+    "preview_home_and_updates_checked": true,
+    "preview_search_query": "program rebuild",
+    "preview_search_results": 1,
+    "preview_search_target": "/docs/updates/#program-rebuild",
+    "published_home_update_visible": true,
+    "physical_wallet_acceptance": false
+  },
+  "mainnet_trading_open": false,
+  "source_snapshot_sha256": "175174835ac96de7a0a736457715aeb2d3f502f482bbb4935698b938c84ed8a7",
+  "uploaded_archive": {
+    "filename": "outright-v35.tar.gz",
+    "size_bytes": 1169577,
+    "sha256": "8c89284f7228110288594f17d82b7dddec9f2f0899246d75bb109161ff70bbb1"
+  }
+}

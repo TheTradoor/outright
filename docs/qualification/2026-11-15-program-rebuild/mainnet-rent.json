@@ -1,0 +1,58 @@
+{
+  "scope": "read-only-mainnet-account-rent",
+  "startedAt": "2026-11-15T14:58:18.635883+00:00",
+  "completedAt": "2026-11-15T14:59:44.174905+00:00",
+  "rpc": "https://api.mainnet-beta.solana.com",
+  "genesisHash": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+  "rpcVersion": {
+    "feature-set": 2681577653,
+    "solana-core": "4.4.0"
+  },
+  "finalizedSlotBefore": 469771543,
+  "finalizedSlotAfter": 469771799,
+  "binary": {
+    "bytes": 1283424,
+    "sha256": "93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4"
+  },
+  "allocation": "Exact binary length; excludes extra upgrade capacity. Production allocation is not selected.",
+  "rows": [
+    {
+      "name": "program",
+      "bytes": 36,
+      "rentLamports": 833120
+    },
+    {
+      "name": "programData",
+      "bytes": 1283469,
+      "rentLamports": 6520672760
+    },
+    {
+      "name": "uploadBuffer",
+      "bytes": 1283461,
+      "rentLamports": 6520632120
+    },
+    {
+      "name": "market",
+      "bytes": 3035,
+      "rentLamports": 16068040
+    },
+    {
+      "name": "portfolio",
+      "bytes": 9563,
+      "rentLamports": 49230280
+    },
+    {
+      "name": "splTokenAccount",
+      "bytes": 165,
+      "rentLamports": 1488440
+    }
+  ],
+  "transactionFees": null,
+  "matcherProgramCost": null,
+  "keeperOperatingBudget": null,
+  "makerCollateral": null,
+  "insuranceCollateral": null,
+  "payer": null,
+  "signingPerformed": false,
+  "transactionsSubmitted": 0
+}

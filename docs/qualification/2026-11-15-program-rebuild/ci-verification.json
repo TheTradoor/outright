@@ -1,0 +1,71 @@
+{
+  "pr": "https://github.com/TheTradoor/outright/pull/43",
+  "head": "8983ec3b5987d2f1f290d51be9f23774961f5348",
+  "published_merge": "8ead6633ed02b09663212967ca9687bf9c425abd",
+  "checks": [
+    {
+      "id": 132850596738,
+      "name": "Engine (default)",
+      "head_sha": "8983ec3b5987d2f1f290d51be9f23774961f5348",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/TheTradoor/outright/actions/runs/43726866667/job/132850596738"
+    },
+    {
+      "id": 132850596498,
+      "name": "Candidate current-validator lifecycle",
+      "head_sha": "8983ec3b5987d2f1f290d51be9f23774961f5348",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/TheTradoor/outright/actions/runs/43726866661/job/132850596498"
+    },
+    {
+      "id": 132850596417,
+      "name": "Engine (fuzz)",
+      "head_sha": "8983ec3b5987d2f1f290d51be9f23774961f5348",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/TheTradoor/outright/actions/runs/43726866667/job/132850596417"
+    },
+    {
+      "id": 132850585613,
+      "name": "Engine (fuzz)",
+      "head_sha": "8983ec3b5987d2f1f290d51be9f23774961f5348",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/TheTradoor/outright/actions/runs/43726862807/job/132850585613"
+    },
+    {
+      "id": 132850585366,
+      "name": "Engine (default)",
+      "head_sha": "8983ec3b5987d2f1f290d51be9f23774961f5348",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/TheTradoor/outright/actions/runs/43726862807/job/132850585366"
+    }
+  ],
+  "artifact": {
+    "id": 14166433321,
+    "name": "candidate-current-validator",
+    "size_in_bytes": 187824,
+    "url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14166433321",
+    "archive_download_url": "https://api.github.com/repos/TheTradoor/outright/actions/artifacts/14166433321/zip",
+    "expired": false,
+    "created_at": "2026-11-15T15:04:11Z",
+    "expires_at": "2026-11-29T15:04:10Z",
+    "updated_at": "2026-11-15T15:04:11Z",
+    "digest": "sha256:ac34ba1e734ca6c8dcc501e3d87fb76433d3b4c6875f538c04111743da6ead2a",
+    "workflow_run": {
+      "id": 43726866661,
+      "repository_id": 1455787988,
+      "head_repository_id": 1455787988,
+      "head_branch": "fix/candidate-hash-binding",
+      "head_sha": "8983ec3b5987d2f1f290d51be9f23774961f5348"
+    },
+    "file": "pr43-candidate-validator.zip"
+  },
+  "tested_merge": "9d758e046e2f312f467a8ba566dc86f306a1e697",
+  "tested_tree": "b62814ed449627fc495b8b3a21188e7e165e95fe",
+  "lifecycle_seconds": 25.872,
+  "lifecycle_transactions": 7
+}
