@@ -13,7 +13,10 @@ SPEC.loader.exec_module(candidate)
 
 class CandidateValidatorTests(unittest.TestCase):
     def setUp(self):
-        self.identity = {"source": {"overlay": {"tree": "candidate-tree"}}}
+        self.identity = {
+            "source": {"overlay": {"tree": "candidate-tree"}},
+            "binary_sha256": {"program": "a" * 64, "matcher": "b" * 64},
+        }
         self.report = {
             "scope": "candidate-current-validator", "status": "passed", "network": "localnet",
             "identity": copy.deepcopy(self.identity), "genesisHash": "private-test-genesis",
@@ -23,7 +26,7 @@ class CandidateValidatorTests(unittest.TestCase):
             ],
             "oversizedDepositRejected": True, "beforeTokenAtoms": "1000000000", "afterTokenAtoms": "1000000000",
             "finalPortfolioCapital": "0", "makerCapital": "10000000000",
-            "deployed": {name: {"upgradeAuthority": None, "sha256": "0" * 64, "address": name, "programData": name + "-data"} for name in candidate.BINARIES},
+            "deployed": {name: {"upgradeAuthority": None, "sha256": self.identity["binary_sha256"][name], "address": name, "programData": name + "-data"} for name in candidate.BINARIES},
         }
 
     def test_complete_report_accepted(self):
@@ -68,6 +71,56 @@ class CandidateValidatorTests(unittest.TestCase):
     def test_mutable_program_rejected(self):
         self.report["deployed"]["program"]["upgradeAuthority"] = "test-admin"
         self.reject()
+
+    def test_deployed_hash_must_match_each_build_artifact(self):
+        for name in candidate.BINARIES:
+            with self.subTest(binary=name):
+                self.setUp()
+                self.report["deployed"][name]["sha256"] = "f" * 64
+                self.reject()
+
+    def test_swapped_program_and_matcher_hashes_rejected(self):
+        deployed = self.report["deployed"]
+        deployed["program"]["sha256"], deployed["matcher"]["sha256"] = (
+            deployed["matcher"]["sha256"], deployed["program"]["sha256"],
+        )
+        self.reject()
+
+    def test_malformed_matching_hashes_rejected(self):
+        for name in candidate.BINARIES:
+            for value in ("g" * 64, "A" * 64, "a" * 63, "a" * 65, "a" * 64 + "\n", "", None, 123):
+                with self.subTest(binary=name, value=value):
+                    self.setUp()
+                    self.identity["binary_sha256"][name] = value
+                    self.report["identity"] = copy.deepcopy(self.identity)
+                    self.report["deployed"][name]["sha256"] = value
+                    self.reject()
+
+    def test_missing_build_hashes_rejected(self):
+        for missing in ("program", "matcher", "all"):
+            with self.subTest(missing=missing):
+                self.setUp()
+                if missing == "all":
+                    del self.identity["binary_sha256"]
+                else:
+                    del self.identity["binary_sha256"][missing]
+                self.report["identity"] = copy.deepcopy(self.identity)
+                self.reject()
+
+    def test_extra_build_binary_rejected(self):
+        self.identity["binary_sha256"]["unreviewed"] = "c" * 64
+        self.report["identity"] = copy.deepcopy(self.identity)
+        self.reject()
+
+    def test_missing_or_extra_deployed_binary_rejected(self):
+        for name in ("program", "matcher", "unreviewed"):
+            with self.subTest(binary=name):
+                self.setUp()
+                if name == "unreviewed":
+                    self.report["deployed"][name] = copy.deepcopy(self.report["deployed"]["program"])
+                else:
+                    del self.report["deployed"][name]
+                self.reject()
 
     def test_absent_oversized_deposit_check_rejected(self):
         self.report["oversizedDepositRejected"] = False
