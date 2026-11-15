@@ -1,0 +1,66 @@
+{
+  "deployment": {
+    "id": "appgdep_6af95efe352c8191838e0762d8437d28",
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "title": "Outright",
+    "version_id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_27c8033a13a8819185123d7d6ba30ccc",
+    "type": "publish",
+    "status": "succeeded",
+    "url": "https://outright.bollish-eth.chatgpt.site",
+    "has_mcp": false,
+    "screenshot_asset_pointer": null,
+    "provider_deployment_id": "site---6af62e70597c81919970ed21213d7718",
+    "failure_message": null,
+    "env_set_revision": 0,
+    "updated_at": "2026-11-15T07:28:17.100053+00:00"
+  },
+  "version": {
+    "id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_27c8033a13a8819185123d7d6ba30ccc",
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "version_number": 32,
+    "source": {
+      "commit_sha": "8d586c55f27b835a414a0746ff73e5c35a79fccb"
+    },
+    "archive_storage": {
+      "archive_format": "tar",
+      "sediment_file_id": "file_00000000ff488207b7563978ded59491",
+      "content_hash": "sha256:33fda8fb4da65452843174327cd37706953b9e272da6c63460909a3b661e9e43",
+      "size_bytes": 2119680,
+      "file_count": 39
+    },
+    "deployment_id": "appgdep_6af95efe352c8191838e0762d8437d28"
+  },
+  "prepared_source": {
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "checkout_path": "/workspace/scratch/8fe88917ca62/outright-site/.sites-checkout",
+    "commit_sha": "8d586c55f27b835a414a0746ff73e5c35a79fccb",
+    "archive": "/workspace/scratch/8fe88917ca62/outright-site-v32.tar.gz"
+  },
+  "canonical_source": "0f5558683c5128375c173c40085b17c9690d3b90",
+  "checks": {
+    "routes": 20,
+    "local_links_assets": 990,
+    "mechanics_tests": 4,
+    "client_tests": 594,
+    "canonical_protocol_files": 79,
+    "browser_visual_check_this_update": true,
+    "responsive_frame_widths": [
+      320,
+      390
+    ],
+    "physical_wallet_acceptance": false,
+    "deployment_profile": null,
+    "live_home_verified": "https://outright.bollish-eth.chatgpt.site/",
+    "live_updates_verified": "https://outright.bollish-eth.chatgpt.site/docs/updates/",
+    "audience": "owner-only",
+    "engine_unchanged": true
+  },
+  "local_archive": {
+    "compressed_bytes": 1165403,
+    "compressed_sha256": "68863bf8852be6a5ddd9c5e45fa81f6c330cfd5c64eb571e378790dbaca530bb",
+    "tar_bytes": 2129920,
+    "tar_sha256": "2a8b7784990900b71a7d82626531e840f23a4bd4e9b3698504db048ecd656ee5",
+    "files": 39,
+    "note": "Local upload archive. The saved version reports separate storage archive metadata; byte equality is not asserted."
+  }
+}
