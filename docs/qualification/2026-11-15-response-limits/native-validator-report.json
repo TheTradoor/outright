@@ -1,0 +1,79 @@
+{
+  "network": "localnet",
+  "genesisHash": "EpMPZnmXGh8ULGU8hPYr4ALe2W5sHa4JCBxnuM4zhHBp",
+  "program": "XdwwtNMWX3m8muMaUEzCx6QoDmHKnTrzV71Hzjd6Vki",
+  "market": "FjrUU3RZrRVQaoghuirFsiQ8daCW2hqPF5GhwT7r4jaG",
+  "trader": "BtJmGJU21zz5yDhy2FRyAD387C7MWATXtgZ5AueraT7h",
+  "instrument": "TEST/USD, fixed test price",
+  "signatures": [
+    {
+      "action": "initialize",
+      "signature": "3ZaLhNtPMdbQoa8Ty95L8fAPNyA3UezhscNxqASVq4TBXpJxKG7kNb7ap4JBtvkKYgbQopjjmoayDogxgwkvxEwn"
+    },
+    {
+      "action": "deposit",
+      "signature": "2f58aSaJokXvMjoDNncjetUbJaCEt57TuZru9R169Zapdd9XUw6W7BjnPWgf2gXBw2UbQopLdAYjvdvrZUrjPSK2"
+    },
+    {
+      "action": "trade",
+      "side": "buy",
+      "signature": "qVSHsp1chRTKrDk7Erm2Nzv614CQzkQSgMSR5qnGeGCFyr6MphBqTAEqyW4DQtps7oMeYcwqCjWG9AzVTW7Er1S"
+    },
+    {
+      "action": "trade",
+      "side": "sell",
+      "signature": "5SPPuZkhCYuXxzMG3aumorTju7rENYAKfpNoN47wwNdbzd2exnhCsgxGLsh7NXFdVoaS8rjvF6EbJrW1EZQnkybH"
+    },
+    {
+      "action": "trade",
+      "side": "sell",
+      "signature": "2ESnSwab9bFPNjSR24w4517nbbwvCdSbdnbfjS5gPS3P5jMgPj6Uzz4pXdkmGRe7gByXFvDrZShkgUXB9KV8deHY"
+    },
+    {
+      "action": "trade",
+      "side": "buy",
+      "signature": "2YwD7fsMmoP8csW7oEsZXMLvDUvDhMBRKWUCmkAWVZZ8WDedcSeJcn2sX7fcdNDWdNWFiiqTAuYX9rVf1Txt7N1N"
+    },
+    {
+      "action": "withdraw",
+      "signature": "KAodwCVgX421f7Up3fEC4VsL2hSa214K72SLwV7dT1Pn66ySQnXEdBbMDdLcSuyPu2P9mFYY5WnL5LVcsQP2ZGz"
+    }
+  ],
+  "beforeTokenAtoms": "1000000000",
+  "afterTokenAtoms": "1000000000",
+  "finalPortfolioCapital": "0",
+  "makerCapital": "10000000000",
+  "discovery": {
+    "before": {
+      "scanSlot": 45,
+      "slot": 45,
+      "targets": [
+        {
+          "address": "A2n2cpHi4hLaBJdnpCRRRWE4pX2fWshFQi6KoFgR1Pc7",
+          "owner": "8F9pRHMZZriDiiB7ZXpaRVg5vHvkxSjgK8uvg97QtCku",
+          "portfolioId": "1"
+        }
+      ]
+    },
+    "after": {
+      "scanSlot": 59,
+      "slot": 59,
+      "targets": [
+        {
+          "address": "A2n2cpHi4hLaBJdnpCRRRWE4pX2fWshFQi6KoFgR1Pc7",
+          "owner": "8F9pRHMZZriDiiB7ZXpaRVg5vHvkxSjgK8uvg97QtCku",
+          "portfolioId": "1"
+        },
+        {
+          "address": "Ee8voQMfjJJfpV5F7C5uXZwEMkGy1LUuB8ZgWk3oLtTA",
+          "owner": "BtJmGJU21zz5yDhy2FRyAD387C7MWATXtgZ5AueraT7h",
+          "portfolioId": "2"
+        }
+      ]
+    },
+    "overflowRejected": true,
+    "status": "passed"
+  },
+  "status": "passed",
+  "at": "2026-11-15T07:49:34.543Z"
+}

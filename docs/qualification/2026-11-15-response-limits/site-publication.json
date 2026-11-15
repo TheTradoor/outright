@@ -1,0 +1,64 @@
+{
+  "deployment": {
+    "id": "appgdep_6af96bb9c35c819182de9e5123d593f5",
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "title": "Outright",
+    "version_id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_f762a0a4a89481918b82bcecd5d319a8",
+    "type": "publish",
+    "status": "succeeded",
+    "url": "https://outright.bollish-eth.chatgpt.site",
+    "has_mcp": false,
+    "screenshot_asset_pointer": null,
+    "provider_deployment_id": "site---6af62e70597c81919970ed21213d7718",
+    "failure_message": null,
+    "env_set_revision": 0,
+    "updated_at": "2026-11-15T08:22:37.313722+00:00"
+  },
+  "version": {
+    "id": "appgprj_6af62e70597c81919970ed21213d7718~appgver_f762a0a4a89481918b82bcecd5d319a8",
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "version_number": 33,
+    "source": {
+      "commit_sha": "43accd5c262e13c5c79c68a060363c0524e42ff0"
+    },
+    "archive_storage": {
+      "archive_format": "tar",
+      "sediment_file_id": "file_00000000d9908207bd9a2ffcc2c7ea5f",
+      "content_hash": "sha256:4b925e12258a32c315984310ea45f336675d6603f65373cfe47dd29583baf922",
+      "size_bytes": 2129920,
+      "file_count": 39
+    },
+    "deployment_id": "appgdep_6af96bb9c35c819182de9e5123d593f5"
+  },
+  "prepared_source": {
+    "project_id": "appgprj_6af62e70597c81919970ed21213d7718",
+    "checkout_path": "/workspace/scratch/8fe88917ca62/outright-site/.sites-checkout",
+    "commit_sha": "43accd5c262e13c5c79c68a060363c0524e42ff0",
+    "archive": "/workspace/scratch/8fe88917ca62/outright-site-v33.tar.gz"
+  },
+  "canonical_source": "90095e5e43a1d8f57ab612983bbae90a4bb37abb",
+  "checks": {
+    "routes": 20,
+    "local_links_assets": 992,
+    "client_tests": 607,
+    "mechanics_tests": 4,
+    "canonical_protocol_files": 81,
+    "browser_tested_bundle_unchanged": true,
+    "official_deployment_profile": null
+  },
+  "verification_scope": "Native deployment success for the exact pushed source; local terminal rejection/retry browser check. No physical wallet or production market acceptance.",
+  "local_archive": {
+    "bytes": 1167649,
+    "sha256": "ed7572e87329ea2385289853841dbd6eea7fe7b450c37958e6434ab0f40fe277",
+    "regular_files": 39
+  },
+  "archive_note": "The local upload and native stored-archive metadata are separate records; their byte digests are not asserted equal.",
+  "audience_before_publication": {
+    "role": "owner",
+    "access_mode": "custom",
+    "access_revision": 1,
+    "external_visitor_count": 0,
+    "latest_version": 32,
+    "url": "https://outright.bollish-eth.chatgpt.site"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "client_revision": "b5614216fdc268d9566de8c70521eba44c2d6456",
+  "preview_url": "http://127.0.0.1:4173/trade/",
+  "browser": "Chromium desktop",
+  "checks": [
+    "Null profile: market unavailable, wallet and trade disabled",
+    "Local preview profile replaced with 65,537 spaces followed by null: visible load error, retry enabled, wallet and trade disabled",
+    "Restored canonical null profile; clicked Try again: unavailable-market status restored"
+  ],
+  "limits": [
+    "Oversized open-stream and body-timeout behavior are covered by automated tests; the static preview body was finite",
+    "Not a real wallet, physical iPhone, funded market or mainnet acceptance run"
+  ],
+  "console": "Observed error entries came from the browser extension content script, not the terminal source."
+}
