@@ -18,5 +18,11 @@
     "local_links_assets": 998,
     "mechanics_tests": 4,
     "canonical_protocol_files": 83
+  },
+  "published": {
+    "url": "https://outright.bollish-eth.chatgpt.site/docs/updates/#operations-review",
+    "home_update_visible": true,
+    "operations_review_visible": true,
+    "all_51_checks_and_616_tests_visible": true
   }
 }

@@ -122,6 +122,22 @@ separate pinned SBPF v0 builds. No program source or build flag changed.
 digests. [Independent verification](remote-verification.json) records the local
 recheck of all 40 downloaded artifacts, including the full wrapper log inventory.
 
+## Website publication
+
+Website **version 36** was published on 15 November 2026 at 22:57 WIB from
+source `5a19d19ccc7824bcb8cce84a3a3cf07610ad00a1`. The homepage notice and
+[operations review](https://outright.bollish-eth.chatgpt.site/docs/updates/#operations-review)
+were checked in Chromium after publication. The current test counts and immutable
+review-record link rendered correctly.
+
+All 83 canonical protocol files match the merged PR #45 client. The build and
+checks passed for 20 routes, 998 local links/assets and four mechanics cases.
+The documentation snapshot is `7aafcc099a663c30335b6afca78be6bf3dde7a42`.
+[Publication metadata](site-publication.json) binds the saved version, deployment,
+source and archive hashes. [Site validation](site-validation.json) records its
+scope. Owner-only access, environment revision zero and all three null deployment
+profile copies are preserved. No production market was enrolled.
+
 ## Recheck retained evidence
 
 From the repository root:
