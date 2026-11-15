@@ -4,7 +4,7 @@ Checked on **14 November 2026, 20:39 WIB**. No production wallet was loaded,
 no transaction was signed and no mainnet funds were moved.
 
 The current terminal has no enrolled deployment. The website was updated to
-[version 32](qualification/2026-11-15-site-sync/README.md) on 15 November 2026,
+[version 33](qualification/2026-11-15-response-limits/README.md#website-publication) on 15 November 2026,
 with owner-only access and the unchanged runtime environment revision. The
 qualified program binary exists; production authorities, market parameters,
 maker funding and operating services are not established by that artifact.

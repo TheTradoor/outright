@@ -11,9 +11,9 @@ current work without treating an old passing run as evidence for new code.
 
 | Component | Exact identity |
 | --- | --- |
-| Qualified client | `1d31c86bb2c497b0f67cff756f5fa9a305a83119`, [PR #36](https://github.com/TheTradoor/outright/pull/36) |
-| Tested PR merge | `536fb39f90f5df1b9b9406f47eba2ced1d28a43d` |
-| Published merge | `0c49df8518aee63bafc57fc35fb7f4e6a54aa4ae`; same tested tree `651a853825b9b35d8120cf19fa0166c258591145` |
+| Qualified client | `b5614216fdc268d9566de8c70521eba44c2d6456`, [PR #39](https://github.com/TheTradoor/outright/pull/39) |
+| Tested PR merge | `daba83eea68d96f684f468151d3ba3c9e93b9b3d` |
+| Published merge | `90095e5e43a1d8f57ab612983bbae90a4bb37abb`; same tested tree `c0154106b181b3e0fc20c9fe65d6e35a8345a6c7` |
 | Percolator engine | `a712af767eeb217876a3d3c50e3849b60ea54462`, unchanged upstream source |
 | Published program | `TheTradoor/outright-program@72dd8948b116e9e16a85c830e1e2a7915f12d542` |
 | Program source tree | `8b54b827082b2b838beacd88d4d99bd12878d2ca` |
@@ -28,34 +28,37 @@ staged program edits stop verification.
 | Done | ID | Work | Evidence and scope |
 | --- | --- | --- | --- |
 | [x] | ACCESS-01 | GitHub 403 and fork publication | Selected-repository access now includes the program fork. [Program PR #1](https://github.com/TheTradoor/outright-program/pull/1) is merged with the exact qualified tree. |
-| [x] | ENG-01 through ENG-06 | Upstream engine accounting fixes | Exact source equivalence and [current engine CI](https://github.com/TheTradoor/outright/actions/runs/43646089182) pass. Historical issue mapping remains in the repair history. |
+| [x] | ENG-01 through ENG-06 | Upstream engine accounting fixes | Exact source equivalence and [current engine CI](https://github.com/TheTradoor/outright/actions/runs/43691379860) pass. Historical issue mapping remains in the repair history. |
 | [x] | CASE-01 through CASE-10 | Reproduced wrapper, fixture and model failures | Corrections and negative controls are retained. [Earlier full qualification](https://github.com/TheTradoor/outright/actions/runs/43563227621) passed 2,120 executions. The new identity is tracked separately below. |
 | [x] | UI-01 through UI-07 | Trader onboarding, retry and chart recovery | Official profile loading is automatic. Deployment import is confined to operator mode. Regressions remain in the client suite. |
 | [x] | WAL-01, WAL-04 through WAL-08 | Wallet adapter and session recovery | Malformed registrations, account changes, failed subscriptions, old callbacks and disconnect races are covered by automated tests. |
 | [x] | TX-01, KPR-01, RPC-01 | Receipts, keeper deferral and local setup | Custody, network, source, fee-budget and unresolved-receipt guards pass in the current client suite. |
 | [x] | CLIENT-01 | Mainnet network and signing transport | [Native CI](https://github.com/TheTradoor/outright/actions/runs/43646089202): 594 tests, source equivalence, exact Rust conformance and terminal build pass. Includes genesis, HTTPS, wallet-chain selection, pre-sign checks and explorer privacy. |
 | [x] | PROV-01 through PROV-03 | Source and qualification integrity | 53 local verifier tests pass. Source-drift tests reject wrong revisions, repositories, trees, engine identity, legacy overlays and staged program changes. |
-| [x] | RPC-02 | Published program on current validator | [Validator CI](https://github.com/TheTradoor/outright/actions/runs/43646089181): seven confirmed lifecycle transactions; starting/final collateral 1,000,000,000 atoms; final trader capital zero; maker capital 10,000,000,000 atoms. Synthetic fixed-price TEST market only. |
-| [x] | INT-03 | Application SBF integration on the published source | [SBF CI](https://github.com/TheTradoor/outright/actions/runs/43646089235): 19 passed, zero failed, ignored or filtered; 58.34 seconds. Controlled local fixtures only. |
-| [x] | INT-04 | Independently bound current-validator result | [Candidate validator CI](https://github.com/TheTradoor/outright/actions/runs/43646089176) passed in 25.715 seconds. Downloaded artifact digest, exact client tree, all 79 protocol files, binary hashes and seven-transaction report were independently checked. |
+| [x] | RPC-02 | Published program on current validator | [Validator CI](https://github.com/TheTradoor/outright/actions/runs/43691379863): seven confirmed lifecycle transactions; starting/final collateral 1,000,000,000 atoms; final trader capital zero; maker capital 10,000,000,000 atoms. Synthetic fixed-price TEST market only. |
+| [x] | INT-03 | Application SBF integration on the published source | [SBF CI](https://github.com/TheTradoor/outright/actions/runs/43691379774): 19 passed, zero failed, ignored or filtered; 59.44 seconds. Controlled local fixtures only. |
+| [x] | INT-04 | Independently bound current-validator result | [Candidate validator CI](https://github.com/TheTradoor/outright/actions/runs/43691379739) passed in 26.075 seconds. Downloaded artifact digest, exact client tree, all 81 protocol files, binary hashes and seven-transaction report were independently checked. |
 | [x] | BUILD-01 | Independently reproduce the SBPF v3 program | Rebuilt published source with the pinned toolchain; SHA256 exactly matches the program tested by candidate-validator CI. [Binary and provenance](qualification/2026-11-14-published-program/program-build-verification.json) are retained. Production signing and deployment remain open. |
 | [x] | ADOPT-01 | Merge published-program runtime adoption | PR #28 merged after all 51 checks passed. The merged source tree is identical to the tested tree. |
-| [x] | QUAL-03 | Complete qualification of the current client | [Run 43646089193](https://github.com/TheTradoor/outright/actions/runs/43646089193): 37 shards, 2,122 executions and the aggregate passed. Downloaded program/summary artifact digests, source/binary identities, harness inventory and aggregate records were checked. [Retained evidence and verifier](qualification/2026-11-15-hybrid-funding/README.md#remote-results). Individual raw wrapper logs were not independently downloaded for this run. The earlier PR #31 packet retains its separate 39-artifact/2,120-log verification. |
-| [x] | SITE-01 | Current website publication | [Version 32](qualification/2026-11-15-site-sync/site-publication.json) deployed successfully from source `8d586c55f27b835a414a0746ff73e5c35a79fccb`. All 79 canonical protocol files match client `0f555868`. Checks pass for 20 routes, 990 links/assets, four mechanics tests and 594 client tests. Desktop and 320/390-pixel responsive views, mobile navigation, documentation search and the published Updates page were checked. Physical-wallet acceptance remains open. Owner-only access and the `null` deployment profile are preserved. [Evidence](qualification/2026-11-15-site-sync/README.md). |
+| [x] | QUAL-03 | Complete qualification of the current client | [Run 43691379931](https://github.com/TheTradoor/outright/actions/runs/43691379931): 37 shards, 2,122 executions and the aggregate passed. Downloaded program/summary artifact digests, source/binary identities, harness inventory and aggregate records were checked. [Retained evidence and verifier](qualification/2026-11-15-response-limits/README.md#remote-results). Individual raw wrapper logs were not independently downloaded for this run. The earlier PR #31 packet retains its separate 39-artifact/2,120-log verification. |
+| [x] | SITE-01 | Current website publication | [Version 33](qualification/2026-11-15-response-limits/site-publication.json) deployed from source `43accd5c262e13c5c79c68a060363c0524e42ff0`. All 81 canonical protocol files match merged client `90095e5e`. Final checks cover 20 routes and 992 links/assets; four mechanics tests and 607 client tests pass. The terminal bundle matches the Chromium-tested response rejection/retry flow. Owner-only access and the `null` deployment profile are preserved. Physical-wallet acceptance remains open. [Evidence](qualification/2026-11-15-response-limits/README.md#website-publication). |
 | [x] | KPR-02 | Durable portfolio discovery and bounded RPC transport | PR #31 passed 525 client tests, including 29 new cases, and real RPC discovery before/after account creation with overflow rejection. Static-target behavior, pending-receipt precedence, fee limits and duplicate protection are retained. |
 | [x] | KPR-03 | Keeper health and host templates | PR #32 merged after all 51 checks passed; its merge tree equals the tested tree. 540 client tests include 15 new monitor cases and real CLI restart/failure assertions against controlled RPC fixtures. Source equivalence, terminal build and service syntax checks pass. [Evidence](qualification/2026-11-14-keeper-health/README.md). Production host and alert acceptance remain open. |
 | [x] | ORC-01 | Read-only Pyth feed inspection | PR #34 merged after all 51 checks passed; its merge tree equals the tested tree. The inspector checks the exact receiver, full verification, feed identity, age, confidence and integer E6 scaling. 594 client tests include 54 oracle cases; 31 shared vectors match the published wrapper through Rust conformance. A real mainnet SOL/USD observation passed the explicit inspection policy. [Retained results](qualification/2026-11-15-pyth-inspection/README.md) and [operator guide](ORACLE_OPERATIONS.md). Feed publishing and production acceptance remain open. |
 | [x] | INT-05 | Hybrid funding through feed outage and recovery | PR #36 merged after all 51 checks passed; its tree equals the tested tree. The 19-case SBF suite includes both funding directions and two settlement schedules, strict fallback delay, malformed-feed rejection, recovery without retroactive or repeated charges, exact accounting and rollback. [Evidence](qualification/2026-11-15-hybrid-funding/README.md#remote-results). Production parameters and live publisher acceptance remain open. |
+| [x] | RPC-03 | Bounded terminal and wallet RPC responses | PR #39 passed 607 client tests, including 13 new cases; full qualification passed all 51 checks. Profile responses are limited during streaming to 64 KiB, and wallet/keeper RPC to 16 MiB. Cancellation, timeout and retry passed browser and automated checks. [Evidence](qualification/2026-11-15-response-limits/README.md). |
 
 A checked item is complete within its stated scope. Automated adapters and a
 website deployment do not establish real-wallet acceptance, production liquidity
 or independent security review.
 
 The [response-limit correction](qualification/2026-11-15-response-limits/README.md)
-has 607 passing local client tests and a successful terminal build. It cancels
+is merged through PR #39 after all 51 checks passed. Its 607 client tests and
+terminal build pass locally and in CI. It cancels
 oversized official-profile and wallet RPC responses during streaming and keeps
-timeouts active through body reads. Full CI qualification and website publication
-are pending for this changed client; PR #36 retains its earlier source identity.
+timeouts active through body reads. The merged tree matches the tested tree;
+website version 33 includes the same qualified client. PR #36 retains its
+earlier source identity.
 
 The Hybrid funding follow-up is merged through PR #36. Local checks passed 19
 SBF tests, 594 client tests and 53 verifier tests. Remote qualification passed

@@ -1,0 +1,16 @@
+{
+  "scope": "artifact identities and candidate lifecycle; wrapper aggregate still pending",
+  "programs": {
+    "percolator-match/target/deploy/percolator_match.so": "15ca5d638e7911157ef075b60170c06d82ef2208f6565002cf6620315e6dc3ea",
+    "percolator-prog/target/deploy/percolator_prog.so": "527b000d136ed3ed50dc5bc131d571a8388ebce57ce542ce2225dea693fca180",
+    "percolator-prog/tests/fixtures/auth_matcher/target/deploy/auth_matcher.so": "50e532267926e180f013200c1799e26127dd23dc150866cffd491424629ddf93",
+    "percolator-prog/tests/fixtures/hostile_matcher/target/deploy/hostile_matcher.so": "e0c20fad34a7822cc6ce42a3c77ff08a8591977102f0c497a339d66a9dd6240a"
+  },
+  "candidate_programs": {
+    "matcher": "042f7cc2e6a7b343da58d511f72abf56f57e044f70f7b695a52aec2cb9d70190",
+    "program": "1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e"
+  },
+  "protocol_files": 81,
+  "candidate_transactions": 7,
+  "candidate_lifecycle_seconds": 26.075
+}
