@@ -1,0 +1,112 @@
+✖ profile CLI cancels an oversized RPC stream before EOF (4184.964224ms)
+✖ profile CLI rejects HTTP errors without retries or provider diagnostics (290.315842ms)
+✖ inspect CLI cancels an oversized RPC stream before EOF (4038.484114ms)
+✖ inspect CLI rejects HTTP errors without retries or provider diagnostics (4106.484807ms)
+✔ profile CLI enrolls verified program and matcher bytes using read-only RPC (445.26661ms)
+✔ inspect CLI returns source-scoped account evidence using read-only RPC (293.4304ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 2
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13759.93581
+
+✖ failing tests:
+
+test at protocol/tests/operator-cli.test.mjs:52:3
+✖ profile CLI cancels an oversized RPC stream before EOF (4184.964224ms)
+  AssertionError [ERR_ASSERTION]: the CLI must stop itself, not reach the process timeout
+  
+  true !== false
+  
+      at Object.<anonymous> (file:///workspace/scratch/f767fefa96bf/release-audit/protocol/tests/operator-cli.test.mjs:60:14)
+      at expectedException (node:assert:578:17)
+      at expectsError (node:assert:703:21)
+      at strict.rejects (node:assert:769:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///workspace/scratch/f767fefa96bf/release-audit/protocol/tests/operator-cli.test.mjs:59:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at protocol/tests/operator-cli.test.mjs:69:3
+✖ profile CLI rejects HTTP errors without retries or provider diagnostics (290.315842ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /RPC request failed/. Input:
+  
+  '/workspace/scratch/8fe88917ca62/outright/protocol/node_modules/@solana/web3.js/lib/index.cjs.js:5081\n' +
+    '        callback(new Error(`${res.status} ${res.statusText}: ${text}`));\n' +
+    '                 ^\n' +
+    '\n' +
+    'Error: 429 Too Many Requests: private-provider-diagnostics\n' +
+    '    at ClientBrowser.callServer (/workspace/scratch/8fe88917ca62/outright/protocol/node_modules/@solana/web3.js/lib/index.cjs.js:5081:18)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+    '\n' +
+    'Node.js v24.22.1\n'
+  
+      at Object.<anonymous> (file:///workspace/scratch/f767fefa96bf/release-audit/protocol/tests/operator-cli.test.mjs:76:14)
+      at expectedException (node:assert:578:17)
+      at expectsError (node:assert:703:21)
+      at strict.rejects (node:assert:769:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///workspace/scratch/f767fefa96bf/release-audit/protocol/tests/operator-cli.test.mjs:74:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/workspace/scratch/8fe88917ca62/outright/protocol/node_modules/@solana/web3.js/lib/index.cjs.js:5081\n        callback(new Error(`${res.status} ${res.statusText}: ${text}`));\n                 ^\n\nError: 429 Too Many Requests: private-provider-diagnostics\n    at ClientBrowser.callServer (/workspace/scratch/8fe88917ca62/outright/protocol/node_modules/@solana/web3.js/lib/index.cjs.js:5081:18)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n\nNode.js v24.22.1\n',
+    expected: /RPC request failed/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at protocol/tests/operator-cli.test.mjs:52:3
+✖ inspect CLI cancels an oversized RPC stream before EOF (4038.484114ms)
+  AssertionError [ERR_ASSERTION]: the CLI must stop itself, not reach the process timeout
+  
+  true !== false
+  
+      at Object.<anonymous> (file:///workspace/scratch/f767fefa96bf/release-audit/protocol/tests/operator-cli.test.mjs:60:14)
+      at expectedException (node:assert:578:17)
+      at expectsError (node:assert:703:21)
+      at strict.rejects (node:assert:769:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///workspace/scratch/f767fefa96bf/release-audit/protocol/tests/operator-cli.test.mjs:59:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at protocol/tests/operator-cli.test.mjs:69:3
+✖ inspect CLI rejects HTTP errors without retries or provider diagnostics (4106.484807ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at Object.<anonymous> (file:///workspace/scratch/f767fefa96bf/release-audit/protocol/tests/operator-cli.test.mjs:75:14)
+      at expectedException (node:assert:578:17)
+      at expectsError (node:assert:703:21)
+      at strict.rejects (node:assert:769:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///workspace/scratch/f767fefa96bf/release-audit/protocol/tests/operator-cli.test.mjs:74:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

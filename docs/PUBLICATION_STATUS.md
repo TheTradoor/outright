@@ -20,18 +20,19 @@ source publication and the program PR merge succeeded after that change.
 | Hybrid funding and oracle outage coverage | [PR #36](https://github.com/TheTradoor/outright/pull/36), merged as `0c49df8518aee63bafc57fc35fb7f4e6a54aa4ae` | All 51 checks passed. The merge has tested tree `651a853825b9b35d8120cf19fa0166c258591145`. [Retained evidence](qualification/2026-11-15-hybrid-funding/README.md#remote-results) includes 594 client tests, 19 SBF cases, both validator paths and 2,122 wrapper executions. Engine and runtime pins are unchanged. |
 | Terminal response limits | [PR #39](https://github.com/TheTradoor/outright/pull/39), merged as `90095e5e43a1d8f57ab612983bbae90a4bb37abb` | All 51 checks passed; tree `c0154106b181b3e0fc20c9fe65d6e35a8345a6c7` equals the tested tree. 607 client tests, 19 SBF cases, both validator paths and all 2,122 wrapper executions pass. Streaming limits, timeout, cancellation and retry are covered by 13 added tests and browser checks. [Evidence](qualification/2026-11-15-response-limits/README.md). |
 | Upstream accounting integration | [Program PR #2](https://github.com/TheTradoor/outright-program/pull/2), merged as `162e73edb4f411d18907a9516e8c2808879935bc`; [application PR #41](https://github.com/TheTradoor/outright/pull/41), merged as `518eb3acfb9667aaa899eeb86835d0cd4f1020a5` | All 51 checks passed before merge. Both published trees match their qualified sources. Nine engine and eleven program commits are retained. All 39 wrapper archives and 2,137 raw test logs were independently verified and retained. [Evidence](qualification/2026-11-15-upstream-accounting/README.md). |
+| Keeper shutdown and operator RPC review | [PR #45](https://github.com/TheTradoor/outright/pull/45), merged as `eab353065aa1f9d1329cf9681e686cfa23d5142c` | All 51 checks passed. The merge has tested tree `d4bd003cc0be6e89479dd8e7d29162714bbd9cc3`. Nine new regressions pass; five reproduced earlier defects. All 40 artifacts and 2,137 wrapper logs were independently verified. [Evidence](qualification/2026-11-15-release-audit/README.md). |
 
 The current client uses the published program directly in its runtime source
 lock, Rust dependency, generated contract and both SBF build paths. Qualification
 must identify that same commit and source tree. The upstream Percolator engine
 is `5e3af0710ec7e9b7077393012f8a94a31b2f07ef` with exact source equivalence.
 
-Current PR #41 evidence includes **2,137 wrapper executions**, **607 client tests**,
+Current PR #45 evidence includes **2,137 wrapper executions**, **616 client tests**,
 **19 application SBF cases** and two separately executed **seven-transaction
 validator paths**. The validator paths use a synthetic fixed-price market and
 reconcile exact collateral balances. Counts overlap in scope and are not a
 count of independent production scenarios. See the [complete current validation
-record](qualification/2026-11-15-upstream-accounting/README.md#remote-results).
+record](qualification/2026-11-15-release-audit/README.md#remote-results).
 
 The initial PR #28 publication was `5c8373ce…`, tree `609b5042…`, with its
 495-client/51-verifier local results and earlier 17-case candidate evidence.
@@ -88,3 +89,8 @@ Its [publication record](qualification/2026-11-15-program-rebuild/site-publicati
 binds the deployed version to source `f7cc00a0d872053d221234f6b469532844438118`.
 The live homepage update was checked in Chromium. The source preserves all
 81 canonical protocol files, owner-only access and the null deployment profile.
+
+The program build warnings have been classified against the exact retained ELF.
+The syscall warning comes from scanning `.rodata` as instructions; all 14
+executable syscall sites are recognized. The inherited dual crate-type warning
+remains a build-configuration limitation. [Analysis and recheck](qualification/2026-11-15-release-audit/README.md#program-build-warnings).

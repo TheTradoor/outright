@@ -1,0 +1,109 @@
+{
+  "binary_sha256": "93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4",
+  "binary_bytes": 1283424,
+  "first_whole_file_invalid_syscall": {
+    "file_offset": 4336,
+    "code": 9,
+    "name": null,
+    "sections": [
+      ".rodata"
+    ]
+  },
+  "executable_sections": [
+    {
+      "name": ".text",
+      "offset": 4464,
+      "size": 1278672,
+      "flags": 6
+    }
+  ],
+  "executable_syscall_count": 14,
+  "executable_syscalls": [
+    "abort",
+    "sol_get_clock_sysvar",
+    "sol_get_rent_sysvar",
+    "sol_get_return_data",
+    "sol_invoke_signed_rust",
+    "sol_log_",
+    "sol_memcmp_",
+    "sol_memcpy_",
+    "sol_memset_",
+    "sol_set_return_data",
+    "sol_try_find_program_address"
+  ],
+  "unrecognized_executable_syscalls": [],
+  "tool_source": "cargo-build-sbf 4.6.0, post_processing.rs::verify_program",
+  "tool_behavior": "Passes the complete ELF file to LocalVerifier, which scans it as instructions.",
+  "program_changes": false,
+  "syscall_registry": {
+    "sol_secp256k1_recover": 400819024,
+    "sol_poseidon": 3298065441,
+    "sol_invoke_signed_c": 2720767109,
+    "sol_invoke_signed_rust": 3611594898,
+    "sol_set_return_data": 2720453611,
+    "sol_get_stack_height": 2236820884,
+    "sol_log_": 544561597,
+    "sol_log_64_": 1546269048,
+    "sol_log_compute_units_": 1387942038,
+    "sol_log_data": 1930933300,
+    "sol_memcpy_": 1904002211,
+    "sol_memmove_": 1128493560,
+    "sol_memcmp_": 1608310321,
+    "sol_memset_": 930151202,
+    "sol_log_pubkey": 2129692874,
+    "sol_create_program_address": 2474062396,
+    "sol_try_find_program_address": 1213221432,
+    "sol_sha256": 301243782,
+    "sol_keccak256": 3615046331,
+    "sol_keccak_p1600": 2036613253,
+    "sol_blake3": 390877474,
+    "sol_sha512": 2452213196,
+    "sol_curve_validate_point": 2854619082,
+    "sol_curve_group_op": 3709616550,
+    "sol_curve_multiscalar_mul": 1621362816,
+    "sol_curve_pairing_map": 4044465278,
+    "sol_curve_decompress": 135043248,
+    "sol_alt_bn128_group_op": 2920034699,
+    "sol_big_mod_exp": 2014202901,
+    "sol_remaining_compute_units": 3991886574,
+    "sol_alt_bn128_compression": 860870125,
+    "sol_get_sysvar": 331461893,
+    "sol_get_epoch_stake": 1542008650,
+    "sol_get_leader": 1522603110,
+    "sol_panic_": 1751159739,
+    "abort": 3069975057,
+    "sol_get_return_data": 1562527204,
+    "sol_get_processed_sibling_instruction": 2914578376,
+    "sol_get_clock_sysvar": 3580583913,
+    "sol_get_epoch_schedule_sysvar": 597858913,
+    "sol_get_rent_sysvar": 3211888886,
+    "sol_get_last_restart_slot": 411697201,
+    "sol_get_epoch_rewards_sysvar": 4256836411,
+    "sol_get_fees_sysvar": 999798588
+  },
+  "syscall_hash_crosscheck": "Computed with the Rust sys_hash implementation from solana-sbpf 0.26.0 tests/elfs/syscalls.rs.",
+  "sources": {
+    "builder": {
+      "version": "4.6.0",
+      "git_commit": "b0c665a47167198fbce6d9e9670693c9aa4e20d8",
+      "url": "https://github.com/anza-xyz/cargo-build-sbf/blob/b0c665a47167198fbce6d9e9670693c9aa4e20d8/cargo-build-sbf/src/post_processing.rs",
+      "sha256": "40a2b324de3188a55dfd93afea0a4b41592e2ecb63eb2a41edcd957833c91c25",
+      "public_source_matches_installed": true
+    },
+    "verifier": {
+      "version": "0.26.0",
+      "git_commit": "7eb4cf4f2f5e5c63c2f7e63fdf0718807eb94f1a",
+      "sha256": "b769de34006fc31ec36a41efee8dccf7283237ec762a1d2fc89a21cb69ed8196"
+    },
+    "registry": {
+      "version": "5.4.0",
+      "git_commit": "0bd22b501370658c70ed53659d5bc9fb98935e96",
+      "sha256": "eba463cfa95a1ccf1bac4cf0bc3f412aec689e7f638b4061daa9d8ce785b3239"
+    }
+  },
+  "dual_crate_warning": {
+    "manifest": "[\"cdylib\", \"lib\"]",
+    "purpose": "Deployable program and library exports used by the Rust conformance and host tests.",
+    "status": "Retained build configuration; no optimization or code change made."
+  }
+}

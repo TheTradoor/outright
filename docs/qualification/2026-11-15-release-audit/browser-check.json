@@ -1,0 +1,22 @@
+{
+  "preview_url": "http://127.0.0.1:4173/",
+  "engine": "Chromium",
+  "home_update_visible": true,
+  "terminal_unavailable_state": true,
+  "retry_returns_to_unavailable_state": true,
+  "wallet_and_transaction_controls_disabled_without_deployment": true,
+  "terminal_layout_visually_checked": true,
+  "search_query": "keeper restart",
+  "search_results": 14,
+  "first_search_result": "Keeper restart and operator RPC review",
+  "search_navigation": "/docs/updates/#operations-review",
+  "updated_review_visible": true,
+  "physical_wallet_acceptance": false,
+  "mainnet_transactions_submitted": 0,
+  "static_checks": {
+    "html_routes": 20,
+    "local_links_assets": 998,
+    "mechanics_tests": 4,
+    "canonical_protocol_files": 83
+  }
+}
