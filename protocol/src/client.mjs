@@ -32,6 +32,7 @@ import { readPortfolio } from "./accounts.mjs";
 import { readMarket, positionForMarket } from "./market.mjs";
 import { constants, keyString } from "./layout.mjs";
 import { validateNetwork } from "./network.mjs";
+import { boundedRpcFetch } from "./transport.mjs";
 
 const LOADER = "BPFLoaderUpgradeab1e11111111111111111111111";
 const FINAL_STATES = new Set(["confirmed", "finalized", "failed"]);
@@ -756,8 +757,7 @@ export class OutrightClient {
       new Connection(this.profile.rpcUrl, {
         commitment: "confirmed",
         disableRetryOnRateLimit: true,
-        fetch: (input, init) =>
-          fetch(input, { ...init, signal: AbortSignal.timeout(15_000) }),
+        fetch: boundedRpcFetch(),
       });
     if (
       !journal ||

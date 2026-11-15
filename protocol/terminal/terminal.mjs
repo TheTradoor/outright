@@ -11,6 +11,7 @@ import {
 } from "../src/settlement.mjs";
 import { isRecoveryAction, recoveryPosition } from "../src/recovery.mjs";
 import { walletChain, transactionExplorerUrl } from "../src/network.mjs";
+import { readBoundedResponse } from "../src/transport.mjs";
 
 const $ = (id) => document.getElementById(id);
 const setText = (id, value) => {
@@ -537,11 +538,14 @@ async function loadOfficialMarket() {
         signal: controller.signal,
       },
     );
-    if (!response.ok) throw new Error("Market configuration is unavailable");
-    const body = await response.text();
-    if (controller.signal.aborted) throw new Error("Market request timed out");
-    if (new TextEncoder().encode(body).length > 65536)
-      throw new Error("Deployment profile is too large");
+    const bounded = await readBoundedResponse(response, {
+      maxBytes: 65536,
+      signal: controller.signal,
+      requestError: "Market configuration is unavailable",
+      sizeError: "Deployment profile is too large",
+    });
+    const body = await bounded.text();
+    controller.signal.throwIfAborted();
     if (request !== profileRequest || client) return;
     const profile = JSON.parse(body);
     if (profile === null) setAvailability("unavailable");

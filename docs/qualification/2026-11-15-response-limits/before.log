@@ -1,0 +1,84 @@
+▶ trader onboarding loads the official market without operator setup
+  ✔ startup is automatic and cannot open operator settings (9.631217ms)
+  ✔ an absent market has a clear status and a retry action (12.930137ms)
+  ✔ failed requests can be retried without duplicate fetches (11.386313ms)
+  ✔ network errors do not strand the page in loading (10.918639ms)
+  ✔ invalid JSON and invalid source identities keep trading locked (24.148013ms)
+  ✔ oversized profiles are rejected without wallet actions (17.411129ms)
+  ✖ an oversized profile stream is cancelled before the server finishes (1120.561489ms)
+  ✖ a timed-out request aborts and permits a fresh attempt (4.013228ms)
+  ✖ a valid official profile opens the wallet chooser directly (1.079818ms)
+✖ trader onboarding loads the official market without operator setup (1736.590397ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 6
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4390.439398
+
+✖ failing tests:
+
+test at protocol/tests/onboarding.test.mjs:195:13
+✖ an oversized profile stream is cancelled before the server finishes (1120.561489ms)
+  AssertionError [ERR_ASSERTION]: onboarding did not reach the expected state
+      at until (file:///workspace/scratch/8fe88917ca62/outright/protocol/tests/onboarding.test.mjs:92:12)
+      at async TestContext.<anonymous> (file:///workspace/scratch/8fe88917ca62/outright/protocol/tests/onboarding.test.mjs:208:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async TestContext.<anonymous> (file:///workspace/scratch/8fe88917ca62/outright/protocol/tests/onboarding.test.mjs:195:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at protocol/tests/onboarding.test.mjs:215:13
+✖ a timed-out request aborts and permits a fresh attempt (4.013228ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  8 !== 9
+  
+      at retry (file:///workspace/scratch/8fe88917ca62/outright/protocol/tests/onboarding.test.mjs:102:12)
+      at TestContext.<anonymous> (file:///workspace/scratch/8fe88917ca62/outright/protocol/tests/onboarding.test.mjs:218:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at TestContext.test (node:internal/test_runner/test:400:20)
+      at TestContext.<anonymous> (file:///workspace/scratch/8fe88917ca62/outright/protocol/tests/onboarding.test.mjs:215:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 8,
+    expected: 9,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at protocol/tests/onboarding.test.mjs:231:13
+✖ a valid official profile opens the wallet chooser directly (1.079818ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  8 !== 9
+  
+      at retry (file:///workspace/scratch/8fe88917ca62/outright/protocol/tests/onboarding.test.mjs:102:12)
+      at TestContext.<anonymous> (file:///workspace/scratch/8fe88917ca62/outright/protocol/tests/onboarding.test.mjs:234:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at TestContext.test (node:internal/test_runner/test:400:20)
+      at TestContext.<anonymous> (file:///workspace/scratch/8fe88917ca62/outright/protocol/tests/onboarding.test.mjs:231:13)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 8,
+    expected: 9,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
