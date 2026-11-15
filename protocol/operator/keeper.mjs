@@ -1,12 +1,24 @@
 #!/usr/bin/env node
 import { readFile, open } from "node:fs/promises";
 import { constants } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { setTimeout } from "node:timers/promises";
 import { Connection, Keypair } from "@solana/web3.js";
 import { OutrightKeeper, validateKeeperConfig } from "../src/keeper.mjs";
 import { openKeeperJournal } from "./journal.mjs";
 import { keeperFetch } from "./rpc.mjs";
 import { openKeeperMonitor } from "./monitor.mjs";
+
+export async function stopKeeper(journal, monitor, failed = false) {
+  try {
+    // Health and state share the same worker lock. Finish the last health write
+    // before a replacement process can start writing in this directory.
+    if (monitor) await monitor.stop(failed);
+  } finally {
+    await journal.close();
+  }
+}
 
 async function main() {
   const argv = process.argv.slice(2),
@@ -118,18 +130,11 @@ health.json records local operational status for operator/health.mjs.`);
   } finally {
     process.removeListener("SIGINT", stop);
     process.removeListener("SIGTERM", stop);
-    try {
-      await journal.close();
-    } catch (error) {
-      failed = true;
-      throw error;
-    } finally {
-      if (monitor) await monitor.stop(failed);
-    }
+    await stopKeeper(journal, monitor, failed);
   }
 }
 
-main().catch((error) => {
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main().catch((error) => {
   // Do not echo RPC response bodies, key material or credential-bearing URLs.
   const safe =
     /^(Keeper|Crank|Market|Portfolio|Asset|On-chain|Oracle|Resolved|Sending|Transaction|Collateral|Token|Invalid|Unsupported|Configure|Duplicate|Devnet|Use |Unknown|Missing|--)/.test(

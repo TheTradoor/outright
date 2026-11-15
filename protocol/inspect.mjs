@@ -2,6 +2,7 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { readPortfolio } from "./src/accounts.mjs";
 import { ENGINE_COMMIT, WRAPPER_COMMIT } from "./src/instructions.mjs";
+import { boundedRpcFetch } from "./src/transport.mjs";
 
 const args = process.argv.slice(2);
 if (args.length !== 5) {
@@ -21,7 +22,11 @@ if (args.length !== 5) {
       )
     )
       throw new Error("Use HTTPS, or a loopback validator");
-    const connection = new Connection(rpc, "confirmed");
+    const connection = new Connection(rpc, {
+      commitment: "confirmed",
+      disableRetryOnRateLimit: true,
+      fetch: boundedRpcFetch(),
+    });
     if ((await connection.getGenesisHash()) !== expectedGenesis)
       throw new Error("RPC cluster does not match the expected genesis hash");
     const ids = [program, market, portfolio].map((x) => new PublicKey(x));
