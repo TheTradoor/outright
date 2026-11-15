@@ -7,6 +7,14 @@ Earlier reproductions, failures, corrections and source-specific test counts
 are preserved in [REPAIR_HISTORY.md](REPAIR_HISTORY.md). This page tracks the
 current work without treating an old passing run as evidence for new code.
 
+## Current integration candidate
+
+[Program PR #2](https://github.com/TheTradoor/outright-program/pull/2) merges
+upstream program `7b110913` with Outright's repairs and uses the unchanged upstream
+engine `5e3af071`. The application source bindings now target program `cfcc3f7b`,
+tree `49f987d4963083b9befb3f92cf813fc656dcd02c`. Full qualification is pending.
+The last complete record below belongs to PR #39 and does not qualify this update.
+
 ## Last complete program qualification
 
 | Component | Exact identity |

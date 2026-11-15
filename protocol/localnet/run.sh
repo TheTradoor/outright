@@ -5,8 +5,8 @@ upstream_checkout="${1:?Pass the exact percolator-prog checkout directory}"
 upstream_checkout="$(cd "$upstream_checkout" && pwd)"
 shift
 node "$native_root/protocol/check-source.mjs"
-test "$(git -C "$upstream_checkout" rev-parse HEAD)" = 72dd8948b116e9e16a85c830e1e2a7915f12d542
-test "$(git -C "$upstream_checkout" rev-parse HEAD^{tree})" = 8b54b827082b2b838beacd88d4d99bd12878d2ca
+test "$(git -C "$upstream_checkout" rev-parse HEAD)" = cfcc3f7b005faea0ff2caeb39bc87a48f75d8761
+test "$(git -C "$upstream_checkout" rev-parse HEAD^{tree})" = 49f987d4963083b9befb3f92cf813fc656dcd02c
 git -C "$upstream_checkout" diff --quiet HEAD
 # Include ignored inputs: local ignore rules must not hide build configuration.
 test -z "$(git -C "$upstream_checkout" ls-files --others -- src Cargo.toml Cargo.lock .cargo build.rs tests/fixtures/auth_matcher ':(exclude,glob)tests/fixtures/auth_matcher/target/**')"

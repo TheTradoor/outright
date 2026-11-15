@@ -1337,7 +1337,7 @@ dependencies = [
 [[package]]
 name = "percolator-prog"
 version = "0.1.0"
-source = "git+https://github.com/TheTradoor/outright-program?rev=72dd8948b116e9e16a85c830e1e2a7915f12d542#72dd8948b116e9e16a85c830e1e2a7915f12d542"
+source = "git+https://github.com/TheTradoor/outright-program?rev=cfcc3f7b005faea0ff2caeb39bc87a48f75d8761#cfcc3f7b005faea0ff2caeb39bc87a48f75d8761"
 dependencies = [
  "anchor-lang-v2",
  "arrayref",

@@ -150,8 +150,8 @@ fn main() {
     legacy_deposit.extend(1_000_000u128.to_le_bytes());
     assert!(Instruction::decode(&legacy_deposit).is_err());
     println!("{}", serde_json::to_string_pretty(&json!({
-        "wrapperCommit":"72dd8948b116e9e16a85c830e1e2a7915f12d542",
-        "engineCommit":"a712af767eeb217876a3d3c50e3849b60ea54462",
+        "wrapperCommit":"cfcc3f7b005faea0ff2caeb39bc87a48f75d8761",
+        "engineCommit":"5e3af0710ec7e9b7077393012f8a94a31b2f07ef",
         "classicToken": token::export(),
         "localnet": localnet::export(),
         "closedMarketKind": c::KIND_CLOSED_MARKET,
