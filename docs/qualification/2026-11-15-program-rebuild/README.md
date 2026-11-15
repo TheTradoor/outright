@@ -99,6 +99,28 @@ priority fees, a production matcher, operating services, liquidity and insurance
 are excluded. Final program capacity, authorities and the funded transaction
 plan remain open under PROD-02. This dated observation is not a transfer request.
 
+## Website publication
+
+[Outright](https://outright.bollish-eth.chatgpt.site) version 35 was published
+successfully on 15 November 2026 at 22:08 WIB from source
+`f7cc00a0d872053d221234f6b469532844438118`. The
+[publication record](site-publication.json) retains the saved version, deployment,
+archive identity and access scope. The build evidence link points to the immutable
+initial evidence snapshot `b23469dc9864a5943167ecca70b061619a717d19`.
+
+The update adds the reproduced program, verifier correction and current mainnet
+rent scope to the homepage, development notes and release checklist. All 81
+canonical protocol files still match merged client `518eb3ac`; the engine and
+program are unchanged. Build, 20 HTML routes, 996 local links/assets and four
+mechanics tests passed. The 607 client tests were executed on the canonical
+application checkout, whose protocol bytes match the published site.
+
+Chromium checks covered the preview layout and updated program section. Searching
+for `program rebuild` returned one result and navigated to the correct anchor.
+The published homepage displayed the new update notice. These checks do not
+establish physical wallet/mobile acceptance. The deployment profile remains
+`null`, environment revision remains zero and access remains owner-only.
+
 ## Recheck
 
 From a checkout containing PR #43 and this packet:

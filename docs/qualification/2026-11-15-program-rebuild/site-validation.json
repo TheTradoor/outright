@@ -16,5 +16,14 @@
     "layout_visually_checked": true
   },
   "physical_wallet_acceptance": false,
-  "mainnet_trading_open": false
+  "mainnet_trading_open": false,
+  "publication": {
+    "version_number": 35,
+    "source_commit": "f7cc00a0d872053d221234f6b469532844438118",
+    "status": "succeeded",
+    "url": "https://outright.bollish-eth.chatgpt.site",
+    "live_home_update_visible": true,
+    "canonical_protocol_files_checked": 81,
+    "owner_only": true
+  }
 }

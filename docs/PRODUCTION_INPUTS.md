@@ -1,10 +1,10 @@
 # Production setup inputs
 
-Checked on **15 November 2026, 21:59 WIB**. No production wallet was loaded,
+Checked on **15 November 2026**. No production wallet was loaded,
 no transaction was signed and no mainnet funds were moved.
 
 The current terminal has no enrolled deployment. The website was updated to
-[version 34](qualification/2026-11-15-upstream-accounting/README.md#website-publication) on 15 November 2026,
+[version 35](qualification/2026-11-15-program-rebuild/README.md#website-publication) on 15 November 2026,
 with owner-only access and the unchanged runtime environment revision. The
 updated program passed current-validator qualification and its independent build
 reproduces the same binary. Final production allocation remains open. Production
