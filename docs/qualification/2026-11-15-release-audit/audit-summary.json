@@ -1,0 +1,32 @@
+{
+  "scope": "release audit, controlled RPC and local-validator qualification",
+  "base_commit": "2273aa7afffc1a657af5e66369c5d873e0f774b8",
+  "candidate_commit": "2ca0dafb76b0473dad5c56f62d4ce05717be54e3",
+  "candidate_tree": "d4bd003cc0be6e89479dd8e7d29162714bbd9cc3",
+  "engine_commit": "5e3af0710ec7e9b7077393012f8a94a31b2f07ef",
+  "program_commit": "cfcc3f7b005faea0ff2caeb39bc87a48f75d8761",
+  "program_published_merge": "162e73edb4f411d18907a9516e8c2808879935bc",
+  "local_checks": {
+    "baseline_client_tests": 607,
+    "baseline_verifier_tests": 59,
+    "updated_client_tests": 616,
+    "new_regression_tests": 9,
+    "regressions_failed_before": 5,
+    "engine_source_equivalence": true,
+    "terminal_build_exit_code": 0
+  },
+  "changes": [
+    "Keeper final health write remains protected by its journal lock.",
+    "Profile enrollment and account inspection use the bounded RPC transport."
+  ],
+  "program_or_engine_changed": false,
+  "mainnet_transactions_submitted": 0,
+  "independent_security_review_completed": false,
+  "physical_wallet_acceptance_completed": false,
+  "tested_merge": "8a7d16c38e43ff93ba1bff9f8802f68009621300",
+  "published_merge": "eab353065aa1f9d1329cf9681e686cfa23d5142c",
+  "upstream_heads_checked": {
+    "engine": "5e3af0710ec7e9b7077393012f8a94a31b2f07ef",
+    "program": "7b11091328de23cded2e4afe96592bbd060a6828"
+  }
+}

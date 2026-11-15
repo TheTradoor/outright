@@ -1,0 +1,11 @@
+{
+  "checks_passed": 51,
+  "artifact_digests_verified": 40,
+  "wrapper_shards": 37,
+  "wrapper_executions_in_aggregate": 2137,
+  "wrapper_raw_logs_independently_verified": true,
+  "candidate_protocol_files_verified": 83,
+  "candidate_lifecycle_transactions": 7,
+  "candidate_program_sha256": "93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4",
+  "source_and_binary_identities_match": true
+}

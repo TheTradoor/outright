@@ -1,0 +1,18 @@
+{
+  "site_version": 36,
+  "source_commit": "5a19d19ccc7824bcb8cce84a3a3cf07610ad00a1",
+  "canonical_client_commit": "eab353065aa1f9d1329cf9681e686cfa23d5142c",
+  "protocol_files_verified": 83,
+  "html_routes": 20,
+  "local_links_and_assets": 998,
+  "mechanics_tests_passed": 4,
+  "source_hash_checks_passed": true,
+  "deployment_profiles_null": [
+    "protocol/terminal/deployment.json",
+    "protocol/dist/deployment.json",
+    "dist/trade/deployment.json"
+  ],
+  "preview_browser_checked": true,
+  "published_home_and_review_checked": true,
+  "physical_wallet_acceptance": false
+}

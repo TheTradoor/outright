@@ -58,7 +58,10 @@ requires investigation.
 Health publication follows the durable journal write. A health write failure
 stops the CLI; any already signed transaction retains its original pending receipt
 and reserved fees. The previous health report becomes stale. SIGINT/SIGTERM stop
-after the current bounded cycle, release the journal lock and publish `stopped`.
+after the current bounded cycle and publish `stopped` before releasing the journal
+lock. A replacement worker cannot acquire that directory until the final health
+write finishes. If that write fails, journal closure still runs without resetting
+pending receipts; a poisoned journal retains its recovery lock.
 A process kill may instead leave a stale report and lock for operator inspection.
 
 ## Linux service templates

@@ -1,0 +1,17 @@
+✔ a replacement worker cannot start before the old health writer finishes (44.565998ms)
+✔ a health write failure still closes the journal without losing its receipt (40.40988ms)
+✔ shutdown retains a poisoned journal lock for receipt recovery (12.984678ms)
+✔ profile CLI cancels an oversized RPC stream before EOF (1010.123711ms)
+✔ profile CLI rejects HTTP errors without retries or provider diagnostics (283.556517ms)
+✔ inspect CLI cancels an oversized RPC stream before EOF (616.777271ms)
+✔ inspect CLI rejects HTTP errors without retries or provider diagnostics (457.404081ms)
+✔ profile CLI enrolls verified program and matcher bytes using read-only RPC (415.084721ms)
+✔ inspect CLI returns source-scoped account evidence using read-only RPC (356.492944ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3682.153029
