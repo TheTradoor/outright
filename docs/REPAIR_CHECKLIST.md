@@ -51,6 +51,12 @@ A checked item is complete within its stated scope. Automated adapters and a
 website deployment do not establish real-wallet acceptance, production liquidity
 or independent security review.
 
+The [response-limit correction](qualification/2026-11-15-response-limits/README.md)
+has 607 passing local client tests and a successful terminal build. It cancels
+oversized official-profile and wallet RPC responses during streaming and keeps
+timeouts active through body reads. Full CI qualification and website publication
+are pending for this changed client; PR #36 retains its earlier source identity.
+
 The Hybrid funding follow-up is merged through PR #36. Local checks passed 19
 SBF tests, 594 client tests and 53 verifier tests. Remote qualification passed
 all 51 checks and 2,122 wrapper executions with matching source and artifact

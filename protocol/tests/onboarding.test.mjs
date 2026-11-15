@@ -193,6 +193,43 @@ test("trader onboarding loads the official market without operator setup", async
       },
     );
     await t.test(
+      "an oversized profile stream is cancelled before the server finishes",
+      async () => {
+        retry();
+        let cancelled = false;
+        requests.at(-1).resolve(new Response(new ReadableStream({
+          start(controller) {
+            controller.enqueue(new Uint8Array(32768).fill(32));
+            controller.enqueue(new Uint8Array(32769).fill(32));
+            // The server keeps the response open after crossing the limit.
+          },
+          cancel() { cancelled = true; },
+        }), { headers: { "content-length": "4" } }));
+        await until(() => state() === "error");
+        assert.equal(cancelled, true);
+        assert.equal(deadlines.size, 0);
+        assert.equal(el("market-retry").disabled, false);
+        locked();
+      },
+    );
+    await t.test(
+      "a profile body that stalls after headers times out and cancels the stream",
+      async () => {
+        retry();
+        let cancelled = false;
+        requests.at(-1).resolve(new Response(new ReadableStream({
+          start(controller) { controller.enqueue(new TextEncoder().encode('{"market":')); },
+          cancel() { cancelled = true; },
+        })));
+        await pause(5);
+        deadlines.values().next().value();
+        await until(() => state() === "error");
+        assert.equal(cancelled, true);
+        assert.equal(deadlines.size, 0);
+        locked();
+      },
+    );
+    await t.test(
       "a timed-out request aborts and permits a fresh attempt",
       async () => {
         retry();
