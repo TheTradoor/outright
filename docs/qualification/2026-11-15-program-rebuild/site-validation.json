@@ -1,0 +1,20 @@
+{
+  "preview": "http://127.0.0.1:4173/",
+  "checks": {
+    "html_routes": 20,
+    "local_links_assets": 996,
+    "mechanics_tests": 4,
+    "canonical_client_tests": 607
+  },
+  "browser": {
+    "engine": "Chromium",
+    "home_update_visible": true,
+    "program_rebuild_section_visible": true,
+    "search_query": "program rebuild",
+    "search_results": 1,
+    "search_navigation": "/docs/updates/#program-rebuild",
+    "layout_visually_checked": true
+  },
+  "physical_wallet_acceptance": false,
+  "mainnet_trading_open": false
+}

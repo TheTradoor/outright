@@ -1,0 +1,14 @@
+[
+  {
+    "binary": "program",
+    "build_sha256": "93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4",
+    "substituted_deployed_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "incorrectly_accepted": true
+  },
+  {
+    "binary": "matcher",
+    "build_sha256": "042f7cc2e6a7b343da58d511f72abf56f57e044f70f7b695a52aec2cb9d70190",
+    "substituted_deployed_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "incorrectly_accepted": true
+  }
+]

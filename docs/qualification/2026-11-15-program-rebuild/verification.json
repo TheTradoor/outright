@@ -1,0 +1,12 @@
+{
+  "independent_build_matches_qualified_program": true,
+  "program_bytes": 1283424,
+  "program_sha256": "93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4",
+  "original_validator_report_accepted": true,
+  "substituted_binary_hashes_rejected": 2,
+  "fresh_ci_checks_passed": 5,
+  "fresh_validator_transactions": 7,
+  "published_execution_source_matches_tested_source": true,
+  "rent_account_sizes_checked": 6,
+  "production_deployment": null
+}

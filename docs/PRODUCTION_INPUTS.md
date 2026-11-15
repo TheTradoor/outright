@@ -1,14 +1,15 @@
 # Production setup inputs
 
-Checked on **14 November 2026, 20:39 WIB**. No production wallet was loaded,
+Checked on **15 November 2026, 21:59 WIB**. No production wallet was loaded,
 no transaction was signed and no mainnet funds were moved.
 
 The current terminal has no enrolled deployment. The website was updated to
 [version 34](qualification/2026-11-15-upstream-accounting/README.md#website-publication) on 15 November 2026,
 with owner-only access and the unchanged runtime environment revision. The
-updated program passed current-validator qualification; its independent binary
-reproduction and final allocation remain open. Production authorities, market
-parameters, maker funding and operating services are not established by that result.
+updated program passed current-validator qualification and its independent build
+reproduces the same binary. Final production allocation remains open. Production
+authorities, market parameters, maker funding and operating services are not
+established by that result.
 
 On 15 November 2026, [Pyth Core inspection](ORACLE_OPERATIONS.md) was added and
 verified against a real mainnet SOL/USD observation and the published wrapper.
@@ -34,38 +35,35 @@ inferred from the test fixture.
 
 ## Observed account rent
 
-The [retained read-only RPC result](qualification/2026-11-14-keeper-discovery/mainnet-rent.json)
-records a mainnet genesis check and `getMinimumBalanceForRentExemption` calls.
-It is a dated observation for the stated account sizes, not a transaction-cost
-quote or a request to transfer funds.
+The [current read-only RPC result](qualification/2026-11-15-program-rebuild/mainnet-rent.json)
+records a mainnet genesis check and rent queries on 15 November 2026 at
+21:58-21:59 WIB. The independently reproduced program is 1,283,424 bytes with
+SHA-256 `93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4`.
+[Build evidence and scope](qualification/2026-11-15-program-rebuild/README.md).
 
 | Account | Data bytes | Rent-exempt lamports | SOL |
 | --- | ---: | ---: | ---: |
-| Upgradeable program account | 36 | 833,120 | 0.000833120 |
-| ProgramData at exact binary length | 1,270,981 | 6,457,233,720 | 6.457233720 |
-| Upload buffer at exact binary length | 1,270,973 | 6,457,193,080 | 6.457193080 |
+| program | 36 | 833,120 | 0.000833120 |
+| programData | 1,283,469 | 6,520,672,760 | 6.520672760 |
+| uploadBuffer | 1,283,461 | 6,520,632,120 | 6.520632120 |
+| market | 3,035 | 16,068,040 | 0.016068040 |
+| portfolio | 9,563 | 49,230,280 | 0.049230280 |
+| splTokenAccount | 165 | 1,488,440 | 0.001488440 |
 
-The buffer is part of deployment staging. These rows do not specify when its
-funds are reused or refunded by the selected deployment procedure. Extra program
-capacity, transaction and priority fees, matcher deployment, market and token
-accounts, oracle updates, keeper operations, maker liquidity and insurance are
-excluded. Recalculate for the final deployment transaction plan and account
-allocation before funding or signing.
+These values describe an exact-binary-length scenario with no extra upgrade
+capacity. Final program capacity is not selected. The staging buffer is not an
+additional permanent account; the deployment procedure determines reuse and
+refunds. Do not sum those rows as an approved deployment budget.
 
-The measured program is 1,270,936 bytes with SHA-256
-`1fe81f6d8f31954b2abb56dd38650c1dcbfba2a39cbee9c7d6ae569595e3490e`.
-Its [build record](qualification/2026-11-14-published-program/program-build-verification.json)
-binds it to the published wrapper and unchanged Percolator engine.
+Fees, a production matcher, oracle updates, keeper operations, maker liquidity
+and insurance are excluded. Market, portfolio and token-account figures are
+per account. Recalculate against the final deployment transaction plan before
+funding or signing.
+No signer was loaded and no transaction was submitted.
 
-These figures belong to that earlier program. The November 15 upstream update
-produces a different candidate binary, SHA-256
-`93c73f13ad0d79373d81a556b0a8f9f16e87799a3332f2f9f18558382d96e6a4`.
-Its independent build reproduction and final account allocation must be checked
-before calculating a new deployment budget. The earlier rent figures must not
-be treated as the cost of the updated program.
-
-RPC references:
-[account rent](https://solana.com/docs/rpc/http/getminimumbalanceforrentexemption)
+The [November 14 observation](qualification/2026-11-14-keeper-discovery/mainnet-rent.json)
+belongs to the previous 1,270,936-byte binary and remains historical evidence.
+RPC references: [account rent](https://solana.com/docs/rpc/http/getminimumbalanceforrentexemption)
 and [program deployment](https://solana.com/docs/programs/deploying).
 
 ## Release sequence

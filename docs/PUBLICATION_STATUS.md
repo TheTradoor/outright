@@ -66,3 +66,18 @@ wallet acceptance and final public release enrollment.
 
 The hosted deployment profile remains `null`. No production market or public
 deposits are enabled. Website publication is not mainnet activation.
+
+## Current program build verification
+
+[PR #42](https://github.com/TheTradoor/outright/pull/42) published the complete
+upstream qualification packet and website version 34 evidence as merge
+`cd700c39e038f53a843f69788bae14e4bca6d08f`. All four reported engine checks passed,
+and the retained 40 artifacts and 2,137 wrapper logs were reverified before merge.
+
+The updated program has now been rebuilt independently with the pinned tools.
+Its full SHA-256 matches the qualified validator binary. [Build evidence](qualification/2026-11-15-program-rebuild/README.md)
+also records the report-verification correction in [PR #43](https://github.com/TheTradoor/outright/pull/43),
+merged as `8ead6633ed02b09663212967ca9687bf9c425abd` after all five reported checks
+and a fresh seven-transaction validator lifecycle passed,
+59 passing local verifier tests, 607 client tests and refreshed mainnet rent for
+an exact-length scenario. Final production allocation and deployment remain open.

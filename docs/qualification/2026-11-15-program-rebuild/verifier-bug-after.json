@@ -1,0 +1,13 @@
+{
+  "retained_report_passes": true,
+  "wrong_hash_rejections": [
+    {
+      "binary": "program",
+      "error": "Deployed program does not match the build artifact"
+    },
+    {
+      "binary": "matcher",
+      "error": "Deployed matcher does not match the build artifact"
+    }
+  ]
+}
